@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src", // Where your source files are
+    "rootDir": "./", // Where your source files are
     "outDir": "./dist", // Where compiled JS goes
     "skipLibCheck": true, // Skips type-checking .d.ts files (faster builds)
     "resolveJsonModule": true, // Allows importing .json files

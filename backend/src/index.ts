@@ -11,14 +11,15 @@ app.use(cookieParser())
 app.use(cors({credentials: true}))
 
 // Endpoints
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "EvaRoute API is running.",
+app.use("/api/v1/auth", authRoute)
+
+// Fallback endpoint for unkwon route 
+app.use((req: Request, res: Response) => {
+  res.status(400).json({
+    message: "Unknown endpoint.",
     endpoints: ["api/v1/auth"]
   })
 })
-
-app.use("/api/v1/auth", authRoute)
 
 app.listen(process.env.PORT, () => {
   console.log("Backend successfully started at PORT: ", process.env.PORT)
