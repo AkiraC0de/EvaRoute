@@ -26,12 +26,14 @@ model User {
   token         Token[]
 
   @@map("users")
+  @@index([email])
+  @@index([role])
 }
 
 model Facility {
   id        String          @id @default(uuid()) @db.Uuid
   name      String
-  address   String
+  address   String          @unique
   notes     String
   latitude  Decimal         @db.Decimal(11, 9)
   longitude Decimal         @db.Decimal(11, 9)
@@ -59,6 +61,7 @@ model FacilityResource {
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
   @@map("facility_resource")
+  @@index([facilityId, type])
 }
 
 model FacilityStaff {
@@ -71,6 +74,8 @@ model FacilityStaff {
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
   @@map("facility_staff")
+  @@index([facilityId])
+  @@index([staffId])
 }
 
 enum TokenType {
@@ -81,12 +86,14 @@ enum TokenType {
 
 model Token {
   id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @unique @db.Uuid
+  userId    String    @db.Uuid
   type      TokenType
   payload   Json?
   createdAt DateTime  @default(now())
   expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-   @@map("tokens")
+  @@map("tokens")
+  @@unique([userId, type])
+  @@index([type, userId])
 }
