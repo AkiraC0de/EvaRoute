@@ -37,6 +37,7 @@ model Facility {
   longitude Decimal         @db.Decimal(11, 9)
   createdAt DateTime        @default(now())
   staff     FacilityStaff[]
+  resource  FacilityResource[]
 
   @@map("facilities")
 }
