@@ -1,15 +1,74 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  // url = ENV("DATABASE_URL") //ignore
 }
 
+enum UserRole {
+  FACILITY_STAFF
+  ADMIN
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        UserRole @default(FACILITY_STAFF)
+  isSetupDone Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  facilityStaff FacilityStaff?
+  token         Token[]
+
+  @@map("users")
+}
+
+model Facility {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  address   String
+  notes     String
+  latitude  Decimal  @db.Decimal(11, 9)
+  longitude Decimal  @db.Decimal(11, 9)
+  createdAt DateTime @default(now())
+
+  staff FacilityStaff[]
+
+  @@map("facilities")
+}
+
+model FacilityStaff {
+  id         String   @id @default(uuid()) @db.Uuid
+  staffId    String   @unique @db.Uuid
+  facilityId String   @db.Uuid
+  joinedAt   DateTime @default(now())
+
+  user     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@map("facility_staff")
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  REQ_RESET_PASS
+  RESET_PASS
+}
+
+model Token {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @unique @db.Uuid
+  type      TokenType
+  payload   Json?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+   @@map("tokens")
+}
