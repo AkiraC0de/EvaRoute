@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 
 import authRoute from "./routes/auth.routes"
+import errorHandler from "./middlewares/errorHandler"
 
 const app = express()
 
@@ -20,6 +21,8 @@ app.use((req: Request, res: Response) => {
     endpoints: ["api/v1/auth"]
   })
 })
+
+app.use(errorHandler())
 
 app.listen(process.env.PORT, () => {
   console.log("Backend successfully started at PORT: ", process.env.PORT)
