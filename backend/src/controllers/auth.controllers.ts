@@ -2,13 +2,17 @@ import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import userService from "../services/user.services"
 import { BadRequestMsgError } from "../core/ApiError"
-import { Prisma } from "../../generated/prisma/client"
 import { SuccessResponse } from "../core/ApiResponse"
 
+import userService from "../services/user.services"
+import { validateData } from "../utils/validatorUtils"
+import { registerSchema } from "../validations/auth.validations"
+
+
 export const handleRegister = async (req: Request, res: Response) => {
-  const { email } : Prisma.UserCreateInput = req.body
+  const userData = validateData<typeof registerSchema>(registerSchema, req.body)
+  const { email } = userData
 
   const existingUser = await userService.findByEmail(email)
   if(existingUser){
@@ -24,7 +28,7 @@ export const handleRegister = async (req: Request, res: Response) => {
   })
 
   new SuccessResponse(
-    "New account has been created", 
+    "New account has been created.", 
     {
       email,
       defaultPassword
