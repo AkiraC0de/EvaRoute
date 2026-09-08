@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url = ENV("DATABASE_URL") //ignore
 }
 
 enum UserRole {
@@ -38,11 +39,15 @@ model Facility {
   createdAt DateTime @default(now())
 
   staff FacilityStaff[]
+<<<<<<< HEAD
   resource FacilityResource[]
+=======
+>>>>>>> 769d3a1d9445c0635eafa7ffbbaf56c424bf897b
 
   @@map("facilities")
 }
 
+<<<<<<< HEAD
 enum FacilityResourceType {
   FIXED_VALUE
   DYNAMIC_VALUE
@@ -62,6 +67,8 @@ model FacilityResource {
   @@map("facility_resource")
 }
 
+=======
+>>>>>>> 769d3a1d9445c0635eafa7ffbbaf56c424bf897b
 model FacilityStaff {
   id         String   @id @default(uuid()) @db.Uuid
   staffId    String   @unique @db.Uuid
