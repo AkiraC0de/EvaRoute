@@ -6,6 +6,6 @@ import {
 
 const authRoute = express.Router()
 
-authRoute.get("/register", handleRegister)
+authRoute.post("/register", handleRegister)
 
 export default authRoute
