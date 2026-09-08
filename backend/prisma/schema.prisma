@@ -13,18 +13,18 @@ enum UserRole {
 }
 
 model User {
-  id            String         @id @default(uuid()) @db.Uuid
-  email         String         @unique
-  password      String
-  firstName     String
-  lastName      String
-  role          UserRole       @default(FACILITY_STAFF)
-  isSetupDone   Boolean        @default(false)
-  createdAt     DateTime       @default(now())
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        UserRole @default(FACILITY_STAFF)
+  isSetupDone Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
   facilityStaff FacilityStaff?
   token         Token[]
 
-  @@index([role])
   @@map("users")
 }
 
@@ -41,6 +41,25 @@ model Facility {
   @@map("facilities")
 }
 
+enum FacilityResourceType {
+  FIXED_VALUE
+  DYNAMIC_VALUE
+}
+
+model FacilityResource {
+  id String @id @default(uuid()) @db.Uuid
+  facilityId String @db.Uuid
+  name String
+  type FacilityResourceType @default(FIXED_VALUE)
+  isAvailable Boolean?
+  availableValue Int?
+  maxValue Int?
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@map("facility_resource")
+}
+
 model FacilityStaff {
   id         String   @id @default(uuid()) @db.Uuid
   staffId    String   @unique @db.Uuid
@@ -50,8 +69,6 @@ model FacilityStaff {
   user     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
-  // Indexes
-  @@index([facilityId]) // Essential for JOINs and fetching all staff assigned to a facility
   @@map("facility_staff")
 }
 
@@ -63,16 +80,12 @@ enum TokenType {
 
 model Token {
   id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
+  userId    String    @unique @db.Uuid
   type      TokenType
   payload   Json?
   createdAt DateTime  @default(now())
   expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Indexes & Constraints
-  @@unique([userId, type]) // Ensures 1 active token per type per user & creates a composite index for fast token validation
-  @@index([expiresAt]) // Critical for background cleanup tasks (e.g., deleting expired tokens)
-  @@map("tokens")
+   @@map("tokens")
 }
