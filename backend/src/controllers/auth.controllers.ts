@@ -82,7 +82,6 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 
   const token = await tokenService.createEmailVerify(user.id, hashedOtp)
 
-  // send email of the OTP
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
   new SuccessResponse(
