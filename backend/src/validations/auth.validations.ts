@@ -22,3 +22,13 @@ export const loginSchema = z
       .string("Password is required.")
       .trim()  
   })
+
+export const passReqResetSchema = z
+  .object({
+    email: z
+      .string("Email is required.")
+      .min(1, "Email is required.")
+      .email("Please provide a valid email address.")
+      .toLowerCase()
+      .trim(),
+  })

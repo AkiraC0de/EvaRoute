@@ -2,43 +2,51 @@ import prisma from "../lib/prisma"
 import { Prisma, TokenType, Token } from "../../generated/prisma/client";
 
 const findByUserIdType = (userId: string, type: TokenType) => {
-  return prisma.token.findUnique({
+  return prisma.token.findFirst({
     where: { 
-      userId_type: {
-        userId,
-        type
-      }
+      userId,
+      type
     }
   })
 }
 
 const deleteByUserIdType = (userId: string, type: TokenType) => {
-  return prisma.token.delete({
-    where: { 
-      userId_type: {
-        userId,
-        type
-      }
+  return prisma.token.deleteMany({
+    where: {
+      userId,
+      type
     }
   })
 }
 
-export const create = (data: Prisma.TokenCreateInput) => {
+const create = (data: Prisma.TokenCreateInput) => {
   return prisma.token.create({
     data
   })
 }
 
-export const createEmailVerify = (userId: string, otp: string, expiresAt: Date) => {
+const createEmailVerify = (userId: string, otp: string, expiresAt?: Date) => {
+  const EXPIRATION_IN_MIN = 15
+
+  const expirationDate = new Date()
+  expirationDate.setMinutes(expirationDate.getMinutes() + EXPIRATION_IN_MIN)
+  
   return prisma.token.create({
     data: {
       userId,
       type: "EMAIL_VERIFY",
-      expiresAt,
+      expiresAt : expiresAt ?? expirationDate,
       payload: {
         otp,
         attempt: 0
       }
     }
   })
+}
+
+export default {
+  findByUserIdType,
+  deleteByUserIdType,
+  create,
+  createEmailVerify,
 }

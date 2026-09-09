@@ -6,9 +6,13 @@ import { BadRequestMsgError } from "../core/ApiError"
 import { SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
+import tokenService from "../services/token.services"
+
 import { validateData } from "../utils/validatorUtils"
-import { loginSchema, registerSchema } from "../validations/auth.validations"
+import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
+import { cryptoHash, generateOTP } from "../utils/authUtils"
+import { ApiMailer } from "../core/ApiMailer"
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -63,4 +67,35 @@ export const handleLogin = async (req: Request, res: Response) => {
       accessToken
     }
   ).send(res)
+}
+
+export const handlePassReqReset = async (req: Request, res: Response) => {
+  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, req.body) 
+
+  const user = await userService.findByEmail(email)
+   if(!user) {
+    throw new BadRequestMsgError("Email is not registered.")
+  }
+
+  const otp = generateOTP()
+  const hashedOtp = cryptoHash(otp)
+
+  const token = await tokenService.createEmailVerify(user.id, hashedOtp)
+
+  // send email of the OTP
+  await ApiMailer.sendOTP(email, otp, "Reset password OTP")
+
+  new SuccessResponse(
+    "We've sent an OTP to you via email. Please check your emails inbox or spam.",
+      {
+        user: {
+          email
+        },
+        token: token.id
+      }
+  ).send(res)
+}
+
+export const handlePassReset = async (req: Request, res: Response) => {
+  
 }

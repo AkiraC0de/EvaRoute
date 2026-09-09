@@ -18,7 +18,12 @@ app.use("/api/v1/auth", authRoute)
 app.use((req: Request, res: Response) => {
   res.status(400).json({
     message: "Unknown endpoint.",
-    endpoints: ["api/v1/auth"]
+    endpoints: [
+      "POST api/v1/auth/login",
+      "POST api/v1/auth/register",
+      "POST api/v1/auth/password/request-reset",
+      "POST api/v1/auth/password/reset"
+    ]
   })
 })
 
