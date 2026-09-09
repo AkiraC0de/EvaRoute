@@ -94,6 +94,5 @@ model Token {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("tokens")
-  @@unique([userId, type])
   @@index([type, userId])
 }
