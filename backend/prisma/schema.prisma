@@ -87,6 +87,7 @@ enum TokenType {
 model Token {
   id        String    @id @default(uuid()) @db.Uuid
   userId    String    @db.Uuid
+  token     String    
   type      TokenType
   payload   Json?
   createdAt DateTime  @default(now())
