@@ -1,3 +1,4 @@
+import { Request } from 'express'
 import jwt from "jsonwebtoken"
 import { UserRole  } from "../../generated/prisma"
 
@@ -13,6 +14,10 @@ declare global {
       user?: AccessTokenPayload
     }
   }
+}
+
+export type RequestAfterAuth = Request & {
+  user: AccessTokenPayload
 }
 
 export const createAccessToken = (payload: AccessTokenPayload) => {
