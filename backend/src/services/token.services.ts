@@ -25,7 +25,7 @@ const create = (data: Prisma.TokenCreateInput) => {
   })
 }
 
-const createEmailVerify = (userId: string, otp: string, expiresAt?: Date) => {
+const createEmailVerify = (userId: string, otp: string, token: string, expiresAt?: Date) => {
   const EXPIRATION_IN_MIN = 15
 
   const expirationDate = new Date()
@@ -36,6 +36,7 @@ const createEmailVerify = (userId: string, otp: string, expiresAt?: Date) => {
       userId,
       type: "EMAIL_VERIFY",
       expiresAt : expiresAt ?? expirationDate,
+      token,
       payload: {
         otp,
         attempt: 0

@@ -11,3 +11,8 @@ export const cryptoHash = (string: string, hashingAlorithm: string = "sha256") =
                    .digest("hex");
 }
 
+export const generateCryptoToken = () => {
+  const TOKEN_BYTES = 32; // 256 bits of entropy
+
+  return crypto.randomBytes(TOKEN_BYTES).toString('hex')
+}
