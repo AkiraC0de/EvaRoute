@@ -3,7 +3,7 @@ import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
 import { BadRequestMsgError } from "../core/ApiError"
-import { BadRequestMsgResponse, SuccessResponse } from "../core/ApiResponse"
+import { SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
 import { validateData } from "../utils/validatorUtils"
@@ -41,12 +41,12 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   const user = await userService.findByEmail(email)
   if(!user) {
-    throw new BadRequestMsgResponse("Email is not registered.")
+    throw new BadRequestMsgError("Email is not registered.")
   }
 
   const passwordMatched = await bcrypt.compare(password, user.password)
   if(!passwordMatched){
-    throw new BadRequestMsgResponse("Incorrect password.")
+    throw new BadRequestMsgError("Incorrect password.")
   }
 
   const accessToken = createAccessToken(user)
