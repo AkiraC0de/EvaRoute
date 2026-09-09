@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma"
-import { Prisma } from "../../generated/prisma/client";
+import { Prisma, User } from "../../generated/prisma/client";
 
 const findById = (id: string) => {
   return prisma.user.findUnique({

@@ -3,12 +3,12 @@ import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
 import { BadRequestMsgError } from "../core/ApiError"
-import { SuccessResponse } from "../core/ApiResponse"
+import { BadRequestMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
 import { validateData } from "../utils/validatorUtils"
-import { registerSchema } from "../validations/auth.validations"
-
+import { loginSchema, registerSchema } from "../validations/auth.validations"
+import { createAccessToken } from "./../utils/jwtUtils"
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -28,10 +28,39 @@ export const handleRegister = async (req: Request, res: Response) => {
   })
 
   new SuccessResponse(
-    "New account has been created.", 
-    {
+    "New account has been created.", {
       email,
       defaultPassword
+    }
+  ).send(res)
+}
+
+export const handleLogin = async (req: Request, res: Response) => {
+  const userData = validateData<typeof loginSchema>(loginSchema, req.body)
+  const { email, password } = userData
+
+  const user = await userService.findByEmail(email)
+  if(!user) {
+    throw new BadRequestMsgResponse("Email is not registered.")
+  }
+
+  const passwordMatched = await bcrypt.compare(password, user.password)
+  if(!passwordMatched){
+    throw new BadRequestMsgResponse("Incorrect password.")
+  }
+
+  const accessToken = createAccessToken(user)
+
+  new SuccessResponse(
+    "Login success.", {
+      user: {
+        email: user.email,
+        firstname: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isSetupDone: user.isSetupDone
+      },
+      accessToken
     }
   ).send(res)
 }
