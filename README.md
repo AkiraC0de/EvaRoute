@@ -36,7 +36,9 @@ MAILER_EMAIL_PASS=
 
 ### Generate Prisma Client
 
+```bash
 npx prisma generate
+```
 
 ### Start the development server
 
