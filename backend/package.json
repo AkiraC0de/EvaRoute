@@ -10,6 +10,8 @@
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -21,10 +23,7 @@
     "pg": "^8.23.0",
     "zod": "^4.5.4"
   },
-  "devDependencies": {
-    "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.10.0",
-    "@prisma/orm-postgres": "^8.0.0-rc.8",
+  "devDependencies": { 
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -35,6 +34,10 @@
     "prisma": "^7.10.0",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0",
+    "mysql2": "^3.24.0"
   },
   "keywords": [],
   "type": "module"

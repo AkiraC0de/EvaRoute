@@ -11,7 +11,7 @@ import tokenService from "../services/token.services"
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCrytoToken } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 
 export const handleRegister = async (req: Request, res: Response) => {
@@ -79,9 +79,9 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 
   const otp = generateOTP()
   const hashedOtp = cryptoHash(otp)
-  const passReqToken = generateCrytoToken()
+  const passReqToken = generateCryptoToken()
 
-  const token = await tokenService.createEmailVerify(user.id, hashedOtp, )
+  const token = await tokenService.createReqResetPass(user.id, hashedOtp, passReqToken)
 
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
