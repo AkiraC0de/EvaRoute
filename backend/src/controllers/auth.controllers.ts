@@ -13,7 +13,7 @@ import refreshTokenService from '../services/refreshToken.services';
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
@@ -59,21 +59,19 @@ export const handleLogin = async (req: Request, res: Response) => {
   }
 
   const accessToken = createAccessToken(user)
-  const [rawRefreshToken, hashRefreshToken] = generateCryptoTokenHash()
 
-  const refreshTokenExpirationDate = new Date()
+  if(req.cookies[REFRESH_TOKEN.COOKIE_NAME]){
+    const hashCookieRefreshToken = cryptoHash(req.cookies[REFRESH_TOKEN.COOKIE_NAME])
+    await refreshTokenService.deleteByToken(hashCookieRefreshToken)
 
-  if (!keepLogin) {
-    refreshTokenExpirationDate.setHours(1)
-  } else {
-    refreshTokenExpirationDate.setDate(
-      refreshTokenExpirationDate.getDate() + REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS
-    )
+    res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
   }
+  
+  const [rawRefreshToken, hashRefreshToken] = generateCryptoTokenHash()
+  const refreshTokenExpirationDate = getRefeshTokenExpirationDate(keepLogin)
+  await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
 
-  const refreshToken = await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
-
-  res.cookie("refreshToken", rawRefreshToken, {
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, {
     ...REFRESH_TOKEN.COOKIE_OPTIONS,
     expires: refreshTokenExpirationDate,
   })

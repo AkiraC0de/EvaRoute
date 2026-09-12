@@ -1,6 +1,7 @@
 import { CookieOptions } from "express"
 
 export const REFRESH_TOKEN = {
+  COOKIE_NAME: "refreshToken",
   DEFAULT_EXPIRATION_IN_DAYS: 30,
   COOKIE_OPTIONS:  {
     httpOnly: true,

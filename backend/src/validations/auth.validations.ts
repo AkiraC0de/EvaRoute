@@ -22,8 +22,7 @@ export const loginSchema = z
       .string("Password is required.")
       .trim(),
     keepLogin: z 
-      .boolean()
-      .default(false)  
+      .boolean("keepLogin is required.") 
   })
 
 export const passReqResetSchema = z

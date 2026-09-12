@@ -3,6 +3,7 @@ import { BadRequestMsgError } from "../core/ApiError"
 import { Request } from "express"
 import { AuthContext, TokenWithUser } from "./jwtUtils"
 import { Prisma, Token, User } from "../../generated/prisma"
+import { REFRESH_TOKEN } from "../configs/tokenConfig"
 
 // return random 5 digit string
 export const generateOTP = () => {
@@ -63,4 +64,19 @@ export const requireToken = (req: Request): TokenWithUser => {
   }
 
   return req.token
+}
+
+export const getRefeshTokenExpirationDate = (keepLogin: boolean) => {
+  const date = new Date()
+  if (!keepLogin) {
+    date.setHours(
+      date.getHours() + 1
+    )
+  } else {
+    date.setDate(
+      date.getDate() + REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS
+    )
+  }
+
+  return date;
 }
