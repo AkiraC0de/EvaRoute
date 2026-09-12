@@ -4,6 +4,7 @@ import cors from "cors"
 
 import authRoute from "./routes/auth.routes"
 import errorHandler from "./middlewares/errorHandler"
+import { ENDPOINTS_LIST } from "./configs/mainConfig"
 
 const app = express()
 
@@ -14,16 +15,18 @@ app.use(cors({credentials: true}))
 // Endpoints
 app.use("/api/v1/auth", authRoute)
 
+app.use("/", (req: Request, res: Response) => {
+  res.status(400).json({
+    message: "Welecome to EvaRoute API. Server is working.",
+    endpoints: ENDPOINTS_LIST
+  })
+})
+
 // Fallback endpoint for unkwon route 
 app.use((req: Request, res: Response) => {
   res.status(400).json({
     message: "Unknown endpoint.",
-    endpoints: [
-      "POST api/v1/auth/login",
-      "POST api/v1/auth/register",
-      "POST api/v1/auth/password/request-reset",
-      "POST api/v1/auth/password/reset"
-    ]
+    endpoints: ENDPOINTS_LIST
   })
 })
 
