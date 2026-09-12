@@ -7,7 +7,8 @@ import {
   handleRegister,
   handlePassReqReset,
   handlePassReset,
-  handleVerifyResetPass
+  handleVerifyResetPass,
+  handleRefresh,
 } from "../controllers/auth.controllers"
 import verifyToken from "../middlewares/verifyToken"
 
@@ -23,5 +24,7 @@ authRoute.get("/password/request-reset", handlePassReqReset)
 authRoute.post("/password/verify-reset", verifyToken(TokenType.REQ_RESET_PASS), handleVerifyResetPass) 
  
 authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassReset) 
+
+authRoute.get("/refresh", handleRefresh) 
 
 export default authRoute

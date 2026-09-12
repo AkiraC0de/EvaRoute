@@ -3,7 +3,7 @@ import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import { BadRequestError, BadRequestMsgError } from "../core/ApiError"
+import { BadRequestError, BadRequestMsgError, UnauthorizedError } from "../core/ApiError"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
@@ -166,4 +166,44 @@ export const handlePassReset = async (req: Request, res: Response) => {
   await userServices.updatePassword(token.userId, hashedPassword)
 
   return new SuccessMsgResponse("Your password has changed. You may now login with your new password").send(res)
+}
+
+export const handleRefresh = async (req: Request, res: Response) => {
+  if(!req.cookies[REFRESH_TOKEN.COOKIE_NAME]){
+    throw new UnauthorizedError("Missing or expired token. Please proceed to login.")
+  }
+
+  const hashCookieRefreshToken = cryptoHash(req.cookies[REFRESH_TOKEN.COOKIE_NAME])
+  const refreshToken = await refreshTokenService.findByToken(hashCookieRefreshToken)
+  
+  if(!refreshToken){
+    res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
+    throw new UnauthorizedError("Invalid token. Please proceed to login.") 
+  }
+
+  if(refreshToken.expiresAt.getTime() < Date.now()){
+    await refreshTokenService.deleteById(refreshToken.id)
+    res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
+    throw new UnauthorizedError("Expired token. Please proceed to login.") 
+  }
+
+  const user = await userService.findById(refreshToken.userId)
+  if(!user) {
+    throw new UnauthorizedError("User not found. Please proceed to login.")
+  }
+
+  const accessToken = createAccessToken(user)
+
+  return new SuccessResponse(
+    "Refresh success.", {
+      user: {
+        email: user.email,
+        firstname: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isSetupDone: user.isSetupDone
+      },
+      accessToken
+    }
+  ).send(res)
 }
