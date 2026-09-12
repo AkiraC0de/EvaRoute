@@ -51,13 +51,13 @@ const createEmailVerify = (userId: string, otp: string, token: string, expiresAt
       token,
       payload: {
         otp,
-        attempt: 0
+        attempts: 0
       }
     }
   })
 }
 
-const createReqResetPass = (userId: string, otp: string, token: string, expiresAt?: Date) => {
+const createReqResetPass = (userId: string, hashOtp: string, hashToken: string, expiresAt?: Date) => {
   const EXPIRATION_IN_MIN = 15
 
   const expirationDate = new Date()
@@ -66,17 +66,69 @@ const createReqResetPass = (userId: string, otp: string, token: string, expiresA
   return prisma.token.create({
     data: {
       userId,
-      type: "REQ_RESET_PASS",
+      type: TokenType.REQ_RESET_PASS,
       expiresAt : expiresAt ?? expirationDate,
-      token,
+      token: hashToken,
       payload: {
-        otp,
-        attempt: 0
+        otp: hashOtp,
+        attempts: 0
       }
     }
   })
 }
 
+const createResetPass = (userId: string, hashToken: string, expiresAt?: Date) => {
+  const EXPIRATION_IN_MIN = 15
+
+  const expirationDate = new Date()
+  expirationDate.setMinutes(expirationDate.getMinutes() + EXPIRATION_IN_MIN)
+  
+  return prisma.token.create({
+    data: {
+      userId,
+      type: TokenType.RESET_PASS,
+      expiresAt : expiresAt ?? expirationDate,
+      token: hashToken
+    }
+  })
+}
+
+const incrementAttemptById = async (tokenId: string) => {
+  const token = await prisma.token.findUnique({
+    where: {
+      id: tokenId
+    }
+  })
+
+  if (!token) {
+    throw new Error("Token not found.")
+  }
+
+  const payload = token.payload as {
+    otp: string
+    attempts: number
+  }
+
+  return prisma.token.update({
+    where: {
+      id: tokenId
+    },
+    data: {
+      payload: {
+        ...payload,
+        attempts: payload.attempts + 1
+      }
+    }
+  })
+}
+
+const deleteById = (tokenId: string) => {
+  return prisma.token.delete({
+    where: {
+      id: tokenId
+    }
+  })
+}
 
 export default {
   findByUserIdType,
@@ -84,5 +136,8 @@ export default {
   create,
   createEmailVerify,
   createReqResetPass,
-  findByToken
+  findByToken,
+  incrementAttemptById,
+  deleteById,
+  createResetPass
 }

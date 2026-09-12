@@ -9,10 +9,18 @@ export const generateOTP = () => {
   return crypto.randomInt(10000, 100000).toString() 
 }
 
-export const cryptoHash = (string: string, hashingAlorithm: string = "sha256") => {
+export const cryptoHash = (string: string) => {
   return crypto.createHash("sha256")
                    .update(string)
                    .digest("hex");
+}
+
+export const cryptoHashCompare = (string: string, hashString: string) => {
+  const hashedInputString = crypto.createHash("sha256")
+                   .update(string)
+                   .digest("hex");
+
+  return hashedInputString === hashString
 }
 
 export const generateCryptoToken = () => {

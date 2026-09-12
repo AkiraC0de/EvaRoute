@@ -20,7 +20,7 @@ authRoute.post("/login", handleLogin)
 
 authRoute.get("/password/request-reset", handlePassReqReset) 
 
-authRoute.post("/password/verify-reset", verifyToken(TokenType.EMAIL_VERIFY), handleVerifyResetPass) 
+authRoute.post("/password/verify-reset", verifyToken(TokenType.REQ_RESET_PASS), handleVerifyResetPass) 
  
 authRoute.post("/password/reset", handlePassReset) // not done
 

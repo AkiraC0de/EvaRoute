@@ -3,7 +3,7 @@ import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import { BadRequestMsgError } from "../core/ApiError"
+import { BadRequestError, BadRequestMsgError } from "../core/ApiError"
 import { SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
@@ -12,8 +12,9 @@ import tokenService from "../services/token.services"
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
+import tokenServices from '../services/token.services';
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -32,7 +33,7 @@ export const handleRegister = async (req: Request, res: Response) => {
     password: hashedPassword,
   })
 
-  new SuccessResponse(
+  return new SuccessResponse(
     "New account has been created.", {
       email,
       defaultPassword
@@ -56,7 +57,7 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   const accessToken = createAccessToken(user)
 
-  new SuccessResponse(
+  return new SuccessResponse(
     "Login success.", {
       user: {
         email: user.email,
@@ -86,7 +87,7 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
   await tokenService.createReqResetPass(user.id, hashedOtp, hashToken)
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
-  new SuccessResponse(
+  return new SuccessResponse(
     "We've sent an OTP to you via email. Please check your emails inbox or spam.",
       {
         user: {
@@ -98,8 +99,44 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 }
 
 export const handleVerifyResetPass = async (req: Request, res: Response) => {
+  const MAX_ATTEMPT = 10
+
   const token = requireToken(req)
-  const { otp } = validateData<typeof verifyResetPassSchema>(verifyResetPassSchema, req.body)
+  const { otp } = validateData<typeof verifyResetPassSchema>(verifyResetPassSchema, req.body) 
+
+   // @ts-ignore
+  const remainingAttempts = MAX_ATTEMPT - token.payload.attempts
+  if(!remainingAttempts){
+    throw new BadRequestError("You have reached the attempts limit. Please request for resend.", { attempts: MAX_ATTEMPT, remainingAttempts })
+  }
+
+  // @ts-ignore
+  const otpMatched = cryptoHashCompare(otp, token.payload.otp)
+  await tokenServices.incrementAttemptById(token.id)
+   
+  if(!otpMatched){
+    // @ts-ignore
+    const currentAttempts = token.payload.attempts + 1
+    const remainingAttempts = MAX_ATTEMPT - currentAttempts
+    if(!remainingAttempts){
+      throw new BadRequestError("Incorrect PIN. You have reached the attempts limit. Please request for resend.", { attempts: currentAttempts, remainingAttempts })
+    }
+    throw new BadRequestError("Incorrect PIN.", { attempts: currentAttempts, remainingAttempts })
+  }
+
+  const newRawToken = generateCryptoToken()
+  const newHashToken = cryptoHash(newRawToken)
+  await tokenServices.createResetPass(token.userId, newHashToken)
+
+  // Invoke the token for requesting a reset password
+  await tokenService.deleteById(token.id)
+
+  return new SuccessResponse(
+    "Correct PIN. You may now reset your password.",
+      {
+        token: newRawToken
+      }
+  ).send(res)
 }
 
 export const handlePassReset = async (req: Request, res: Response) => {
