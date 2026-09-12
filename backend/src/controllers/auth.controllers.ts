@@ -1,3 +1,4 @@
+import { verifyResetPassSchema } from './../validations/auth.validations';
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
@@ -11,7 +12,7 @@ import tokenService from "../services/token.services"
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireAuth } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 
 export const handleRegister = async (req: Request, res: Response) => {
@@ -97,8 +98,8 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 }
 
 export const handleVerifyResetPass = async (req: Request, res: Response) => {
-  const { userId, role } = requireAuth(req)
-
+  const token = requireToken(req)
+  const { otp } = validateData<typeof verifyResetPassSchema>(verifyResetPassSchema, req.body)
 }
 
 export const handlePassReset = async (req: Request, res: Response) => {

@@ -1,11 +1,17 @@
 import { Request } from 'express'
 import jwt from "jsonwebtoken"
-import { TokenType, UserRole  } from "../../generated/prisma"
+import { Token, TokenType, UserRole, Prisma  } from "../../generated/prisma"
 
 export type AuthContext = {
   userId: string,
   role: UserRole
 }
+
+export type TokenWithUser = Prisma.TokenGetPayload<{
+  include: {
+    user: true
+  }
+}>
 
 export type AccessTokenPayload = {
   id: string,
@@ -16,7 +22,8 @@ export type AccessTokenPayload = {
 declare global {
   namespace Express {
     interface Request {
-      auth?: AuthContext 
+      auth?: AuthContext,
+      token?: TokenWithUser
     }
   }
 }

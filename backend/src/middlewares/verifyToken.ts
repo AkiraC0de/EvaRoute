@@ -16,13 +16,8 @@ const verifyToken = (tokenType: TokenType) => {
     if(tokenRecord.expiresAt.getTime() < Date.now()) {
       throw new UnauthorizedError("Token has expired.")
     } 
-
-    const user = tokenRecord.user
     
-    req.auth = {
-      userId: user.id,
-      role: user.role
-    }  
+    req.token = tokenRecord
 
     next()
   }

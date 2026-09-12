@@ -1,7 +1,8 @@
 import crypto from "crypto"
 import { BadRequestMsgError } from "../core/ApiError"
 import { Request } from "express"
-import { AuthContext } from "./jwtUtils"
+import { AuthContext, TokenWithUser } from "./jwtUtils"
+import { Prisma, Token, User } from "../../generated/prisma"
 
 // return random 5 digit string
 export const generateOTP = () => {
@@ -33,10 +34,18 @@ export const extractBearerToken = (req: Request) => {
   return authorization.split(' ')[1]
 }
 
-export function requireAuth(req: Request): AuthContext {
+export const requireAuth = (req: Request): AuthContext => {
   if (!req.auth) {
     throw new Error("Authentication required.")
   }
 
   return req.auth
+}
+
+export const requireToken = (req: Request): TokenWithUser => {
+  if (!req.token) {
+    throw new Error("Token required.")
+  }
+
+  return req.token
 }

@@ -32,3 +32,11 @@ export const passReqResetSchema = z
       .toLowerCase()
       .trim(),
   })
+
+export const verifyResetPassSchema = z.object({
+  otp: z
+    .string("OTP is required.")
+    .trim()
+    .length(5, "OTP must be exactly 5 digits.")
+    .regex(/^\d+$/, "OTP must contain only digits."),
+})
