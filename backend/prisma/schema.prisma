@@ -24,20 +24,21 @@ model User {
 
   facilityStaff FacilityStaff?
   token         Token[]
+  refreshToken  RefreshToken[]
 
-  @@map("users")
   @@index([email])
   @@index([role])
+  @@map("users")
 }
 
 model Facility {
-  id        String          @id @default(uuid()) @db.Uuid
+  id        String             @id @default(uuid()) @db.Uuid
   name      String
-  address   String          @unique
+  address   String             @unique
   notes     String
-  latitude  Decimal         @db.Decimal(11, 9)
-  longitude Decimal         @db.Decimal(11, 9)
-  createdAt DateTime        @default(now())
+  latitude  Decimal            @db.Decimal(11, 9)
+  longitude Decimal            @db.Decimal(11, 9)
+  createdAt DateTime           @default(now())
   staff     FacilityStaff[]
   resource  FacilityResource[]
 
@@ -50,18 +51,18 @@ enum FacilityResourceType {
 }
 
 model FacilityResource {
-  id String @id @default(uuid()) @db.Uuid
-  facilityId String @db.Uuid
-  name String
-  type FacilityResourceType @default(FIXED_VALUE)
-  isAvailable Boolean?
+  id             String               @id @default(uuid()) @db.Uuid
+  facilityId     String               @db.Uuid
+  name           String
+  type           FacilityResourceType @default(FIXED_VALUE)
+  isAvailable    Boolean?
   availableValue Int?
-  maxValue Int?
+  maxValue       Int?
 
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
-  @@map("facility_resource")
   @@index([facilityId, type])
+  @@map("facility_resource")
 }
 
 model FacilityStaff {
@@ -73,9 +74,9 @@ model FacilityStaff {
   user     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
-  @@map("facility_staff")
   @@index([facilityId])
   @@index([staffId])
+  @@map("facility_staff")
 }
 
 enum TokenType {
@@ -94,6 +95,19 @@ model Token {
   expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@map("tokens")
+
   @@index([type, userId])
+  @@map("token")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_token")
 }

@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma"
 import { Prisma, TokenType, Token } from "../../generated/prisma/client";
+import { REQ_RESET_PASS_TOKEN, RESET_PASS_TOKEN } from "../configs/tokenConfig";
 
 const findByUserIdType = (userId: string, type: TokenType) => {
   return prisma.token.findFirst({
@@ -37,7 +38,7 @@ const create = (data: Prisma.TokenCreateInput) => {
   })
 }
 
-const createEmailVerify = (userId: string, otp: string, token: string, expiresAt?: Date) => {
+const createEmailVerify = (userId: string, otpHash: string, tokenHash: string, expiresAt?: Date) => {
   const EXPIRATION_IN_MIN = 15
 
   const expirationDate = new Date()
@@ -48,9 +49,9 @@ const createEmailVerify = (userId: string, otp: string, token: string, expiresAt
       userId,
       type: "EMAIL_VERIFY",
       expiresAt : expiresAt ?? expirationDate,
-      token,
+      token: tokenHash,
       payload: {
-        otp,
+        otp: otpHash,
         attempts: 0
       }
     }
@@ -58,10 +59,8 @@ const createEmailVerify = (userId: string, otp: string, token: string, expiresAt
 }
 
 const createReqResetPass = (userId: string, hashOtp: string, hashToken: string, expiresAt?: Date) => {
-  const EXPIRATION_IN_MIN = 15
-
   const expirationDate = new Date()
-  expirationDate.setMinutes(expirationDate.getMinutes() + EXPIRATION_IN_MIN)
+  expirationDate.setMinutes(expirationDate.getMinutes() + REQ_RESET_PASS_TOKEN.DEFAULT_EXPIRATION_IN_MINS)
   
   return prisma.token.create({
     data: {
@@ -78,10 +77,8 @@ const createReqResetPass = (userId: string, hashOtp: string, hashToken: string, 
 }
 
 const createResetPass = (userId: string, hashToken: string, expiresAt?: Date) => {
-  const EXPIRATION_IN_MIN = 15
-
   const expirationDate = new Date()
-  expirationDate.setMinutes(expirationDate.getMinutes() + EXPIRATION_IN_MIN)
+  expirationDate.setMinutes(expirationDate.getMinutes() + RESET_PASS_TOKEN.DEFAULT_EXPIRATION_IN_MINS)
   
   return prisma.token.create({
     data: {

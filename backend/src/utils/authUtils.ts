@@ -23,6 +23,13 @@ export const cryptoHashCompare = (string: string, hashString: string) => {
   return hashedInputString === hashString
 }
 
+export const generateCryptoTokenHash = () => {
+  const token = generateCryptoToken()
+  const tokenHash = cryptoHash(token)
+
+  return [token, tokenHash]
+}
+
 export const generateCryptoToken = () => {
   const TOKEN_BYTES = 32; // 256 bits of entropy
 

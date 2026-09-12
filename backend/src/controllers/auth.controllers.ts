@@ -1,4 +1,4 @@
-import { passResetSchema, verifyResetPassSchema } from './../validations/auth.validations';
+import { passResetSchema, verifyResetPassSchema } from './../validations/auth.validations'
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
@@ -8,14 +8,16 @@ import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
 import tokenService from "../services/token.services"
+import refreshTokenService from '../services/refreshToken.services';
 
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
-import tokenServices from '../services/token.services';
-import userServices from '../services/user.services';
+import tokenServices from '../services/token.services'
+import userServices from '../services/user.services'
+import { REFRESH_TOKEN } from '../configs/tokenConfig'
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -44,7 +46,7 @@ export const handleRegister = async (req: Request, res: Response) => {
 
 export const handleLogin = async (req: Request, res: Response) => {
   const userData = validateData<typeof loginSchema>(loginSchema, req.body)
-  const { email, password } = userData
+  const { email, password, keepLogin } = userData
 
   const user = await userService.findByEmail(email)
   if(!user) {
@@ -57,7 +59,24 @@ export const handleLogin = async (req: Request, res: Response) => {
   }
 
   const accessToken = createAccessToken(user)
+  const [rawRefreshToken, hashRefreshToken] = generateCryptoTokenHash()
 
+  const refreshTokenExpirationDate = new Date()
+
+  if (!keepLogin) {
+    refreshTokenExpirationDate.setHours(1)
+  } else {
+    refreshTokenExpirationDate.setDate(
+      refreshTokenExpirationDate.getDate() + REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS
+    )
+  }
+
+  const refreshToken = await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
+
+  res.cookie("refreshToken", rawRefreshToken, {
+    ...REFRESH_TOKEN.COOKIE_OPTIONS,
+    expires: refreshTokenExpirationDate,
+  })
   return new SuccessResponse(
     "Login success.", {
       user: {
