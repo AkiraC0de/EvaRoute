@@ -1,10 +1,10 @@
-import { verifyResetPassSchema } from './../validations/auth.validations';
+import { passResetSchema, verifyResetPassSchema } from './../validations/auth.validations';
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
 import { BadRequestError, BadRequestMsgError } from "../core/ApiError"
-import { SuccessResponse } from "../core/ApiResponse"
+import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
 import tokenService from "../services/token.services"
@@ -15,6 +15,7 @@ import { createAccessToken } from "./../utils/jwtUtils"
 import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services';
+import userServices from '../services/user.services';
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -140,5 +141,12 @@ export const handleVerifyResetPass = async (req: Request, res: Response) => {
 }
 
 export const handlePassReset = async (req: Request, res: Response) => {
+  const token = requireToken(req)
+  const { newPassword } = validateData<typeof passResetSchema>(passResetSchema, req.body)
   
+  const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+  await userServices.updatePassword(token.userId, hashedPassword)
+
+  return new SuccessMsgResponse("Your password has changed. You may now login with your new password").send(res)
 }

@@ -22,6 +22,6 @@ authRoute.get("/password/request-reset", handlePassReqReset)
 
 authRoute.post("/password/verify-reset", verifyToken(TokenType.REQ_RESET_PASS), handleVerifyResetPass) 
  
-authRoute.post("/password/reset", handlePassReset) // not done
+authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassReset) 
 
 export default authRoute
