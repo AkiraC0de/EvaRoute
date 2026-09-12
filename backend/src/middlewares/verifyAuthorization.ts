@@ -8,7 +8,7 @@ import { ForbiddenError } from "../core/ApiError"
 
 const verifyAuthorization = (requiredUserRole: UserRole) => {
   return (req: RequestAfterAuth, res: Response, next: NextFunction) => {
-    if (req.user.role !== requiredUserRole) {
+    if (req.auth.role !== requiredUserRole) {
       throw new ForbiddenError( "You do not have permission to access this resource.")
     }
 

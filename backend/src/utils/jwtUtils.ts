@@ -1,23 +1,24 @@
 import { Request } from 'express'
 import jwt from "jsonwebtoken"
-import { UserRole  } from "../../generated/prisma"
+import { TokenType, UserRole  } from "../../generated/prisma"
+
+export type AuthContext = {
+  userId: string,
+  role: UserRole
+}
 
 export type AccessTokenPayload = {
   id: string,
   role: UserRole
 }
 
-// to be able to set the decoded jwt access token in req.user 
+// to be able to set the decoded jwt access token in req.auth 
 declare global {
   namespace Express {
     interface Request {
-      user?: AccessTokenPayload
+      auth?: AuthContext 
     }
   }
-}
-
-export type RequestAfterAuth = Request & {
-  user: AccessTokenPayload
 }
 
 export const createAccessToken = (payload: AccessTokenPayload) => {

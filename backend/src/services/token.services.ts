@@ -10,6 +10,18 @@ const findByUserIdType = (userId: string, type: TokenType) => {
   })
 }
 
+const findByToken = (token: string, type: TokenType) => {
+  return prisma.token.findUnique({
+    where: {
+      token,
+      type
+    },
+    include: {
+      user: true,
+    },
+  })
+}
+
 const deleteByUserIdType = (userId: string, type: TokenType) => {
   return prisma.token.deleteMany({
     where: {
@@ -72,4 +84,5 @@ export default {
   create,
   createEmailVerify,
   createReqResetPass,
+  findByToken
 }

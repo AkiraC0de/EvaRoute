@@ -1,11 +1,16 @@
 import express from "express"
 
+import { TokenType } from "../../generated/prisma"
+
 import { 
   handleLogin,
   handleRegister,
   handlePassReqReset,
-  handlePassReset
+  handlePassReset,
+  handleVerifyResetPass
 } from "../controllers/auth.controllers"
+import verifyToken from "../middlewares/verifyToken"
+
 
 const authRoute = express.Router()
 
@@ -15,7 +20,7 @@ authRoute.post("/login", handleLogin)
 
 authRoute.get("/password/request-reset", handlePassReqReset) 
 
-authRoute.post("/password/request-reset", ) 
+authRoute.post("/password/verify-reset", verifyToken(TokenType.EMAIL_VERIFY), handleVerifyResetPass) 
  
 authRoute.post("/password/reset", handlePassReset) // not done
 

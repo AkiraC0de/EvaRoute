@@ -11,7 +11,7 @@ import tokenService from "../services/token.services"
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireAuth } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 
 export const handleRegister = async (req: Request, res: Response) => {
@@ -40,7 +40,7 @@ export const handleRegister = async (req: Request, res: Response) => {
 }
 
 export const handleLogin = async (req: Request, res: Response) => {
-  const userData = validateData<typeof loginSchema>(loginSchema, "body", req.body)
+  const userData = validateData<typeof loginSchema>(loginSchema, req.body)
   const { email, password } = userData
 
   const user = await userService.findByEmail(email)
@@ -70,7 +70,7 @@ export const handleLogin = async (req: Request, res: Response) => {
 }
 
 export const handlePassReqReset = async (req: Request, res: Response) => {
-  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, "query", req.query) 
+  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, req.query, "query") 
 
   const user = await userService.findByEmail(email)
    if(!user) {
@@ -79,10 +79,10 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 
   const otp = generateOTP()
   const hashedOtp = cryptoHash(otp)
-  const passReqToken = generateCryptoToken()
+  const rawToken = generateCryptoToken()
+  const hashToken = cryptoHash(rawToken)
 
-  const token = await tokenService.createReqResetPass(user.id, hashedOtp, passReqToken)
-
+  await tokenService.createReqResetPass(user.id, hashedOtp, hashToken)
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
   new SuccessResponse(
@@ -91,9 +91,14 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
         user: {
           email
         },
-        token: token.id
+        token: rawToken
       }
   ).send(res)
+}
+
+export const handleVerifyResetPass = async (req: Request, res: Response) => {
+  const { userId, role } = requireAuth(req)
+
 }
 
 export const handlePassReset = async (req: Request, res: Response) => {

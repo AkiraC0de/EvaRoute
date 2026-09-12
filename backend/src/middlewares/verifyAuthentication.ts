@@ -3,18 +3,10 @@ import jwt from "jsonwebtoken"
 import { Request, Response, NextFunction } from "express"
 import { BadRequestMsgError, UnauthorizedError } from "../core/ApiError"
 import { AccessTokenPayload } from "../utils/jwtUtils"
+import { extractBearerToken } from "../utils/authUtils"
 
 const verifyAuthentication = (req: Request, res: Response, next: NextFunction) => {
-  const authorization = req.headers.authorization || req.headers.Authorization as String
-  if(!authorization) {
-      throw new BadRequestMsgError('Authorization in request headers is required.')
-  }
-  
-  if(!authorization.startsWith('Bearer ')) {
-      throw new BadRequestMsgError('Invalid Authorization format. Valid : Bearer <token>')
-  }
-  // Extract the token from authorization
-  const token = authorization.split(' ')[1]
+  const token = extractBearerToken(req)
 
   const secretKey = process.env.JWT_SECRET_KEY
   if(!secretKey) {
@@ -22,13 +14,15 @@ const verifyAuthentication = (req: Request, res: Response, next: NextFunction) =
   }
 
   try {
-    const user = jwt.verify(token, secretKey) as AccessTokenPayload
-    req.user = user
+    const decoded = jwt.verify(token, secretKey) as AccessTokenPayload
+    req.auth = {
+      userId: decoded.id,
+      role: decoded.role
+
+    }
     next()
   } catch {
-    throw new UnauthorizedError(
-      "Access Token is invalid or expired."
-    )
+    throw new UnauthorizedError("Access Token is invalid or expired.")
   }
 
 }

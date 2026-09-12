@@ -8,7 +8,7 @@ export type FieldError = {
 
 type DataSource = "body" | "query"
 
-export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, source: DataSource, data: unknown ): z.infer<TSchema> {
+export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, data: unknown, source: DataSource = "body", ): z.infer<TSchema> {
   if(data == undefined) throw new NoEntryError()
 
   const result = schema.safeParse(data)
