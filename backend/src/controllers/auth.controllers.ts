@@ -40,7 +40,7 @@ export const handleRegister = async (req: Request, res: Response) => {
 }
 
 export const handleLogin = async (req: Request, res: Response) => {
-  const userData = validateData<typeof loginSchema>(loginSchema, req.body)
+  const userData = validateData<typeof loginSchema>(loginSchema, "body", req.body)
   const { email, password } = userData
 
   const user = await userService.findByEmail(email)
@@ -70,7 +70,7 @@ export const handleLogin = async (req: Request, res: Response) => {
 }
 
 export const handlePassReqReset = async (req: Request, res: Response) => {
-  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, req.body) 
+  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, "query", req.query) 
 
   const user = await userService.findByEmail(email)
    if(!user) {

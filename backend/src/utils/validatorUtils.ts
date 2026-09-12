@@ -6,7 +6,9 @@ export type FieldError = {
   message: string,
 }
 
-export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, data: unknown ): z.infer<TSchema> {
+type DataSource = "body" | "query"
+
+export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, source: DataSource, data: unknown ): z.infer<TSchema> {
   if(data == undefined) throw new NoEntryError()
 
   const result = schema.safeParse(data)
@@ -17,7 +19,7 @@ export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, data
       message: issue.message,
     }))
 
-    throw new BadRequestError("Failed validation.", { errors })
+    throw new BadRequestError(`Failed validation in ${source}.`, { errors })
   }
 
   return result.data

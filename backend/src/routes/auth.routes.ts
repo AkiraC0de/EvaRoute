@@ -13,7 +13,9 @@ authRoute.post("/register", handleRegister)
 
 authRoute.post("/login", handleLogin)
 
-authRoute.post("/password/request-reset", handlePassReqReset) // not done
+authRoute.get("/password/request-reset", handlePassReqReset) 
+
+authRoute.post("/password/request-reset", ) 
  
 authRoute.post("/password/reset", handlePassReset) // not done
 
