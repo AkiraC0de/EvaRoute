@@ -17,8 +17,9 @@ function errorHandler(){
      return new InternalResponse("Internal server error.").send(res);
     }
 
-    console.error("Unpexted error happened: ", err.message)
-    new InternalResponse("Internal server error.").send(res)
+    console.error("Unpexted error happened: ", err)
+    const message = process.env.NODE_ENV == "production" ? "Internal server error." : err.message
+    new InternalResponse(message).send(res)
   }
 }
 
