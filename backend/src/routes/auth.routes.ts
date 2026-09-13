@@ -14,11 +14,12 @@ import {
 import verifyToken from "../middlewares/verifyToken"
 import verifyAuthentication from "../middlewares/verifyAuthentication"
 import verifyAuthorization from "../middlewares/verifyAuthorization"
+import { PERMISSION_TYPES } from "../configs/permissionConfig"
 
 
 const authRoute = express.Router()
 
-authRoute.post("/register", verifyAuthentication, verifyAuthorization([UserRole.ADMIN]), handleRegister)
+authRoute.post("/register", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_STAFF_ACC), handleRegister)
 
 authRoute.post("/login", handleLogin)
 
