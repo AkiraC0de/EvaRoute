@@ -137,4 +137,17 @@ export class ApiMailer {
     `
     return this.send(receiver, subject, htmlContent)
   }
+
+  public static async sendFacilitySetup(receiver: string, setupToken: string) {
+    const { text, muted } = this.palette
+    const subject = "Complete your EvaRoute facility account"
+    const setupUrl = `${process.env.FRONTEND_URL ?? ""}/setup?token=${encodeURIComponent(setupToken)}`
+    const htmlContent = `
+      <h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 600; color: ${text};">Complete your account setup</h2>
+      <p style="margin: 0 0 16px; color: ${text};">Use the link below to set your password and activate your facility staff account.</p>
+      <p style="margin: 0 0 16px;"><a href="${setupUrl}">Set up your account</a></p>
+      <p style="margin: 0; font-size: 13px; color: ${muted};">This link expires in 24 hours and can only be used once.</p>
+    `
+    return this.send(receiver, subject, htmlContent)
+  }
 }
