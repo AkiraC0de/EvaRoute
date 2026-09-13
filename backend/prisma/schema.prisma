@@ -39,7 +39,7 @@ enum FacilityStatus {
 model Facility {
   id        String             @id @default(uuid()) @db.Uuid
   name      String
-  address   String             @unique
+  address   String             
   note      String?
   status    FacilityStatus     @default(AVAILABLE)
   latitude  Decimal            @db.Decimal()

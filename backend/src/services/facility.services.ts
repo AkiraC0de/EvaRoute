@@ -1,6 +1,17 @@
 import { FacilityStatus, Prisma } from "../../generated/prisma"
 import prisma from "../lib/prisma"
 
+const findByLongLat = (location: [longitude: number, latitude: number] ) => {
+  return prisma.facility.findUnique({
+    where: {
+      longitude_latitude: {
+        longitude: new Prisma.Decimal(location[0]),
+        latitude: new Prisma.Decimal(location[1])
+      }
+    }
+  })
+}
+
 const create = (data: Prisma.FacilityCreateInput) => {
   return prisma.facility.create({
     data
@@ -40,4 +51,5 @@ export default {
   update,
   updateStatus,
   deleteById,
+  findByLongLat,
 }
