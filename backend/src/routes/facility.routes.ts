@@ -10,3 +10,5 @@ import {
 const facilityRoute = express.Router()
 
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(UserRole.ADMIN), handleRegisterFacility)
+
+export default facilityRoute

@@ -2,21 +2,21 @@ import z from "zod";
 
 export const registerFacilitySchema = z.object({
   name: z
-    .string()
+    .string("name is required.")
     .trim(),
   address: z
-    .string()
+    .string("address is required.")
     .trim(),
   note: z
     .string()
     .trim()
     .optional(),
   longitude: z
-    .number()
+    .number("longtitude is required.")
     .min(-180)
     .max(180),
   latitude: z
-    .number()
+    .number("latitude is required.")
     .min(-90)
     .max(90),
 })
