@@ -42,12 +42,13 @@ model Facility {
   address   String             @unique
   note      String?
   status    FacilityStatus     @default(AVAILABLE)
-  latitude  Decimal            @db.Decimal(11, 9)
-  longitude Decimal            @db.Decimal(11, 9)
+  latitude  Decimal            @db.Decimal()
+  longitude Decimal            @db.Decimal()
   createdAt DateTime           @default(now())
   staff     FacilityStaff[]
   resource  FacilityResource[]
 
+  @@unique([longitude, latitude])
   @@map("facilities")
 }
 

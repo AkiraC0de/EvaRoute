@@ -62,8 +62,9 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   if(req.cookies[REFRESH_TOKEN.COOKIE_NAME]){
     const hashCookieRefreshToken = cryptoHash(req.cookies[REFRESH_TOKEN.COOKIE_NAME])
-    await refreshTokenService.deleteByToken(hashCookieRefreshToken)
-
+    
+    await refreshTokenService.deleteByToken(hashCookieRefreshToken).catch(err => {})
+    
     res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
   }
   
