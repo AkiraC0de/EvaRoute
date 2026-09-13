@@ -90,6 +90,17 @@ const createResetPass = (userId: string, hashToken: string, expiresAt?: Date) =>
   })
 }
 
+const createFacilitySetup = (userId: string, hashToken: string, expiresAt: Date) => {
+  return prisma.token.create({
+    data: {
+      userId,
+      type: TokenType.FACILITY_SETUP,
+      expiresAt,
+      token: hashToken,
+    }
+  })
+}
+
 const incrementAttemptById = async (tokenId: string) => {
   const token = await prisma.token.findUnique({
     where: {
@@ -136,5 +147,6 @@ export default {
   findByToken,
   incrementAttemptById,
   deleteById,
-  createResetPass
+  createResetPass,
+  createFacilitySetup
 }

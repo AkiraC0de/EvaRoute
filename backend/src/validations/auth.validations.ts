@@ -54,3 +54,8 @@ export const passResetSchema = z.object({
         "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
       ),
 })
+
+export const facilitySetupSchema = z.object({
+  token: z.string().min(1, "Setup token is required."),
+  newPassword: passResetSchema.shape.newPassword,
+})

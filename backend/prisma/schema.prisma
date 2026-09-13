@@ -89,6 +89,7 @@ enum TokenType {
   EMAIL_VERIFY
   REQ_RESET_PASS
   RESET_PASS
+  FACILITY_SETUP
 }
 
 model Token {

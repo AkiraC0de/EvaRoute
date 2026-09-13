@@ -9,3 +9,5 @@ dist
 /src/generated/prisma
 
 /generated/prisma
+
+.github/

@@ -11,13 +11,14 @@ import tokenService from "../services/token.services"
 import refreshTokenService from '../services/refreshToken.services';
 
 import { validateData } from "../utils/validatorUtils"
-import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
+import { facilitySetupSchema, loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
 import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
 import { REFRESH_TOKEN } from '../configs/tokenConfig'
+import personnelServices from '../services/personnel.services'
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -206,4 +207,14 @@ export const handleRefresh = async (req: Request, res: Response) => {
       accessToken
     }
   ).send(res)
+}
+
+export const handleFacilitySetup = async (req: Request, res: Response) => {
+  const { token, newPassword } = validateData<typeof facilitySetupSchema>(facilitySetupSchema, req.body)
+  const completed = await personnelServices.completeSetup(token, newPassword)
+  if (!completed) {
+    throw new UnauthorizedError("Setup token is invalid or expired.")
+  }
+
+  return new SuccessMsgResponse("Your facility account is ready. You may now log in.").send(res)
 }

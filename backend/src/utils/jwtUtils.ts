@@ -7,6 +7,10 @@ export type AuthContext = {
   role: UserRole
 }
 
+export type RequestAfterAuth = Request & {
+  auth: AuthContext
+}
+
 export type TokenWithUser = Prisma.TokenGetPayload<{
   include: {
     user: true
