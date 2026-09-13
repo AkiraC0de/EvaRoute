@@ -1,6 +1,6 @@
 import express from "express"
 
-import { TokenType } from "../../generated/prisma"
+import { TokenType, UserRole } from "../../generated/prisma"
 
 import { 
   handleLogin,
@@ -10,12 +10,15 @@ import {
   handleVerifyResetPass,
   handleRefresh,
 } from "../controllers/auth.controllers"
+
 import verifyToken from "../middlewares/verifyToken"
+import verifyAuthentication from "../middlewares/verifyAuthentication"
+import verifyAuthorization from "../middlewares/verifyAuthorization"
 
 
 const authRoute = express.Router()
 
-authRoute.post("/register", handleRegister)
+authRoute.post("/register", verifyAuthentication, verifyAuthorization([UserRole.ADMIN]), handleRegister)
 
 authRoute.post("/login", handleLogin)
 

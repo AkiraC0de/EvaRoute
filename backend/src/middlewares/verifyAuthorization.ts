@@ -1,14 +1,13 @@
 import { UserRole } from "../../generated/prisma"
-import { Response, NextFunction } from "express"
-import { RequestAfterAuth } from "../utils/jwtUtils"
+import { Request, Response, NextFunction } from "express"
 import { ForbiddenError } from "../core/ApiError"
 
 // This middleware should always be used after verifyAuthentication
 // As it relies on req.user value from access token payload
 
-const verifyAuthorization = (requiredUserRole: UserRole) => {
-  return (req: RequestAfterAuth, res: Response, next: NextFunction) => {
-    if (req.auth.role !== requiredUserRole) {
+const verifyAuthorization = (requiredUserRole: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.auth && !requiredUserRole.includes(req.auth.role)) {
       throw new ForbiddenError( "You do not have permission to access this resource.")
     }
 

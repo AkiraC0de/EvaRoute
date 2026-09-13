@@ -9,6 +9,10 @@ import {
 
 const facilityRoute = express.Router()
 
-facilityRoute.post("/", verifyAuthentication, verifyAuthorization(UserRole.ADMIN), handleRegisterFacility)
+facilityRoute.get("/") // NOT DONE
+
+facilityRoute.post("/", verifyAuthentication, verifyAuthorization([UserRole.ADMIN, UserRole.FACILITY_STAFF]), handleRegisterFacility)
+
+facilityRoute.patch("/", verifyAuthentication, verifyAuthorization([UserRole.ADMIN, UserRole.FACILITY_STAFF]))
 
 export default facilityRoute
