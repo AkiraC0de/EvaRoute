@@ -1,12 +1,12 @@
 import express from 'express'
 import verifyAuthentication from '../middlewares/verifyAuthentication'
 import verifyAuthorization from '../middlewares/verifyAuthorization'
-import { UserRole } from '../../generated/prisma'
+import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
+  handlePatchFacility,
   handleRegisterFacility
 } from '../controllers/facility.controllers'
-import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 const facilityRoute = express.Router()
 
@@ -14,6 +14,6 @@ const facilityRoute = express.Router()
 
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
 
-facilityRoute.patch("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.PATCH_FACILITY), handleRegisterFacility)
+facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.PATCH_FACILITY), handlePatchFacility)
 
 export default facilityRoute

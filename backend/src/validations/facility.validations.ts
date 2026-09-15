@@ -20,3 +20,32 @@ export const registerFacilitySchema = z.object({
     .min(-90)
     .max(90),
 })
+
+export const patchFacilitySchema = z.object({
+  name: z
+    .string("name must be a string.")
+    .trim()
+    .optional(),
+
+  address: z
+    .string("address must be a string.")
+    .trim()
+    .optional(),
+
+  note: z
+    .string("note must be a string.")
+    .trim()
+    .optional(),
+
+  longitude: z
+    .number("longitude must be a number.")
+    .min(-180)
+    .max(180)
+    .optional(),
+
+  latitude: z
+    .number("latitude must be a number.")
+    .min(-90)
+    .max(90)
+    .optional(),
+});
