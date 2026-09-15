@@ -31,7 +31,7 @@ facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorizatio
 facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
 
 // dismiss staff to facility
-facilityRoute.delete("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleDismissStaff)
+facilityRoute.delete("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DISMISS_STAFF), handleDismissStaff)
 
  
 export default facilityRoute

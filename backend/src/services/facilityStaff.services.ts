@@ -1,9 +1,9 @@
 import prisma from "../lib/prisma"
 import { Prisma } from "../../generated/prisma/client"
 
-const findById = (facilityId: string) => {
+const findById = (id: string) => {
   return prisma.facilityStaff.findUnique({
-    where: { id: facilityId },
+    where: { id },
     include: {
       user: true,
       facility: true
@@ -77,7 +77,7 @@ const deleteById = (facilityId: string) => {
 const deleteStaff = (facilityId: string, userId: string) => {
   return prisma.facilityStaff.delete({
     where: { 
-      id: facilityId,
+      facilityId,
       userId
      }
   })

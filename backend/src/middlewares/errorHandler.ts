@@ -12,7 +12,7 @@ function errorHandler(){
     
     // Check if the error is from Prisma
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Unhandled prisma error occured! Handle this immediately:", err);
+      console.log("Unhandled prisma error occured! Handle this immediately:", err);
 
      return new InternalResponse("Internal server error.").send(res);
     }

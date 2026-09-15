@@ -61,17 +61,21 @@ export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
   }
 
   const staffs = await facilityStaffServices.findByFacilityId(facilityId)
+  const formatedStaffs = staffs.map(staff => ({
+    id: staff.id,
+    userId: staff.userId,
+    email: staff.user.email,
+    firstName: staff.user.firstName,
+    lastName: staff.user.lastName,
+    joinedAt: staff.joinedAt
+  }))
 
   return new SuccessResponse(
     `Staffs of facility ${facility.name}.`,
-    staffs.map(staff => ({
-      id: staff.id,
-      userId: staff.userId,
-      email: staff.user.email,
-      firstName: staff.user.firstName,
-      lastName: staff.user.lastName,
-      joinedAt: staff.joinedAt
-    }))
+    {
+      staffs: formatedStaffs,
+      count: formatedStaffs.length
+    }
   ).send(res)
 }
 
