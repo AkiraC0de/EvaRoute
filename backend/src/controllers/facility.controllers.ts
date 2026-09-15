@@ -49,6 +49,32 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
 
 // STAFFS
 
+export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
+  const facilityId = req.params.facilityId as string
+  if(!facilityId){
+    throw new BadRequestMsgError("'facilityId' is required as a parameter.")
+  }
+
+  const facility = await facilityServices.findById(facilityId)
+  if(!facility){
+    throw new NotFoundError("Facility not found.")
+  }
+
+  const staffs = await facilityStaffServices.findByFacilityId(facilityId)
+
+  return new SuccessResponse(
+    `Staffs of facility ${facility.name}.`,
+    staffs.map(staff => ({
+      id: staff.id,
+      userId: staff.userId,
+      email: staff.user.email,
+      firstName: staff.user.firstName,
+      lastName: staff.user.lastName,
+      joinedAt: staff.joinedAt
+    }))
+  ).send(res)
+}
+
 export const handleAssignStaff = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if(!userId){

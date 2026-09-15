@@ -5,6 +5,7 @@ import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
   handleAssignStaff,
+  handleGetFacilityStaffs,
   handlePatchFacility,
   handleRegisterFacility
 } from '../controllers/facility.controllers'
@@ -17,6 +18,9 @@ facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYP
 
 // Asssign staff to facility
 facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
+
+// List staffs of a facility
+facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleGetFacilityStaffs)
 
 // Not done
 facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleRegisterFacility)
