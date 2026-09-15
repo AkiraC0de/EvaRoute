@@ -1,5 +1,6 @@
 import { REFRESH_TOKEN } from "../configs/tokenConfig"
 import prisma from "../lib/prisma"
+import { getRefeshTokenExpirationDate } from "../utils/authUtils"
 
 const findByToken = (tokenHash: string) => {
   return prisma.refreshToken.findUnique({
@@ -10,13 +11,11 @@ const findByToken = (tokenHash: string) => {
 }
 
 const create = (userId: string, tokenHash: string, expiresAt?: Date) => {
-  const defaultExpirationDate = new Date()
-  defaultExpirationDate.setDate(defaultExpirationDate.getDate() + REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS)
   return prisma.refreshToken.create({
     data: {
       userId,
       token: tokenHash,
-      expiresAt: expiresAt ?? defaultExpirationDate
+      expiresAt: getRefeshTokenExpirationDate(true)
     }
   })
 }

@@ -73,7 +73,10 @@ export const handleLogin = async (req: Request, res: Response) => {
   const refreshTokenExpirationDate = getRefeshTokenExpirationDate(keepLogin)
   await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
 
-  res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, {
+    ...REFRESH_TOKEN.COOKIE_OPTIONS,
+    expires: refreshTokenExpirationDate
+  })
   return new SuccessResponse(
     "Login success.", {
       user: {
@@ -191,13 +194,13 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User not found. Please proceed to login.")
   }
 
+   // Invalidate the previous token
+  await refreshTokenServices.deleteById(refreshToken.id)
+
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
   await refreshTokenServices.create(user.id, newRefreshTokenHash)
 
   const accessToken = createAccessToken(user)
-
-  // Invalidate the previous token
-  await refreshTokenServices.deleteById(refreshToken.id)
 
   res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
 
