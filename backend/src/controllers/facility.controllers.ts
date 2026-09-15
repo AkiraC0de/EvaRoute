@@ -16,7 +16,11 @@ export const handleRegisterFacility = async (req: Request, res: Response) => {
   
   await facilityServices.create(facilityData)
 
-  new SuccessResponse(`New facility named ${facilityData.name} has been registered.`, facilityData).send(res)
+  return new SuccessResponse(`New facility named ${facilityData.name} has been registered.`, facilityData).send(res)
+}
+
+export const handleDeleteFacility = async (req: Request, res: Response) => {
+
 }
 
 export const handlePatchFacility = async (req: Request, res: Response) => {
@@ -34,5 +38,5 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
 
   const updatedFacility = await facilityServices.update(facilityId, data)
 
-  new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
+  return new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
 }
