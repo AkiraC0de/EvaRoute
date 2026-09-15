@@ -11,7 +11,7 @@ const findByToken = (tokenHash: string) => {
 
 const create = (userId: string, tokenHash: string, expiresAt?: Date) => {
   const defaultExpirationDate = new Date()
-  defaultExpirationDate.setDate(REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS)
+  defaultExpirationDate.setDate(defaultExpirationDate.getDate() + REFRESH_TOKEN.DEFAULT_EXPIRATION_IN_DAYS)
   return prisma.refreshToken.create({
     data: {
       userId,
