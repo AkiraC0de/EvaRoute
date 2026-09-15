@@ -5,6 +5,9 @@ import { patchFacilitySchema, registerFacilitySchema } from "../validations/faci
 import facilityServices from "../services/facility.services"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 import { BadRequestError, BadRequestMsgError, NotFoundError } from "../core/ApiError"
+import userServices from "../services/user.services"
+import { UserRole } from "../../generated/prisma"
+import facilityStaffServices from "../services/facilityStaff.services"
 
 export const handleRegisterFacility = async (req: Request, res: Response) => {
   const facilityData = validateData<typeof registerFacilitySchema>(registerFacilitySchema, req.body)
@@ -23,6 +26,8 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
 
 }
 
+
+
 export const handlePatchFacility = async (req: Request, res: Response) => {
   const data = validateData<typeof patchFacilitySchema>(patchFacilitySchema, req.body)
 
@@ -40,3 +45,37 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
 
   return new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
 }
+
+
+// STAFFS
+
+export const handleAssignStaff = async (req: Request, res: Response) => {
+  const userId = req.params.userId as string
+  if(!userId){
+    throw new BadRequestMsgError("'userId' is required as a parameter.")
+  }
+
+  const user = await userServices.findById(userId)
+  if(!user){
+    throw new NotFoundError("User not found.")
+  }
+
+  if(user.role == UserRole.ADMIN){
+    throw new BadRequestMsgError("An admin cannot be a facility staff.")
+  }
+
+  const facilityId = req.params.facilityId as string
+  const facility = await facilityServices.findById(facilityId)
+  if(!facility){
+    throw new NotFoundError("Facility not found.")
+  }
+
+  const isAlreadyMember = await facilityStaffServices.findStaff(facilityId, userId)
+  if(isAlreadyMember){
+    throw new BadRequestMsgError("This staff is already part of this facility.")
+  }
+
+  await facilityStaffServices.create(facilityId, userId)
+
+  return new SuccessMsgResponse(`${user.firstName} ${user.lastName} is now a staff of facility ${facility.name}.`).send(res)
+} 

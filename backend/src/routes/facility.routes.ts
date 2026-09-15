@@ -4,6 +4,7 @@ import verifyAuthorization from '../middlewares/verifyAuthorization'
 import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
+  handleAssignStaff,
   handlePatchFacility,
   handleRegisterFacility
 } from '../controllers/facility.controllers'
@@ -13,6 +14,9 @@ const facilityRoute = express.Router()
 // facilityRoute.get("/") // NOT DONE
 
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
+
+// Asssign staff to facility
+facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
 
 // Not done
 facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleRegisterFacility)

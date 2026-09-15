@@ -74,15 +74,16 @@ model FacilityResource {
 
 model FacilityStaff {
   id         String   @id @default(uuid()) @db.Uuid
-  staffId    String   @unique @db.Uuid
+  userId    String   @unique @db.Uuid
   facilityId String   @db.Uuid
   joinedAt   DateTime @default(now())
 
-  user     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
   @@index([facilityId])
-  @@index([staffId])
+  @@index([userId])
+  @@unique([facilityId, userId])
   @@map("facility_staff")
 }
 
