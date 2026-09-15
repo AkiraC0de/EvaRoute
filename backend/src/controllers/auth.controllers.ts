@@ -18,6 +18,7 @@ import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
 import { REFRESH_TOKEN } from '../configs/tokenConfig'
+import refreshTokenServices from '../services/refreshToken.services'
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -72,10 +73,7 @@ export const handleLogin = async (req: Request, res: Response) => {
   const refreshTokenExpirationDate = getRefeshTokenExpirationDate(keepLogin)
   await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
 
-  res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, {
-    ...REFRESH_TOKEN.COOKIE_OPTIONS,
-    expires: refreshTokenExpirationDate,
-  })
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
   return new SuccessResponse(
     "Login success.", {
       user: {
@@ -193,7 +191,15 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User not found. Please proceed to login.")
   }
 
+  const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
+  await refreshTokenServices.create(user.id, newRefreshTokenHash)
+
   const accessToken = createAccessToken(user)
+
+  // Invalidate the previous token
+  await refreshTokenServices.deleteById(refreshToken.id)
+
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
 
   return new SuccessResponse(
     "Refresh success.", {
