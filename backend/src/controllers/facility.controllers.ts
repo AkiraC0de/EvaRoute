@@ -8,6 +8,7 @@ import { BadRequestError, BadRequestMsgError, NotFoundError } from "../core/ApiE
 import userServices from "../services/user.services"
 import { UserRole } from "../../generated/prisma"
 import facilityStaffServices from "../services/facilityStaff.services"
+import { requireAuth } from "../utils/authUtils"
 
 export const handleRegisterFacility = async (req: Request, res: Response) => {
   const facilityData = validateData<typeof registerFacilitySchema>(registerFacilitySchema, req.body)
@@ -26,11 +27,8 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
 
 }
 
-
-
 export const handlePatchFacility = async (req: Request, res: Response) => {
-  const data = validateData<typeof patchFacilitySchema>(patchFacilitySchema, req.body)
-
+  const { userId, role } = requireAuth(req)
   const facilityId = req.params.facilityId as string
   if(!facilityId){
     throw new BadRequestMsgError("facilityId is required as parameter.")
@@ -40,6 +38,15 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
   if(!facility){
     throw new NotFoundError("Facility not found.")
   }
+
+  if(role !== UserRole.ADMIN){
+    const isMember = await facilityStaffServices.findStaff(facilityId, userId)
+    if(!isMember){
+      throw new BadRequestMsgError("You are not part of this facility.")
+    }
+  }
+
+  const data = validateData<typeof patchFacilitySchema>(patchFacilitySchema, req.body)
 
   const updatedFacility = await facilityServices.update(facilityId, data)
 

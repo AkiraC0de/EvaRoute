@@ -13,13 +13,17 @@ import {
 
 const facilityRoute = express.Router()
 
+// -- facility
+
 // facilityRoute.get("/") // NOT DONE
 
+// Register new facility on the map
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
 
-// Not done
+// soft delete facility
 facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleRegisterFacility)
 
+// patch facility's data, such as status
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)
 
 // -- Staffs
