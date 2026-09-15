@@ -5,6 +5,7 @@ import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
   handleAssignStaff,
+  handleDismissStaff,
   handleGetFacilityStaffs,
   handlePatchFacility,
   handleRegisterFacility
@@ -16,15 +17,21 @@ const facilityRoute = express.Router()
 
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
 
-// Asssign staff to facility
-facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
-
-// List staffs of a facility
-facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleGetFacilityStaffs)
-
 // Not done
 facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleRegisterFacility)
 
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)
 
+// -- Staffs
+
+// List staffs of a facility
+facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_STAFF), handleGetFacilityStaffs)
+
+// Asssign staff to facility
+facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
+
+// dismiss staff to facility
+facilityRoute.delete("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleDismissStaff)
+
+ 
 export default facilityRoute

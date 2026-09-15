@@ -1,9 +1,9 @@
 import prisma from "../lib/prisma"
 import { Prisma } from "../../generated/prisma/client"
 
-const findById = (id: string) => {
+const findById = (facilityId: string) => {
   return prisma.facilityStaff.findUnique({
-    where: { id },
+    where: { id: facilityId },
     include: {
       user: true,
       facility: true
@@ -61,18 +61,28 @@ const create = (facilityId: string, userId: string) => {
 })
 }
 
-const update = (id: string, data: Prisma.FacilityStaffUpdateInput) => {
+const update = (facilityId: string, data: Prisma.FacilityStaffUpdateInput) => {
   return prisma.facilityStaff.update({
-    where: { id },
+    where: { id: facilityId },
     data
   })
 }
 
-const deleteById = (id: string) => {
+const deleteById = (facilityId: string) => {
   return prisma.facilityStaff.delete({
-    where: { id }
+    where: { id: facilityId }
   })
 }
+
+const deleteStaff = (facilityId: string, userId: string) => {
+  return prisma.facilityStaff.delete({
+    where: { 
+      id: facilityId,
+      userId
+     }
+  })
+}
+
 
 export default {
   findById,
@@ -81,5 +91,6 @@ export default {
   create,
   update,
   deleteById,
-  findStaff
+  findStaff,
+  deleteStaff
 }
