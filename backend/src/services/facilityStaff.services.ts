@@ -83,6 +83,14 @@ const deleteById = (facilityId: string) => {
   })
 }
 
+// Move an existing membership to a different facility (one-facility-per-staff model).
+const transferStaff = (userId: string, newFacilityId: string) => {
+  return prisma.facilityStaff.update({
+    where: { userId },
+    data: { facilityId: newFacilityId }
+  })
+}
+
 const deleteStaff = (facilityId: string, userId: string) => {
   return prisma.facilityStaff.delete({
     where: { 
@@ -102,5 +110,6 @@ export default {
   update,
   deleteById,
   findStaff,
+  transferStaff,
   deleteStaff
 }

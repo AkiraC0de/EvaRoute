@@ -5,6 +5,7 @@ import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
   handleAssignStaff,
+  handleTransferStaff,
   handleDeleteFacility,
   handleDismissStaff,
   handleGetFacilityStaffs,
@@ -34,6 +35,9 @@ facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorizatio
 
 // Asssign staff to facility
 facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
+
+// Transfer staff between facilities (PATCH)
+facilityRoute.patch("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleTransferStaff)
 
 // dismiss staff to facility
 facilityRoute.delete("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DISMISS_STAFF), handleDismissStaff)

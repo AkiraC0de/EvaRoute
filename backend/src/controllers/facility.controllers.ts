@@ -188,6 +188,42 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
 } 
 
 
+// transfer an already-assigned staff to this facility (one-facility-per-staff model)
+export const handleTransferStaff = async (req: Request, res: Response) => {
+  const userId = req.params.userId as string
+  if(!userId){
+    throw new BadRequestMsgError("'userId' is required as a parameter.")
+  }
+
+  const user = await userServices.findById(userId)
+  if(!user){
+    throw new NotFoundError("User not found.")
+  }
+
+  if (user.role !== UserRole.FACILITY_STAFF) {
+    throw new BadRequestMsgError("Only facility staff users can be transferred between facilities.")
+  }
+
+  const facilityId = req.params.facilityId as string
+  const facility = await facilityServices.findById(facilityId)
+  if(!facility){
+    throw new NotFoundError("Facility not found.")
+  }
+
+  const currentMembership = await facilityStaffServices.findMembershipByUserId(userId)
+  if(!currentMembership){
+    throw new BadRequestMsgError("This staff is not assigned to any facility yet. Use POST to assign them instead.")
+  }
+
+  if(currentMembership.facilityId === facilityId){
+    throw new BadRequestMsgError("This staff is already assigned to this facility.")
+  }
+
+  await facilityStaffServices.transferStaff(userId, facilityId)
+
+  return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been transferred from facility ${currentMembership.facility.name} to facility ${facility.name}.`).send(res)
+} 
+
 export const handleDismissStaff = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if(!userId){
