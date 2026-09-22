@@ -5,23 +5,24 @@ import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import { 
   handleAssignStaff,
+  handleDeleteFacility,
   handleDismissStaff,
   handleGetFacilityStaffs,
   handlePatchFacility,
-  handleRegisterFacility
-} from '../controllers/facility.controllers'
+  handleRegisterFacility,
+  handleGetFacility
+} from "../controllers/facility.controllers"
 
 const facilityRoute = express.Router()
 
-// -- facility
-
-// facilityRoute.get("/") // NOT DONE
+// fetch facility  
+facilityRoute.get("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleGetFacility)
 
 // Register new facility on the map
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
 
 // soft delete facility
-facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleRegisterFacility)
+facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleDeleteFacility)
 
 // patch facility's data, such as status
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)

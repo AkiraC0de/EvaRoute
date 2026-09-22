@@ -12,7 +12,7 @@ const findById = (id: string) => {
 }
 
 const findByUserId = (userId: string) => {
-  return prisma.facilityStaff.findUnique({
+  return prisma.facilityStaff.findMany({
     where: { userId },
     include: {
       facility: true

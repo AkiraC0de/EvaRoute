@@ -4,11 +4,36 @@ import { patchFacilitySchema, registerFacilitySchema } from "../validations/faci
 
 import facilityServices from "../services/facility.services"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
-import { BadRequestError, BadRequestMsgError, NotFoundError } from "../core/ApiError"
+import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError"
 import userServices from "../services/user.services"
 import { UserRole } from "../../generated/prisma"
 import facilityStaffServices from "../services/facilityStaff.services"
 import { requireAuth } from "../utils/authUtils"
+
+export const handleGetFacility = async (req: Request, res: Response) => {
+  const { role } = requireAuth(req)
+  console.log(role)
+  switch (role){
+    case UserRole.ADMIN:
+      return handleAdminGetFacility(req, res)
+
+    case UserRole.FACILITY_STAFF:
+      return handleStaffGetFacility(req, res)
+
+    default:
+      throw new ForbiddenError()
+  }
+}
+
+const handleStaffGetFacility = async (req: Request, res: Response) => {
+  const { userId } = requireAuth(req)
+  const staffFacilities = await facilityStaffServices.findByUserId(userId)
+  return console.log(staffFacilities)
+}
+
+const handleAdminGetFacility = async (req: Request, res: Response) => {
+  return console.log("TEST")
+}
 
 export const handleRegisterFacility = async (req: Request, res: Response) => {
   const facilityData = validateData<typeof registerFacilitySchema>(registerFacilitySchema, req.body)
