@@ -4,6 +4,7 @@ import verifyAuthorization from '../middlewares/verifyAuthorization'
 import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import facilityStaffRoute from "./facilityStaff.routes"
+import facilityResourceRoute from "./facilityResource.routes"
 
 import {
   handleDeleteFacility,
@@ -28,5 +29,6 @@ facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PE
 
 // -- Staffs 
 facilityRoute.use("/:facilityId/staff", facilityStaffRoute)
+facilityRoute.use("/:facilityId/resource", facilityResourceRoute)
 
 export default facilityRoute

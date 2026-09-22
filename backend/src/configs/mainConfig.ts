@@ -13,5 +13,10 @@ export const ENDPOINTS_LIST = [
   "GET api/v1/facility/:facilityId/staff",
   "POST api/v1/facility/:facilityId/staff/:userId",
   "PATCH api/v1/facility/:facilityId/staff/:userId",
-  "DELETE api/v1/facility/:facilityId/staff/:userId"
+  "DELETE api/v1/facility/:facilityId/staff/:userId",
+  "GET api/v1/facility/:facilityId/resource",
+  "GET api/v1/facility/:facilityId/resource/:resourceId",
+  "POST api/v1/facility/:facilityId/resource",
+  "PATCH api/v1/facility/:facilityId/resource/:resourceId",
+  "DELETE api/v1/facility/:facilityId/resource/:resourceId"
 ]

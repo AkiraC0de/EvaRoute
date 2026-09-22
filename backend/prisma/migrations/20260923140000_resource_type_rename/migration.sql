@@ -1,0 +1,3 @@
+-- RenameEnumValues
+ALTER TYPE "FacilityResourceType" RENAME VALUE 'FIXED_VALUE' TO 'QUANTITY';
+ALTER TYPE "FacilityResourceType" RENAME VALUE 'DYNAMIC_VALUE' TO 'BOOLEAN';

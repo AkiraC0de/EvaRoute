@@ -90,15 +90,15 @@ model FacilityStayMember {
 }
 
 enum FacilityResourceType {
-  FIXED_VALUE
-  DYNAMIC_VALUE
+  QUANTITY
+  BOOLEAN
 }
 
 model FacilityResource {
   id             String               @id @default(uuid()) @db.Uuid
   facilityId     String               @db.Uuid
   name           String
-  type           FacilityResourceType @default(FIXED_VALUE)
+  type           FacilityResourceType @default(QUANTITY)
   isAvailable    Boolean?
   availableValue Int?
   maxValue       Int?
