@@ -23,6 +23,9 @@ export const registerFacilitySchema = z.object({
     .max(90),
 })
 
+export const getFacilityQuerySchema = z.object({
+  status: z.enum(["AVAILABLE", "UNAVAILABLE"]).optional(),
+})
 export const patchFacilitySchema = z.object({
   name: z
     .string("name must be a string.")

@@ -15,7 +15,7 @@ const create = (userId: string, tokenHash: string, expiresAt?: Date) => {
     data: {
       userId,
       token: tokenHash,
-      expiresAt: getRefeshTokenExpirationDate(true)
+      expiresAt: expiresAt ?? getRefeshTokenExpirationDate(true)
     }
   })
 }

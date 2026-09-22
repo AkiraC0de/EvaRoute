@@ -3,5 +3,14 @@ export const ENDPOINTS_LIST = [
   "POST api/v1/auth/register",
   "GET api/v1/auth/password/request-reset?email=<email>",
   "POST api/v1/auth/password/verify-reset",
-  "POST api/v1/auth/password/reset"
+  "POST api/v1/auth/password/reset",
+
+  "GET api/v1/facility",
+  "POST api/v1/facility",
+  "PATCH api/v1/facility/:facilityId",
+  "DELETE api/v1/facility/:facilityId",
+  
+  "GET api/v1/facility/:facilityId/staff",
+  "POST api/v1/facility/:facilityId/staff/:userId",
+  "DELETE api/v1/facility/:facilityId/staff/:userId"
 ]

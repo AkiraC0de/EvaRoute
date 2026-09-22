@@ -20,6 +20,15 @@ const findByUserId = (userId: string) => {
   })
 }
 
+const findMembershipByUserId = (userId: string) => {
+  return prisma.facilityStaff.findUnique({
+    where: { userId },
+    include: {
+      facility: true
+    }
+  })
+}
+
 const findByFacilityId = (facilityId: string) => {
   return prisma.facilityStaff.findMany({
     where: { facilityId },
@@ -87,6 +96,7 @@ const deleteStaff = (facilityId: string, userId: string) => {
 export default {
   findById,
   findByUserId,
+  findMembershipByUserId,
   findByFacilityId,
   create,
   update,

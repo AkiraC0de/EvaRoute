@@ -46,6 +46,7 @@ model Facility {
   latitude    Decimal        @db.Decimal()
   longitude   Decimal        @db.Decimal()
   createdAt   DateTime       @default(now())
+  deletedAt   DateTime?
 
   staff        FacilityStaff[]
   resource     FacilityResource[]

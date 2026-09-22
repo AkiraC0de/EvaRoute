@@ -16,7 +16,7 @@ import {
 const facilityRoute = express.Router()
 
 // fetch facility  
-facilityRoute.get("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleGetFacility)
+facilityRoute.get("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_FACILITY), handleGetFacility)
 
 // Register new facility on the map
 facilityRoute.post("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)

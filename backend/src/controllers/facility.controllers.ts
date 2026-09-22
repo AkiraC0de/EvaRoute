@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { validateData } from "../utils/validatorUtils"
-import { patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations"
+import { getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations"
 
 import facilityServices from "../services/facility.services"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
@@ -9,30 +9,50 @@ import userServices from "../services/user.services"
 import { UserRole } from "../../generated/prisma"
 import facilityStaffServices from "../services/facilityStaff.services"
 import { requireAuth } from "../utils/authUtils"
+import { toFacilityDTO } from "../utils/facilityUtils"
 
 export const handleGetFacility = async (req: Request, res: Response) => {
   const { role } = requireAuth(req)
-  console.log(role)
+  const { status } = validateData<typeof getFacilityQuerySchema>(getFacilityQuerySchema, req.query, "query")
+
   switch (role){
     case UserRole.ADMIN:
-      return handleAdminGetFacility(req, res)
+      return handleAdminGetFacility(res, status)
 
     case UserRole.FACILITY_STAFF:
-      return handleStaffGetFacility(req, res)
+      return handleStaffGetFacility(req, res, status)
 
     default:
       throw new ForbiddenError()
   }
 }
 
-const handleStaffGetFacility = async (req: Request, res: Response) => {
+// Staff: ONLY the facility assigned to them (a staff can be assigned to ONE facility)
+const handleStaffGetFacility = async (req: Request, res: Response, status?: "AVAILABLE" | "UNAVAILABLE") => {
   const { userId } = requireAuth(req)
-  const staffFacilities = await facilityStaffServices.findByUserId(userId)
-  return console.log(staffFacilities)
+  const membership = await facilityStaffServices.findMembershipByUserId(userId)
+
+  if (!membership || membership.facility.deletedAt !== null) {
+    return new SuccessResponse("You are not assigned to any facility.", { facility: null }).send(res)
+  }
+
+  const facility = toFacilityDTO(membership.facility)
+  if (status && facility.status !== status) {
+    return new SuccessResponse("You are not assigned to any facility.", { facility: null }).send(res)
+  }
+
+  return new SuccessResponse("Your assigned facility.", { facility }).send(res)
 }
 
-const handleAdminGetFacility = async (req: Request, res: Response) => {
-  return console.log("TEST")
+// Admin: ALL facilities
+const handleAdminGetFacility = async (res: Response, status?: "AVAILABLE" | "UNAVAILABLE") => {
+  const facilities = await facilityServices.findMany(status)
+  const formatedFacilities = facilities.map(f => ({
+    ...toFacilityDTO(f),
+    staffCount: f._count.staff
+  }))
+
+  return new SuccessResponse("All facilities fetched.",{ facilities: formatedFacilities, count: formatedFacilities.length }).send(res)
 }
 
 export const handleRegisterFacility = async (req: Request, res: Response) => {
@@ -49,7 +69,32 @@ export const handleRegisterFacility = async (req: Request, res: Response) => {
 }
 
 export const handleDeleteFacility = async (req: Request, res: Response) => {
+  const facilityId = req.params.facilityId as string
+  if(!facilityId){
+    throw new BadRequestMsgError("facilityId is required as parameter.")
+  }
 
+  // Toggle: if the facility is soft-deleted, DELETE restores it.
+  const deletedFacility = await facilityServices.findDeletedById(facilityId)
+  if(deletedFacility){
+    await facilityServices.restoreById(facilityId)
+    return new SuccessMsgResponse(`Facility ${deletedFacility.name} has been restored.`).send(res)
+  }
+
+  const facility = await facilityServices.findById(facilityId)
+  if(!facility){
+    throw new NotFoundError("Facility not found.")
+  }
+
+  // Occupancy guard: cannot delete while evacuees are checked in.
+  const checkedInCount = await facilityServices.countCheckedInStays(facilityId)
+  if(checkedInCount > 0){
+    throw new BadRequestMsgError("Cannot delete a facility with checked-in evacuees. Please check them out first.")
+  }
+
+  await facilityServices.softDeleteById(facilityId)
+
+  return new SuccessMsgResponse(`Facility ${facility.name} has been deleted.`).send(res)
 }
 
 export const handlePatchFacility = async (req: Request, res: Response) => {

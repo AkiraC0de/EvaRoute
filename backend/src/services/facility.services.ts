@@ -2,9 +2,10 @@ import { FacilityStatus, Prisma } from "../../generated/prisma"
 import prisma from "../lib/prisma"
 
 const findById = (facilityId: string) => {
-  return prisma.facility.findUnique({
+  return prisma.facility.findFirst({
     where: {
-      id: facilityId
+      id: facilityId,
+      deletedAt: null
     }
   })
 }
@@ -12,6 +13,7 @@ const findById = (facilityId: string) => {
 const findByLongLat = (location: [longitude: number, latitude: number] ) => {
   return prisma.facility.findUnique({
     where: {
+      deletedAt: null,
       longitude_latitude: {
         longitude: new Prisma.Decimal(location[0]),
         latitude: new Prisma.Decimal(location[1])
@@ -54,6 +56,43 @@ const deleteById = (facilityId: string) => {
   })
 }
 
+const findMany = (status?: FacilityStatus) => {
+  return prisma.facility.findMany({
+    where: { deletedAt: null, ...(status ? { status } : {}) },
+    orderBy: { createdAt: "asc" },
+    include: {
+      _count: {
+        select: { staff: true }
+      }
+    }
+  })
+}
+const findDeletedById = (facilityId: string) => {
+  return prisma.facility.findFirst({
+    where: { id: facilityId, deletedAt: { not: null } }
+  })
+}
+
+const softDeleteById = (facilityId: string) => {
+  return prisma.facility.update({
+    where: { id: facilityId },
+    data: { deletedAt: new Date() }
+  })
+}
+
+const restoreById = (facilityId: string) => {
+  return prisma.facility.update({
+    where: { id: facilityId },
+    data: { deletedAt: null }
+  })
+}
+
+const countCheckedInStays = (facilityId: string) => {
+  return prisma.facilityStay.count({
+    where: { facilityId, checkedOutAt: null }
+  })
+}
+
 export default {
   create,
   update,
@@ -61,4 +100,9 @@ export default {
   deleteById,
   findByLongLat,
   findById,
+  findMany,
+  findDeletedById,
+  softDeleteById,
+  restoreById,
+  countCheckedInStays,
 }
