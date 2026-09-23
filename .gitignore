@@ -2,6 +2,7 @@
 
 # Documentation (not for source control)
 docs/
+.github/
 
 # Dependencies
 node_modules/
