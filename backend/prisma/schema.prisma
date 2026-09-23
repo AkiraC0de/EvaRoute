@@ -37,30 +37,68 @@ enum FacilityStatus {
 }
 
 model Facility {
-  id        String             @id @default(uuid()) @db.Uuid
-  name      String
-  address   String             @unique
-  note      String?
-  status    FacilityStatus     @default(AVAILABLE)
-  latitude  Decimal            @db.Decimal(11, 9)
-  longitude Decimal            @db.Decimal(11, 9)
-  createdAt DateTime           @default(now())
-  staff     FacilityStaff[]
-  resource  FacilityResource[]
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String
+  address     String
+  note        String?
+  maxCapacity Int
+  status      FacilityStatus @default(AVAILABLE)
+  latitude    Decimal        @db.Decimal()
+  longitude   Decimal        @db.Decimal()
+  createdAt   DateTime       @default(now())
+  deletedAt   DateTime?
 
+  staff        FacilityStaff[]
+  resource     FacilityResource[]
+  FacilityStay FacilityStay[]
+
+  @@unique([longitude, latitude])
   @@map("facilities")
 }
 
+enum EvacueeAgeGroup {
+  CHILD
+  ADULT
+}
+
+model FacilityStay {
+  id         String @id @default(uuid()) @db.Uuid
+  facilityId String @db.Uuid
+
+  familyName String
+
+  checkedInAt  DateTime  @default(now())
+  checkedOutAt DateTime?
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Restrict)
+
+  members FacilityStayMember[]
+
+  @@index([facilityId, checkedOutAt])
+}
+
+model FacilityStayMember {
+  id     String @id @default(uuid()) @db.Uuid
+  stayId String @db.Uuid
+
+  fullName String
+  ageGroup EvacueeAgeGroup
+
+  stay FacilityStay @relation(fields: [stayId], references: [id], onDelete: Cascade)
+
+  @@index([stayId])
+}
+
 enum FacilityResourceType {
-  FIXED_VALUE
-  DYNAMIC_VALUE
+  QUANTITY
+  BOOLEAN
 }
 
 model FacilityResource {
   id             String               @id @default(uuid()) @db.Uuid
   facilityId     String               @db.Uuid
   name           String
-  type           FacilityResourceType @default(FIXED_VALUE)
+  type           FacilityResourceType @default(QUANTITY)
   isAvailable    Boolean?
   availableValue Int?
   maxValue       Int?
@@ -73,15 +111,16 @@ model FacilityResource {
 
 model FacilityStaff {
   id         String   @id @default(uuid()) @db.Uuid
-  staffId    String   @unique @db.Uuid
+  userId     String   @unique @db.Uuid
   facilityId String   @db.Uuid
   joinedAt   DateTime @default(now())
 
-  user     User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
+  @@unique([facilityId, userId])
   @@index([facilityId])
-  @@index([staffId])
+  @@index([userId])
   @@map("facility_staff")
 }
 

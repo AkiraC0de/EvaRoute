@@ -11,14 +11,14 @@ import tokenService from "../services/token.services"
 import refreshTokenService from '../services/refreshToken.services';
 
 import { validateData } from "../utils/validatorUtils"
-import { facilitySetupSchema, loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
+import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
 import { createAccessToken } from "./../utils/jwtUtils"
 import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
 import { REFRESH_TOKEN } from '../configs/tokenConfig'
-import personnelServices from '../services/personnel.services'
+import refreshTokenServices from '../services/refreshToken.services'
 
 export const handleRegister = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -63,8 +63,9 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   if(req.cookies[REFRESH_TOKEN.COOKIE_NAME]){
     const hashCookieRefreshToken = cryptoHash(req.cookies[REFRESH_TOKEN.COOKIE_NAME])
-    await refreshTokenService.deleteByToken(hashCookieRefreshToken)
-
+    
+    await refreshTokenService.deleteByToken(hashCookieRefreshToken).catch(err => {})
+    
     res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
   }
   
@@ -74,7 +75,7 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, {
     ...REFRESH_TOKEN.COOKIE_OPTIONS,
-    expires: refreshTokenExpirationDate,
+    expires: refreshTokenExpirationDate
   })
   return new SuccessResponse(
     "Login success.", {
@@ -193,7 +194,15 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User not found. Please proceed to login.")
   }
 
+   // Invalidate the previous token
+  await refreshTokenServices.deleteById(refreshToken.id)
+
+  const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
+  await refreshTokenServices.create(user.id, newRefreshTokenHash)
+
   const accessToken = createAccessToken(user)
+
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
 
   return new SuccessResponse(
     "Refresh success.", {
@@ -207,14 +216,4 @@ export const handleRefresh = async (req: Request, res: Response) => {
       accessToken
     }
   ).send(res)
-}
-
-export const handleFacilitySetup = async (req: Request, res: Response) => {
-  const { token, newPassword } = validateData<typeof facilitySetupSchema>(facilitySetupSchema, req.body)
-  const completed = await personnelServices.completeSetup(token, newPassword)
-  if (!completed) {
-    throw new UnauthorizedError("Setup token is invalid or expired.")
-  }
-
-  return new SuccessMsgResponse("Your facility account is ready. You may now log in.").send(res)
 }

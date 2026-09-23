@@ -1,6 +1,7 @@
 ### Backlogs
 
 - Cron jobs: DB Cleaning
+- Patch Facility requrie authorization factoring
 
 ### Prerequisites
 

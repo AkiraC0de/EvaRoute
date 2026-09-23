@@ -1,0 +1,10 @@
+* [33me6396cb[m[33m ([m[1;31mupstream/main[m[33m, [m[1;31mupstream/HEAD[m[33m)[m feat: added new route to be able to register new facility in the map
+* [33m383902d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy-feature[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m feat: implement and finish refresh route
+* [33m99bbad7[m refactor: improved the code quality of login refresh token implementation. Fix an issue with wrong way of setting expiration date
+* [33m2f3d38a[m feat: implement database stored REFRESH TOKENs in login
+* [33m62cb7a2[m docs: added config files and backlogs
+* [33m7836fdd[m feat: implementation of NODE_ENV
+* [33m3145245[m feat: finish reset password route
+* [33m9cd079b[m feat: finished verification of PIN for requesting to reset users password
+* [33m5cc94de[m refactor: changed the way token data is being passed to controllers from middleware
+* [33m44f51ad[m refactor: changed the whole typing and after auth process
