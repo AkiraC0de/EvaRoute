@@ -25,6 +25,22 @@ export type EvaRouteState =
   | { status: 'arrived' };
 
 /**
+ * A partial snapshot of the state machine with all potentially-shared fields
+ * made optional. Used as the transition payload type so callers may update
+ * any combination of fields without narrowing the union first.
+ *
+ * The useAppState hook internally normalizes the payload back to the
+ * narrow union after the transition.
+ */
+export type EvaRouteTransitionPayload = {
+  status?: EvaRouteState['status'];
+  sheetExpanded?: boolean;
+  centerId?: string;
+  facility?: Facility;
+  searchQuery?: string;
+};
+
+/**
  * Placeholder interface for route data.
  * Not yet implemented — routing service is deferred.
  */

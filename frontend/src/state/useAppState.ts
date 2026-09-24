@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { EvaRouteState } from './app-state';
+import type { EvaRouteState, EvaRouteTransitionPayload } from './app-state';
 
 /**
  * useAppState — Hook for the EvaRoute state machine.
@@ -17,8 +17,8 @@ export function useAppState() {
     status: 'initializing',
   });
 
-  const transition = useCallback((nextState: EvaRouteState) => {
-    setState(nextState);
+  const transition = useCallback((payload: EvaRouteTransitionPayload) => {
+    setState((prev) => ({ ...prev, ...payload } as EvaRouteState));
   }, []);
 
   return { state, transition };

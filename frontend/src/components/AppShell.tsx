@@ -15,16 +15,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="evaroute-shell">
       {/* Map area — always present, behind all overlays */}
       <div className="map-area">
-        {/* Map provider placeholder — to be replaced with actual map */}
-        <div className="w-full h-full bg-[var(--surface-base)] flex items-center justify-center">
-          <span className="text-sm text-[var(--color-text-caption)]">
-            Map area — map provider integration deferred
-          </span>
-        </div>
-      </div>
-
-      {/* Overlay area — overlays render here, on top of the map */}
-      <div className="overlay-area">
         {children}
       </div>
     </div>

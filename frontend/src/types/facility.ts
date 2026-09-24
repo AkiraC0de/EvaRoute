@@ -10,6 +10,7 @@ export interface Facility {
   latitude: number;
   longitude: number;
   createdAt?: string;
+  distance?: number; // km — derived client-side from user location
 }
 
 /**

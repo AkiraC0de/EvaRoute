@@ -70,12 +70,24 @@
   --z-marker: 10;
   --z-control: 20;
   --z-sheet: 30;
-  --z-panel: 30;
-  --z-modal: 40;
-  --z-tooltip: 50;
+  --z-tooltip: 40;
+  --z-modal: 50;
 
   /* --- Responsive Breakpoint (provisional) --- */
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
+
+  /* --- Desktop panel widths (provisional) --- */
+  --panel-width: 360px;
+  --route-card-width: 280px;
+
+  /* --- Animation Tokens --- */
+  --duration-xs: 100ms;
+  --duration-sm: 150ms;
+  --duration-md: 250ms;
+  --duration-lg: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
