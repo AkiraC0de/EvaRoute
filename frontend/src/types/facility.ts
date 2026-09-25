@@ -1,4 +1,30 @@
-export type FacilityStatus = 'AVAILABLE' | 'UNAVAILABLE';
+export type FacilityStatus = 'AVAILABLE' | 'UNAVAILABLE' | 'LIMITED';
+
+export const FACILITY_STATUS_META: Record<FacilityStatus, {
+  label: string;
+  fullLabel: string;
+  color: string;
+  background: string;
+}> = {
+  AVAILABLE: {
+    label: 'Open',
+    fullLabel: 'Open',
+    color: 'var(--color-success)',
+    background: 'var(--color-success-soft)',
+  },
+  LIMITED: {
+    label: 'Limited',
+    fullLabel: 'Limited availability',
+    color: 'var(--color-warning)',
+    background: 'var(--color-warning-soft)',
+  },
+  UNAVAILABLE: {
+    label: 'Full',
+    fullLabel: 'Full',
+    color: 'var(--color-full)',
+    background: 'var(--color-full-soft)',
+  },
+};
 
 export interface Facility {
   id: string;

@@ -23,9 +23,9 @@ interface OverlayContainerProps {
 }
 
 const desktopPosition = {
-  sheet: 'md:top-4 md:right-4',
-  panel: 'md:top-4 md:right-4',
-  routeCard: 'md:bottom-4 md:right-4',
+  sheet: 'md:top-[50%] md:right-[var(--space-panel-margin)] md:translate-y-[calc(-50%-12px)]',
+  panel: 'md:top-[50%] md:right-[var(--space-panel-margin)] md:translate-y-[calc(-50%-12px)]',
+  routeCard: 'md:bottom-4 md:right-[var(--space-panel-margin)]',
 };
 
 export default function OverlayContainer({
@@ -45,7 +45,7 @@ export default function OverlayContainer({
         className={[
           'fixed bottom-0 left-0 right-0 z-[var(--z-sheet)]',
           'bg-[var(--surface-raised)]',
-          !expanded ? 'rounded-t-[var(--radius-lg)]' : 'rounded-none',
+          'rounded-t-[var(--radius-lg)]',
           'shadow-[var(--shadow-raised-lg)]',
           !expanded ? 'max-h-[100px] overflow-hidden' : 'max-h-[calc(100dvh-20px)] overflow-y-auto',
           'md:hidden',

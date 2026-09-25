@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { MutableRefObject } from 'react';
 import { useGeolocation, DEFAULT_CENTER } from '../hooks/useGeolocation';
-import type { Facility } from '../types/facility';
+import { FACILITY_STATUS_META, type Facility } from '../types/facility';
 import { geojsonToLatLngs, type OSRMRoute } from '../services/osrm';
 
 interface EvaRouteMapProps {
@@ -15,6 +15,19 @@ interface EvaRouteMapProps {
   onCenterSelect: (center: Facility) => void;
   onMapReady?: (map: L.Map | null) => void;
   isNavigating: boolean;
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>'"]/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+    };
+    return entities[character];
+  });
 }
 
 export default function EvaRouteMap({
@@ -56,7 +69,7 @@ export default function EvaRouteMap({
     };
   }, [containerRef, onMapReady]);
 
-  // ── Facility markers: circular divIcon, claymorphic via CSS ──
+  // ── Facility markers: status-colored pins with a centered facility icon ──
   useEffect(() => {
     if (!mapRef.current) return;
     markersRef.current.forEach((m) => m.remove());
@@ -66,15 +79,19 @@ export default function EvaRouteMap({
 
     for (const facility of visibleFacilities) {
       const isSelected = facility.id === selectedCenter?.id;
-      const isUnavailable = facility.status === 'UNAVAILABLE';
-
-      const color = isUnavailable ? '#FFA000' : '#4CAF50';
-      const size = isSelected ? 40 : 30;
+      const statusMeta = FACILITY_STATUS_META[facility.status];
+      const facilityName = escapeHtml(facility.name);
+      const size = isSelected ? 40 : 32;
 
       const html = `
         <div class="facility-marker ${isSelected ? 'selected' : ''}"
-             style="background: ${color}; width: ${size}px; height: ${size}px;">
-          <div class="facility-marker-dot" style="background: ${color};"></div>
+             style="--facility-marker-color: ${statusMeta.color}; width: ${size}px; height: ${size}px;">
+          <span class="facility-marker-label">${facilityName}</span>
+          <div class="facility-marker-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6M9 10h.01M15 10h.01" />
+            </svg>
+          </div>
         </div>`;
 
       const icon = L.divIcon({
@@ -93,9 +110,9 @@ export default function EvaRouteMap({
       marker.on('click', () => onCenterSelect(facility));
       marker.bindTooltip(`
         <div style="font-family: var(--font-sans), system-ui, sans-serif; min-width: 140px; font-size: 13px;">
-          <strong style="color: #1A2332; font-size: 14px;">${facility.name}</strong>
+            <strong style="color: #1A2332; font-size: 14px;">${facilityName}</strong>
           <div style="color: #64748B; margin-top: 2px; font-size: 12px;">
-            ${facility.status === 'AVAILABLE' ? 'Safe' : 'Caution'}
+            ${statusMeta.fullLabel}
           </div>
         </div>
       `, {
@@ -150,9 +167,9 @@ export default function EvaRouteMap({
 
     const line = L.polyline(latLngs, {
       color: '#4A72FF',
-      weight: 5,
-      opacity: 0.92,
-      className: 'route-line route-line-dashed',
+      weight: 6,
+      opacity: 0.95,
+      className: 'route-line',
       lineCap: 'round',
       lineJoin: 'round',
     }).addTo(mapRef.current!);

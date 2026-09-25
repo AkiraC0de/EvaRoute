@@ -20,8 +20,12 @@
   --color-text-secondary: #64748B;
   --color-text-caption: #94A3B8;
   --color-success: #4CAF50;
+  --color-success-soft: #E8F5E9;
   --color-warning: #FFA000;
+  --color-warning-soft: #FFF4D6;
   --color-danger: #EF4444;
+  --color-full: #EF4444;
+  --color-full-soft: #FDECEC;
 
   /* --- Map Tokens (provisional) --- */
   --color-map-land: #E8E0D5;

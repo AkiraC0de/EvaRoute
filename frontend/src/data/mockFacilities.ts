@@ -17,9 +17,10 @@ export const mockFacilities: Facility[] = [
   {
     id: '1',
     name: 'Paco Park School',
-    address: '123 Padre Burgos Ave, Manila',
-    status: 'AVAILABLE',
-    maxCapacity: 5000,
+    address: '1958 Pedro Gil St, Paco, Manila',
+    note: 'Covered court with backup generator, potable water and hot meals three times a day. Wheelchair-accessible entrance on Pedro Gil St.',
+    status: 'LIMITED',
+    maxCapacity: 400,
     latitude: 14.5964,
     longitude: 120.9736,
   },

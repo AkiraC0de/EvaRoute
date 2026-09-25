@@ -1,24 +1,29 @@
-import type { FacilityStatus } from '../../types/facility';
+import { FACILITY_STATUS_META, type FacilityStatus } from '../../types/facility';
 
 interface CenterStatusBadgeProps {
   status: FacilityStatus;
+  /** Show "Limited availability" instead of "Limited" */
+  fullLabel?: boolean;
   className?: string;
 }
 
 export default function CenterStatusBadge({
   status,
+  fullLabel = false,
   className = '',
 }: CenterStatusBadgeProps) {
-  const isSafe = status === 'AVAILABLE';
+  const statusMeta = FACILITY_STATUS_META[status];
+
   return (
     <span
-      className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${className}`}
+      className={`facility-status-badge ${className}`}
       style={{
-        backgroundColor: isSafe ? 'var(--color-success)' : 'var(--color-warning)',
-        color: 'white',
+        backgroundColor: statusMeta.background,
+        color: statusMeta.color,
       }}
     >
-      {isSafe ? 'Safe' : 'Caution'}
+      <span className="facility-status-dot" style={{ backgroundColor: statusMeta.color }} aria-hidden="true" />
+      {fullLabel ? statusMeta.fullLabel : statusMeta.label}
     </span>
   );
 }

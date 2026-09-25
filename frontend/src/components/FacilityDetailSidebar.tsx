@@ -2,12 +2,17 @@ import type { Facility } from '../types/facility';
 import CapacityProgress from './primitives/CapacityProgress';
 import CenterStatusBadge from './primitives/CenterStatusBadge';
 import PillButton from './primitives/PillButton';
+import FacilityIconGrid from './primitives/FacilityIconGrid';
 
 interface FacilityDetailSidebarProps {
   facility: Facility;
   distance?: number;
   onBack: () => void;
   onGetRoute: () => void;
+  /** Derived occupancy from backend (not yet available). */
+  currentOccupancy?: number;
+  /** Facility resource/amenity data for the icon grid. */
+  resources?: Array<{ id: string; name?: string; type?: string }>;
 }
 
 export default function FacilityDetailSidebar({
@@ -15,30 +20,52 @@ export default function FacilityDetailSidebar({
   distance,
   onBack,
   onGetRoute,
+  currentOccupancy,
+  resources,
 }: FacilityDetailSidebarProps) {
+  // Walking-speed ETA estimate (~12 km/h = 0.2 km/min).
+  // This is an approximation — no real routing data available at this point.
+  const etaMin = distance != null && distance > 0
+    ? Math.round(distance / 0.2)
+    : null;
+
   return (
     <div className="facility-detail-sidebar">
       <div className="facility-detail-header">
         <div className="min-w-0">
-          <p className="facility-discovery-kicker">Selected center</p>
           <h2 className="facility-detail-title">{facility.name}</h2>
           <p className="facility-detail-address">{facility.address}</p>
         </div>
-        <button type="button" className="facility-detail-close" onClick={onBack} aria-label="Back to evacuation centers" title="Back to evacuation centers">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+        {/* Circular X close button — matches Figma Frame 05 top-right close action */}
+        <button
+          type="button"
+          className="facility-detail-close"
+          onClick={onBack}
+          aria-label="Close"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
       <div className="facility-detail-summary">
-        <CenterStatusBadge status={facility.status} />
+        <CenterStatusBadge status={facility.status} fullLabel />
         <div className="facility-detail-distance">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7} aria-hidden="true">
             <circle cx="12" cy="12" r="8" />
             <path strokeLinecap="round" d="M12 8v4l2.5 2" />
           </svg>
-          {distance != null ? `${distance.toFixed(1)} km away` : 'Distance unavailable'}
+          {distance != null
+            ? `${distance.toFixed(1)} km${etaMin != null ? ` · ${etaMin} min away` : ' away'}`
+            : 'Distance unavailable'}
         </div>
       </div>
 
@@ -47,8 +74,18 @@ export default function FacilityDetailSidebar({
           <h3 id="facility-capacity-heading">Capacity</h3>
           <span>{facility.maxCapacity.toLocaleString()} spaces max</span>
         </div>
-        <CapacityProgress current={undefined} max={facility.maxCapacity} showLabel={false} className="w-full" />
-        <p className="facility-detail-muted">Current occupancy data is unavailable.</p>
+        <div className="facility-capacity-detail">
+          <CapacityProgress
+            current={currentOccupancy}
+            max={facility.maxCapacity}
+            showSlotsLeft
+            showPercentage
+            className="w-full"
+          />
+        </div>
+        {currentOccupancy == null && (
+          <p className="facility-detail-muted">Current occupancy data is unavailable.</p>
+        )}
       </section>
 
       {facility.note && (
@@ -58,17 +95,18 @@ export default function FacilityDetailSidebar({
         </section>
       )}
 
-      <section className="facility-detail-section facility-detail-unavailable" aria-labelledby="facility-amenities-heading">
+      <section className="facility-detail-section facility-detail-amenities" aria-labelledby="facility-amenities-heading">
         <h3 id="facility-amenities-heading">Amenities</h3>
-        <p className="facility-detail-muted">Amenity information is not available for this center yet.</p>
+        <FacilityIconGrid resources={resources ?? undefined} className="w-full" />
       </section>
 
+      {/* Footer actions — Figma Frame 05: Back (secondary, left) + Get Route (primary, right) side-by-side */}
       <div className="facility-detail-actions">
         <PillButton variant="secondary" className="w-full" onClick={onBack}>
-          Back to centers
+          Back
         </PillButton>
         <PillButton variant="primary" className="w-full" onClick={onGetRoute}>
-          Get route
+          Get Route
         </PillButton>
       </div>
     </div>

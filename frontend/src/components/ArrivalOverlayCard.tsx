@@ -19,8 +19,9 @@ export default function ArrivalOverlayCard({ facility, onFinish }: ArrivalOverla
           </svg>
         </div>
         <h2 id="arrival-heading" className="arrival-title">You have arrived</h2>
-        <p className="arrival-facility-name">{facility?.name ?? 'Evacuation center'}</p>
-        <p className="arrival-message">You&apos;ve reached your evacuation center safely.</p>
+        <p className="arrival-facility-name">
+          {facility?.name ? `${facility.name} Evacuation Center` : 'Evacuation Center'}
+        </p>
         <PillButton variant="primary" className="arrival-finish-button" onClick={onFinish}>
           Finish
         </PillButton>

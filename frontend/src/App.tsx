@@ -10,11 +10,13 @@ import ArrivalOverlayCard from './components/ArrivalOverlayCard';
 import EvaRouteMap from './components/EvaRouteMap';
 import FacilityDiscoveryPanel, { type FacilityStatusFilter } from './components/FacilityDiscoveryPanel';
 import FacilityDetailSidebar from './components/FacilityDetailSidebar';
-import LocationOnboarding, { LocationReady } from './components/LocationOnboarding';
+import SplashScreen from './components/SplashScreen';
+import FacilitySearchFilterOverlay from './components/FacilitySearchFilterOverlay';
 import OverlayContainer from './components/OverlayContainer';
 import RoutePreviewCard from './components/RoutePreviewCard';
 import TurnInstruction from './components/TurnInstruction';
 import RecenterButton from './components/RecenterButton';
+import DragHandle from './components/primitives/DragHandle';
 import type { Facility } from './types/facility';
 
 const ARRIVAL_THRESHOLD_M = 50;
@@ -80,6 +82,13 @@ export default function App() {
     }
   }, [state.status, position, geoLoading, transition]);
 
+  // Auto-request location on app launch (Frame 01 → Frame 02)
+  useEffect(() => {
+    if (state.status === 'initializing') {
+      requestLocation();
+    }
+  }, [state.status, requestLocation]);
+
   // Map center follows user position (non-navigating)
   useEffect(() => {
     if (position && !geoLoading && !geoDenied && !isNavigatingState()) {
@@ -101,6 +110,13 @@ export default function App() {
       ? [position.coords.latitude, position.coords.longitude]
       : DEFAULT_CENTER);
   }, [transition, position, geoDenied]);
+
+  // Auto-transition to discovery after location is acquired (Frame 02 → Frame 03)
+  useEffect(() => {
+    if (state.status === 'location_ready' && !hasTransitionedToMap) {
+      enterDiscovery();
+    }
+  }, [state.status, hasTransitionedToMap, enterDiscovery]);
 
   // Route calculation
   useEffect(() => {
@@ -244,55 +260,42 @@ export default function App() {
   }, [transition, state]);
 
   // ── Splash renders ──
-  const renderInitializing = () => (
-    <LocationOnboarding
-      loading={geoLoading}
-      denied={geoDenied}
-      error={geoError}
-      onRequestLocation={requestLocation}
+  const renderSplash = (locationReady: boolean) => (
+    <SplashScreen
+      locationReady={locationReady}
+      ready={state.status === 'location_ready'}
     />
   );
-
-  const renderLocationReady = () => <LocationReady onContinue={enterDiscovery} />;
 
   // ── Discovery (expanded) ──
   const renderDiscoveryExpanded = () => {
     return (
-      <OverlayContainer variant="panel" expanded={true} collapsedContent={renderDiscoveryCollapsed()}>
-        <FacilityDiscoveryPanel
-          facilities={facilitiesWithDistance}
-          totalFacilities={facilities.length}
-          query={searchQuery}
-          statusFilter={statusFilter}
-          onQueryChange={setSearchQuery}
-          onStatusFilterChange={setStatusFilter}
-          onSelect={handleCenterSelect}
-          onClearFilters={() => {
-            setSearchQuery('');
-            setStatusFilter('ALL');
-          }}
-        />
-      </OverlayContainer>
+      <>
+        {/* List: floating card on mobile, panel on desktop */}
+        <OverlayContainer variant="panel" expanded={true} collapsedContent={renderDiscoveryCollapsed()}>
+          <FacilityDiscoveryPanel
+            facilities={filteredFacilities}
+            totalFacilities={facilities.length}
+            onSelect={handleCenterSelect}
+          />
+        </OverlayContainer>
+      </>
     );
   };
 
   // ── Discovery (collapsed — Frame 04) ──
   const renderDiscoveryCollapsed = () => (
-    <div className="flex items-center justify-between w-full">
-      <h2 className="text-[var(--font-size-base)] font-semibold text-[var(--color-text-primary)] truncate">
+    <button
+      type="button"
+      className="flex flex-col items-center w-full py-3"
+      onClick={handleExpand}
+      aria-label="Expand list"
+    >
+      <DragHandle />
+      <h2 className="text-[var(--font-size-base)] font-semibold text-[var(--color-text-primary)] truncate mt-2">
         Nearby Evacuation Centers
       </h2>
-      <button
-        className="collapse-chevron text-[var(--color-text-caption)]"
-        onClick={handleExpand}
-        aria-label="Expand list"
-        style={{ display: 'flex', alignItems: 'center' }}
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
-        </svg>
-      </button>
-    </div>
+    </button>
   );
 
   // ── Center selected (expanded — Frame 05) ──
@@ -314,15 +317,18 @@ export default function App() {
         collapsedContent={
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: facility.status === 'AVAILABLE' ? 'var(--color-success)' : 'var(--color-warning)' }} />
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: facility.status === 'AVAILABLE' ? 'var(--color-success)' : facility.status === 'LIMITED' ? 'var(--color-warning)' : 'var(--color-full)' }} />
               <span className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
                 {facility.name}
               </span>
             </div>
-            <button className="collapse-chevron text-[var(--color-text-caption)]" onClick={handleExpand} aria-label="Show details">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
-              </svg>
+            <button
+              type="button"
+              className="flex items-center justify-center w-full py-2"
+              onClick={handleExpand}
+              aria-label="Show details"
+            >
+              <DragHandle />
             </button>
           </div>
         }
@@ -330,6 +336,7 @@ export default function App() {
         <FacilityDetailSidebar
           facility={facility}
           distance={liveDistance}
+          currentOccupancy={undefined}
           onBack={handleBackToDiscovery}
           onGetRoute={() => transition({ status: 'route_preview', centerId: facility.id, sheetExpanded: true })}
         />
@@ -353,6 +360,7 @@ export default function App() {
           facility={selectedFacility}
           routeData={routeData}
           routeLoading={routeLoading}
+          currentOccupancy={undefined}
           onCancel={handleCancelRoutePreview}
           onStartNavigation={handleStartNavigation}
         />
@@ -417,6 +425,7 @@ export default function App() {
     const steps = routeData?.legs?.flatMap(l => l.steps) ?? [];
     const currentStep = steps[currentStepIndex];
     const instruction = currentStep?.maneuver ?? 'Following route';
+    const maneuverType = currentStep?.maneuver ?? undefined;
 
     const remaining = navRemainingDistance;
     const remainingKm = remaining !== null ? remaining.toFixed(1) : null;
@@ -498,20 +507,40 @@ export default function App() {
               onMapReady={handleMapReady}
               isNavigating={isNavigatingState()}
             />
-            <RecenterButton
-              mapRef={leafletMapRef}
-              position={position?.coords ?? null}
-              defaultCenter={DEFAULT_CENTER}
-            />
+            {state.status !== 'discovery' && (
+              <RecenterButton
+                mapRef={leafletMapRef}
+                position={position?.coords ?? null}
+                defaultCenter={DEFAULT_CENTER}
+              />
+            )}
           </>
         )}
       </div>
 
       {/* Overlay area */}
       <div className="overlay-area">
-        {state.status === 'initializing' && renderInitializing()}
-        {state.status === 'location_ready' && renderLocationReady()}
-        {state.status === 'discovery' && (state.sheetExpanded ? renderDiscoveryExpanded() : renderDiscoveryCollapsed())}
+        {(state.status === 'initializing' || state.status === 'location_ready') && renderSplash(position != null)}
+        {state.status === 'discovery' && (
+          <>
+            {/* Search/filter + recenter overlay — all screen sizes */}
+            <FacilitySearchFilterOverlay
+              query={searchQuery}
+              facilities={facilitiesWithDistance}
+              statusFilter={statusFilter}
+              onQueryChange={setSearchQuery}
+              onStatusFilterChange={setStatusFilter}
+              recenterSlot={
+                <RecenterButton
+                  mapRef={leafletMapRef}
+                  position={position?.coords ?? null}
+                  defaultCenter={DEFAULT_CENTER}
+                />
+              }
+            />
+            {state.sheetExpanded ? renderDiscoveryExpanded() : renderDiscoveryCollapsed()}
+          </>
+        )}
         {state.status === 'center_selected' && renderCenterSelected()}
         {state.status === 'route_preview' && (state.sheetExpanded ? renderRoutePreviewExpanded() : renderRoutePreviewCollapsed())}
         {state.status === 'navigating' && (state.sheetExpanded ? renderNavigatingExpanded() : renderNavigatingCollapsed())}

@@ -10,6 +10,8 @@ interface RoutePreviewCardProps {
   onCancel: () => void;
   onStartNavigation?: () => void;
   isNavigating?: boolean;
+  /** Current occupancy for slots-left display (not yet available from backend). */
+  currentOccupancy?: number;
 }
 
 function formatArrivalTime(durationSeconds: number) {
@@ -53,6 +55,7 @@ export default function RoutePreviewCard({
   onCancel,
   onStartNavigation,
   isNavigating = false,
+  currentOccupancy,
 }: RoutePreviewCardProps) {
   const hasRoute = routeData != null && routeData.distance > 0 && routeData.duration > 0;
   const distance = hasRoute ? `${(routeData.distance / 1000).toFixed(1)} km` : '—';
@@ -76,6 +79,12 @@ export default function RoutePreviewCard({
         <span>Maximum capacity</span>
         <strong>{facility.maxCapacity.toLocaleString()} spaces</strong>
       </div>
+
+      {currentOccupancy != null && currentOccupancy > 0 && (
+        <div className="route-preview-slots">
+          <span className="route-preview-slots-label">{currentOccupancy.toLocaleString()} slots left</span>
+        </div>
+      )}
 
       {routeLoading ? (
         <div className="route-preview-loading">
@@ -107,11 +116,15 @@ export default function RoutePreviewCard({
         </div>
       )}
 
-      <div className={`route-preview-actions ${!hasRoute || routeLoading ? 'single' : ''}`}>
-        <PillButton variant="secondary" className="w-full" onClick={onCancel}>
+      <div className={`route-preview-actions ${isNavigating || !hasRoute || routeLoading ? 'single' : ''}`}>
+        <PillButton
+          variant="secondary"
+          className="w-full"
+          onClick={onCancel}
+        >
           Cancel Route
         </PillButton>
-        {hasRoute && !routeLoading && !isNavigating && onStartNavigation && (
+        {!isNavigating && hasRoute && !routeLoading && onStartNavigation && (
           <PillButton variant="primary" className="w-full" onClick={onStartNavigation}>
             Start Navigation
           </PillButton>

@@ -15,6 +15,10 @@ interface CapacityProgressProps {
   max: number;
   className?: string;
   showLabel?: boolean;
+  /** Show "X slots left" line (max - current) */
+  showSlotsLeft?: boolean;
+  /** Show percentage alongside "current / max" */
+  showPercentage?: boolean;
 }
 
 function fmt(n: number) {
@@ -26,9 +30,13 @@ export default function CapacityProgress({
   max,
   className = '',
   showLabel = true,
+  showSlotsLeft = false,
+  showPercentage = false,
 }: CapacityProgressProps) {
   const fill = current != null && current > 0 ? Math.min((current / max) * 100, 100) : 0;
   const empty = current == null || current === 0;
+  const slotsLeft = current != null ? max - current : undefined;
+  const pct = current != null && !empty ? Math.round((current / max) * 100) : undefined;
 
   return (
     <div className={`capacity-progress inline-flex flex-col gap-1 ${className}`}>
@@ -51,8 +59,16 @@ export default function CapacityProgress({
           {empty ? (
             <>{fmt(max)} spaces</>
           ) : (
-            <>{fmt(current)} / {fmt(max)}</>
+            <>
+              {fmt(current)} / {fmt(max)}
+              {showPercentage && pct != null && <> · {pct}% Occupancy</>}
+            </>
           )}
+        </span>
+      )}
+      {showSlotsLeft && slotsLeft != null && slotsLeft > 0 && (
+        <span className="text-[var(--font-size-xs)] font-semibold text-[var(--color-text-primary)]">
+          {slotsLeft.toLocaleString()} slots left
         </span>
       )}
     </div>
