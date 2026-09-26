@@ -56,6 +56,7 @@ export default function App() {
   // Search
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<FacilityStatusFilter>('ALL');
+  const [mobilePanelExpanded, setMobilePanelExpanded] = useState(true);
 
   const facilitiesWithDistance = facilities.map((facility) => {
     if (position && !geoLoading && !geoDenied) {
@@ -249,6 +250,7 @@ export default function App() {
   }, [transition, selectedFacility]);
 
   const handleExpand = useCallback(() => {
+    setMobilePanelExpanded(true);
     const s = state as EvaRouteTransitionPayload;
     transition({
       status: state.status,
@@ -258,6 +260,10 @@ export default function App() {
       searchQuery: s.searchQuery ?? '',
     });
   }, [transition, state]);
+
+  const handleMobilePanelToggle = useCallback(() => {
+    setMobilePanelExpanded((expanded) => !expanded);
+  }, []);
 
   // ── Splash renders ──
   const renderSplash = (locationReady: boolean) => (
@@ -272,7 +278,13 @@ export default function App() {
     return (
       <>
         {/* List: floating card on mobile, panel on desktop */}
-        <OverlayContainer variant="panel" expanded={true} collapsedContent={renderDiscoveryCollapsed()}>
+        <OverlayContainer
+          variant="panel"
+          expanded={true}
+          mobileExpanded={mobilePanelExpanded}
+          onMobileToggle={handleMobilePanelToggle}
+          collapsedContent={renderDiscoveryCollapsed()}
+        >
           <FacilityDiscoveryPanel
             facilities={filteredFacilities}
             totalFacilities={facilities.length}
@@ -287,7 +299,7 @@ export default function App() {
   const renderDiscoveryCollapsed = () => (
     <button
       type="button"
-      className="flex flex-col items-center w-full py-3"
+      className="discovery-collapsed-toggle flex flex-col items-center w-full py-3"
       onClick={handleExpand}
       aria-label="Expand list"
     >
@@ -314,9 +326,12 @@ export default function App() {
       <OverlayContainer
         variant="panel"
         expanded={s.sheetExpanded}
+        mobileExpanded={mobilePanelExpanded}
+        onMobileToggle={handleMobilePanelToggle}
+        className="facility-detail-overlay"
         collapsedContent={
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 min-w-0">
+          <div className="facility-detail-collapsed-summary flex items-center justify-between w-full">
+            <div className="facility-detail-collapsed-name flex items-center gap-2 min-w-0">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: facility.status === 'AVAILABLE' ? 'var(--color-success)' : facility.status === 'LIMITED' ? 'var(--color-warning)' : 'var(--color-full)' }} />
               <span className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
                 {facility.name}
@@ -324,7 +339,7 @@ export default function App() {
             </div>
             <button
               type="button"
-              className="flex items-center justify-center w-full py-2"
+              className="facility-detail-collapse-toggle flex items-center justify-center"
               onClick={handleExpand}
               aria-label="Show details"
             >
@@ -354,6 +369,8 @@ export default function App() {
       <OverlayContainer
         variant="route-card"
         expanded={s.sheetExpanded}
+        mobileExpanded={mobilePanelExpanded}
+        onMobileToggle={handleMobilePanelToggle}
         collapsedContent={renderRoutePreviewCollapsed()}
       >
         <RoutePreviewCard
@@ -439,6 +456,8 @@ export default function App() {
         <OverlayContainer
           variant="route-card"
           expanded={s.sheetExpanded}
+          mobileExpanded={mobilePanelExpanded}
+          onMobileToggle={handleMobilePanelToggle}
           className="navigation-overlay"
           collapsedContent={renderNavigatingCollapsed()}
         >

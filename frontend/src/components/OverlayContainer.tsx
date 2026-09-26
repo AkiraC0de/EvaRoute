@@ -19,6 +19,8 @@ interface OverlayContainerProps {
   collapsedContent?: ReactNode;
   variant?: 'sheet' | 'panel' | 'route-card';
   expanded?: boolean;
+  mobileExpanded?: boolean;
+  onMobileToggle?: () => void;
   className?: string;
 }
 
@@ -33,21 +35,26 @@ export default function OverlayContainer({
   collapsedContent,
   variant = 'sheet',
   expanded = true,
+  mobileExpanded = expanded,
+  onMobileToggle,
   className = '',
 }: OverlayContainerProps) {
   const isPanelVariant = variant === 'sheet' || variant === 'panel';
   const desktopClass = desktopPosition[variant === 'route-card' ? 'routeCard' : variant];
+  const isMobileExpanded = expanded && mobileExpanded;
 
   return (
     <>
       {/* ── Mobile: bottom sheet ── */}
       <div
+        data-variant={variant}
+        data-mobile-expanded={isMobileExpanded}
         className={[
+          'overlay-mobile-sheet',
           'fixed bottom-0 left-0 right-0 z-[var(--z-sheet)]',
           'bg-[var(--surface-raised)]',
           'rounded-t-[var(--radius-lg)]',
           'shadow-[var(--shadow-raised-lg)]',
-          !expanded ? 'max-h-[100px] overflow-hidden' : 'max-h-[calc(100dvh-20px)] overflow-y-auto',
           'md:hidden',
           className,
         ]
@@ -56,24 +63,43 @@ export default function OverlayContainer({
       >
         <div
           className={[
-            'overlay-mobile-inner p-5',
-            !expanded && collapsedContent ? 'h-full flex items-center' : '',
+            'overlay-mobile-inner p-5 relative',
+            !isMobileExpanded && collapsedContent ? 'h-full flex items-center' : '',
           ]
             .filter(Boolean)
             .join(' ')}
         >
-          {isPanelVariant && expanded && <DragHandle />}
-          {!expanded && collapsedContent ? (
+          <div
+            className="overlay-mobile-expanded-content"
+            data-hidden={!isMobileExpanded}
+            aria-hidden={!isMobileExpanded}
+          >
+            {onMobileToggle && isMobileExpanded && (
+              <button
+                type="button"
+                className="overlay-mobile-toggle"
+                onClick={onMobileToggle}
+                aria-label="Collapse panel"
+                aria-expanded="true"
+              >
+                <DragHandle />
+              </button>
+            )}
+            <div className="overlay-mobile-content">
+              {children}
+            </div>
+          </div>
+          {!isMobileExpanded && collapsedContent ? (
             collapsedContent
-          ) : (
-            children
-          )}
+          ) : null}
         </div>
       </div>
 
       {/* ── Desktop: floating panel ── */}
       <div
+        data-variant={variant}
         className={[
+          'overlay-desktop-panel',
           'hidden md:flex md:absolute md:z-[var(--z-sheet)]',
           'bg-[var(--surface-raised)]',
           'rounded-[var(--radius-lg)]',

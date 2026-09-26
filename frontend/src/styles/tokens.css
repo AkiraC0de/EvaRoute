@@ -84,7 +84,7 @@
 
   /* --- Desktop panel widths (provisional) --- */
   --panel-width: 360px;
-  --route-card-width: 280px;
+  --route-card-width: var(--panel-width);
 
   /* --- Animation Tokens --- */
   --duration-xs: 100ms;

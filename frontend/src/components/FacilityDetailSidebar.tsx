@@ -87,11 +87,11 @@ export default function FacilityDetailSidebar({
           <p className="facility-detail-muted">Current occupancy data is unavailable.</p>
         )}
       </section>
-
+        
       {facility.note && (
-        <section className="facility-detail-section" aria-labelledby="facility-description-heading">
+        <section className="facility-detail-section min-w-0 w-full" aria-labelledby="facility-description-heading">
           <h3 id="facility-description-heading">About this center</h3>
-          <p className="facility-detail-copy">{facility.note}</p>
+          <p className="facility-detail-copy min-w-0">{facility.note}</p>
         </section>
       )}
 
