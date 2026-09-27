@@ -8,7 +8,8 @@ export const REFRESH_TOKEN = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    // NOTE: no `maxAge` here — each login/refresh sets an explicit `expires`
+    // matching the token's DB expiry, so the cookie never outlives the session.
   } as CookieOptions,
 };
 

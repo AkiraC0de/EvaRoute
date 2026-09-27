@@ -131,7 +131,7 @@ abstract class ApiResponse {
  */
 export class SuccessMsgResponse extends ApiResponse {
   constructor(message: string){
-    super(ResponseStatus.SUCCESS, message || "Successfull fetch.")
+    super(ResponseStatus.SUCCESS, message || "Successful fetch.")
   }
 }
 
@@ -146,7 +146,7 @@ export class SuccessMsgResponse extends ApiResponse {
 export class SuccessResponse<T> extends ApiResponse {
   data: T;
   constructor(message: string, data: T){
-    super(ResponseStatus.SUCCESS, message || "Successfull fetch.");
+    super(ResponseStatus.SUCCESS, message || "Successful fetch.");
     this.data = data;
   }
 

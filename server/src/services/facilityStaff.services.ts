@@ -70,16 +70,16 @@ const create = (facilityId: string, userId: string) => {
 })
 }
 
-const update = (facilityId: string, data: Prisma.FacilityStaffUpdateInput) => {
+const update = (id: string, data: Prisma.FacilityStaffUpdateInput) => {
   return prisma.facilityStaff.update({
-    where: { id: facilityId },
+    where: { id },
     data
   })
 }
 
-const deleteById = (facilityId: string) => {
+const deleteById = (id: string) => {
   return prisma.facilityStaff.delete({
-    where: { id: facilityId }
+    where: { id }
   })
 }
 

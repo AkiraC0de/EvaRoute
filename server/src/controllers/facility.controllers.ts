@@ -8,7 +8,7 @@ import { BadRequestMsgError, ForbiddenError, NotFoundError } from "../core/ApiEr
 import { UserRole } from "../../generated/prisma"
 import facilityStaffServices from "../services/facilityStaff.services"
 import { requireAuth } from "../utils/authUtils"
-import { toFacilityDTO } from "../utils/facilityUtils"
+import { assertFacilityAccess, toFacilityDTO } from "../utils/facilityUtils"
 
 export const handleGetFacility = async (req: Request, res: Response) => {
   const { role } = requireAuth(req)
@@ -76,6 +76,15 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
   // Toggle: if the facility is soft-deleted, DELETE restores it.
   const deletedFacility = await facilityServices.findDeletedById(facilityId)
   if(deletedFacility){
+    // A soft-deleted facility's coordinates may have been taken by a new facility meanwhile.
+    const conflicting = await facilityServices.findByLongLat([
+      Number(deletedFacility.longitude),
+      Number(deletedFacility.latitude)
+    ])
+    if (conflicting) {
+      throw new BadRequestMsgError(`Cannot restore facility ${deletedFacility.name}: its location is now occupied by facility ${conflicting.name}. Update its coordinates first.`)
+    }
+
     await facilityServices.restoreById(facilityId)
     return new SuccessMsgResponse(`Facility ${deletedFacility.name} has been restored.`).send(res)
   }
@@ -97,25 +106,27 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
 }
 
 export const handlePatchFacility = async (req: Request, res: Response) => {
-  const { userId, role } = requireAuth(req)
   const facilityId = req.params.facilityId as string
   if(!facilityId){
     throw new BadRequestMsgError("facilityId is required as parameter.")
   }
 
-  const facility = await facilityServices.findById(facilityId)
-  if(!facility){
-    throw new NotFoundError("Facility not found.")
-  }
-
-  if(role !== UserRole.ADMIN){
-    const isMember = await facilityStaffServices.findStaff(facilityId, userId)
-    if(!isMember){
-      throw new BadRequestMsgError("You are not part of this facility.")
-    }
-  }
+  const facility = await assertFacilityAccess(req, facilityId)
 
   const data = validateData<typeof patchFacilitySchema>(patchFacilitySchema, req.body)
+
+  // Coordinate-conflict guard: reject early instead of letting Prisma's P2002 become a 500.
+  const effectiveLongitude = data.longitude ?? Number(facility.longitude)
+  const effectiveLatitude = data.latitude ?? Number(facility.latitude)
+  if (
+    data.longitude !== undefined ||
+    data.latitude !== undefined
+  ) {
+    const conflicting = await facilityServices.findByLongLat([effectiveLongitude, effectiveLatitude])
+    if (conflicting && conflicting.id !== facilityId) {
+      throw new BadRequestMsgError("There is an existing facility on this location. Please select a new location point.")
+    }
+  }
 
   const updatedFacility = await facilityServices.update(facilityId, data)
 

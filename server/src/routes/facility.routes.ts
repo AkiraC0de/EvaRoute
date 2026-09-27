@@ -27,8 +27,10 @@ facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(P
 // patch facility's data, such as status
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)
 
-// -- Staffs 
+// Staffs 
 facilityRoute.use("/:facilityId/staff", facilityStaffRoute)
+
+// Resouces
 facilityRoute.use("/:facilityId/resource", facilityResourceRoute)
 
 export default facilityRoute

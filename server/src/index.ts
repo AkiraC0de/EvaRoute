@@ -21,14 +21,14 @@ app.use("/api/v1/facility", facilityRoute)
 
 app.use("/", (req: Request, res: Response) => {
   res.status(400).json({
-    message: "Welecome to EvaRoute API. Server is working.",
+    message: "Welcome to EvaRoute API. Server is working.",
     endpoints: ENDPOINTS_LIST
   })
 })
 
-// Fallback endpoint for unkwon route 
+// Fallback endpoint for unknown routes
 app.use((req: Request, res: Response) => {
-  res.status(400).json({
+  res.status(404).json({
     message: "Unknown endpoint.",
     endpoints: ENDPOINTS_LIST
   })

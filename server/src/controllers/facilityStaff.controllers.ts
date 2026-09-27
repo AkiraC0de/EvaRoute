@@ -7,6 +7,7 @@ import facilityServices from "../services/facility.services"
 import facilityStaffServices from "../services/facilityStaff.services"
 import userServices from "../services/user.services"
 import { UserRole } from "../../generated/prisma"
+import { assertFacilityAccess } from "../utils/facilityUtils"
 
 export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string
@@ -14,10 +15,7 @@ export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("'facilityId' is required as a parameter.")
   }
 
-  const facility = await facilityServices.findById(facilityId)
-  if(!facility){
-    throw new NotFoundError("Facility not found.")
-  }
+  const facility = await assertFacilityAccess(req, facilityId)
 
   const staffs = await facilityStaffServices.findByFacilityId(facilityId)
   const formatedStaffs = staffs.map(staff => ({
@@ -62,6 +60,14 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
   const isAlreadyMember = await facilityStaffServices.findStaff(facilityId, userId)
   if(isAlreadyMember){
     throw new BadRequestMsgError("This staff is already part of this facility.")
+  }
+
+  // One facility per staff: reject if they belong to ANY other facility.
+  const existingMembership = await facilityStaffServices.findByUserId(userId)
+  if (existingMembership.length > 0) {
+    throw new BadRequestMsgError(
+      `This staff is already assigned to facility ${existingMembership[0].facility.name}. Use PATCH to transfer them instead.`
+    )
   }
 
   await facilityStaffServices.create(facilityId, userId)

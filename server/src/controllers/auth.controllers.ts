@@ -59,7 +59,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("Incorrect password.")
   }
 
-  const accessToken = createAccessToken(user)
+  const accessToken = createAccessToken({id: user.id, role: user.role})
 
   if(req.cookies[REFRESH_TOKEN.COOKIE_NAME]){
     const hashCookieRefreshToken = cryptoHash(req.cookies[REFRESH_TOKEN.COOKIE_NAME])
@@ -194,15 +194,18 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User not found. Please proceed to login.")
   }
 
-   // Invalidate the previous token
+  // Invalidate the previous token and keep its original expiry (rotation must not extend the session)
   await refreshTokenServices.deleteById(refreshToken.id)
 
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
-  await refreshTokenServices.create(user.id, newRefreshTokenHash)
+  await refreshTokenServices.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)
 
   const accessToken = createAccessToken(user)
 
-  res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, REFRESH_TOKEN.COOKIE_OPTIONS)
+  res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, {
+    ...REFRESH_TOKEN.COOKIE_OPTIONS,
+    expires: refreshToken.expiresAt
+  })
 
   return new SuccessResponse(
     "Refresh success.", {

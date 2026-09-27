@@ -15,7 +15,7 @@ const facilityStaffRoute = express.Router({ mergeParams: true })
 // List staffs of a facility
 facilityStaffRoute.get("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_STAFF), handleGetFacilityStaffs)
 
-// Asssign staff to facility
+// Assign staff to facility
 facilityStaffRoute.post("/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
 
 // Transfer staff between facilities (PATCH)

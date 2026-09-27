@@ -2,32 +2,10 @@ import { Request, Response } from 'express'
 import { validateData } from '../utils/validatorUtils'
 import { createResourceSchema, updateResourceSchema } from '../validations/facilityResource.validations'
 
-import facilityServices from '../services/facility.services'
-import facilityStaffServices from '../services/facilityStaff.services'
 import facilityResourceServices from '../services/facilityResource.services'
 import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
-import { BadRequestMsgError, ForbiddenError, NotFoundError } from '../core/ApiError'
-import { requireAuth } from '../utils/authUtils'
-import { UserRole } from '../../generated/prisma'
-
-// Shared access check: admin may access any facility; staff only their own.
-const assertFacilityAccess = async (req: Request, facilityId: string) => {
-  const { userId, role } = requireAuth(req)
-
-  const facility = await facilityServices.findById(facilityId)
-  if(!facility){
-    throw new NotFoundError('Facility not found.')
-  }
-
-  if (role !== UserRole.ADMIN) {
-    const isMember = await facilityStaffServices.findStaff(facilityId, userId)
-    if(!isMember){
-      throw new ForbiddenError('You are not part of this facility.')
-    }
-  }
-
-  return facility
-}
+import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
+import { assertFacilityAccess } from '../utils/facilityUtils'
 
 const paramErr = (names: string[]) => `Missing required parameter${names.length > 1 ? 's' : ''}: ${names.join(', ')}.`
 
