@@ -143,7 +143,7 @@ export const handlePassReset = async (req: Request, res: Response) => {
   const token = requireToken(req)
   const { newPassword } = validateData<typeof passResetSchema>(passResetSchema, req.body)
   
-  const hashedPassword = await bcrypt.hash(newPassword, 10)
+  const hashedPassword = await bcrypt.hash(newPassword, 12)
 
   await userServices.updatePassword(token.userId, hashedPassword)
   await refreshTokenService.deleteAllByUserId(token.userId)

@@ -23,7 +23,7 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   }
 
   const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
-  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12)
 
   await userServices.create({
     email,
@@ -153,7 +153,7 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
   }
 
   const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
-  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12)
 
   await userServices.updatePassword(userId, hashedPassword)
   await refreshTokenService.deleteAllByUserId(userId)
