@@ -9,7 +9,6 @@ import { ENDPOINTS_LIST } from "./configs/mainConfig"
 import authRoute from "./routes/auth.routes"
 import facilityRoute from "./routes/facility.routes"
 import publicRoute from "./routes/public.routes"
-import staffRoute from "./routes/staff.routes"
 
 const app = express()
 
@@ -21,7 +20,6 @@ app.use(cors({credentials: true}))
 app.use("/api/v1/auth", authRoute)
 app.use("/api/v1/facility", facilityRoute)
 app.use("/api/v1/public", publicRoute)
-app.use("/api/v1/staff", staffRoute)
 
 app.use("/", (req: Request, res: Response) => {
   res.status(400).json({

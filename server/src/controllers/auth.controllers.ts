@@ -11,7 +11,7 @@ import tokenService from "../services/token.services"
 import refreshTokenService from '../services/refreshToken.services';
 
 import { validateData } from "../utils/validatorUtils"
-import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
+import { loginSchema, passReqResetSchema } from "../validations/auth.validations"
 import { requireAuth } from "../utils/authUtils"
 import { createAccessToken } from "./../utils/jwtUtils"
 import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"

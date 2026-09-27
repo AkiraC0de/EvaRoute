@@ -1,3 +1,4 @@
+import { handleAssignStaff } from './../controllers/facilityStaff.controllers';
 import express from 'express'
 import verifyAuthentication from '../middlewares/verifyAuthentication'
 import verifyAuthorization from '../middlewares/verifyAuthorization'
@@ -12,6 +13,7 @@ import {
   handleRegisterFacility,
   handleGetFacility
 } from "../controllers/facility.controllers"
+import { handleGetFacilityStaffs } from '../controllers/facilityStaff.controllers'
 
 const facilityRoute = express.Router()
 
@@ -28,7 +30,14 @@ facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(P
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)
 
 // Staffs 
-facilityRoute.use("/:facilityId/staff", facilityStaffRoute)
+
+facilityRoute.use("/staff", facilityStaffRoute)
+
+// Fetch all current staffs of a facility
+facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_STAFF), handleGetFacilityStaffs)
+
+// Assign or Transfer a staff to a facility
+facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
 
 // Resouces
 facilityRoute.use("/:facilityId/resource", facilityResourceRoute)
