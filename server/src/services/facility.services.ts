@@ -67,6 +67,14 @@ const findMany = (status?: FacilityStatus) => {
     }
   })
 }
+
+const findManyAvailableWithResources = () => {
+  return prisma.facility.findMany({
+    where: { deletedAt: null, status: FacilityStatus.AVAILABLE },
+    include: { resource: true },
+    orderBy: { createdAt: "asc" },
+  })
+}
 const findDeletedById = (facilityId: string) => {
   return prisma.facility.findFirst({
     where: { id: facilityId, deletedAt: { not: null } }
@@ -101,6 +109,7 @@ export default {
   findByLongLat,
   findById,
   findMany,
+  findManyAvailableWithResources,
   findDeletedById,
   softDeleteById,
   restoreById,
