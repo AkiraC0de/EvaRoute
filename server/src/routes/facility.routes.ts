@@ -1,4 +1,3 @@
-import { handleAssignStaff } from './../controllers/facilityStaff.controllers';
 import express from 'express'
 import verifyAuthentication from '../middlewares/verifyAuthentication'
 import verifyAuthorization from '../middlewares/verifyAuthorization'
@@ -13,11 +12,10 @@ import {
   handleRegisterFacility,
   handleGetFacility
 } from "../controllers/facility.controllers"
-import { handleGetFacilityStaffs } from '../controllers/facilityStaff.controllers'
 
 const facilityRoute = express.Router()
 
-// fetch facility  
+// fetch facility
 facilityRoute.get("/", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_FACILITY), handleGetFacility)
 
 // Register new facility on the map
@@ -29,17 +27,10 @@ facilityRoute.delete("/:facilityId", verifyAuthentication, verifyAuthorization(P
 // patch facility's data, such as status
 facilityRoute.patch("/:facilityId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_FACILITY), handlePatchFacility)
 
-// Staffs 
+// Staff membership
+facilityRoute.use("/:facilityId/staff", facilityStaffRoute)
 
-facilityRoute.use("/staff", facilityStaffRoute)
-
-// Fetch all current staffs of a facility
-facilityRoute.get("/:facilityId/staff", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_STAFF), handleGetFacilityStaffs)
-
-// Assign or Transfer a staff to a facility
-facilityRoute.post("/:facilityId/staff/:userId", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.ASSIGN_STAFF), handleAssignStaff)
-
-// Resouces
+// Resources
 facilityRoute.use("/:facilityId/resource", facilityResourceRoute)
 
 export default facilityRoute
