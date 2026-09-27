@@ -19,6 +19,7 @@ model User {
   firstName   String?
   lastName    String?
   role        UserRole @default(FACILITY_STAFF)
+  isActive    Boolean  @default(true)
   isSetupDone Boolean  @default(false)
   createdAt   DateTime @default(now())
 

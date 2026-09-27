@@ -3,7 +3,7 @@ import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import { BadRequestError, BadRequestMsgError, NotFoundError, UnauthorizedError } from "../core/ApiError"
+import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
@@ -58,6 +58,10 @@ export const handleLogin = async (req: Request, res: Response) => {
   const passwordMatched = await bcrypt.compare(password, user.password)
   if(!passwordMatched){
     throw new BadRequestMsgError("Incorrect password.")
+  }
+
+  if(!user.isActive){
+    throw new ForbiddenError("This account has been deactivated. Contact an administrator.")
   }
 
   const accessToken = createAccessToken({id: user.id, role: user.role})
@@ -193,6 +197,10 @@ export const handleRefresh = async (req: Request, res: Response) => {
   const user = await userService.findById(refreshToken.userId)
   if(!user) {
     throw new UnauthorizedError("User not found. Please proceed to login.")
+  }
+
+  if(!user.isActive){
+    throw new ForbiddenError("This account has been deactivated. Contact an administrator.")
   }
 
   // Invalidate the previous token and keep its original expiry (rotation must not extend the session)
