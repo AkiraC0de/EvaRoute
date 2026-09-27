@@ -109,6 +109,52 @@ export class ApiMailer {
   // Public Email Methods
   // You can add new mailer methods here
 
+  /**
+   * Shared template for staff credential emails (welcome / admin reset).
+   * Only subject and intro copy differ between the two modes.
+   */
+  private static async sendCredentialsEmail(
+    receiver: string,
+    staffName: string,
+    defaultPassword: string,
+    mode: "WELCOME" | "RESET"
+  ) {
+    const { border, text, muted } = this.palette
+
+    const subject = mode === "WELCOME"
+      ? `Your ${APP_NAME} staff account is ready`
+      : `Your ${APP_NAME} password has been reset`
+
+    const intro = mode === "WELCOME"
+      ? `<p style="margin: 0 0 24px; color: ${text};">Hello ${staffName}, an administrator has created a staff account for you. Use the temporary password below to log in.</p>`
+      : `<p style="margin: 0 0 24px; color: ${text};">Hello ${staffName}, an administrator has reset your password. Use the new temporary password below to log in.</p>`
+
+    const htmlContent = `
+      <h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 600; color: ${text};">${subject}</h2>
+      ${intro}
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;">
+        <tr>
+          <td style="border: 1px solid ${border}; padding: 16px; text-align: center;">
+            <span style="font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; letter-spacing: 4px; color: ${text};">${defaultPassword}</span>
+          </td>
+        </tr>
+      </table>
+      <p style="margin: 0 0 12px; color: ${text};">You can now log in to the website with this password. For your security, please change it to your own password after logging in.</p>
+      <p style="margin: 0; font-size: 13px; color: ${muted};">This temporary password is shown only once. If you did not expect this email, please contact your administrator.</p>
+    `
+    return this.send(receiver, subject, htmlContent)
+  }
+
+  // Welcome email sent when an admin creates a staff account.
+  public static async sendStaffWelcome(receiver: string, staffName: string, defaultPassword: string) {
+    return this.sendCredentialsEmail(receiver, staffName, defaultPassword, "WELCOME")
+  }
+
+  // Password email sent when an admin resets a staff account's password.
+  public static async sendStaffPasswordReset(receiver: string, staffName: string, defaultPassword: string) {
+    return this.sendCredentialsEmail(receiver, staffName, defaultPassword, "RESET")
+  }
+
   public static async sendOTP(receiver: string, otp: string, subject: string = "Verification Code") {
     const OTP_EXPIRATION_IN_MIN = REQ_RESET_PASS_TOKEN.DEFAULT_EXPIRATION_IN_MINS
     const { border, text, muted } = this.palette
@@ -124,17 +170,6 @@ export class ApiMailer {
         </tr>
       </table>
       <p style="margin: 0; font-size: 13px; color: ${muted};">This code expires in <strong>${OTP_EXPIRATION_IN_MIN} minutes</strong>. If you did not request this code, please ignore this email.</p>
-    `
-    return this.send(receiver, subject, htmlContent)
-  }
-
-  public static async sendWelcome(receiver: string, name: string) {
-    const { text, muted } = this.palette
-    const subject = `Welcome aboard, ${name}!`
-    const htmlContent = `
-      <h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 600; color: ${text};">Welcome to ${APP_NAME}, ${name}!</h2>
-      <p style="margin: 0 0 16px; color: ${text};">We are thrilled to have you join us. Your account is active and ready to go.</p>
-      <p style="margin: 0; font-size: 13px; color: ${muted};">This is auto-generated mail.</p>
     `
     return this.send(receiver, subject, htmlContent)
   }

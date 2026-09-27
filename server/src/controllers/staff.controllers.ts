@@ -9,6 +9,7 @@ import { requireAuth, generateCryptoToken } from "../utils/authUtils"
 import { toStaffDTO } from "../utils/staffUtils"
 import { validateData, paramErr } from "../utils/validatorUtils"
 import { DEFAULT_PASSWORD_LENGTH } from "../configs/tokenConfig"
+import { ApiMailer } from "../core/ApiMailer"
 import { registerSchema, listStaffQuerySchema, patchStaffSchema } from "../validations/staff.validations"
 import { UserRole } from "../../generated/prisma"
 
@@ -28,6 +29,9 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
     email,
     password: hashedPassword,
   })
+
+
+  await ApiMailer.sendStaffWelcome(email, email.split("@")[0], defaultPassword)
 
   return new SuccessResponse(
     "New account has been created.", {
@@ -156,6 +160,8 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
   if (!user.isActive) {
     await userServices.setActive(userId, true)
   }
+
+  await ApiMailer.sendStaffPasswordReset(user.email, user.email.split("@")[0], defaultPassword)
 
   return new SuccessResponse(
     `Password for ${user.email} has been reset. Share it with the staff securely; they must change it after logging in.`,
