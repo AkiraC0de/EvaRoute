@@ -92,20 +92,14 @@ export const handleDismissStaff = async (req: Request, res: Response) => {
     throw new NotFoundError("User not found.")
   }
 
-  const facilityId = req.params.facilityId as string
-  const facility = await facilityServices.findById(facilityId)
-  if(!facility){
-    throw new NotFoundError("Facility not found.")
+  const membership = await facilityStaffServices.findMembershipByUserId(userId)
+  if(!membership){
+    throw new BadRequestMsgError("User is not assigned to any facility.")
   }
 
-  const isMember = await facilityStaffServices.findStaff(facilityId, userId)
-  if(!isMember){
-    throw new BadRequestMsgError("This staff is not part of this facility.")
-  }
+  await facilityStaffServices.deleteStaff(membership.facilityId, userId)
 
-  await facilityStaffServices.deleteStaff(facilityId, userId)
-
-  return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been removed as a staff of facility ${facility.name}.`).send(res)
+  return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been removed as a staff of facility ${membership.facility.name}.`).send(res)
 }
 
 
