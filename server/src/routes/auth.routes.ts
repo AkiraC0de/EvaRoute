@@ -4,7 +4,6 @@ import { TokenType, UserRole } from "../../generated/prisma"
 
 import { 
   handleLogin,
-  handleRegister,
   handlePassReqReset,
   handlePassReset,
   handleVerifyResetPass,
@@ -19,8 +18,6 @@ import { PERMISSION_TYPES } from "../configs/permissionConfig"
 
 
 const authRoute = express.Router()
-
-authRoute.post("/register", verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.REGISTER_STAFF_ACC), handleRegister)
 
 authRoute.post("/login", handleLogin)
 

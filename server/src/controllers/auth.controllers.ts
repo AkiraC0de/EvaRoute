@@ -21,31 +21,6 @@ import userServices from '../services/user.services'
 import { REFRESH_TOKEN } from '../configs/tokenConfig'
 import refreshTokenServices from '../services/refreshToken.services'
 
-export const handleRegister = async (req: Request, res: Response) => {
-  const userData = validateData<typeof registerSchema>(registerSchema, req.body)
-  const { email } = userData
-
-  const existingUser = await userService.findByEmail(email)
-  if(existingUser){
-    throw new BadRequestMsgError("This email address is already registered.")
-  }
-
-  const defaultPassword = crypto.randomBytes(8).toString('hex')
-  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
-
-  await userService.create({
-    email,
-    password: hashedPassword,
-  })
-
-  return new SuccessResponse(
-    "New account has been created.", {
-      email,
-      defaultPassword
-    }
-  ).send(res)
-}
-
 export const handleLogin = async (req: Request, res: Response) => {
   const userData = validateData<typeof loginSchema>(loginSchema, req.body)
   const { email, password, keepLogin } = userData

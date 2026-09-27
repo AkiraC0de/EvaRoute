@@ -10,7 +10,8 @@ import {
   handleActivateStaff,
   handleDeactivateStaff,
   handleDeleteStaff,
-  handleResetStaffPassword
+  handleResetStaffPassword,
+  handleCreateStaffAccount
 } from "../controllers/staff.controllers"
 
 const staffRoute = express.Router()
@@ -25,6 +26,9 @@ staffRoute.get("/:userId", verifyAuthorization(PERMISSION_TYPES.FETCH_ALL_STAFF)
 
 // Edit a staff account's name fields
 staffRoute.patch("/:userId", verifyAuthorization(PERMISSION_TYPES.EDIT_STAFF_ACC), handlePatchStaff)
+
+// create a staff account
+staffRoute.post("/", verifyAuthorization(PERMISSION_TYPES.REGISTER_STAFF_ACC), handleCreateStaffAccount)
 
 // Reactivate a deactivated staff account
 staffRoute.post("/:userId/activate", verifyAuthorization(PERMISSION_TYPES.EDIT_STAFF_ACC), handleActivateStaff)

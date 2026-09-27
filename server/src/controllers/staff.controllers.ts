@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
 import userServices from "../services/user.services"
 import refreshTokenService from "../services/refreshToken.services"
@@ -10,6 +11,7 @@ import { validateData } from "../utils/validatorUtils"
 import { listStaffQuerySchema, patchStaffSchema } from "../validations/staff.validations"
 import { ListStaffQuery } from "../validations/staff.validations"
 import { UserRole } from "../../generated/prisma"
+import { registerSchema } from "../validations/auth.validations"
 
 const paramErr = (name: string) => `'${name}' is required as a parameter.`
 
@@ -34,6 +36,31 @@ const toStaffDTO = (user: {
     ? { id: user.facilityStaff.facility.id, name: user.facilityStaff.facility.name }
     : null,
 })
+
+export const handleCreateStaffAccount = async (req: Request, res: Response) => {
+  const userData = validateData<typeof registerSchema>(registerSchema, req.body)
+  const { email } = userData
+
+  const existingUser = await userServices.findByEmail(email)
+  if(existingUser){
+    throw new BadRequestMsgError("This email address is already registered.")
+  }
+
+  const defaultPassword = crypto.randomBytes(8).toString('hex')
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+
+  await userServices.create({
+    email,
+    password: hashedPassword,
+  })
+
+  return new SuccessResponse(
+    "New account has been created.", {
+      email,
+      defaultPassword
+    }
+  ).send(res)
+}
 
 export const handleListStaffs = async (req: Request, res: Response) => {
   const query = validateData<typeof listStaffQuerySchema>(listStaffQuerySchema, req.query, "query")
