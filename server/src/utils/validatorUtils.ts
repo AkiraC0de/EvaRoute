@@ -8,6 +8,9 @@ export type FieldError = {
 
 type DataSource = "body" | "query"
 
+export const paramErr = (names: string[]) =>
+  `Missing required parameter${names.length > 1 ? 's' : ''}: ${names.join(', ')}.`
+
 export function validateData<TSchema extends z.ZodTypeAny>(schema: TSchema, data: unknown, source: DataSource = "body", ): z.infer<TSchema> {
   if(data == undefined) throw new NoEntryError()
 

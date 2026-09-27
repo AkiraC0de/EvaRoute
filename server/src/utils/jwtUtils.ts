@@ -1,6 +1,7 @@
 import { Request } from 'express'
 import jwt from "jsonwebtoken"
 import { Token, TokenType, UserRole, Prisma  } from "../../generated/prisma"
+import { ACCESS_TOKEN } from "../configs/tokenConfig"
 
 export type AuthContext = {
   userId: string,
@@ -35,7 +36,7 @@ export const createAccessToken = (payload: AccessTokenPayload) => {
   }
 
   return jwt.sign(payload, secretKey, {
-    expiresIn: "15m"
+    expiresIn: ACCESS_TOKEN.EXPIRATION
   })
 }
 

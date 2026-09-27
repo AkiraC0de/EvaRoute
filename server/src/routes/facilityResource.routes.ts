@@ -13,19 +13,21 @@ import {
 
 const facilityResourceRoute = express.Router({ mergeParams: true })
 
+facilityResourceRoute.use(verifyAuthentication)
+
 // List resources of a facility
-facilityResourceRoute.get('/', verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_RESOURCE), handleGetResources)
+facilityResourceRoute.get('/', verifyAuthorization(PERMISSION_TYPES.FETCH_RESOURCE), handleGetResources)
 
 // Fetch a single resource
-facilityResourceRoute.get('/:resourceId', verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.FETCH_RESOURCE), handleGetResource)
+facilityResourceRoute.get('/:resourceId', verifyAuthorization(PERMISSION_TYPES.FETCH_RESOURCE), handleGetResource)
 
 // Create a new resource
-facilityResourceRoute.post('/', verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleCreateResource)
+facilityResourceRoute.post('/', verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleCreateResource)
 
 // Update a resource (adjust counts / availability)
-facilityResourceRoute.patch('/:resourceId', verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleUpdateResource)
+facilityResourceRoute.patch('/:resourceId', verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleUpdateResource)
 
 // Delete a resource
-facilityResourceRoute.delete('/:resourceId', verifyAuthentication, verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleDeleteResource)
+facilityResourceRoute.delete('/:resourceId', verifyAuthorization(PERMISSION_TYPES.EDIT_RESOURCE), handleDeleteResource)
 
 export default facilityResourceRoute

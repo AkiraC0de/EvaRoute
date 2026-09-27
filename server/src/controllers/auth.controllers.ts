@@ -18,7 +18,7 @@ import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashC
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
-import { REFRESH_TOKEN } from '../configs/tokenConfig'
+import { REFRESH_TOKEN, OTP } from '../configs/tokenConfig'
 import refreshTokenServices from '../services/refreshToken.services'
 
 export const handleLogin = async (req: Request, res: Response) => {
@@ -99,7 +99,7 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 }
 
 export const handleVerifyResetPass = async (req: Request, res: Response) => {
-  const MAX_ATTEMPT = 10
+  const MAX_ATTEMPT = OTP.MAX_ATTEMPTS
 
   const token = requireToken(req)
   const { otp } = validateData<typeof verifyResetPassSchema>(verifyResetPassSchema, req.body) 
@@ -146,8 +146,9 @@ export const handlePassReset = async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10)
 
   await userServices.updatePassword(token.userId, hashedPassword)
+  await refreshTokenService.deleteAllByUserId(token.userId)
 
-  return new SuccessMsgResponse("Your password has changed. You may now login with your new password").send(res)
+  return new SuccessMsgResponse("Your password has been changed. You have been signed out from all devices — please log in again.").send(res)
 }
 
 export const handleRefresh = async (req: Request, res: Response) => {
@@ -184,7 +185,7 @@ export const handleRefresh = async (req: Request, res: Response) => {
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
   await refreshTokenServices.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)
 
-  const accessToken = createAccessToken(user)
+  const accessToken = createAccessToken({ id: user.id, role: user.role })
 
   res.cookie(REFRESH_TOKEN.COOKIE_NAME, newRefreshToken, {
     ...REFRESH_TOKEN.COOKIE_OPTIONS,

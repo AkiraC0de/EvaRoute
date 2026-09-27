@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { PUBLIC_FACILITY } from "../configs/publicConfig"
 
 // Query strings arrive as strings, so coerce them to numbers.
 export const publicFacilityQuerySchema = z.object({
@@ -13,7 +14,7 @@ export const publicFacilityQuerySchema = z.object({
   distance: z.coerce
     .number("distance must be a number.")
     .positive("distance must be a positive number of kilometers.")
-    .max(200, "distance cannot exceed 200 kilometers.")
+    .max(PUBLIC_FACILITY.MAX_DISTANCE_KM, `distance cannot exceed ${PUBLIC_FACILITY.MAX_DISTANCE_KM} kilometers.`)
     .optional(),
 })
 

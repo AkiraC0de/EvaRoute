@@ -27,7 +27,6 @@ model User {
   token         Token[]
   refreshToken  RefreshToken[]
 
-  @@index([email])
   @@index([role])
   @@map("users")
 }
@@ -76,6 +75,7 @@ model FacilityStay {
   members FacilityStayMember[]
 
   @@index([facilityId, checkedOutAt])
+  @@map("facility_stays")
 }
 
 model FacilityStayMember {
@@ -88,6 +88,7 @@ model FacilityStayMember {
   stay FacilityStay @relation(fields: [stayId], references: [id], onDelete: Cascade)
 
   @@index([stayId])
+  @@map("facility_stay_members")
 }
 
 enum FacilityResourceType {

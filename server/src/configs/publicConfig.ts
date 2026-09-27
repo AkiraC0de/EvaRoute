@@ -1,0 +1,4 @@
+export const PUBLIC_FACILITY = {
+  DEFAULT_DISTANCE_KM: 10,
+  MAX_DISTANCE_KM: 200,
+}

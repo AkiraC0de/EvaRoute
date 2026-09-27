@@ -1,13 +1,11 @@
 import { Request, Response } from 'express'
-import { validateData } from '../utils/validatorUtils'
+import { validateData, paramErr } from '../utils/validatorUtils'
 import { createResourceSchema, updateResourceSchema } from '../validations/facilityResource.validations'
 
 import facilityResourceServices from '../services/facilityResource.services'
 import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
 import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
 import { assertFacilityAccess } from '../utils/facilityUtils'
-
-const paramErr = (names: string[]) => `Missing required parameter${names.length > 1 ? 's' : ''}: ${names.join(', ')}.`
 
 export const handleGetResources = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string

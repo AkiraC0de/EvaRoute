@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer"
 import type { Transporter } from "nodemailer"
 import { FailedEmailError, InternalError } from "./ApiError"
+import { REQ_RESET_PASS_TOKEN } from "../configs/tokenConfig"
 
 // NOTES: 
 // - Do not touch the code above of the Public methods
@@ -109,7 +110,7 @@ export class ApiMailer {
   // You can add new mailer methods here
 
   public static async sendOTP(receiver: string, otp: string, subject: string = "Verification Code") {
-    const OTP_EXPIRATION_IN_MIN = 15
+    const OTP_EXPIRATION_IN_MIN = REQ_RESET_PASS_TOKEN.DEFAULT_EXPIRATION_IN_MINS
     const { border, text, muted } = this.palette
 
     const htmlContent = `

@@ -7,11 +7,10 @@ import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 import { BadRequestMsgError, NotFoundError } from "../core/ApiError"
 import { requireAuth, generateCryptoToken } from "../utils/authUtils"
 import { toStaffDTO } from "../utils/staffUtils"
-import { validateData } from "../utils/validatorUtils"
+import { validateData, paramErr } from "../utils/validatorUtils"
+import { DEFAULT_PASSWORD_LENGTH } from "../configs/tokenConfig"
 import { registerSchema, listStaffQuerySchema, patchStaffSchema } from "../validations/staff.validations"
 import { UserRole } from "../../generated/prisma"
-
-const paramErr = (name: string) => `'${name}' is required as a parameter.`
 
 export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -22,7 +21,7 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("This email address is already registered.")
   }
 
-  const defaultPassword = generateCryptoToken().slice(0, 16)
+  const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
   const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
   await userServices.create({
@@ -53,7 +52,7 @@ export const handleListStaffs = async (req: Request, res: Response) => {
 export const handleGetStaff = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   const user = await userServices.findByIdWithFacility(userId)
@@ -67,7 +66,7 @@ export const handleGetStaff = async (req: Request, res: Response) => {
 export const handlePatchStaff = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   const user = await userServices.findById(userId)
@@ -95,7 +94,7 @@ export const handlePatchStaff = async (req: Request, res: Response) => {
 export const handleActivateStaff = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   const user = await userServices.findById(userId)
@@ -116,7 +115,7 @@ export const handleDeactivateStaff = async (req: Request, res: Response) => {
   const { userId: callerId } = requireAuth(req)
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   if (callerId === userId) {
@@ -141,7 +140,7 @@ export const handleDeactivateStaff = async (req: Request, res: Response) => {
 export const handleResetStaffPassword = async (req: Request, res: Response) => {
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   const user = await userServices.findById(userId)
@@ -149,7 +148,7 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
     throw new NotFoundError("Staff account not found.")
   }
 
-  const defaultPassword = generateCryptoToken().slice(0, 16)
+  const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
   const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
   await userServices.updatePassword(userId, hashedPassword)
@@ -168,7 +167,7 @@ export const handleDeleteStaff = async (req: Request, res: Response) => {
   const { userId: callerId } = requireAuth(req)
   const userId = req.params.userId as string
   if (!userId) {
-    throw new BadRequestMsgError(paramErr("userId"))
+    throw new BadRequestMsgError(paramErr(["userId"]))
   }
 
   if (callerId === userId) {

@@ -20,3 +20,13 @@ export const RESET_PASS_TOKEN = {
 export const REQ_RESET_PASS_TOKEN = {
   DEFAULT_EXPIRATION_IN_MINS: 15
 }
+
+export const ACCESS_TOKEN = {
+  EXPIRATION: "15m"
+} as const
+
+export const OTP = {
+  MAX_ATTEMPTS: 10
+}
+
+export const DEFAULT_PASSWORD_LENGTH = 16

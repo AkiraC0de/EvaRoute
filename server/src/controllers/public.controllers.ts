@@ -4,13 +4,12 @@ import { validateData } from "../utils/validatorUtils"
 import { publicFacilityQuerySchema } from "../validations/public.validations"
 import facilityServices from "../services/facility.services"
 import { haversineKm } from "../utils/geoUtils"
-
-const DEFAULT_DISTANCE_KM = 10
+import { PUBLIC_FACILITY } from "../configs/publicConfig"
 
 export const handleGetPublicFacilities = async (req: Request, res: Response) => {
   const { fromLong, fromLat, distance } = validateData<typeof publicFacilityQuerySchema>(publicFacilityQuerySchema,req.query,"query")
 
-  const maxKm = distance ?? DEFAULT_DISTANCE_KM
+  const maxKm = distance ?? PUBLIC_FACILITY.DEFAULT_DISTANCE_KM
 
   const facilities = await facilityServices.findManyAvailableWithResources()
 
