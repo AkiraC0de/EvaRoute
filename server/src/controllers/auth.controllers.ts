@@ -19,7 +19,6 @@ import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
 import { REFRESH_TOKEN, OTP } from '../configs/tokenConfig'
-import refreshTokenServices from '../services/refreshToken.services'
 
 export const handleLogin = async (req: Request, res: Response) => {
   const userData = validateData<typeof loginSchema>(loginSchema, req.body)
@@ -180,10 +179,10 @@ export const handleRefresh = async (req: Request, res: Response) => {
   }
 
   // Invalidate the previous token and keep its original expiry (rotation must not extend the session)
-  await refreshTokenServices.deleteById(refreshToken.id)
+  await refreshTokenService.deleteById(refreshToken.id)
 
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
-  await refreshTokenServices.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)
+  await refreshTokenService.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)
 
   const accessToken = createAccessToken({ id: user.id, role: user.role })
 
@@ -204,6 +203,22 @@ export const handleRefresh = async (req: Request, res: Response) => {
       accessToken
     }
   ).send(res)
+}
+
+// Sign out user to its current device
+export const handleSignOut = async (req: Request, res: Response) => {
+  const { userId } = requireAuth(req)
+
+  const cookieToken = req.cookies[REFRESH_TOKEN.COOKIE_NAME]
+  if (cookieToken) {
+    const refreshToken = await refreshTokenService.findByToken(cryptoHash(cookieToken))
+    if (refreshToken && refreshToken.userId === userId) {
+      await refreshTokenService.deleteById(refreshToken.id)
+    }
+  }
+
+  res.clearCookie(REFRESH_TOKEN.COOKIE_NAME)
+  return new SuccessMsgResponse("Signed out complete.").send(res)
 }
 
 // Requires the account password as proof of identity (protects against a stolen
