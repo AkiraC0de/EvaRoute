@@ -43,6 +43,12 @@ export const verifyResetPassSchema = z.object({
     .regex(/^\d+$/, "OTP must contain only digits."),
 })
 
+export const signOutAllSchema = z.object({
+  password: z
+    .string("Password is required.")
+    .min(1, "Password is required."),
+})
+
 export const passResetSchema = z.object({
   newPassword: z
       .string("Password is required.")

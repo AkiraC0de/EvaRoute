@@ -36,9 +36,28 @@ const deleteByToken = (token: string) => {
   })
 }
 
+// Sign-out-all-others: kill every session of a user except the given one.
+const deleteAllByUserIdExcept = (userId: string, keepTokenId: string) => {
+  return prisma.refreshToken.deleteMany({
+    where: {
+      userId,
+      id: { not: keepTokenId }
+    }
+  })
+}
+
+// Kill every session of a user (no exceptions).
+const deleteAllByUserId = (userId: string) => {
+  return prisma.refreshToken.deleteMany({
+    where: { userId }
+  })
+}
+
 export default {
   deleteById,
   deleteByToken,
   create,
-  findByToken
+  findByToken,
+  deleteAllByUserIdExcept,
+  deleteAllByUserId
 }

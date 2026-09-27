@@ -9,6 +9,7 @@ import {
   handlePassReset,
   handleVerifyResetPass,
   handleRefresh,
+  handleSignOutAllDevices,
 } from "../controllers/auth.controllers"
 
 import verifyToken from "../middlewares/verifyToken"
@@ -30,5 +31,8 @@ authRoute.post("/password/verify-reset", verifyToken(TokenType.REQ_RESET_PASS), 
 authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassReset) 
 
 authRoute.get("/refresh", handleRefresh) 
+
+// Sign out of all other devices (keeps the calling device signed in)
+authRoute.post("/signout-all", verifyAuthentication, handleSignOutAllDevices)
 
 export default authRoute

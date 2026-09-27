@@ -1,9 +1,9 @@
-import { passResetSchema, verifyResetPassSchema } from './../validations/auth.validations'
+import { passResetSchema, signOutAllSchema, verifyResetPassSchema } from './../validations/auth.validations'
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import { BadRequestError, BadRequestMsgError, UnauthorizedError } from "../core/ApiError"
+import { BadRequestError, BadRequestMsgError, NotFoundError, UnauthorizedError } from "../core/ApiError"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 
 import userService from "../services/user.services"
@@ -12,8 +12,9 @@ import refreshTokenService from '../services/refreshToken.services';
 
 import { validateData } from "../utils/validatorUtils"
 import { loginSchema, registerSchema, passReqResetSchema } from "../validations/auth.validations"
+import { requireAuth } from "../utils/authUtils"
 import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireAuth, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
+import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
 import { ApiMailer } from "../core/ApiMailer"
 import tokenServices from '../services/token.services'
 import userServices from '../services/user.services'
@@ -219,4 +220,35 @@ export const handleRefresh = async (req: Request, res: Response) => {
       accessToken
     }
   ).send(res)
+}
+
+// Requires the account password as proof of identity (protects against a stolen
+// access token being used to revoke the victim's other sessions).
+export const handleSignOutAllDevices = async (req: Request, res: Response) => {
+  const { userId } = requireAuth(req)
+  const { password } = validateData<typeof signOutAllSchema>(signOutAllSchema, req.body)
+
+  const user = await userService.findById(userId)
+  if (!user) {
+    throw new NotFoundError("User not found.")
+  }
+
+  const passwordMatched = await bcrypt.compare(password, user.password)
+  if (!passwordMatched) {
+    throw new BadRequestMsgError("Incorrect password.")
+  }
+
+  // Keep THIS device's session when the cookie holds one of the user's valid
+  // refresh tokens; otherwise (no cookie / stale / rotated away) wipe them all.
+  const cookieToken = req.cookies[REFRESH_TOKEN.COOKIE_NAME]
+  if (cookieToken) {
+    const refreshToken = await refreshTokenService.findByToken(cryptoHash(cookieToken))
+    if (refreshToken && refreshToken.userId === userId) {
+      await refreshTokenService.deleteAllByUserIdExcept(userId, refreshToken.id)
+      return new SuccessMsgResponse("Signed out from all other devices.").send(res)
+    }
+  }
+
+  await refreshTokenService.deleteAllByUserId(userId)
+  return new SuccessMsgResponse("Signed out from all other devices.").send(res)
 }

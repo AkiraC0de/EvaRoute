@@ -4,6 +4,7 @@ export const ENDPOINTS_LIST = [
   "GET api/v1/auth/password/request-reset?email=<email>",
   "POST api/v1/auth/password/verify-reset",
   "POST api/v1/auth/password/reset",
+  "POST api/v1/auth/signout-all",
 
   "GET api/v1/facility",
   "POST api/v1/facility",
