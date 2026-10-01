@@ -27,7 +27,7 @@ interface OverlayContainerProps {
 const desktopPosition = {
   sheet: 'md:top-[50%] md:right-[var(--space-panel-margin)] md:translate-y-[calc(-50%-12px)]',
   panel: 'md:top-[50%] md:right-[var(--space-panel-margin)] md:translate-y-[calc(-50%-12px)]',
-  routeCard: 'md:bottom-4 md:right-[var(--space-panel-margin)]',
+  routeCard: 'md:bottom-[var(--space-panel-margin)] md:right-[var(--space-panel-margin)]',
 };
 
 export default function OverlayContainer({

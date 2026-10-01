@@ -181,10 +181,17 @@ button {
     display: none;
   }
 
+  .facility-discovery-panel {
+    /* Inner spacing so cards/list items don't touch the panel edges.
+       --space-md (16px) matches the existing card padding in the Figma spec. */
+    padding: var(--space-md);
+  }
+
   .overlay-desktop-panel {
     position: absolute;
     display: flex;
     z-index: var(--z-sheet);
+    max-height: calc(100dvh - var(--space-panel-margin) * 2);
   }
 
   .overlay-desktop-panel[data-variant='sheet'],
@@ -196,7 +203,7 @@ button {
 
   .overlay-desktop-panel[data-variant='route-card'] {
     right: var(--space-panel-margin);
-    bottom: 1rem;
+    bottom: var(--space-panel-margin);
   }
 }
 
@@ -631,6 +638,12 @@ button {
   .evaroute-shell .overlay-area > .turn-instruction,
   .evaroute-shell .overlay-area > .turn-instruction * {
     pointer-events: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .turn-instruction {
+    top: var(--space-panel-margin);
   }
 }
 
@@ -1247,6 +1260,12 @@ button {
 }
 
 @media (min-width: 768px) {
+  .facility-detail-sidebar {
+    /* Inner spacing so detail content doesn't touch the sidebar edges.
+       --space-md (16px) matches the existing card padding in the Figma spec. */
+    padding: var(--space-md);
+  }
+
   .facility-detail-actions {
     margin-top: auto;
   }
@@ -1577,11 +1596,15 @@ button {
 /* On desktop, overlay is left-anchored with a fixed width (≈ search bar width in Figma) */
 @media (min-width: 768px) {
   .search-filter-overlay {
+    top: var(--space-panel-margin);
+    left: var(--space-panel-margin);
+    padding: 0;
     right: auto;
     width: 480px;
-    max-width: calc(100vw - var(--space-panel-margin) - var(--panel-width) - var(--space-md));
+    max-width: calc(100vw - var(--space-panel-margin) * 2 - var(--panel-width) - var(--space-md));
   }
 }
+
 
 /* Row containing search input + optional recenter slot */
 .search-filter-top-row {
@@ -1848,8 +1871,11 @@ button {
 }
 
 @media (min-width: 768px) {
+  /* The navigating overlay is the same 'route-card' variant as route_preview,
+     so it must keep that variant's bottom-right anchoring. The desktop panel
+     rule already sets right/bottom; only re-assert right here (the `left`
+     override that shifted this card to the bottom-left was removed). */
   .navigation-overlay {
-    right: auto !important;
-    left: var(--space-lg);
+    right: var(--space-panel-margin);
   }
 }

@@ -5,6 +5,7 @@ import { type EvaRouteTransitionPayload } from './state/app-state';
 import { useGeolocation, DEFAULT_CENTER } from './hooks/useGeolocation';
 import { mockFacilities } from './data/mockFacilities';
 import { getRoute, type OSRMRoute } from './services/osrm';
+import { fetchPublicFacilities } from './lib/api';
 import AppShell from './components/AppShell';
 import ArrivalOverlayCard from './components/ArrivalOverlayCard';
 import EvaRouteMap from './components/EvaRouteMap';
@@ -21,7 +22,25 @@ import type { Facility } from './types/facility';
 
 const ARRIVAL_THRESHOLD_M = 50;
 
+// ─────────────────────────────────────────────────────────────
+// ⚠️ TEMPORARY MOCK MODE — REMOVE WHEN BACKEND DATA IS READY
+//
+// Set to true  → use src/data/mockFacilities.ts (visualization only)
+// Set to false → use GET /api/v1/public/facility (the real integration)
+//
+// To remove mock data for good:
+//   1. set this to false
+//   2. delete src/data/mockFacilities.ts
+//   3. delete the `USE_MOCK_FACILITIES` branches in App.tsx
+//
+// The real API path is fully implemented and stays intact behind this flag.
+// ─────────────────────────────────────────────────────────────
+const USE_MOCK_FACILITIES = true;
+
 // ── Haversine distance (km) ──
+// Real mode reads `facility.distance` from the API (mapped from the
+// backend's `distanceKm`). Mock mode uses this instead, because mock
+// records carry no backend-computed distance.
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -41,7 +60,13 @@ export default function App() {
   const leafletMapRef = useRef<LeafletMap | null>(null);
 
   // Data state
-  const [facilities] = useState<Facility[]>(mockFacilities);
+  // MOCK MODE: facilities come from src/data/mockFacilities.ts.
+  // REAL MODE: facilities come from GET /api/v1/public/facility.
+  const [facilities, setFacilities] = useState<Facility[]>(
+    USE_MOCK_FACILITIES ? mockFacilities : [],
+  );
+  const [facilitiesLoading, setFacilitiesLoading] = useState(!USE_MOCK_FACILITIES);
+  const [facilitiesError, setFacilitiesError] = useState<string | null>(null);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [routeData, setRouteData] = useState<OSRMRoute | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -58,15 +83,24 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<FacilityStatusFilter>('ALL');
   const [mobilePanelExpanded, setMobilePanelExpanded] = useState(true);
 
-  const facilitiesWithDistance = facilities.map((facility) => {
-    if (position && !geoLoading && !geoDenied) {
-      return {
-        ...facility,
-        distance: haversineKm(position.coords.latitude, position.coords.longitude, facility.latitude, facility.longitude),
-      };
-    }
-    return { ...facility, distance: undefined };
-  });
+  // Distance per facility.
+  // Real mode: `distance` already comes from the backend (`distanceKm`).
+  // Mock mode: mock records have no distance, so compute it here.
+  const facilitiesWithDistance = USE_MOCK_FACILITIES
+    ? facilities.map((facility) => {
+        const anchor = position && !geoDenied ? position.coords : {
+          latitude: DEFAULT_CENTER[0],
+          longitude: DEFAULT_CENTER[1],
+        };
+        return {
+          ...facility,
+          distance: haversineKm(
+            anchor.latitude, anchor.longitude,
+            facility.latitude, facility.longitude,
+          ),
+        };
+      })
+    : facilities;
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const filteredFacilities = facilitiesWithDistance.filter((facility) => {
     const matchesQuery = !normalizedSearchQuery ||
@@ -96,6 +130,51 @@ export default function App() {
       setMapCenter([position.coords.latitude, position.coords.longitude]);
     }
   }, [position, geoLoading, geoDenied]);
+
+  // Load facilities from the backend.
+  //
+  // GET /api/v1/public/facility requires fromLong/fromLat, so the request is
+  // deferred until geolocation has settled (granted OR denied). On denial we
+  // fall back to DEFAULT_CENTER — the same fallback the map already uses — so
+  // discovery still works without a GPS fix.
+  //
+  // Re-runs when the resolved center changes, so a late-arriving GPS fix
+  // replaces the fallback-center results.
+  const queryLongitude = position && !geoDenied ? position.coords.longitude : DEFAULT_CENTER[1];
+  const queryLatitude = position && !geoDenied ? position.coords.latitude : DEFAULT_CENTER[0];
+
+  useEffect(() => {
+    // MOCK MODE: no backend request at all.
+    if (USE_MOCK_FACILITIES) return;
+
+    // Wait for geolocation to settle before querying.
+    if (geoLoading) return;
+
+    let cancelled = false;
+    setFacilitiesLoading(true);
+
+    fetchPublicFacilities({ longitude: queryLongitude, latitude: queryLatitude })
+      .then((data) => {
+        if (cancelled) return;
+        // Always replace the placeholder, including with an empty list, so
+        // the real (possibly empty) backend state is what the UI reflects.
+        setFacilities(data);
+        setFacilitiesError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        // Do NOT fall back to mock data on failure — surface the error
+        // instead of showing stale placeholder facilities as if they were real.
+        setFacilities([]);
+        setFacilitiesError(err instanceof Error ? err.message : 'Failed to load evacuation centers.');
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setFacilitiesLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [queryLongitude, queryLatitude, geoLoading]);
 
   function isNavigatingState(): boolean {
     return state.status === 'navigating';
@@ -289,6 +368,8 @@ export default function App() {
             facilities={filteredFacilities}
             totalFacilities={facilities.length}
             onSelect={handleCenterSelect}
+            loading={facilitiesLoading}
+            error={facilitiesError}
           />
         </OverlayContainer>
       </>
@@ -352,6 +433,7 @@ export default function App() {
           facility={facility}
           distance={liveDistance}
           currentOccupancy={undefined}
+          resources={facility.resources}
           onBack={handleBackToDiscovery}
           onGetRoute={() => transition({ status: 'route_preview', centerId: facility.id, sheetExpanded: true })}
         />

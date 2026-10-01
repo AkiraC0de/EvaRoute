@@ -19,6 +19,10 @@ interface FacilityDiscoveryPanelProps {
   onQueryChange?: (query: string) => void;
   /** Called when status filter changes. */
   onStatusFilterChange?: (filter: FacilityStatusFilter) => void;
+  /** True while the facility request is in flight. */
+  loading?: boolean;
+  /** Fetch error message, if the request failed. */
+  error?: string | null;
 }
 
 export default function FacilityDiscoveryPanel({
@@ -30,6 +34,8 @@ export default function FacilityDiscoveryPanel({
   statusFilter = 'ALL',
   onQueryChange,
   onStatusFilterChange,
+  loading = false,
+  error = null,
 }: FacilityDiscoveryPanelProps) {
   const statusFilters: Array<{ value: FacilityStatusFilter; label: string; dotColor: string }> = [
     { value: 'ALL', label: 'All', dotColor: 'var(--color-text-caption)' },
@@ -102,7 +108,33 @@ export default function FacilityDiscoveryPanel({
 
       {/* List */}
       <div className="facility-list" aria-live="polite">
-        {facilities.map((facility) => (
+        {loading && (
+          <div className="facility-empty-state">
+            <div className="facility-empty-icon" aria-hidden="true">
+              <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a9 9 0 109 9" />
+              </svg>
+            </div>
+            <h3>Loading centers…</h3>
+            <p>Fetching evacuation centers near you.</p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="facility-empty-state" role="alert">
+            <div className="facility-empty-icon" aria-hidden="true">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                <circle cx="12" cy="12" r="9" />
+                <path strokeLinecap="round" d="M12 8v5" />
+                <path strokeLinecap="round" d="M12 16h.01" />
+              </svg>
+            </div>
+            <h3>Couldn&apos;t load centers</h3>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && facilities.map((facility) => (
           <button
             key={facility.id}
             type="button"
@@ -142,7 +174,7 @@ export default function FacilityDiscoveryPanel({
           </button>
         ))}
 
-        {facilities.length === 0 && (
+        {!loading && !error && facilities.length === 0 && (
           <div className="facility-empty-state">
             <div className="facility-empty-icon" aria-hidden="true">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
@@ -157,7 +189,13 @@ export default function FacilityDiscoveryPanel({
       </div>
 
       <p className="facility-discovery-footer">
-        {facilities.length === 0 ? 'No matching centers' : `${facilities.length} center${facilities.length === 1 ? '' : 's'} available`}
+        {loading
+          ? 'Loading…'
+          : error
+            ? 'Centers unavailable'
+            : facilities.length === 0
+              ? 'No matching centers'
+              : `${facilities.length} center${facilities.length === 1 ? '' : 's'} available`}
       </p>
     </div>
   );
