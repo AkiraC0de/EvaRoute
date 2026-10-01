@@ -82,8 +82,8 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
 
-  /* --- Desktop panel widths (provisional) --- */
-  --panel-width: 360px;
+  /* --- Desktop panel widths --- */
+  --panel-width: 400px;
   --route-card-width: var(--panel-width);
 
   /* --- Animation Tokens --- */

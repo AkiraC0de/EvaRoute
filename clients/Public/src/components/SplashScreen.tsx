@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import ClaymorphicCard from './primitives/ClaymorphicCard';
 
 interface SplashScreenProps {
@@ -6,6 +7,11 @@ interface SplashScreenProps {
   /** Whether initialization is fully complete (items 2–3 complete). */
   ready: boolean;
 }
+
+/** Progress floor while waiting on the user to grant location permission. */
+const WAITING_FOR_LOCATION = 55;
+/** Where the bar settles once the location arrives but the app is still loading. */
+const LOCATION_ACQUIRED = 72;
 
 function ProgressBar({ filled }: { filled: number }) {
   return (
@@ -88,6 +94,26 @@ function ChecklistItem({
 }
 
 export default function SplashScreen({ locationReady, ready }: SplashScreenProps) {
+  // Animate 0 → WAITING_FOR_LOCATION once on mount, then hold there. The bar
+  // reflects real app state rather than a loop: it stops at the "waiting on the
+  // user" point because geolocation permission genuinely has not resolved yet,
+  // and only jumps to 100% once `ready` is true.
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (ready) {
+      setProgress(100);
+      return;
+    }
+    if (locationReady) {
+      setProgress(LOCATION_ACQUIRED);
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => setProgress(WAITING_FOR_LOCATION));
+    return () => cancelAnimationFrame(frame);
+  }, [locationReady, ready]);
+
   return (
     <div className="splash-screen">
       {/* Logo illustration */}
@@ -106,7 +132,7 @@ export default function SplashScreen({ locationReady, ready }: SplashScreenProps
       </div>
 
       {/* Progress bar */}
-      <ProgressBar filled={ready ? 100 : 40} />
+      <ProgressBar filled={progress} />
 
       {/* Checklist card */}
       <ClaymorphicCard className="splash-checklist-card">
