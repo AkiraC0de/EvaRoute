@@ -586,7 +586,7 @@ button {
 }
 .facility-marker-label {
   position: absolute;
-  bottom: calc(100% + 7px);
+  top: 50%;
   left: 50%;
   max-width: 170px;
   padding: 5px 8px;
@@ -600,7 +600,14 @@ button {
   background: var(--surface-raised);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-raised-sm);
-  transform: translateX(-50%);
+  /* The marker is rotated -45deg to form the teardrop, so this label
+     inherits that rotation and would render diagonally. Anchoring at the
+     marker centre with transform-origin 0 0 and counter-rotating +45deg
+     cancels the parent rotation exactly: the label stays horizontal and
+     centred above the pin for every label width. The percentage translate
+     is measured pre-rotation, so -100% lifts it by its own height. */
+  transform-origin: 0 0;
+  transform: rotate(45deg) translate(-50%, calc(-100% - 34px));
   pointer-events: none;
 }
 
