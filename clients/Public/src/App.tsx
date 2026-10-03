@@ -12,6 +12,7 @@ import EvaRouteMap from './components/EvaRouteMap';
 import FacilityDiscoveryPanel, { type FacilityStatusFilter } from './components/FacilityDiscoveryPanel';
 import FacilityDetailSidebar from './components/FacilityDetailSidebar';
 import SplashScreen from './components/SplashScreen';
+import CenterStatusBadge from './components/primitives/CenterStatusBadge';
 import FacilitySearchFilterOverlay from './components/FacilitySearchFilterOverlay';
 import OverlayContainer from './components/OverlayContainer';
 import RoutePreviewCard from './components/RoutePreviewCard';
@@ -384,7 +385,13 @@ export default function App() {
       onClick={handleExpand}
       aria-label="Expand list"
     >
-      <DragHandle />
+      {/* Pill button with a chevron inside, matching the sheet-handle language
+          used by facility detail, route preview and navigation. */}
+      <span className="discovery-collapsed-handle" aria-hidden="true">
+        <svg viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 15l6-6 6 6" />
+        </svg>
+      </span>
       <h2 className="text-[var(--font-size-base)] font-semibold text-[var(--color-text-primary)] truncate mt-2">
         Nearby Evacuation Centers
       </h2>
@@ -411,22 +418,31 @@ export default function App() {
         onMobileToggle={handleMobilePanelToggle}
         className="facility-detail-overlay"
         collapsedContent={
-          <div className="facility-detail-collapsed-summary flex items-center justify-between w-full">
-            <div className="facility-detail-collapsed-name flex items-center gap-2 min-w-0">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: facility.status === 'AVAILABLE' ? 'var(--color-success)' : facility.status === 'LIMITED' ? 'var(--color-warning)' : 'var(--color-full)' }} />
-              <span className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
-                {facility.name}
-              </span>
-            </div>
-            <button
-              type="button"
-              className="facility-detail-collapse-toggle flex items-center justify-center"
-              onClick={handleExpand}
-              aria-label="Show details"
-            >
+          // One tap target holds the drag handle and the summary together, so the
+          // handle stays attached to the sheet it collapses. The handle is a
+          // sibling above the text rather than an overlay, so nothing overlaps.
+          <button
+            type="button"
+            className="facility-detail-collapsed-summary"
+            onClick={handleExpand}
+            aria-label="Show details"
+          >
+            <span className="facility-detail-collapsed-handle" aria-hidden="true">
               <DragHandle />
-            </button>
-          </div>
+            </span>
+            <span className="facility-detail-collapsed-name">
+              {facility.name}
+            </span>
+            <span className="facility-detail-collapsed-address">
+              {facility.address}
+            </span>
+            <span className="facility-detail-collapsed-status">
+              <CenterStatusBadge status={facility.status} fullLabel />
+              <span className="facility-detail-collapsed-capacity">
+                {facility.maxCapacity.toLocaleString()} spaces max
+              </span>
+            </span>
+          </button>
         }
       >
         <FacilityDetailSidebar
@@ -470,45 +486,55 @@ export default function App() {
   // ── Route preview (collapsed — Frame 07) ──
   const renderRoutePreviewCollapsed = () => {
     if (!routeData || routeData.distance === 0) return (
-      <div className="flex items-center justify-between w-full">
-        <span className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)]">Route Preview</span>
-        <div className="flex items-center gap-1">
-          <button className="collapse-chevron text-[var(--color-text-caption)]" onClick={handleExpand} aria-label="Show route details">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
-            </svg>
-          </button>
+      <div className="route-preview-collapsed">
+        <button
+          className="route-preview-collapsed-chevron"
+          onClick={handleExpand}
+          aria-label="Show route details"
+        >
+          <DragHandle />
+        </button>
+        <div className="route-preview-collapsed-row">
+          <span className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)]">
+            Route Preview
+          </span>
         </div>
       </div>
     );
     return (
-      <div className="flex items-center justify-between w-full gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.12 }}>
-            <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.00 9.00 0 100-18 9.00 9.00 0 000 18z" />
-            </svg>
-          </div>
-          <div className="min-w-0">
-            <div className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
-              {(routeData.distance / 1000).toFixed(1)} km · {Math.round(routeData.duration / 60)} min
+      <div className="route-preview-collapsed">
+        {/* Reuses the shared DragHandle pill (same as the facility-detail sheet)
+            so the control reads as a grip rather than an arrow. Click behaviour
+            is unchanged. */}
+        <button
+          className="route-preview-collapsed-chevron"
+          onClick={handleExpand}
+          aria-label="Show route details"
+        >
+          <DragHandle />
+        </button>
+
+        <div className="route-preview-collapsed-row">
+          <div className="route-preview-collapsed-info">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.12 }}>
+              <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.00 9.00 0 100-18 9.00 9.00 0 000 18z" />
+              </svg>
             </div>
-            <div className="text-[var(--font-size-xs)] text-[var(--color-text-caption)] truncate">
-              to {selectedFacility?.name}
+            <div className="min-w-0">
+              <div className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
+                {(routeData.distance / 1000).toFixed(1)} km · {Math.round(routeData.duration / 60)} min
+              </div>
+              <div className="text-[var(--font-size-xs)] text-[var(--color-text-caption)] truncate">
+                to {selectedFacility?.name}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
           <button
-            className="text-[var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
+            className="route-preview-collapsed-cancel"
             onClick={handleCancelRoutePreview}
           >
             Cancel
-          </button>
-          <button className="collapse-chevron text-[var(--color-text-caption)]" onClick={handleExpand} aria-label="Show route details">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
-            </svg>
           </button>
         </div>
       </div>
@@ -557,28 +583,35 @@ export default function App() {
 
   // ── Navigating (collapsed — Frame 09) ──
   const renderNavigatingCollapsed = () => (
-    <div className="flex items-center justify-between w-full gap-3">
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse" />
-        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.12 }}>
-          <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          </svg>
-        </div>
-        <div className="min-w-0">
-          <div className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
-            {navRemainingDistance != null ? `${navRemainingDistance.toFixed(1)} km remaining` : 'Navigating'}
+    <div className="route-preview-collapsed">
+      {/* Shared DragHandle pill, matching the facility-detail and collapsed
+          route-preview grips. Expand behaviour is unchanged. */}
+      <button
+        className="route-preview-collapsed-chevron"
+        onClick={handleExpand}
+        aria-label="Show navigation details"
+      >
+        <DragHandle />
+      </button>
+
+      <div className="route-preview-collapsed-row">
+        <div className="route-preview-collapsed-info">
+          <div className="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse shrink-0" />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.12 }}>
+            <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            </svg>
           </div>
-          <div className="text-[var(--font-size-xs)] text-[var(--color-text-caption)] truncate">
-            {selectedFacility?.name}
+          <div className="min-w-0">
+            <div className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
+              {navRemainingDistance != null ? `${navRemainingDistance.toFixed(1)} km remaining` : 'Navigating'}
+            </div>
+            <div className="text-[var(--font-size-xs)] text-[var(--color-text-caption)] truncate">
+              {selectedFacility?.name}
+            </div>
           </div>
         </div>
       </div>
-      <button className="collapse-chevron text-[var(--color-text-caption)]" onClick={handleExpand} aria-label="Show navigation details">
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
-        </svg>
-      </button>
     </div>
   );
 

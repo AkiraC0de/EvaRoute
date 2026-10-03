@@ -879,6 +879,38 @@ button {
   .discovery-collapsed-toggle {
     width: 100%;
     padding: var(--space-sm) 0;
+    gap: var(--space-xs);
+    /* The global button reset does not clear background/border, so this bare
+       <button> was showing the UA grey fill + outset border as a flat panel
+       behind the pill. Make it a transparent hit area instead. */
+    border: 0;
+    background: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Pill-shaped sheet handle with the chevron centred inside. Reuses the same
+     radius/background tokens as the .drag-handle grip on the other sheets so
+     all four mobile handles read as one interaction. */
+  .discovery-collapsed-handle {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 26px;
+    border: 0;
+    border-radius: var(--radius-full);
+    /* Same clay recipe as .clay-card / .route-preview-card: raised white
+       surface, soft outer shadow, white inner highlight for the lit edge. */
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-raised-sm), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+    color: var(--color-text-secondary);
+  }
+
+  .discovery-collapsed-handle svg {
+    display: block;
+    width: 14px;
+    height: 14px;
   }
 
   .discovery-collapsed-toggle h2 {
@@ -1219,41 +1251,73 @@ button {
     overflow-y: auto;
   }
 
+  /* Collapsed facility summary: a single column so the enlarged drag handle sits
+     directly above the name/address/status instead of off to one side. */
   .facility-detail-collapsed-summary {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
     width: 100%;
     min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  .facility-detail-collapsed-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: var(--space-xs);
+  }
+
+  /* Larger than the shared 40x4 drag pill, so it reads as the sheet grip. */
+  .facility-detail-collapsed-handle .drag-handle {
+    width: 56px;
+    height: 5px;
+    margin-top: 0;
   }
 
   .facility-detail-collapsed-name {
-    display: flex;
-    flex: 1 1 auto;
-    align-items: center;
-    gap: var(--space-sm);
-    min-width: 0;
-  }
-
-  .facility-detail-collapsed-name > span {
+    display: block;
+    max-width: 100%;
     overflow: hidden;
-    min-width: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .facility-detail-collapse-toggle {
+  .facility-detail-collapsed-address {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .facility-detail-collapsed-status {
     display: flex;
-    flex: 0 0 44px;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    touch-action: manipulation;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .facility-detail-collapsed-capacity {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
   }
 }
 
@@ -1437,6 +1501,82 @@ button {
   .route-preview-actions button {
     min-height: 48px;
     white-space: nowrap;
+  }
+
+  /* Collapsed route preview: chevron on its own centred row above the content,
+     so it no longer shares a right-aligned row with Cancel. */
+  .route-preview-collapsed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .route-preview-collapsed-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fixed square target: a percentage width would stretch inside the column
+       flex parent and swallow the content row below it. */
+    flex: 0 0 44px;
+    width: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* Match the facility-detail grip: same pill, enlarged via the shared
+     .drag-handle rules so both sheets read identically. DragHandle ships an
+     mt-3 utility that adds a stray offset inside a fixed-height target. */
+  .route-preview-collapsed-chevron .drag-handle {
+    width: 56px;
+    height: 5px;
+    margin-top: 0;
+  }
+
+  .route-preview-collapsed-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .route-preview-collapsed-info {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
+  /* Pill shape with a full-size touch target; colour/typography unchanged. */
+  .route-preview-collapsed-cancel {
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 var(--space-lg);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--surface-inset);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* The collapsed sheet is a fixed 116px shared by every overlay. The stacked
+     chevron + row needs less vertical padding than the default 24px, or the
+     row is clipped at the bottom. Scoped to the collapsed route-card only. */
+  .overlay-mobile-sheet[data-variant='route-card'][data-mobile-expanded='false'] .overlay-mobile-inner {
+    padding-top: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 }
 
