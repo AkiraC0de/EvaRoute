@@ -244,7 +244,7 @@ button {
   color: var(--color-primary);
   background: var(--surface-raised);
   border-radius: 42px;
-  box-shadow: var(--shadow-raised-lg), inset 5px 5px 12px rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-clay-lg);
 }
 
 .onboarding-illustration::before {
@@ -298,7 +298,7 @@ button {
 .onboarding-card {
   width: min(100%, 420px);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-raised-lg), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-clay-lg);
 }
 
 .onboarding-message-icon {
@@ -440,6 +440,24 @@ button {
 .clay-button-secondary:hover {
   background-color: var(--surface-inset);
   color: var(--color-text-primary);
+}
+
+/* Pressed reads as slightly compressed rather than lifted. */
+.clay-button-secondary:active {
+  background-color: var(--surface-raised);
+  box-shadow: var(--shadow-inset);
+}
+
+/* Disabled: reduced contrast and elevation, still legible. */
+.clay-button:disabled,
+.clay-button[aria-disabled='true'] {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.clay-button-primary:disabled {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 /* Inset track primitive */
@@ -867,10 +885,31 @@ button {
 }
 
 @media (max-width: 767px) {
+  /* Shared mobile sheet drag handle. Every collapsed sheet (discovery,
+     facility detail, route preview, navigating) uses this one primitive so
+     they read as states of the same component. The raised white pill is the
+     physical grip; the inner bar keeps the familiar sheet-grip cue. */
   .drag-handle {
-    display: block;
+    display: flex;
     flex: 0 0 auto;
-    width: 40px;
+    align-items: center;
+    justify-content: center;
+    width: var(--sheet-handle-width);
+    height: var(--sheet-handle-height);
+    /* The component ships mt-3/mx-auto utilities; the handle is now a fixed
+       raised pill, so those offsets are cleared here. */
+    margin: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-clay-sm);
+  }
+
+  /* Inner grip bar sitting on the raised pill. */
+  .drag-handle::before {
+    content: '';
+    display: block;
+    width: 24px;
     height: 4px;
     border-radius: var(--radius-full);
     background: var(--surface-inset);
@@ -891,19 +930,19 @@ button {
   /* Pill-shaped sheet handle with the chevron centred inside. Reuses the same
      radius/background tokens as the .drag-handle grip on the other sheets so
      all four mobile handles read as one interaction. */
+  /* Discovery keeps its chevron inside the pill; the pill geometry, surface
+     and shadow come from the same tokens as the other sheet handles. */
   .discovery-collapsed-handle {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 26px;
+    width: var(--sheet-handle-width);
+    height: var(--sheet-handle-height);
     border: 0;
     border-radius: var(--radius-full);
-    /* Same clay recipe as .clay-card / .route-preview-card: raised white
-       surface, soft outer shadow, white inner highlight for the lit edge. */
     background: var(--surface-raised);
-    box-shadow: var(--shadow-raised-sm), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+    box-shadow: var(--shadow-clay-sm);
     color: var(--color-text-secondary);
   }
 
@@ -1276,13 +1315,6 @@ button {
     margin-bottom: var(--space-xs);
   }
 
-  /* Larger than the shared 40x4 drag pill, so it reads as the sheet grip. */
-  .facility-detail-collapsed-handle .drag-handle {
-    width: 56px;
-    height: 5px;
-    margin-top: 0;
-  }
-
   .facility-detail-collapsed-name {
     display: block;
     max-width: 100%;
@@ -1350,7 +1382,7 @@ button {
   padding: var(--space-md);
   background: var(--surface-raised);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-clay-md);
   animation: fadeScaleIn var(--duration-md) var(--ease-out) forwards;
 }
 .route-preview-handle {
@@ -1482,7 +1514,7 @@ button {
   .route-preview-card {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     padding: var(--space-md) var(--space-md) var(--space-md) var(--space-md);
-    box-shadow: var(--shadow-raised-lg), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+    box-shadow: var(--shadow-clay-lg);
   }
 
   /* The sheet already renders a drag handle in .overlay-mobile-toggle, so the
@@ -1532,12 +1564,6 @@ button {
   /* Match the facility-detail grip: same pill, enlarged via the shared
      .drag-handle rules so both sheets read identically. DragHandle ships an
      mt-3 utility that adds a stray offset inside a fixed-height target. */
-  .route-preview-collapsed-chevron .drag-handle {
-    width: 56px;
-    height: 5px;
-    margin-top: 0;
-  }
-
   .route-preview-collapsed-row {
     display: flex;
     align-items: center;
@@ -1646,7 +1672,7 @@ button {
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
   font-family: var(--font-sans);
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--clay-inset);
   outline: none;
   transition: box-shadow var(--duration-sm) var(--ease-out),
               background-color var(--duration-sm) var(--ease-out);
@@ -1655,7 +1681,7 @@ button {
   color: var(--color-text-caption);
 }
 .search-input:focus {
-  box-shadow: var(--shadow-inset), 0 0 0 2px var(--color-primary);
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--color-primary);
   background: var(--surface-raised);
 }
 
@@ -1795,7 +1821,33 @@ button {
   pointer-events: none;
 }
 .search-filter-search-input {
-  padding-left: 42px;
+  /* Recessed clay control, matching the .search-input inside the discovery
+     panel so both search fields read as the same physical control. */
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-md) 0 42px;
+  background: var(--surface-raised);
+  border: 0;
+  border-radius: var(--radius-full);
+  box-shadow: var(--clay-inset);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  outline: none;
+  /* Chrome adds its own search decorations; they break the inset shape. */
+  appearance: none;
+  -webkit-appearance: none;
+  transition: box-shadow var(--duration-sm) var(--ease-out);
+}
+.search-filter-search-input::placeholder {
+  color: var(--color-text-caption);
+}
+.search-filter-search-input:focus {
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--color-primary);
+}
+.search-filter-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
 }
 .search-filter-chips {
   display: flex;
@@ -1817,10 +1869,18 @@ button {
   font-weight: var(--font-weight-semibold);
   transition: background-color var(--duration-sm) var(--ease-out), color var(--duration-sm) var(--ease-out);
 }
+/* Selection is carried by colour + surface, not shadow alone, so it stays
+   obvious for users who cannot perceive the elevation cue. */
 .search-filter-chip.active {
-  color: var(--color-primary);
-  background: var(--surface-raised);
+  color: #FFFFFF;
+  background: var(--color-primary);
   box-shadow: var(--shadow-raised-sm);
+}
+
+/* The dot keeps its semantic status colour; a white ring separates it from
+   the filled chip so availability stays readable. */
+.search-filter-chip.active .search-filter-chip-dot {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .search-filter-chip-dot {
   width: 7px;
