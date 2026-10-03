@@ -1421,8 +1421,22 @@ button {
     box-shadow: var(--shadow-raised-lg), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
   }
 
+  /* The sheet already renders a drag handle in .overlay-mobile-toggle, so the
+     card's own decorative handle reads as a second, misaligned pill on mobile. */
   .route-preview-handle {
-    margin-bottom: var(--space-sm);
+    display: none;
+  }
+
+  /* Keep the action buttons a single line with a consistent touch target;
+     "Cancel Route" otherwise wraps to two lines on narrow phones (~<=390px),
+     making one button taller than its neighbour. */
+  .route-preview-actions {
+    grid-auto-rows: minmax(48px, auto);
+  }
+
+  .route-preview-actions button {
+    min-height: 48px;
+    white-space: nowrap;
   }
 }
 
