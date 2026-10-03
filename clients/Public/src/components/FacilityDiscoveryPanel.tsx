@@ -157,7 +157,16 @@ export default function FacilityDiscoveryPanel({
             <div className="facility-card-metrics" aria-label="Facility metrics">
               <div className="facility-card-metric">
                 <span className="facility-card-metric-label">Distance</span>
-                <CenterDistance distance={facility.distance ?? 0} className="facility-card-metric-value" />
+                {/*
+                  `distance` is undefined when we have no real GPS fix. The old
+                  `?? 0` fallback printed a confident "0.0 km", which implied we
+                  knew the user's position. Show an explicit dash instead.
+                */}
+                {facility.distance != null ? (
+                  <CenterDistance distance={facility.distance} className="facility-card-metric-value" />
+                ) : (
+                  <span className="facility-card-metric-value">&#8212;</span>
+                )}
               </div>
               <div className="facility-card-metric">
                 <span className="facility-card-metric-label">ETA</span>

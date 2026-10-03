@@ -13,6 +13,18 @@ interface FacilityDetailSidebarProps {
   currentOccupancy?: number;
   /** Facility resource/amenity data for the icon grid. */
   resources?: Array<{ id: string; name?: string; type?: string }>;
+  /**
+   * Shown when Get Route needs a real location the user has not granted.
+   * `null` = no prompt needed; otherwise the reason + retry action.
+   */
+  locationPrompt?: {
+    /** True while the browser location request is in flight. */
+    requesting: boolean;
+    /** Why location is required / unavailable. */
+    blocked: boolean;
+  } | null;
+  /** Retry the existing geolocation request (browser may prompt again). */
+  onEnableLocation?: () => void;
 }
 
 export default function FacilityDetailSidebar({
@@ -22,6 +34,8 @@ export default function FacilityDetailSidebar({
   onGetRoute,
   currentOccupancy,
   resources,
+  locationPrompt,
+  onEnableLocation,
 }: FacilityDetailSidebarProps) {
   // Walking-speed ETA estimate (~12 km/h = 0.2 km/min).
   // This is an approximation — no real routing data available at this point.
@@ -99,6 +113,30 @@ export default function FacilityDetailSidebar({
         <h3 id="facility-amenities-heading">Amenities</h3>
         <FacilityIconGrid resources={resources ?? undefined} className="w-full" />
       </section>
+
+      {/* Inline location recovery — appears only after Get Route needs a real
+          location. Deliberately inline (not a second card) and kept above the
+          actions so the retry sits next to the button that triggered it. */}
+      {locationPrompt && (
+        <div
+          className={`facility-detail-location-note ${locationPrompt.blocked ? 'is-blocked' : ''}`}
+          role="status"
+        >
+          <p className="facility-detail-location-note-text">
+            {locationPrompt.blocked
+              ? 'Location is blocked for this site. To get directions from your position, allow location access in your browser\u2019s site settings, then try again.'
+              : 'Location is needed to get directions from your current position.'}
+          </p>
+          <button
+            type="button"
+            className="facility-detail-location-note-button"
+            onClick={onEnableLocation}
+            disabled={locationPrompt.requesting}
+          >
+            {locationPrompt.requesting ? 'Locating\u2026' : 'Enable Location'}
+          </button>
+        </div>
+      )}
 
       {/* Footer actions — Figma Frame 05: Back (secondary, left) + Get Route (primary, right) side-by-side */}
       <div className="facility-detail-actions">

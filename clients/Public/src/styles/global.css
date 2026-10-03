@@ -1278,6 +1278,52 @@ button {
   padding-bottom: env(safe-area-inset-bottom);
   margin-top: auto;
 }
+/* Inline location recovery note for Get Route.
+   Compact and inset — NOT a second raised card. Sits directly above the
+   action row so the retry is next to the button that triggered it. */
+.facility-detail-location-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  box-shadow: var(--clay-inset);
+}
+
+.facility-detail-location-note-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.facility-detail-location-note-button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: var(--space-xs) var(--space-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-clay-sm);
+  cursor: pointer;
+}
+
+.facility-detail-location-note-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.facility-detail-location-note-button:not(:disabled):active {
+  box-shadow: var(--clay-inset);
+}
 
 @media (max-width: 767px) {
   .facility-detail-overlay[data-mobile-expanded='true'] {
@@ -1856,6 +1902,96 @@ button {
 .search-filter-search-input::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
+/* Splash location recovery — shown only after an automatic request failed.
+   Reuses the existing clay tokens so it reads as part of the same system. */
+/* ── Recovery expand / collapse ───────────────────────────────────────────
+   Always-mounted wrapper. `grid-template-rows: 0fr -> 1fr` animates to the
+   CONTENT's own intrinsic height, so there is no magic max-height and no
+   reserved blank space once collapsed. This is what makes the EXIT animatable
+   — a display:none / conditional-unmount toggle could not animate at all.
+
+   Three nested layers, each doing one job:
+     .splash-recovery-region  -> animates the row track 0fr <-> 1fr
+     .splash-recovery-clip    -> clips the content to that track height
+     .splash-recovery         -> fades + slides the content itself
+*/
+.splash-recovery-region {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 340ms var(--ease-out);
+}
+
+.splash-recovery-region.is-open {
+  grid-template-rows: 1fr;
+}
+
+.splash-recovery-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Content: soft fade + small rise so it reads as expanding out of the
+   checklist rather than a separate card appearing. Opacity leads, the track
+   height does the expanding. `visibility` is delayed on close so the buttons
+   are not focusable mid-collapse. */
+.splash-recovery {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  padding-top: var(--space-md);
+  margin-top: var(--space-md);
+  border-top: 1px solid var(--color-border-subtle, rgba(15, 23, 42, 0.08));
+  text-align: center;
+  transition:
+    opacity 260ms var(--ease-out),
+    transform 340ms var(--ease-out),
+    visibility 0s linear 340ms;
+}
+
+.splash-recovery-region.is-open .splash-recovery {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 300ms var(--ease-out) 60ms,
+    transform 340ms var(--ease-out),
+    visibility 0s;
+}
+.splash-recovery-message {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+.splash-recovery-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.splash-recovery-button {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-clay-sm);
+  cursor: pointer;
+}
+.splash-recovery-button-primary {
+  color: var(--color-primary);
+}
+.splash-recovery-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.splash-recovery-button:not(:disabled):active {
+  box-shadow: var(--clay-inset);
+}
+
 .search-filter-chips {
   display: flex;
   gap: var(--space-xs);
@@ -1964,13 +2100,23 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--surface-base);
   padding: var(--space-2xl) var(--space-md);
   gap: var(--space-xl);
+  /* The recovery card adds content below the checklist. On short viewports
+     (landscape phones, split-screen) the column can exceed the viewport.
+     Cap the height to the viewport so this element itself scrolls — with only
+     `min-height` the column grows past the viewport and the recovery buttons
+     become unreachable (the page cannot scroll a fixed-height shell).
+     `safe` keeps the column centred when there IS room. */
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  justify-content: safe center;
 }
+
 
 .splash-illustration {
   display: flex;
@@ -1987,6 +2133,19 @@ button {
   mix-blend-mode: multiply;
   display: block;
 }
+/* On short viewports, shrink the logo so the recovery actions stay in view
+   without scrolling where possible. */
+@media (max-height: 720px) {
+  .splash-logo {
+    width: 132px;
+    height: 132px;
+  }
+  .splash-screen {
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
 
 .splash-branding {
   text-align: center;
@@ -2017,26 +2176,63 @@ button {
   box-shadow: var(--shadow-inset);
 }
 
+/* The fill's width IS the real progress value. The travelling highlight is a
+   pseudo-element inside this element, so it is clipped to whatever portion
+   is actually filled and can never make an empty bar look complete. */
 .splash-progress-fill {
+  position: relative;
   display: block;
   height: 100%;
   background: var(--color-primary);
   border-radius: var(--radius-full);
   transition: width 1400ms var(--ease-out);
   box-shadow: 0 0 8px rgba(74, 114, 255, 0.4);
+  overflow: hidden;
 }
 
+/* Soft light sweep across the filled portion — EvaRoute blue throughout, with
+   a single translucent white highlight passing over it. */
+.splash-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  animation: splash-sheen 2400ms ease-in-out infinite;
+}
+
+@keyframes splash-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  55% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* The card is the single splash surface. It carries its own padding because
+   the shared .clay-card padding utility is inert in this build, which left the
+   checklist flush against the card edge. Checklist and recovery both sit inside
+   this padding so nothing touches the edges. */
 .splash-checklist-card {
   width: 100%;
   max-width: 340px;
   background: var(--surface-raised);
+  padding: var(--space-lg) var(--space-md);
 }
 
 .splash-checklist {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  padding: var(--space-md);
 }
 
 .splash-checklist-item {
@@ -2045,6 +2241,12 @@ button {
   gap: var(--space-sm);
 }
 
+/* Requirement indicator.
+   Incomplete/pending: inset neutral surface.
+   Fulfilled: EvaRoute blue. Unavailable: red (genuinely failed only).
+   `transition` on background/color lets a real state change animate rather
+   than snap. The pop/glow flourish is applied separately via .is-fulfilled so
+   it runs once, not on every render. */
 .splash-checklist-radio {
   flex: 0 0 auto;
   width: 22px;
@@ -2054,18 +2256,74 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--duration-sm) var(--ease-out);
+  transition:
+    background-color var(--duration-lg) var(--ease-out),
+    color var(--duration-lg) var(--ease-out),
+    box-shadow var(--duration-lg) var(--ease-out),
+    transform var(--duration-lg) var(--ease-out);
   flex-shrink: 0;
 }
 
 .splash-checklist-radio.complete {
-  background: var(--color-success);
+  background: var(--color-primary);
   color: white;
+  box-shadow: 0 0 8px rgba(74, 114, 255, 0.35);
 }
 
 .splash-checklist-radio.spinning {
   background: var(--color-primary);
   color: white;
+}
+
+.splash-checklist-radio.unavailable {
+  background: var(--color-danger);
+  color: white;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+/* One-shot fulfilment flourish on a single row: a brief scale pop + glow
+   ring that settles back into the normal fulfilled style. `.is-fulfilled`
+   is only applied for the render pass following a genuine false→true
+   transition, so this cannot loop or replay on unrelated re-renders. */
+.splash-checklist-item.is-fulfilled .splash-checklist-radio {
+  animation: splash-fulfil-pop 720ms var(--ease-out) 1;
+}
+
+@keyframes splash-fulfil-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 114, 255, 0.45);
+  }
+  35% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 7px rgba(74, 114, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(74, 114, 255, 0.35);
+  }
+}
+
+/* Overall fulfilment: a single soft sweep across the card once every
+   requirement is genuinely confirmed. Purely presentational — it never
+   advances the app by itself. */
+.splash-checklist-card.is-all-fulfilled {
+  animation: splash-card-fulfil 900ms var(--ease-out) 1;
+}
+
+@keyframes splash-card-fulfil {
+  0% {
+    box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  }
+  40% {
+    box-shadow:
+      var(--shadow-raised-md),
+      inset 4px 4px 10px rgba(255, 255, 255, 0.8),
+      0 0 0 4px rgba(74, 114, 255, 0.14);
+  }
+  100% {
+    box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  }
 }
 
 .splash-checklist-label {
@@ -2105,5 +2363,43 @@ button {
      override that shifted this card to the bottom-left was removed). */
   .navigation-overlay {
     right: var(--space-panel-margin);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────
+   Keep functional feedback: progress width still animates to its real value
+   and indicator colors still settle. Drop the decorative/looping motion
+   (sheen sweep, pop, card flourish) which carries no information. */
+@media (prefers-reduced-motion: reduce) {
+  .splash-progress-fill::after {
+    animation: none;
+    transform: none;
+  }
+  .splash-checklist-item.is-fulfilled .splash-checklist-radio {
+    animation: none;
+  }
+  .splash-checklist-card.is-all-fulfilled {
+    animation: none;
+  }
+  .splash-progress-fill {
+    transition-duration: var(--duration-md);
+  }
+  .splash-checklist-radio {
+    transition-duration: var(--duration-md);
+  }
+  /* Recovery: drop the slide, keep a short opacity change so the user still
+     sees the section appear/disappear, just without movement. */
+  .splash-recovery-region {
+    transition-duration: var(--duration-md);
+  }
+  .splash-recovery {
+    transform: none;
+    transition:
+      opacity var(--duration-md) linear,
+      visibility 0s linear var(--duration-md);
+  }
+  .splash-recovery-region.is-open .splash-recovery {
+    transform: none;
+    transition: opacity var(--duration-md) linear, visibility 0s;
   }
 }

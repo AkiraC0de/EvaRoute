@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import { useAppState } from './state/useAppState';
 import { type EvaRouteTransitionPayload } from './state/app-state';
@@ -54,7 +54,14 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
 
 export default function App() {
   const { state, transition } = useAppState();
-  const { position, loading: geoLoading, denied: geoDenied, error: geoError, requestLocation } = useGeolocation();
+  const {
+    position,
+    loading: geoLoading,
+    denied: geoDenied,
+    error: geoError,
+    permissionBlocked: geoPermissionBlocked,
+    requestLocation,
+  } = useGeolocation();
 
   // Refs
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +80,19 @@ export default function App() {
   const [routeLoading, setRouteLoading] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [hasTransitionedToMap, setHasTransitionedToMap] = useState(false);
+  /**
+   * Set only by the splash's explicit "Continue Without Location" action.
+   * It lets the user enter discovery with no GPS fix. This is what marks the
+   * session as fallback mode — DEFAULT_CENTER is then just a map centre and is
+   * never treated as the user's position.
+   */
+  const [locationSkipped, setLocationSkipped] = useState(false);
+  /**
+   * Set when Get Route is pressed without a real location. We then ask the
+   * browser for location and, on success, continue into route_preview
+   * automatically — the user never presses Get Route twice.
+   */
+  const [routeAwaitingLocation, setRouteAwaitingLocation] = useState(false);
 
   // Navigation tracking
   const [navUserPosition, setNavUserPosition] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -84,19 +104,28 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<FacilityStatusFilter>('ALL');
   const [mobilePanelExpanded, setMobilePanelExpanded] = useState(true);
 
+  // Whether we hold a genuine GPS fix for the user.
+  //
+  // This is the single distinction between "real user location" and the
+  // prototype's DEFAULT_CENTER fallback. DEFAULT_CENTER is only ever a map
+  // centre / API query origin — never a stand-in for the user's position.
+  const hasRealLocation = position != null && !geoDenied && geoError == null;
+
   // Distance per facility.
   // Real mode: `distance` already comes from the backend (`distanceKm`).
   // Mock mode: mock records have no distance, so compute it here.
+  //
+  // Without a real fix there is no honest "distance from user", so `distance`
+  // is left undefined rather than measured from DEFAULT_CENTER. Consumers
+  // already treat a missing distance as "unknown" (see CenterDistance usage),
+  // and closest-first sorting skips sorting entirely in that state.
   const facilitiesWithDistance = USE_MOCK_FACILITIES
     ? facilities.map((facility) => {
-        const anchor = position && !geoDenied ? position.coords : {
-          latitude: DEFAULT_CENTER[0],
-          longitude: DEFAULT_CENTER[1],
-        };
+        if (!hasRealLocation || !position) return { ...facility };
         return {
           ...facility,
           distance: haversineKm(
-            anchor.latitude, anchor.longitude,
+            position.coords.latitude, position.coords.longitude,
             facility.latitude, facility.longitude,
           ),
         };
@@ -111,14 +140,50 @@ export default function App() {
     return matchesQuery && matchesStatus;
   });
 
-  // Geolocation → location_ready
+  // Closest-first ordering.
+  // Applied to the already-filtered list so search/status filtering is
+  // unaffected, and derived on every render so it follows the live position.
+  // `distance` is the Haversine km computed above (mock) or supplied by the
+  // backend (`distanceKm`, real mode). When the user has denied or not yet
+  // granted location there is no meaningful origin, so the existing order is
+  // preserved rather than sorting against a fallback centre.
+  const sortedFacilities = useMemo(() => {
+    // No real GPS fix → there is no "closest to user", so preserve the
+    // existing order instead of ranking facilities around DEFAULT_CENTER.
+    if (!hasRealLocation) return filteredFacilities;
+    return [...filteredFacilities].sort((a, b) => {
+      const aDistance = typeof a.distance === 'number' && Number.isFinite(a.distance)
+        ? a.distance
+        : Number.POSITIVE_INFINITY;
+      const bDistance = typeof b.distance === 'number' && Number.isFinite(b.distance)
+        ? b.distance
+        : Number.POSITIVE_INFINITY;
+      // Ties keep their existing relative order (Array#sort is stable), and
+      // records with unusable coordinates sink to the end instead of jumping
+      // to the front as if they were at the user's exact position.
+      if (aDistance === bDistance) return 0;
+      return aDistance - bDistance;
+    });
+  }, [filteredFacilities, position, geoDenied]);
+
+  // Geolocation → location_ready.
+  //
+  // Only a REAL fix advances this automatically. A denial/error keeps the app
+  // on the splash, which offers "Use My Location" and "Continue Without
+  // Location" — a failure is a question for the user to answer, not something
+  // to silently skip past.
   useEffect(() => {
-    if (state.status === 'initializing' && position && !geoLoading) {
+    if (state.status !== 'initializing') return;
+    if (geoLoading && !locationSkipped) return;
+    // Real fix, or the user explicitly chose to continue without location.
+    if (position != null || locationSkipped) {
       transition({ status: 'location_ready' });
     }
-  }, [state.status, position, geoLoading, transition]);
+  }, [state.status, position, geoLoading, locationSkipped, transition]);
 
-  // Auto-request location on app launch (Frame 01 → Frame 02)
+  // Auto-request location on app launch (Frame 01 → Frame 02).
+  // `position == null` is intentional: a late-arriving fix still populates
+  // `position`, and the effect above then continues the normal flow.
   useEffect(() => {
     if (state.status === 'initializing') {
       requestLocation();
@@ -181,16 +246,18 @@ export default function App() {
     return state.status === 'navigating';
   }
 
-  // Enter discovery
+  // Enter discovery.
+  // With a real fix the map centres on the user; otherwise it falls back to
+  // DEFAULT_CENTER purely as a map centre (it is never treated as a fix).
   const enterDiscovery = useCallback(() => {
     setSearchQuery('');
     setStatusFilter('ALL');
     transition({ status: 'discovery', sheetExpanded: true, searchQuery: '' });
     setHasTransitionedToMap(true);
-    setMapCenter(position && !geoDenied
+    setMapCenter(hasRealLocation && position
       ? [position.coords.latitude, position.coords.longitude]
       : DEFAULT_CENTER);
-  }, [transition, position, geoDenied]);
+  }, [transition, position, hasRealLocation]);
 
   // Auto-transition to discovery after location is acquired (Frame 02 → Frame 03)
   useEffect(() => {
@@ -198,6 +265,36 @@ export default function App() {
       enterDiscovery();
     }
   }, [state.status, hasTransitionedToMap, enterDiscovery]);
+
+  // ── Get Route without a real location ────────────────────────────────────
+  // Reuses the existing requestLocation(); no second geolocation path, no
+  // reload, no navigation. On success we continue into route_preview
+  // automatically so the user never presses the button twice.
+  const handleGetRoute = useCallback(() => {
+    if (hasRealLocation) {
+      // Real position available — unchanged behaviour.
+      setRouteAwaitingLocation(false);
+      transition({ status: 'route_preview', centerId: selectedFacility?.id, sheetExpanded: true });
+      return;
+    }
+    // No real fix: ask the browser, stay exactly where we are.
+    setRouteAwaitingLocation(true);
+    requestLocation();
+  }, [hasRealLocation, selectedFacility, transition, requestLocation]);
+
+  // Retry path for the inline "Enable Location" action.
+  const handleEnableLocation = useCallback(() => {
+    requestLocation();
+  }, [requestLocation]);
+
+  // Once a genuine fix lands, finish the journey the user started. The route
+  // effect below then computes from the real position.
+  useEffect(() => {
+    if (!routeAwaitingLocation) return;
+    if (!hasRealLocation || !position) return;
+    setRouteAwaitingLocation(false);
+    transition({ status: 'route_preview', centerId: selectedFacility?.id, sheetExpanded: true });
+  }, [routeAwaitingLocation, hasRealLocation, position, selectedFacility, transition]);
 
   // Route calculation
   useEffect(() => {
@@ -346,10 +443,28 @@ export default function App() {
   }, []);
 
   // ── Splash renders ──
+  // A failed automatic request keeps the user on the splash, where they can
+  // retry or explicitly continue without location.
+  const locationFailed =
+    !locationSkipped &&
+    position == null &&
+    !geoLoading &&
+    (geoDenied || geoError != null);
+
   const renderSplash = (locationReady: boolean) => (
     <SplashScreen
       locationReady={locationReady}
       ready={state.status === 'location_ready'}
+      locationFailed={locationFailed}
+      locationErrorMessage={geoError}
+      permissionBlocked={geoPermissionBlocked}
+      retrying={geoLoading}
+      onRetryLocation={() => {
+        requestLocation();
+      }}
+      onContinueWithoutLocation={() => {
+        setLocationSkipped(true);
+      }}
     />
   );
 
@@ -366,7 +481,7 @@ export default function App() {
           collapsedContent={renderDiscoveryCollapsed()}
         >
           <FacilityDiscoveryPanel
-            facilities={filteredFacilities}
+            facilities={sortedFacilities}
             totalFacilities={facilities.length}
             onSelect={handleCenterSelect}
             loading={facilitiesLoading}
@@ -451,7 +566,18 @@ export default function App() {
           currentOccupancy={undefined}
           resources={facility.resources}
           onBack={handleBackToDiscovery}
-          onGetRoute={() => transition({ status: 'route_preview', centerId: facility.id, sheetExpanded: true })}
+          onGetRoute={handleGetRoute}
+          locationPrompt={
+            routeAwaitingLocation && !hasRealLocation
+              ? {
+                  requesting: geoLoading,
+                  // A blocked origin gets the site-settings wording; anything
+                  // else (unavailable/timeout) stays retryable.
+                  blocked: geoPermissionBlocked,
+                }
+              : null
+          }
+          onEnableLocation={handleEnableLocation}
         />
       </OverlayContainer>
     );
