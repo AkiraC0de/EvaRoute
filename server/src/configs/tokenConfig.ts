@@ -29,4 +29,4 @@ export const OTP = {
   MAX_ATTEMPTS: 10
 }
 
-export const DEFAULT_PASSWORD_LENGTH = 16
+export const DEFAULT_PASSWORD_LENGTH = 8
