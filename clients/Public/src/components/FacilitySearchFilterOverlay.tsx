@@ -81,9 +81,9 @@ export default function FacilitySearchFilterOverlay({
               aria-hidden="true"
             />
             {statusCounts[filter.value]} {filter.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
+ </button>
+ ))}
+ </div>
+ </div>
+ );
+ }

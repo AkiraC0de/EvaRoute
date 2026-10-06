@@ -46,6 +46,24 @@
   --shadow-raised-lg: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
   --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.20), 0 4px 16px rgba(0, 0, 0, 0.14);
 
+  /* --- Claymorphic recipe ---
+   * The clay look is a raised white surface + soft outer shadow + a white
+   * inner highlight that lights the top-left edge. This trio was previously
+   * copy-pasted inline with three different highlight opacities; these tokens
+   * are the single source so every raised surface matches. */
+  --clay-highlight: inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  /* Recessed clay control (search fields). Reads as pressed-in rather than
+     raised: a light inner top edge plus a soft dark well beneath it. */
+  --clay-inset: inset 0 2px 5px rgba(148, 163, 184, 0.28),
+               inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-clay-sm: var(--shadow-raised-sm), var(--clay-highlight);
+  --shadow-clay-md: var(--shadow-raised-md), var(--clay-highlight);
+  --shadow-clay-lg: var(--shadow-raised-lg), var(--clay-highlight);
+
+  /* Sheet drag handle — one shared primitive for every mobile sheet. */
+  --sheet-handle-width: 56px;
+  --sheet-handle-height: 20px;
+
   /* --- Spacing Tokens --- */
   --space-xs: 4px;
   --space-sm: 8px;
@@ -82,8 +100,8 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
 
-  /* --- Desktop panel widths (provisional) --- */
-  --panel-width: 360px;
+  /* --- Desktop panel widths --- */
+  --panel-width: 400px;
   --route-card-width: var(--panel-width);
 
   /* --- Animation Tokens --- */

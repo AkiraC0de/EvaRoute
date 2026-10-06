@@ -1,64 +1,143 @@
-import type { Facility, FacilityListResponse, FacilityResponse } from '../types/facility';
-
-/// <reference types="vite/client" />
-
 /**
- * EvaRoute API Client
+ * EvaRoute Public API Client
  *
- * Connects to the existing backend at the URL configured via
- * VITE_API_BASE_URL environment variable.
+ * The public evacuation app must work without an account, so this client
+ * only targets the unauthenticated public routes. Authenticated staff/admin
+ * endpoints live under /api/v1/facility and are intentionally NOT used here.
  *
- * The backend runs on Express + TypeScript + Prisma + PostgreSQL.
- * All API calls are stateless HTTP requests.
+ * Backend (server/src/routes/public.routes.ts, mounted in index.ts):
+ *   GET /api/v1/public/facility?fromLong=<lng>&fromLat=<lat>[&distance=<km>]
+ *     - no authentication middleware
+ *     - filters to status AVAILABLE, radius filter (default 10km, max 200km),
+ *       sorted ascending by haversine distance
+ *     - each facility carries its `resources[]` (amenities) inline
  *
- * Authentication (JWT cookies) is handled by the backend.
- * The frontend does NOT manage tokens directly — it relies on
- * the backend's cookie-based session. Auth UI is deferred.
+ * Response envelope (core/ApiResponse.ts -> SuccessResponse):
+ *   { message: string, data: { facilities: PublicFacilityDTO[], count: number } }
  *
- * Current backend endpoints (from backend/src/configs/mainConfig.ts):
- *   GET    /api/v1/facility              — list facilities
- *   POST   /api/v1/facility              — register facility (auth required)
- *   PATCH  /api/v1/facility/:id           — update facility (auth required)
- *   DELETE /api/v1/facility/:id           — soft-delete facility (auth required)
- *   GET    /api/v1/facility/:id/staff     — list staff (auth required)
- *   GET    /api/v1/facility/:id/resource  — list resources (auth required)
- *
- * Endpoints NOT yet available:
- *   - Current occupancy count
- *   - Proximity-based facility filtering
- *   - Route calculation
- *   - User geolocation
+ * NOTE: the payload is nested under `data`, not spread at the top level.
  */
 
 /// <reference types="vite/client" />
+
+import type { Facility } from '../types/facility';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
-// Full backend URI for the facility endpoint
-const FACILITY_URI = `${BASE_URL}/api/v1/facility`;
+const PUBLIC_FACILITY_URI = `${BASE_URL}/api/v1/public/facility`;
+
+/** Maximum radius the backend accepts (see PUBLIC_FACILITY.MAX_DISTANCE_KM). */
+const MAX_DISTANCE_KM = 200;
+
+export interface PublicFacilityQuery {
+  longitude: number;
+  latitude: number;
+  /** Radius in km. Omitted server-side when not provided (defaults to 10km). */
+  distanceKm?: number;
+}
 
 /**
- * Fetch facilities from the backend.
+ * Raw DTO exactly as the backend sends it.
  *
- * The backend GET /api/v1/facility returns:
- *   { message: string; facilities: Facility[]; count: number }
- *
- * Optional status filter: ?status=AVAILABLE or ?status=UNAVAILABLE
- *
- * NOTE: This endpoint requires authentication (JWT cookie).
- * Without auth, the backend will return an error.
- * Auth UI is deferred to a later phase.
+ * `latitude`/`longitude` are Prisma `Decimal` columns and arrive as strings
+ * (or numbers, depending on driver/serialization), so they are typed as
+ * string | number and coerced by the mapper below.
  */
-export async function fetchFacilities(status?: 'AVAILABLE' | 'UNAVAILABLE'): Promise<Facility[]> {
-  const params = status ? `?status=${status}` : '';
-  const url = `${FACILITY_URI}${params}`;
+export interface PublicFacilityDTO {
+  id: string;
+  name: string;
+  address: string;
+  note: string | null;
+  maxCapacity: number;
+  status: string;
+  latitude: string | number;
+  longitude: string | number;
+  createdAt: string;
+  distanceKm: number;
+  resources: {
+    id: string;
+    name: string;
+    type: string;
+    isAvailable: boolean | null;
+    availableValue: number | null;
+    maxValue: number | null;
+  }[];
+}
 
-  const response = await fetch(url, {
+export interface PublicFacilityResponse {
+  message: string;
+  data: {
+    facilities: PublicFacilityDTO[];
+    count: number;
+  };
+}
+
+/**
+ * Prisma Decimal fields may serialize as strings. Coerce to a finite number
+ * and fall back to `fallback` when the value is unusable, so one bad row can
+ * never break the whole discovery list.
+ */
+function toNumber(value: string | number | null | undefined, fallback: number): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+/**
+ * Map the backend DTO onto the frontend `Facility` model.
+ *
+ * Field mapping:
+ *   id, name, address, note, status, maxCapacity  -> same names
+ *   latitude/longitude (Decimal string|number)    -> number, via toNumber()
+ *   distanceKm                                    -> `distance` (the field the
+ *                                                    existing UI already reads)
+ *   resources[]                                   -> `resources` (amenities)
+ *
+ * `status` is passed through unchanged: the backend enum is a subset of the
+ * frontend union, so no remapping is applied here.
+ */
+function toFacility(dto: PublicFacilityDTO): Facility {
+  return {
+    id: dto.id,
+    name: dto.name,
+    address: dto.address,
+    note: dto.note ?? undefined,
+    maxCapacity: toNumber(dto.maxCapacity, 0),
+    status: dto.status as Facility['status'],
+    latitude: toNumber(dto.latitude, 0),
+    longitude: toNumber(dto.longitude, 0),
+    createdAt: dto.createdAt,
+    distance: toNumber(dto.distanceKm, 0),
+    resources: (dto.resources ?? []).map((resource) => ({
+      id: resource.id,
+      name: resource.name,
+      type: resource.type,
+      isAvailable: resource.isAvailable,
+      availableValue: resource.availableValue,
+      maxValue: resource.maxValue,
+    })),
+  };
+}
+
+/**
+ * Fetch the public facility list, nearest first.
+ *
+ * `fromLong` / `fromLat` are REQUIRED by the backend schema, so callers must
+ * pass a coordinate — callers that lack a GPS fix should pass their fallback
+ * center rather than skip the request.
+ */
+export async function fetchPublicFacilities(query: PublicFacilityQuery): Promise<Facility[]> {
+  const params = new URLSearchParams({
+    fromLong: String(query.longitude),
+    fromLat: String(query.latitude),
+  });
+
+  if (query.distanceKm != null) {
+    params.set('distance', String(Math.min(query.distanceKm, MAX_DISTANCE_KM)));
+  }
+
+  const response = await fetch(`${PUBLIC_FACILITY_URI}?${params.toString()}`, {
     method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-    credentials: 'include', // Include cookies for JWT session
+    headers: { Accept: 'application/json' },
   });
 
   if (!response.ok) {
@@ -69,45 +148,14 @@ export async function fetchFacilities(status?: 'AVAILABLE' | 'UNAVAILABLE'): Pro
     );
   }
 
-  const data = await response.json();
-  return data.facilities ?? [];
-}
+  const body = (await response.json()) as PublicFacilityResponse;
+  const facilities = body?.data?.facilities;
 
-/**
- * Fetch a single facility by ID.
- *
- * NOTE: The backend's facility detail endpoint is not a separate route.
- * The frontend would need to call GET /api/v1/facility/:id/staff or
- * GET /api/v1/facility/:id/resource to get facility-specific data.
- * A dedicated facility detail endpoint is recommended (see docs).
- *
- * This is a placeholder — the actual endpoint may differ.
- */
-export async function fetchFacilityById(id: string): Promise<Facility> {
-  // The backend does not have a direct GET /api/v1/facility/:id endpoint.
-  // This calls the staff endpoint as a placeholder — it returns facility data
-  // only if the authenticated user is a staff member of that facility.
-  const url = `${FACILITY_URI}/${id}/staff`;
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new ApiError(
-      errorBody.message || `Failed to fetch facility ${id}: ${response.status}`,
-      response.status,
-    );
+  if (!Array.isArray(facilities)) {
+    throw new ApiError('Unexpected response shape from the public facility endpoint.', response.status);
   }
 
-  const data = await response.json();
-  // The staff endpoint returns { message, facility } on success
-  return data.facility;
+  return facilities.map(toFacility);
 }
 
 // ──────────────────────────────────────────────
@@ -122,20 +170,4 @@ export class ApiError extends Error {
     super(message);
     this.name = 'ApiError';
   }
-}
-
-export class ApiNetworkError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ApiNetworkError';
-  }
-}
-
-// ──────────────────────────────────────────────
-// Types for API responses (shared with types/facility.ts)
-// ──────────────────────────────────────────────
-
-export interface ApiResponse<T> {
-  message: string;
-  data?: T;
 }

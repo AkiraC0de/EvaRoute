@@ -181,10 +181,19 @@ button {
     display: none;
   }
 
+  .facility-discovery-panel {
+    /* Inner spacing so cards/list items don't touch the panel edges.
+       --space-md (16px) matches the existing card padding in the Figma spec. */
+    padding: var(--space-md);
+    /* Fill the full-height desktop panel rather than sizing to content. */
+    height: 100%;
+  }
+
   .overlay-desktop-panel {
     position: absolute;
     display: flex;
     z-index: var(--z-sheet);
+    max-height: calc(100dvh - var(--space-panel-margin) * 2);
   }
 
   .overlay-desktop-panel[data-variant='sheet'],
@@ -192,11 +201,13 @@ button {
     top: 50%;
     right: var(--space-panel-margin);
     transform: translateY(calc(-50% - 12px));
+    /* Fill the available desktop vertical space instead of sizing to content. */
+    height: calc(100dvh - var(--space-panel-margin) * 2);
   }
 
   .overlay-desktop-panel[data-variant='route-card'] {
     right: var(--space-panel-margin);
-    bottom: 1rem;
+    bottom: var(--space-panel-margin);
   }
 }
 
@@ -233,7 +244,7 @@ button {
   color: var(--color-primary);
   background: var(--surface-raised);
   border-radius: 42px;
-  box-shadow: var(--shadow-raised-lg), inset 5px 5px 12px rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-clay-lg);
 }
 
 .onboarding-illustration::before {
@@ -287,7 +298,7 @@ button {
 .onboarding-card {
   width: min(100%, 420px);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-raised-lg), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-clay-lg);
 }
 
 .onboarding-message-icon {
@@ -431,6 +442,24 @@ button {
   color: var(--color-text-primary);
 }
 
+/* Pressed reads as slightly compressed rather than lifted. */
+.clay-button-secondary:active {
+  background-color: var(--surface-raised);
+  box-shadow: var(--shadow-inset);
+}
+
+/* Disabled: reduced contrast and elevation, still legible. */
+.clay-button:disabled,
+.clay-button[aria-disabled='true'] {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.clay-button-primary:disabled {
+  background-color: var(--color-primary);
+  color: white;
+}
+
 /* Inset track primitive */
 .inset-track {
   box-shadow: var(--shadow-inset);
@@ -557,7 +586,7 @@ button {
 }
 .facility-marker-label {
   position: absolute;
-  bottom: calc(100% + 7px);
+  top: 50%;
   left: 50%;
   max-width: 170px;
   padding: 5px 8px;
@@ -571,7 +600,14 @@ button {
   background: var(--surface-raised);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-raised-sm);
-  transform: translateX(-50%);
+  /* The marker is rotated -45deg to form the teardrop, so this label
+     inherits that rotation and would render diagonally. Anchoring at the
+     marker centre with transform-origin 0 0 and counter-rotating +45deg
+     cancels the parent rotation exactly: the label stays horizontal and
+     centred above the pin for every label width. The percentage translate
+     is measured pre-rotation, so -100% lifts it by its own height. */
+  transform-origin: 0 0;
+  transform: rotate(45deg) translate(-50%, calc(-100% - 34px));
   pointer-events: none;
 }
 
@@ -631,6 +667,12 @@ button {
   .evaroute-shell .overlay-area > .turn-instruction,
   .evaroute-shell .overlay-area > .turn-instruction * {
     pointer-events: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .turn-instruction {
+    top: var(--space-panel-margin);
   }
 }
 
@@ -850,10 +892,31 @@ button {
 }
 
 @media (max-width: 767px) {
+  /* Shared mobile sheet drag handle. Every collapsed sheet (discovery,
+     facility detail, route preview, navigating) uses this one primitive so
+     they read as states of the same component. The raised white pill is the
+     physical grip; the inner bar keeps the familiar sheet-grip cue. */
   .drag-handle {
-    display: block;
+    display: flex;
     flex: 0 0 auto;
-    width: 40px;
+    align-items: center;
+    justify-content: center;
+    width: var(--sheet-handle-width);
+    height: var(--sheet-handle-height);
+    /* The component ships mt-3/mx-auto utilities; the handle is now a fixed
+       raised pill, so those offsets are cleared here. */
+    margin: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-clay-sm);
+  }
+
+  /* Inner grip bar sitting on the raised pill. */
+  .drag-handle::before {
+    content: '';
+    display: block;
+    width: 24px;
     height: 4px;
     border-radius: var(--radius-full);
     background: var(--surface-inset);
@@ -862,6 +925,38 @@ button {
   .discovery-collapsed-toggle {
     width: 100%;
     padding: var(--space-sm) 0;
+    gap: var(--space-xs);
+    /* The global button reset does not clear background/border, so this bare
+       <button> was showing the UA grey fill + outset border as a flat panel
+       behind the pill. Make it a transparent hit area instead. */
+    border: 0;
+    background: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Pill-shaped sheet handle with the chevron centred inside. Reuses the same
+     radius/background tokens as the .drag-handle grip on the other sheets so
+     all four mobile handles read as one interaction. */
+  /* Discovery keeps its chevron inside the pill; the pill geometry, surface
+     and shadow come from the same tokens as the other sheet handles. */
+  .discovery-collapsed-handle {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--sheet-handle-width);
+    height: var(--sheet-handle-height);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-clay-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .discovery-collapsed-handle svg {
+    display: block;
+    width: 14px;
+    height: 14px;
   }
 
   .discovery-collapsed-toggle h2 {
@@ -1183,6 +1278,52 @@ button {
   padding-bottom: env(safe-area-inset-bottom);
   margin-top: auto;
 }
+/* Inline location recovery note for Get Route.
+   Compact and inset — NOT a second raised card. Sits directly above the
+   action row so the retry is next to the button that triggered it. */
+.facility-detail-location-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  box-shadow: var(--clay-inset);
+}
+
+.facility-detail-location-note-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.facility-detail-location-note-button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: var(--space-xs) var(--space-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-clay-sm);
+  cursor: pointer;
+}
+
+.facility-detail-location-note-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.facility-detail-location-note-button:not(:disabled):active {
+  box-shadow: var(--clay-inset);
+}
 
 @media (max-width: 767px) {
   .facility-detail-overlay[data-mobile-expanded='true'] {
@@ -1202,41 +1343,66 @@ button {
     overflow-y: auto;
   }
 
+  /* Collapsed facility summary: a single column so the enlarged drag handle sits
+     directly above the name/address/status instead of off to one side. */
   .facility-detail-collapsed-summary {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
     width: 100%;
     min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  .facility-detail-collapsed-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: var(--space-xs);
   }
 
   .facility-detail-collapsed-name {
-    display: flex;
-    flex: 1 1 auto;
-    align-items: center;
-    gap: var(--space-sm);
-    min-width: 0;
-  }
-
-  .facility-detail-collapsed-name > span {
+    display: block;
+    max-width: 100%;
     overflow: hidden;
-    min-width: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .facility-detail-collapse-toggle {
+  .facility-detail-collapsed-address {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .facility-detail-collapsed-status {
     display: flex;
-    flex: 0 0 44px;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    touch-action: manipulation;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .facility-detail-collapsed-capacity {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
   }
 }
 
@@ -1247,6 +1413,14 @@ button {
 }
 
 @media (min-width: 768px) {
+  .facility-detail-sidebar {
+    /* Inner spacing so detail content doesn't touch the sidebar edges.
+       --space-md (16px) matches the existing card padding in the Figma spec. */
+    padding: var(--space-md);
+    /* Fill the full-height desktop panel rather than sizing to content. */
+    height: 100%;
+  }
+
   .facility-detail-actions {
     margin-top: auto;
   }
@@ -1261,7 +1435,7 @@ button {
   padding: var(--space-md);
   background: var(--surface-raised);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-clay-md);
   animation: fadeScaleIn var(--duration-md) var(--ease-out) forwards;
 }
 .route-preview-handle {
@@ -1393,11 +1567,95 @@ button {
   .route-preview-card {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     padding: var(--space-md) var(--space-md) var(--space-md) var(--space-md);
-    box-shadow: var(--shadow-raised-lg), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+    box-shadow: var(--shadow-clay-lg);
   }
 
+  /* The sheet already renders a drag handle in .overlay-mobile-toggle, so the
+     card's own decorative handle reads as a second, misaligned pill on mobile. */
   .route-preview-handle {
-    margin-bottom: var(--space-sm);
+    display: none;
+  }
+
+  /* Keep the action buttons a single line with a consistent touch target;
+     "Cancel Route" otherwise wraps to two lines on narrow phones (~<=390px),
+     making one button taller than its neighbour. */
+  .route-preview-actions {
+    grid-auto-rows: minmax(48px, auto);
+  }
+
+  .route-preview-actions button {
+    min-height: 48px;
+    white-space: nowrap;
+  }
+
+  /* Collapsed route preview: chevron on its own centred row above the content,
+     so it no longer shares a right-aligned row with Cancel. */
+  .route-preview-collapsed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .route-preview-collapsed-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fixed square target: a percentage width would stretch inside the column
+       flex parent and swallow the content row below it. */
+    flex: 0 0 44px;
+    width: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* Match the facility-detail grip: same pill, enlarged via the shared
+     .drag-handle rules so both sheets read identically. DragHandle ships an
+     mt-3 utility that adds a stray offset inside a fixed-height target. */
+  .route-preview-collapsed-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .route-preview-collapsed-info {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
+  /* Pill shape with a full-size touch target; colour/typography unchanged. */
+  .route-preview-collapsed-cancel {
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 var(--space-lg);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--surface-inset);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* The collapsed sheet is a fixed 116px shared by every overlay. The stacked
+     chevron + row needs less vertical padding than the default 24px, or the
+     row is clipped at the bottom. Scoped to the collapsed route-card only. */
+  .overlay-mobile-sheet[data-variant='route-card'][data-mobile-expanded='false'] .overlay-mobile-inner {
+    padding-top: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 }
 
@@ -1467,7 +1725,7 @@ button {
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
   font-family: var(--font-sans);
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--clay-inset);
   outline: none;
   transition: box-shadow var(--duration-sm) var(--ease-out),
               background-color var(--duration-sm) var(--ease-out);
@@ -1476,7 +1734,7 @@ button {
   color: var(--color-text-caption);
 }
 .search-input:focus {
-  box-shadow: var(--shadow-inset), 0 0 0 2px var(--color-primary);
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--color-primary);
   background: var(--surface-raised);
 }
 
@@ -1577,11 +1835,15 @@ button {
 /* On desktop, overlay is left-anchored with a fixed width (≈ search bar width in Figma) */
 @media (min-width: 768px) {
   .search-filter-overlay {
+    top: var(--space-panel-margin);
+    left: var(--space-panel-margin);
+    padding: 0;
     right: auto;
     width: 480px;
-    max-width: calc(100vw - var(--space-panel-margin) - var(--panel-width) - var(--space-md));
+    max-width: calc(100vw - var(--space-panel-margin) * 2 - var(--panel-width) - var(--space-md));
   }
 }
+
 
 /* Row containing search input + optional recenter slot */
 .search-filter-top-row {
@@ -1612,8 +1874,124 @@ button {
   pointer-events: none;
 }
 .search-filter-search-input {
-  padding-left: 42px;
+  /* Recessed clay control, matching the .search-input inside the discovery
+     panel so both search fields read as the same physical control. */
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-md) 0 42px;
+  background: var(--surface-raised);
+  border: 0;
+  border-radius: var(--radius-full);
+  box-shadow: var(--clay-inset);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  outline: none;
+  /* Chrome adds its own search decorations; they break the inset shape. */
+  appearance: none;
+  -webkit-appearance: none;
+  transition: box-shadow var(--duration-sm) var(--ease-out);
 }
+.search-filter-search-input::placeholder {
+  color: var(--color-text-caption);
+}
+.search-filter-search-input:focus {
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--color-primary);
+}
+.search-filter-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+/* Splash location recovery — shown only after an automatic request failed.
+   Reuses the existing clay tokens so it reads as part of the same system. */
+/* ── Recovery expand / collapse ───────────────────────────────────────────
+   Always-mounted wrapper. `grid-template-rows: 0fr -> 1fr` animates to the
+   CONTENT's own intrinsic height, so there is no magic max-height and no
+   reserved blank space once collapsed. This is what makes the EXIT animatable
+   — a display:none / conditional-unmount toggle could not animate at all.
+
+   Three nested layers, each doing one job:
+     .splash-recovery-region  -> animates the row track 0fr <-> 1fr
+     .splash-recovery-clip    -> clips the content to that track height
+     .splash-recovery         -> fades + slides the content itself
+*/
+.splash-recovery-region {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 340ms var(--ease-out);
+}
+
+.splash-recovery-region.is-open {
+  grid-template-rows: 1fr;
+}
+
+.splash-recovery-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Content: soft fade + small rise so it reads as expanding out of the
+   checklist rather than a separate card appearing. Opacity leads, the track
+   height does the expanding. `visibility` is delayed on close so the buttons
+   are not focusable mid-collapse. */
+.splash-recovery {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  padding-top: var(--space-md);
+  margin-top: var(--space-md);
+  border-top: 1px solid var(--color-border-subtle, rgba(15, 23, 42, 0.08));
+  text-align: center;
+  transition:
+    opacity 260ms var(--ease-out),
+    transform 340ms var(--ease-out),
+    visibility 0s linear 340ms;
+}
+
+.splash-recovery-region.is-open .splash-recovery {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 300ms var(--ease-out) 60ms,
+    transform 340ms var(--ease-out),
+    visibility 0s;
+}
+.splash-recovery-message {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+.splash-recovery-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.splash-recovery-button {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-clay-sm);
+  cursor: pointer;
+}
+.splash-recovery-button-primary {
+  color: var(--color-primary);
+}
+.splash-recovery-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.splash-recovery-button:not(:disabled):active {
+  box-shadow: var(--clay-inset);
+}
+
 .search-filter-chips {
   display: flex;
   gap: var(--space-xs);
@@ -1634,10 +2012,18 @@ button {
   font-weight: var(--font-weight-semibold);
   transition: background-color var(--duration-sm) var(--ease-out), color var(--duration-sm) var(--ease-out);
 }
+/* Selection is carried by colour + surface, not shadow alone, so it stays
+   obvious for users who cannot perceive the elevation cue. */
 .search-filter-chip.active {
-  color: var(--color-primary);
-  background: var(--surface-raised);
+  color: #FFFFFF;
+  background: var(--color-primary);
   box-shadow: var(--shadow-raised-sm);
+}
+
+/* The dot keeps its semantic status colour; a white ring separates it from
+   the filled chip so availability stays readable. */
+.search-filter-chip.active .search-filter-chip-dot {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .search-filter-chip-dot {
   width: 7px;
@@ -1714,12 +2100,23 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--surface-base);
   padding: var(--space-2xl) var(--space-md);
   gap: var(--space-xl);
+  /* The recovery card adds content below the checklist. On short viewports
+     (landscape phones, split-screen) the column can exceed the viewport.
+     Cap the height to the viewport so this element itself scrolls — with only
+     `min-height` the column grows past the viewport and the recovery buttons
+     become unreachable (the page cannot scroll a fixed-height shell).
+     `safe` keeps the column centred when there IS room. */
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  justify-content: safe center;
 }
+
 
 .splash-illustration {
   display: flex;
@@ -1730,12 +2127,25 @@ button {
 }
 
 .splash-logo {
-  width: 140px;
-  height: 140px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   mix-blend-mode: multiply;
   display: block;
 }
+/* On short viewports, shrink the logo so the recovery actions stay in view
+   without scrolling where possible. */
+@media (max-height: 720px) {
+  .splash-logo {
+    width: 132px;
+    height: 132px;
+  }
+  .splash-screen {
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
 
 .splash-branding {
   text-align: center;
@@ -1758,34 +2168,71 @@ button {
 
 .splash-progress-bar {
   width: 100%;
-  max-width: 280px;
-  height: 6px;
+  max-width: 340px;
+  height: 8px;
   background: var(--surface-inset);
   border-radius: var(--radius-full);
   overflow: hidden;
   box-shadow: var(--shadow-inset);
 }
 
+/* The fill's width IS the real progress value. The travelling highlight is a
+   pseudo-element inside this element, so it is clipped to whatever portion
+   is actually filled and can never make an empty bar look complete. */
 .splash-progress-fill {
+  position: relative;
   display: block;
   height: 100%;
   background: var(--color-primary);
   border-radius: var(--radius-full);
-  transition: width var(--duration-md) var(--ease-out);
+  transition: width 1400ms var(--ease-out);
   box-shadow: 0 0 8px rgba(74, 114, 255, 0.4);
+  overflow: hidden;
 }
 
+/* Soft light sweep across the filled portion — EvaRoute blue throughout, with
+   a single translucent white highlight passing over it. */
+.splash-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  animation: splash-sheen 2400ms ease-in-out infinite;
+}
+
+@keyframes splash-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  55% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* The card is the single splash surface. It carries its own padding because
+   the shared .clay-card padding utility is inert in this build, which left the
+   checklist flush against the card edge. Checklist and recovery both sit inside
+   this padding so nothing touches the edges. */
 .splash-checklist-card {
   width: 100%;
-  max-width: 300px;
+  max-width: 340px;
   background: var(--surface-raised);
+  padding: var(--space-lg) var(--space-md);
 }
 
 .splash-checklist {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  padding: var(--space-md);
 }
 
 .splash-checklist-item {
@@ -1794,6 +2241,12 @@ button {
   gap: var(--space-sm);
 }
 
+/* Requirement indicator.
+   Incomplete/pending: inset neutral surface.
+   Fulfilled: EvaRoute blue. Unavailable: red (genuinely failed only).
+   `transition` on background/color lets a real state change animate rather
+   than snap. The pop/glow flourish is applied separately via .is-fulfilled so
+   it runs once, not on every render. */
 .splash-checklist-radio {
   flex: 0 0 auto;
   width: 22px;
@@ -1803,18 +2256,74 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--duration-sm) var(--ease-out);
+  transition:
+    background-color var(--duration-lg) var(--ease-out),
+    color var(--duration-lg) var(--ease-out),
+    box-shadow var(--duration-lg) var(--ease-out),
+    transform var(--duration-lg) var(--ease-out);
   flex-shrink: 0;
 }
 
 .splash-checklist-radio.complete {
-  background: var(--color-success);
+  background: var(--color-primary);
   color: white;
+  box-shadow: 0 0 8px rgba(74, 114, 255, 0.35);
 }
 
 .splash-checklist-radio.spinning {
   background: var(--color-primary);
   color: white;
+}
+
+.splash-checklist-radio.unavailable {
+  background: var(--color-danger);
+  color: white;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+/* One-shot fulfilment flourish on a single row: a brief scale pop + glow
+   ring that settles back into the normal fulfilled style. `.is-fulfilled`
+   is only applied for the render pass following a genuine false→true
+   transition, so this cannot loop or replay on unrelated re-renders. */
+.splash-checklist-item.is-fulfilled .splash-checklist-radio {
+  animation: splash-fulfil-pop 720ms var(--ease-out) 1;
+}
+
+@keyframes splash-fulfil-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 114, 255, 0.45);
+  }
+  35% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 7px rgba(74, 114, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(74, 114, 255, 0.35);
+  }
+}
+
+/* Overall fulfilment: a single soft sweep across the card once every
+   requirement is genuinely confirmed. Purely presentational — it never
+   advances the app by itself. */
+.splash-checklist-card.is-all-fulfilled {
+  animation: splash-card-fulfil 900ms var(--ease-out) 1;
+}
+
+@keyframes splash-card-fulfil {
+  0% {
+    box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  }
+  40% {
+    box-shadow:
+      var(--shadow-raised-md),
+      inset 4px 4px 10px rgba(255, 255, 255, 0.8),
+      0 0 0 4px rgba(74, 114, 255, 0.14);
+  }
+  100% {
+    box-shadow: var(--shadow-raised-md), inset 4px 4px 10px rgba(255, 255, 255, 0.8);
+  }
 }
 
 .splash-checklist-label {
@@ -1848,8 +2357,49 @@ button {
 }
 
 @media (min-width: 768px) {
+  /* The navigating overlay is the same 'route-card' variant as route_preview,
+     so it must keep that variant's bottom-right anchoring. The desktop panel
+     rule already sets right/bottom; only re-assert right here (the `left`
+     override that shifted this card to the bottom-left was removed). */
   .navigation-overlay {
-    right: auto !important;
-    left: var(--space-lg);
+    right: var(--space-panel-margin);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────
+   Keep functional feedback: progress width still animates to its real value
+   and indicator colors still settle. Drop the decorative/looping motion
+   (sheen sweep, pop, card flourish) which carries no information. */
+@media (prefers-reduced-motion: reduce) {
+  .splash-progress-fill::after {
+    animation: none;
+    transform: none;
+  }
+  .splash-checklist-item.is-fulfilled .splash-checklist-radio {
+    animation: none;
+  }
+  .splash-checklist-card.is-all-fulfilled {
+    animation: none;
+  }
+  .splash-progress-fill {
+    transition-duration: var(--duration-md);
+  }
+  .splash-checklist-radio {
+    transition-duration: var(--duration-md);
+  }
+  /* Recovery: drop the slide, keep a short opacity change so the user still
+     sees the section appear/disappear, just without movement. */
+  .splash-recovery-region {
+    transition-duration: var(--duration-md);
+  }
+  .splash-recovery {
+    transform: none;
+    transition:
+      opacity var(--duration-md) linear,
+      visibility 0s linear var(--duration-md);
+  }
+  .splash-recovery-region.is-open .splash-recovery {
+    transform: none;
+    transition: opacity var(--duration-md) linear, visibility 0s;
   }
 }
