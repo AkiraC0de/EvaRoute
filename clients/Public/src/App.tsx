@@ -3,7 +3,7 @@ import type { Map as LeafletMap } from 'leaflet';
 import { useAppState } from './state/useAppState';
 import { type EvaRouteTransitionPayload } from './state/app-state';
 import { useGeolocation, DEFAULT_CENTER } from './hooks/useGeolocation';
-import { getRoute, type OSRMRoute } from './services/osrm';
+import { getRouteToFacility, type RouteData } from './services/routing';
 import { fetchPublicFacilities } from './lib/api';
 import AppShell from './components/AppShell';
 import ArrivalOverlayCard from './components/ArrivalOverlayCard';
@@ -56,7 +56,7 @@ export default function App() {
   const [facilitiesLoading, setFacilitiesLoading] = useState(true);
   const [facilitiesError, setFacilitiesError] = useState<string | null>(null);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
-  const [routeData, setRouteData] = useState<OSRMRoute | null>(null);
+  const [routeData, setRouteData] = useState<RouteData | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [hasTransitionedToMap, setHasTransitionedToMap] = useState(false);
@@ -266,9 +266,11 @@ export default function App() {
   useEffect(() => {
     if (state.status === 'route_preview' && position && selectedFacility && !geoDenied) {
       setRouteLoading(true);
-      const start: [number, number] = [position.coords.longitude, position.coords.latitude];
-      const end: [number, number] = [selectedFacility.longitude, selectedFacility.latitude];
-      getRoute(start, end).then((r) => {
+      getRouteToFacility(
+        selectedFacility.id,
+        position.coords.longitude,
+        position.coords.latitude,
+      ).then((r) => {
         setRouteData(r);
         setRouteLoading(false);
       });
@@ -641,8 +643,8 @@ export default function App() {
 
     const steps = routeData?.legs?.flatMap(l => l.steps) ?? [];
     const currentStep = steps[currentStepIndex];
-    const instruction = currentStep?.maneuver ?? 'Following route';
-    const maneuverType = currentStep?.maneuver ?? undefined;
+    const instruction = currentStep?.text ?? 'Following route';
+    const maneuverType = currentStep?.text ?? undefined;
 
     const remaining = navRemainingDistance;
     const remainingKm = remaining !== null ? remaining.toFixed(1) : null;
