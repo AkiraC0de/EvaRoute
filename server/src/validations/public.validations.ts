@@ -18,4 +18,16 @@ export const publicFacilityQuerySchema = z.object({
     .optional(),
 })
 
+export const publicRouteQuerySchema = z.object({
+  fromLong: z.coerce
+    .number("fromLong is required.")
+    .min(-180, "fromLong must be between -180 and 180.")
+    .max(180, "fromLong must be between -180 and 180."),
+  fromLat: z.coerce
+    .number("fromLat is required.")
+    .min(-90, "fromLat must be between -90 and 90.")
+    .max(90, "fromLat must be between -90 and 90."),
+})
+
 export type PublicFacilityQuery = z.infer<typeof publicFacilityQuerySchema>
+export type PublicRRouteQuery = z.infer<typeof publicRouteQuerySchema>
