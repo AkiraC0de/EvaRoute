@@ -3,7 +3,6 @@ import type { Map as LeafletMap } from 'leaflet';
 import { useAppState } from './state/useAppState';
 import { type EvaRouteTransitionPayload } from './state/app-state';
 import { useGeolocation, DEFAULT_CENTER } from './hooks/useGeolocation';
-import { mockFacilities } from './data/mockFacilities';
 import { getRoute, type OSRMRoute } from './services/osrm';
 import { fetchPublicFacilities } from './lib/api';
 import AppShell from './components/AppShell';
@@ -23,25 +22,9 @@ import type { Facility } from './types/facility';
 
 const ARRIVAL_THRESHOLD_M = 50;
 
-// ─────────────────────────────────────────────────────────────
-// ⚠️ TEMPORARY MOCK MODE — REMOVE WHEN BACKEND DATA IS READY
-//
-// Set to true  → use src/data/mockFacilities.ts (visualization only)
-// Set to false → use GET /api/v1/public/facility (the real integration)
-//
-// To remove mock data for good:
-//   1. set this to false
-//   2. delete src/data/mockFacilities.ts
-//   3. delete the `USE_MOCK_FACILITIES` branches in App.tsx
-//
-// The real API path is fully implemented and stays intact behind this flag.
-// ─────────────────────────────────────────────────────────────
-const USE_MOCK_FACILITIES = true;
-
 // ── Haversine distance (km) ──
-// Real mode reads `facility.distance` from the API (mapped from the
-// backend's `distanceKm`). Mock mode uses this instead, because mock
-// records carry no backend-computed distance.
+// Used for client-side distance/ETA where no routing data is available
+// (e.g. live distance to a selected center) and for navigation proximity.
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -68,12 +51,9 @@ export default function App() {
   const leafletMapRef = useRef<LeafletMap | null>(null);
 
   // Data state
-  // MOCK MODE: facilities come from src/data/mockFacilities.ts.
-  // REAL MODE: facilities come from GET /api/v1/public/facility.
-  const [facilities, setFacilities] = useState<Facility[]>(
-    USE_MOCK_FACILITIES ? mockFacilities : [],
-  );
-  const [facilitiesLoading, setFacilitiesLoading] = useState(!USE_MOCK_FACILITIES);
+  // Facilities come from GET /api/v1/public/facility (the real integration).
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [facilitiesLoading, setFacilitiesLoading] = useState(true);
   const [facilitiesError, setFacilitiesError] = useState<string | null>(null);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [routeData, setRouteData] = useState<OSRMRoute | null>(null);
@@ -112,25 +92,14 @@ export default function App() {
   const hasRealLocation = position != null && !geoDenied && geoError == null;
 
   // Distance per facility.
-  // Real mode: `distance` already comes from the backend (`distanceKm`).
-  // Mock mode: mock records have no distance, so compute it here.
+  // Real mode: `distance` already comes from the backend (`distanceKm`), so
+  // the list carries the server-computed distance as-is.
   //
   // Without a real fix there is no honest "distance from user", so `distance`
   // is left undefined rather than measured from DEFAULT_CENTER. Consumers
   // already treat a missing distance as "unknown" (see CenterDistance usage),
   // and closest-first sorting skips sorting entirely in that state.
-  const facilitiesWithDistance = USE_MOCK_FACILITIES
-    ? facilities.map((facility) => {
-        if (!hasRealLocation || !position) return { ...facility };
-        return {
-          ...facility,
-          distance: haversineKm(
-            position.coords.latitude, position.coords.longitude,
-            facility.latitude, facility.longitude,
-          ),
-        };
-      })
-    : facilities;
+  const facilitiesWithDistance = facilities;
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const filteredFacilities = facilitiesWithDistance.filter((facility) => {
     const matchesQuery = !normalizedSearchQuery ||
@@ -210,9 +179,6 @@ export default function App() {
   const queryLatitude = position && !geoDenied ? position.coords.latitude : DEFAULT_CENTER[0];
 
   useEffect(() => {
-    // MOCK MODE: no backend request at all.
-    if (USE_MOCK_FACILITIES) return;
-
     // Wait for geolocation to settle before querying.
     if (geoLoading) return;
 
