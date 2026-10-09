@@ -55,6 +55,9 @@ export default function App() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [facilitiesLoading, setFacilitiesLoading] = useState(true);
   const [facilitiesError, setFacilitiesError] = useState<string | null>(null);
+  /** Search radius in km. null = backend default (10 km). Set when the user
+   *  chooses to expand the search beyond the default radius. */
+  const [searchRadiusKm, setSearchRadiusKm] = useState<number | null>(null);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [routeData, setRouteData] = useState<RouteData | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -185,7 +188,11 @@ export default function App() {
     let cancelled = false;
     setFacilitiesLoading(true);
 
-    fetchPublicFacilities({ longitude: queryLongitude, latitude: queryLatitude })
+    fetchPublicFacilities({
+      longitude: queryLongitude,
+      latitude: queryLatitude,
+      distanceKm: searchRadiusKm ?? undefined,
+    })
       .then((data) => {
         if (cancelled) return;
         // Always replace the placeholder, including with an empty list, so
@@ -206,7 +213,7 @@ export default function App() {
       });
 
     return () => { cancelled = true; };
-  }, [queryLongitude, queryLatitude, geoLoading]);
+  }, [queryLongitude, queryLatitude, geoLoading, searchRadiusKm]);
 
   function isNavigatingState(): boolean {
     return state.status === 'navigating';
@@ -455,6 +462,20 @@ export default function App() {
             loading={facilitiesLoading}
             error={facilitiesError}
           />
+          {!facilitiesLoading && !facilitiesError && sortedFacilities.length === 0 && searchRadiusKm === null && (
+            <div className="facility-expand-search">
+              <p className="facility-expand-search-text">
+                No centers found within the default 10 km radius.
+              </p>
+              <button
+                type="button"
+                className="facility-expand-search-button"
+                onClick={() => setSearchRadiusKm(200)}
+              >
+                Search up to 200 km
+              </button>
+            </div>
+          )}
         </OverlayContainer>
       </>
     );
