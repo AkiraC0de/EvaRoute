@@ -461,6 +461,8 @@ export default function App() {
             onSelect={handleCenterSelect}
             loading={facilitiesLoading}
             error={facilitiesError}
+            searchRadiusKm={searchRadiusKm}
+            onExpandSearch={() => setSearchRadiusKm(200)}
           />
           {!facilitiesLoading && !facilitiesError && sortedFacilities.length === 0 && searchRadiusKm === null && (
             <div className="facility-expand-search">
