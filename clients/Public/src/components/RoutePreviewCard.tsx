@@ -1,11 +1,11 @@
-import type { OSRMRoute } from '../services/osrm';
+import type { RouteData } from '../services/routing';
 import type { Facility } from '../types/facility';
 import CenterStatusBadge from './primitives/CenterStatusBadge';
 import PillButton from './primitives/PillButton';
 
 interface RoutePreviewCardProps {
   facility: Facility;
-  routeData: OSRMRoute | null;
+  routeData: RouteData | null;
   routeLoading: boolean;
   onCancel: () => void;
   onStartNavigation?: () => void;

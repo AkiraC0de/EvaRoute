@@ -4,11 +4,11 @@ import L from 'leaflet';
 import type { MutableRefObject } from 'react';
 import { useGeolocation, DEFAULT_CENTER } from '../hooks/useGeolocation';
 import { FACILITY_STATUS_META, type Facility } from '../types/facility';
-import { geojsonToLatLngs, type OSRMRoute } from '../services/osrm';
+import { geojsonToLatLngs, type RouteData } from '../services/routing';
 
 interface EvaRouteMapProps {
   containerRef: MutableRefObject<HTMLDivElement | null>;
-  routeData: OSRMRoute | null;
+  routeData: RouteData | null;
   selectedCenter: Facility | null;
   facilities: Facility[];
   userPosition: { latitude: number; longitude: number } | null;

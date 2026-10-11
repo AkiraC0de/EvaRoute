@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { geojsonToLatLngs } from '../services/osrm';
+import { geojsonToLatLngs } from '../services/routing';
 import L from 'leaflet';
 
 interface RouteLineProps {
-  routeData: import('../services/osrm').OSRMRoute | null;
+  routeData: import('../services/routing').RouteData | null;
   mapRef: React.MutableRefObject<L.Map | null>;
   lineRef: React.MutableRefObject<L.Polyline | null>;
 }

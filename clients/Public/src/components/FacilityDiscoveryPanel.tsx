@@ -23,6 +23,10 @@ interface FacilityDiscoveryPanelProps {
   loading?: boolean;
   /** Fetch error message, if the request failed. */
   error?: string | null;
+  /** Current search radius in km. null = backend default (10 km). */
+  searchRadiusKm?: number | null;
+  /** Called when the user chooses to expand the search radius. */
+  onExpandSearch?: () => void;
 }
 
 export default function FacilityDiscoveryPanel({
@@ -36,6 +40,8 @@ export default function FacilityDiscoveryPanel({
   onStatusFilterChange,
   loading = false,
   error = null,
+  searchRadiusKm = null,
+  onExpandSearch,
 }: FacilityDiscoveryPanelProps) {
   const statusFilters: Array<{ value: FacilityStatusFilter; label: string; dotColor: string }> = [
     { value: 'ALL', label: 'All', dotColor: 'var(--color-text-caption)' },
@@ -64,7 +70,7 @@ export default function FacilityDiscoveryPanel({
           <div className="facility-search-wrap">
             <svg className="facility-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
-              <path strokeLinecap="round" d="M20 20l-4-4" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-4-4" />
             </svg>
             <input
               className="search-input facility-search-input"
@@ -125,8 +131,7 @@ export default function FacilityDiscoveryPanel({
             <div className="facility-empty-icon" aria-hidden="true">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                 <circle cx="12" cy="12" r="9" />
-                <path strokeLinecap="round" d="M12 8v5" />
-                <path strokeLinecap="round" d="M12 16h.01" />
+                <path strokeLinecap="round" d="M12 8v5l2.5 2" />
               </svg>
             </div>
             <h3>Couldn&apos;t load centers</h3>
@@ -157,11 +162,6 @@ export default function FacilityDiscoveryPanel({
             <div className="facility-card-metrics" aria-label="Facility metrics">
               <div className="facility-card-metric">
                 <span className="facility-card-metric-label">Distance</span>
-                {/*
-                  `distance` is undefined when we have no real GPS fix. The old
-                  `?? 0` fallback printed a confident "0.0 km", which implied we
-                  knew the user's position. Show an explicit dash instead.
-                */}
                 {facility.distance != null ? (
                   <CenterDistance distance={facility.distance} className="facility-card-metric-value" />
                 ) : (
@@ -188,7 +188,7 @@ export default function FacilityDiscoveryPanel({
             <div className="facility-empty-icon" aria-hidden="true">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                 <circle cx="11" cy="11" r="7" />
-                <path strokeLinecap="round" d="M20 20l-4-4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-4-4" />
               </svg>
             </div>
             <h3>No evacuation centers found</h3>
@@ -196,6 +196,21 @@ export default function FacilityDiscoveryPanel({
           </div>
         )}
       </div>
+
+      {!loading && !error && totalFacilities === 0 && searchRadiusKm === null && (
+        <div className="facility-expand-search">
+          <p className="facility-expand-search-text">
+            No centers found within the default 10 km radius.
+          </p>
+          <button
+            type="button"
+            className="facility-expand-search-button"
+            onClick={onExpandSearch}
+          >
+            Search up to 200 km
+          </button>
+        </div>
+      )}
 
       <p className="facility-discovery-footer">
         {loading
