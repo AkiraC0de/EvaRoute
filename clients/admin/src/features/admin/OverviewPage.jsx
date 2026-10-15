@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Gauge, UserCheck, UserPlus, Users } from "lucide-react";
 import EmptyArt from "../../components/ui/EmptyArt";
-import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
 import ActivityFeed from "../activity/ActivityFeed";
 import useActivityStats from "../../hooks/useActivityStats";
@@ -14,30 +13,81 @@ import * as api from "../../lib/api";
  * No aggregate endpoint exists yet, so occupancy is summed client-side;
  * fine at the current number of facilities (see the plan's gap list).
  *
- * Hierarchy: hero + quick actions -> KPI cards -> network capacity bar ->
- * per-facility occupancy strip -> staff pulse. Every number shown here is
- * computed from live API data; nothing is decorative.
+ * Styled per the EvaRoute claymorphism design spec (§4 color/status rules,
+ * §6 spacing, §7 statistic cards, §8 typography): token-only colors,
+ * `text-ink` values with `text-muted` support, status paired with labels,
+ * and 4/8-based spacing.
  */
 
-const KpiCard = ({ icon, label, value, caption }) => (
-  <div className="rounded-clay bg-surface p-4 shadow-clay">
-    <div className="flex items-start justify-between gap-2">
-      <div>
-        <p className="text-[8px] font-semibold uppercase tracking-[0.8px] text-muted">{label}</p>
-        <p className="mt-1 text-[22px] font-bold leading-none text-ink">{value}</p>
-        {caption && <p className="mt-1.5 text-[9px] text-muted">{caption}</p>}
+const FOCUS_RING = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+
+/** Icon-tile tones (spec §7: accent-soft or feedback-soft backgrounds). */
+const ICON_TONES = {
+  accent: "bg-accent-soft text-accent",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
+};
+
+/** Prominent statistic card (spec §7: label, primary number, support, icon). */
+const StatCard = ({ icon, tone = "accent", label, value, caption }) => (
+  <div className="rounded-clay bg-surface p-6 shadow-clay">
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-muted">{label}</p>
+        <p className="mt-2 text-3xl font-bold leading-none text-ink">{value}</p>
+        {caption && <p className="mt-2 text-sm text-muted">{caption}</p>}
       </div>
-      <span
-        aria-hidden="true"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset"
-      >
-        {icon}
-      </span>
+      {icon && (
+        <span
+          aria-hidden="true"
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-clay-sm ${ICON_TONES[tone]}`}
+        >
+          {icon}
+        </span>
+      )}
     </div>
   </div>
 );
 
-const OccupancyBar = ({ members, capacity, className = "h-2" }) => {
+/** Compact figure inside a section — an inset statistic area (spec §4). */
+const MiniStat = ({ label, value, caption }) => (
+  <div className="rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
+    <p className="text-sm font-medium text-muted">{label}</p>
+    <p className="mt-1 text-2xl font-bold leading-none text-ink">{value}</p>
+    {caption && <p className="mt-1.5 text-sm text-muted">{caption}</p>}
+  </div>
+);
+
+/** Section shell: raised card with a semibold `text-ink` title (spec §8). */
+const Section = ({ title, meta, action, children }) => (
+  <section className="rounded-clay bg-surface p-6 shadow-clay">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 className="text-lg font-semibold text-ink">{title}</h2>
+        {meta && <p className="mt-1 text-sm text-muted">{meta}</p>}
+      </div>
+      {action}
+    </div>
+    {children}
+  </section>
+);
+
+const STATUS_BADGES = {
+  AVAILABLE: { label: "Available", className: "bg-success-soft text-success" },
+  UNAVAILABLE: { label: "Unavailable", className: "bg-warning-soft text-warning" },
+  LIMITED: { label: "Limited", className: "bg-accent-soft text-accent" },
+};
+
+const StatusBadge = ({ status }) => {
+  const badge = STATUS_BADGES[status] ?? { label: status ?? "Unknown", className: "bg-sunken text-muted" };
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${badge.className}`}>
+      {badge.label}
+    </span>
+  );
+};
+
+const OccupancyBar = ({ members, capacity, className = "h-2.5" }) => {
   const pct = capacity > 0 ? Math.min(100, Math.round((members / capacity) * 100)) : 0;
   return (
     <div
@@ -45,16 +95,23 @@ const OccupancyBar = ({ members, capacity, className = "h-2" }) => {
       aria-valuemin={0}
       aria-valuemax={capacity}
       aria-valuenow={members}
-      className={`w-full overflow-hidden rounded-full bg-[#edf0f6] shadow-clay-inset ${className}`}
+      className={`w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset ${className}`}
     >
       <div
-        className={`h-full rounded-full transition-[width] ${
-          pct >= 90 ? "bg-danger" : pct >= 70 ? "bg-[#f0b642]" : "bg-accent"
+        className={`h-full rounded-full transition-[width] motion-reduce:transition-none ${
+          pct >= 90 ? "bg-danger" : pct >= 70 ? "bg-warning" : "bg-accent"
         }`}
         style={{ width: `${pct}%` }}
       />
     </div>
   );
+};
+
+/** Capacity health — the bar's color is always paired with words (spec §4). */
+const capacityState = (pct) => {
+  if (pct >= 90) return { label: "Near capacity", className: "bg-danger-soft text-danger" };
+  if (pct >= 70) return { label: "Filling up", className: "bg-warning-soft text-warning" };
+  return { label: "Healthy", className: "bg-success-soft text-success" };
 };
 
 const OverviewPage = () => {
@@ -117,31 +174,34 @@ const OverviewPage = () => {
 
   const retry = useCallback(() => setReloadToken((token) => token + 1), []);
 
+  const networkPct =
+    stats && stats.capacity > 0 ? Math.round((stats.occupants / stats.capacity) * 100) : 0;
+
   return (
     <div>
-      {/* Hero: title + quick actions */}
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      {/* Hero: title + quick actions (spec §7 buttons) */}
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[20px] font-bold leading-tight text-ink">Overview</h1>
-          <p className="mt-1 text-[11px] text-muted">
+          <h1 className="text-2xl font-bold leading-tight text-ink">Overview</h1>
+          <p className="mt-1 text-sm text-muted">
             How your evacuation center network is doing right now
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/facilities"
-            className="inline-flex items-center gap-1.5 rounded-clay-sm bg-surface px-3.5 py-2 text-[10px] font-semibold text-[#65718c] shadow-clay-xs transition hover:text-accent hover:shadow-clay"
+            className={`inline-flex items-center gap-2 rounded-clay-sm bg-surface px-4 py-3 text-sm font-semibold text-ink-soft shadow-clay-xs transition hover:text-accent hover:shadow-clay ${FOCUS_RING}`}
           >
-            <Building2 size={13} strokeWidth={1.9} /> Manage facilities
+            <Building2 size={15} strokeWidth={1.9} /> Manage facilities
           </Link>
           <Link
             to="/staff"
-            className="inline-flex items-center gap-1.5 rounded-clay-sm bg-accent px-3.5 py-2 text-[10px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong"
+            className={`inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-3 text-sm font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
           >
-            <UserPlus size={13} strokeWidth={1.9} /> Create staff account
+            <UserPlus size={15} strokeWidth={1.9} /> Create staff account
           </Link>
         </div>
-      </div>
+      </header>
 
       {error && (
         <StatusPanel tone="error" title="Could not load the overview" onRetry={retry}>
@@ -158,117 +218,130 @@ const OverviewPage = () => {
       {stats && stats.facilities === 0 && (
         <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
           <EmptyArt variant="map" className="mx-auto h-20 w-36" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">No facilities yet</p>
-          <p className="mt-1 text-[10px] text-muted">
+          <p className="mt-4 text-lg font-semibold text-ink">No facilities yet</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted">
             Register your first evacuation center to start tracking occupancy and resources.
           </p>
           <Link
             to="/facilities"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-clay-sm bg-accent px-4 py-2 text-[10px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong"
+            className={`mt-5 inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-3 text-sm font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
           >
-            <Building2 size={13} strokeWidth={1.9} /> Go to facilities
+            <Building2 size={15} strokeWidth={1.9} /> Go to facilities
           </Link>
         </div>
       )}
 
       {stats && stats.facilities > 0 && (
-        <>
-          {/* KPI cards */}
-          <section aria-label="Network summary" className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <KpiCard
-              icon={<Building2 size={17} strokeWidth={1.8} />}
+        <div className="space-y-6">
+          {/* Statistic cards (spec §7) */}
+          <section aria-label="Network summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              icon={<Building2 size={19} strokeWidth={1.8} />}
               label="Facilities"
               value={stats.facilities}
               caption={`${stats.available} available · ${stats.unavailable} unavailable`}
             />
-            <KpiCard
-              icon={<Gauge size={17} strokeWidth={1.8} />}
+            <StatCard
+              icon={<Gauge size={19} strokeWidth={1.8} />}
               label="Checked in now"
               value={stats.occupants}
               caption={`of ${stats.capacity} places · ${stats.families} families`}
             />
-            <KpiCard
-              icon={<UserCheck size={17} strokeWidth={1.8} />}
+            <StatCard
+              icon={<UserCheck size={19} strokeWidth={1.8} />}
               label="Staff active"
               value={stats.staffActive}
               caption={`of ${stats.staffTotal} accounts`}
             />
-            <KpiCard
-              icon={<Users size={17} strokeWidth={1.8} />}
+            <StatCard
+              icon={<Users size={19} strokeWidth={1.8} />}
+              tone={stats.staffUnassigned > 0 ? "warning" : "accent"}
               label="Unassigned staff"
               value={stats.staffUnassigned}
               caption={stats.staffUnassigned === 0 ? "Everyone has a facility" : "Needs assignment"}
             />
           </section>
 
-          {/* Network capacity */}
-          <section aria-label="Network capacity" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
-            <div className="mb-2 flex items-baseline justify-between gap-2">
-              <h2 className="text-[11px] font-bold text-ink-soft">Network capacity</h2>
-              <p className="text-[9px] text-muted">
+          {/* Network capacity — color paired with a status label (spec §4) */}
+          <Section
+            title="Network capacity"
+            meta={
+              <>
                 {stats.occupants} of {stats.capacity} places occupied
-                {stats.capacity > 0 &&
-                  ` · ${Math.round((stats.occupants / stats.capacity) * 100)}%`}
-              </p>
-            </div>
+                {stats.capacity > 0 && ` · ${networkPct}%`}
+              </>
+            }
+            action={
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                  capacityState(networkPct).className
+                }`}
+              >
+                {capacityState(networkPct).label}
+              </span>
+            }
+          >
             <OccupancyBar members={stats.occupants} capacity={stats.capacity} className="h-3" />
-          </section>
+          </Section>
 
           {/* Per-facility occupancy strip */}
-          <section aria-label="Facility occupancy" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Facilities</h2>
-            <ul className="space-y-2.5">
-              {stats.rows.map((row) => (
-                <li key={row.id}>
-                  <Link
-                    to={`/facilities/${row.id}`}
-                    className="block rounded-clay-sm px-2 py-2 transition hover:bg-sunken"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${
-                            row.status === "AVAILABLE" ? "bg-success" : "bg-[#e5a83c]"
-                          }`}
-                        />
-                        <p className="truncate text-[10px] font-semibold text-ink-soft">{row.name}</p>
+          <Section title="Facilities" meta="Occupancy, families and staffing per evacuation center">
+            <ul className="space-y-2">
+              {stats.rows.map((row) => {
+                const pct =
+                  row.maxCapacity > 0
+                    ? Math.min(100, Math.round((row.occupancy.members / row.maxCapacity) * 100))
+                    : 0;
+                return (
+                  <li key={row.id}>
+                    <Link
+                      to={`/facilities/${row.id}`}
+                      className={`block rounded-clay-sm px-3 py-3 transition hover:bg-sunken ${FOCUS_RING}`}
+                    >
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
+                          {row.name}
+                        </p>
+                        <StatusBadge status={row.status} />
+                        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-sm font-medium text-ink-soft">
+                          {row.occupancy.members}/{row.maxCapacity}
+                        </span>
+                        <p className="shrink-0 text-sm text-muted">
+                          {row.occupancy.families} families · {row.staffCount ?? 0} staff
+                        </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-sunken px-2 py-0.5 text-[8px] font-semibold text-muted shadow-clay-inset">
-                        {row.occupancy.members}/{row.maxCapacity}
-                      </span>
-                      <p className="shrink-0 text-[9px] text-muted">
-                        {row.occupancy.families} families · {row.staffCount ?? 0} staff
-                      </p>
-                    </div>
-                    <div className="mt-1.5">
-                      <OccupancyBar members={row.occupancy.members} capacity={row.maxCapacity} />
-                    </div>
-                  </Link>
-                </li>
-              ))}
+                      <div className="mt-2.5">
+                        <OccupancyBar members={row.occupancy.members} capacity={row.maxCapacity} />
+                        <span className="sr-only">{pct}% occupied</span>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
-          </section>
+          </Section>
 
           {/* Activity summary metrics (accurate counts from /activity/stats) */}
-          <section aria-label="Activity summary" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
-            <div className="mb-2 flex items-baseline justify-between gap-2">
-              <h2 className="text-[11px] font-bold text-ink-soft">Activity — last 7 days</h2>
-              <p className="text-[9px] text-muted">
-                {activityStats.loading ? "Loading…" : `${activityStats.total} recorded ${activityStats.total === 1 ? "event" : "events"}`}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <StatTile
+          <Section
+            title="Activity — last 7 days"
+            meta={
+              activityStats.loading
+                ? "Loading…"
+                : `${activityStats.total} recorded ${activityStats.total === 1 ? "event" : "events"}`
+            }
+          >
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <MiniStat
                 label="Check-ins"
                 value={activityStats.byAction.STAY_CHECKED_IN ?? 0}
                 caption="Families housed"
               />
-              <StatTile
+              <MiniStat
                 label="Check-outs"
                 value={activityStats.byAction.STAY_CHECKED_OUT ?? 0}
                 caption="Families departed"
               />
-              <StatTile
+              <MiniStat
                 label="Resource edits"
                 value={
                   (activityStats.byAction.RESOURCE_CREATED ?? 0) +
@@ -277,7 +350,7 @@ const OverviewPage = () => {
                 }
                 caption="Added, changed, removed"
               />
-              <StatTile
+              <MiniStat
                 label="Staff actions"
                 value={Object.entries(activityStats.byAction)
                   .filter(([action]) => action.startsWith("STAFF_"))
@@ -285,20 +358,21 @@ const OverviewPage = () => {
                 caption="Accounts & assignments"
               />
             </div>
-          </section>
+          </Section>
 
           {/* Recent activity */}
-          <section aria-label="Recent activity" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[11px] font-bold text-ink-soft">Recent activity</h2>
+          <Section
+            title="Recent activity"
+            action={
               <Link
                 to="/history"
-                className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                className={`inline-flex items-center gap-1 text-sm font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
                 View full history →
               </Link>
-            </div>
-            <div className="overflow-hidden rounded-3xl border border-border/60">
+            }
+          >
+            <div className="overflow-hidden rounded-clay-sm border border-line">
               <ActivityFeed
                 query={{}}
                 limit={6}
@@ -308,25 +382,29 @@ const OverviewPage = () => {
                 emptyDetail="Check-ins, resource changes and account actions will appear here as they happen."
               />
             </div>
-          </section>
+          </Section>
 
           {/* Staff pulse */}
-          <section aria-label="Staff summary" className="rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Staff</h2>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <StatTile label="Total" value={stats.staffTotal} />
-              <StatTile label="Active" value={stats.staffActive} />
-              <StatTile label="Inactive" value={stats.staffTotal - stats.staffActive} />
-              <StatTile label="Unassigned" value={stats.staffUnassigned} />
+          <Section
+            title="Staff"
+            meta="Facility staff accounts across the network"
+            action={
+              <Link
+                to="/staff"
+                className={`inline-flex items-center gap-1 text-sm font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+              >
+                Manage staff accounts →
+              </Link>
+            }
+          >
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <MiniStat label="Total" value={stats.staffTotal} />
+              <MiniStat label="Active" value={stats.staffActive} />
+              <MiniStat label="Inactive" value={stats.staffTotal - stats.staffActive} />
+              <MiniStat label="Unassigned" value={stats.staffUnassigned} />
             </div>
-            <Link
-              to="/staff"
-              className="mt-3 inline-flex items-center gap-1.5 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
-            >
-              Manage staff accounts →
-            </Link>
-          </section>
-        </>
+          </Section>
+        </div>
       )}
     </div>
   );

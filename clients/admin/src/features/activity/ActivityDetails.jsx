@@ -22,7 +22,7 @@ export default function ActivityDetails({ metadata }) {
             <dd className="min-w-0 text-right">
               {row.kind === "diff" ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="rounded-md border border-border/50 bg-surface/70 px-1.5 py-0.5 text-[9px] text-muted line-through decoration-[#b9c3dc]">
+                  <span className="rounded-md border border-line bg-surface/70 px-1.5 py-0.5 text-[9px] text-muted line-through decoration-[#b9c3dc]">
                     {row.from}
                   </span>
                   <ArrowRight size={10} className="text-accent" />

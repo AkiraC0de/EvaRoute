@@ -67,7 +67,7 @@ const FacilityPage = () => {
   );
 
   return (
-    <div className="min-h-[calc(100vh-48px)]">
+    <div className="min-h-[calc(100vh-48px)] flex">
       <PageHeader
         title="My Facility"
         subtitle={facility ? facility.address : "Loading your assignment…"}
@@ -146,7 +146,7 @@ const FacilityPage = () => {
                 View full history →
               </Link>
             </div>
-            <div className="overflow-hidden rounded-3xl border border-border/60">
+            <div className="overflow-hidden rounded-3xl border border-line">
               <ActivityFeed query={{ facilityId }} limit={5} compact />
             </div>
           </div>

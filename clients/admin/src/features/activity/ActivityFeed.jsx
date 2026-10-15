@@ -82,7 +82,7 @@ export default function ActivityFeed({
   return (
     <div>
       {refreshButton}
-      <ul className="divide-y divide-border/50">
+      <ul className="divide-y divide-line">
         {activities.map((log) => (
           <ActivityRow key={log.id} log={log} showFacility={showFacility} />
         ))}

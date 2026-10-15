@@ -221,7 +221,7 @@ const FacilityDetailPage = () => {
 
               <section aria-label="Activity" className="rounded-clay bg-surface p-4 shadow-clay">
               <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Activity</h2>
-              <div className="overflow-hidden rounded-3xl border border-border/60">
+              <div className="overflow-hidden rounded-3xl border border-line">
               <ActivityFeed query={{ facilityId }} limit={5} compact />
               </div>
               <Link
