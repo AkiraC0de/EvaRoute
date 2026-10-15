@@ -8,8 +8,11 @@
 const DECREASE = [-1, -10];
 const INCREASE = [10, 1];
 
+const STEP_BUTTON =
+  "min-w-9 rounded-full bg-surface px-2 py-1.5 text-[10px] font-semibold text-accent shadow-clay-xs transition hover:bg-accent-soft hover:shadow-clay active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50";
+
 const QuantityStepper = ({ name, value, busy, onStep }) => (
-  <div className="flex items-center gap-1 rounded-full bg-[#f0f2f7] p-1">
+  <div className="flex items-center gap-1 rounded-full bg-sunken p-1 shadow-clay-inset">
     {DECREASE.map((delta) => (
       <button
         key={delta}
@@ -17,12 +20,12 @@ const QuantityStepper = ({ name, value, busy, onStep }) => (
         aria-label={`${delta} ${name}`}
         disabled={busy}
         onClick={() => onStep(delta)}
-        className="min-w-9 rounded-full bg-white px-2 py-1.5 text-[10px] font-semibold text-[#5269ef] transition hover:bg-[#e8edff] focus-visible:outline-2 focus-visible:outline-[#5269ef] disabled:opacity-50"
+        className={STEP_BUTTON}
       >
         {delta}
       </button>
     ))}
-    <span className="min-w-9 text-center text-[9px] font-bold text-[#35405e]">
+    <span className="min-w-9 text-center text-[9px] font-bold text-ink-soft">
       {busy ? "…" : value}
     </span>
     {INCREASE.map((delta) => (
@@ -32,7 +35,7 @@ const QuantityStepper = ({ name, value, busy, onStep }) => (
         aria-label={`+${delta} ${name}`}
         disabled={busy}
         onClick={() => onStep(delta)}
-        className="min-w-9 rounded-full bg-white px-2 py-1.5 text-[10px] font-semibold text-[#5269ef] transition hover:bg-[#e8edff] focus-visible:outline-2 focus-visible:outline-[#5269ef] disabled:opacity-50"
+        className={STEP_BUTTON}
       >
         +{delta}
       </button>

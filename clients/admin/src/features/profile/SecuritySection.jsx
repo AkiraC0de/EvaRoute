@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Lock, LogOut } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import PasswordConfirmForm from "./PasswordConfirmForm";
 import SecurityAction from "./SecurityAction";
@@ -59,73 +60,74 @@ const SecuritySection = ({ onBusyChange }) => {
 
   return (
     <>
-      <div className="space-y-2 rounded-[20px] bg-white p-3 shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-      <SecurityAction
-        icon={<Lock size={15} strokeWidth={1.8} />}
-        title="Password"
-        description="via email OTP"
-        actionLabel="Change"
-        showArrow
-        onClick={() => {
-          setError("");
-          setNotice(
-            "Not available in this portal yet. The API's only password change is the email OTP flow (GET /api/v1/auth/password/request-reset, then verify-reset, then reset) and it is not wired to a screen here. Ask an administrator to reset your password.",
-          );
-        }}
-      />
-
-      <SecurityAction
-        icon={<LogOut size={15} strokeWidth={1.8} />}
-        title="Sign out to all other devices"
-        actionLabel="Sign out to all other devices"
-        variant="danger"
-        onClick={() => {
-          setError("");
-          setNotice("");
-          setAskingPassword(true);
-        }}
-      />
-
-      {askingPassword && (
-        <PasswordConfirmForm
-          password={password}
-          onPasswordChange={setPassword}
-          onSubmit={handleSignOutEverywhere}
-          onCancel={() => {
-            setAskingPassword(false);
-            setPassword("");
+      <Card className="space-y-2">
+        <SecurityAction
+          icon={<Lock size={15} strokeWidth={1.8} />}
+          title="Password"
+          description="via email OTP"
+          actionLabel="Change"
+          showArrow
+          onClick={() => {
             setError("");
+            setNotice(
+              "Not available in this portal yet. The API's only password change is the email OTP flow (GET /api/v1/auth/password/request-reset, then verify-reset, then reset) and it is not wired to a screen here. Ask an administrator to reset your password.",
+            );
           }}
-          busy={busy}
         />
-      )}
 
-      <SecurityAction
-        icon={<LogOut size={15} strokeWidth={1.8} />}
-        title="Sign out"
-        actionLabel="Sign out"
-        variant="danger"
-        onClick={handleSignOut}
-      />
+        <SecurityAction
+          icon={<LogOut size={15} strokeWidth={1.8} />}
+          title="Sign out to all other devices"
+          actionLabel="Sign out to all other devices"
+          variant="danger"
+          onClick={() => {
+            setError("");
+            setNotice("");
+            setAskingPassword(true);
+          }}
+        />
 
-      {error && <Banner tone="error">{error}</Banner>}
+        {askingPassword && (
+          <PasswordConfirmForm
+            password={password}
+            onPasswordChange={setPassword}
+            onSubmit={handleSignOutEverywhere}
+            onCancel={() => {
+              setAskingPassword(false);
+              setPassword("");
+              setError("");
+            }}
+            busy={busy}
+          />
+        )}
 
-      {notice && (
-        <Banner tone="info">
-          <p>{notice}</p>
-          <Button
-            variant="neutral"
-            onClick={() => setNotice("")}
-            className="mt-2 px-2 py-1 text-[9px]"
-          >
-            Dismiss
-          </Button>
-        </Banner>
-      )}
-      </div>
+        <SecurityAction
+          icon={<LogOut size={15} strokeWidth={1.8} />}
+          title="Sign out"
+          actionLabel="Sign out"
+          variant="danger"
+          onClick={handleSignOut}
+        />
+
+        {error && <Banner tone="error">{error}</Banner>}
+
+        {notice && (
+          <Banner tone="info">
+            <p>{notice}</p>
+            <Button
+              variant="neutral"
+              size="sm"
+              onClick={() => setNotice("")}
+              className="mt-2"
+            >
+              Dismiss
+            </Button>
+          </Banner>
+        )}
+      </Card>
 
       {!error && !notice && (
-        <p className="mt-3 text-[9px] leading-relaxed text-[#9aa4b8]">
+        <p className="mt-3 text-[9px] leading-relaxed text-muted-dim">
           Sign-out actions call the live API. Password change is not wired.
         </p>
       )}

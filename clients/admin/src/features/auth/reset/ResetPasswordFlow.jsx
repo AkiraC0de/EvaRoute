@@ -1,27 +1,20 @@
 import { useState } from "react";
-import Banner from "../../../components/ui/Banner";
-import StepProgress from "../../../components/ui/StepProgress";
 import * as api from "../../../lib/api";
+import Banner from "../../../components/ui/Banner";
+import Button from "../../../components/ui/Button";
+import StepProgress from "../../../components/ui/StepProgress";
 import ResetRequestStep from "./ResetRequestStep";
 import ResetVerifyStep from "./ResetVerifyStep";
 import ResetPasswordStep from "./ResetPasswordStep";
 
 /**
- * Password reset flow — mirrors the server contract exactly
- * (server/src/routes/auth.routes.ts):
- *
- *   1. GET  /auth/password/request-reset?email=…  -> { token } + OTP email
- *   2. POST /auth/password/verify-reset  (Bearer token from step 1, { otp })
- *      -> { token } — a NEW token for step 3
- *   3. POST /auth/password/reset  (Bearer token from step 2, { newPassword })
- *      -> done; every device is signed out server-side
- *
- * The two tokens are single-use and expire after 15 minutes
- * (REQ_RESET_PASS_TOKEN / RESET_PASS_TOKEN in tokenConfig.ts), so a 401 at
- * any point means "start over" rather than "retry".
- *
- * This component owns flow state and API calls; each step is a presentational
- * form in its own file.
+ * 3-step password reset, mirroring the server contract exactly:
+ *   1. GET  /auth/password/request-reset?email=  -> { token } (REQ_RESET_PASS)
+ *   2. POST /auth/password/verify-reset  (Bearer token1 + { otp })
+ *        -> { token } (RESET_PASS)
+ *   3. POST /auth/password/reset  (Bearer token2 + { newPassword })
+ * Tokens are single-use and live 15 minutes; a 401 at any point restarts
+ * the flow (the server keeps no session for a dead token).
  */
 
 const STEPS = ["Email", "Verify code", "New password"];
@@ -158,13 +151,9 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
         <Banner tone="success" className="px-3 py-3 leading-relaxed">
           {notice || "Your password has been changed."}
         </Banner>
-        <button
-          type="button"
-          onClick={onBackToSignIn}
-          className="mt-5 min-h-10 w-full rounded-xl bg-[#5269ef] px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-[#4058df]"
-        >
+        <Button onClick={onBackToSignIn} className="mt-5 min-h-10 w-full">
           Back to sign in
-        </button>
+        </Button>
       </div>
     );
   }
@@ -225,7 +214,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
       <button
         type="button"
         onClick={onBackToSignIn}
-        className="mt-4 w-full text-center text-[9px] font-semibold text-[#8290aa] transition hover:text-[#5269ef]"
+        className="mt-4 w-full text-center text-[9px] font-semibold text-muted transition hover:text-accent"
       >
         ← Back to sign in
       </button>

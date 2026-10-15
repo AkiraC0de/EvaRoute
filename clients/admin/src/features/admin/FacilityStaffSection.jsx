@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { Search, UserPlus, X } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import StatusPanel from "../../components/ui/StatusPanel";
 import useAsyncAction from "../../hooks/useAsyncAction";
@@ -83,8 +85,8 @@ const FacilityStaffSection = ({ facilityId }) => {
     });
 
   return (
-    <section className="rounded-[18px] bg-white p-4 shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-      <h2 className="mb-3 text-[12px] font-bold text-[#35405e]">Assigned staff</h2>
+    <Card>
+      <h2 className="mb-3 text-[12px] font-bold text-ink-soft">Assigned staff</h2>
 
       {actionError && (
         <div className="mb-3">
@@ -107,29 +109,32 @@ const FacilityStaffSection = ({ facilityId }) => {
       {!loading && !error && (
         <ul className="mb-4 space-y-2">
           {staff.map((member) => (
-            <li key={member.userId} className="flex items-center gap-3 rounded-xl bg-[#f6f8fc] px-3 py-2">
+            <li
+              key={member.userId}
+              className="flex items-center gap-3 rounded-clay-sm bg-sunken px-3 py-2 shadow-clay-inset"
+            >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-semibold text-[#35405d]">
+                <p className="truncate text-[10px] font-semibold text-ink-soft">
                   {member.firstName && member.lastName
                     ? `${member.firstName} ${member.lastName}`
                     : member.email}
                 </p>
-                <p className="text-[8px] text-[#8290aa]">{member.email}</p>
+                <p className="text-[8px] text-muted">{member.email}</p>
               </div>
               <Button
                 variant="neutral"
+                size="sm"
                 onClick={() => {
                   setActionError("");
                   setDismissTarget(member);
                 }}
-                className="px-3 py-1 text-[9px]"
               >
-                Dismiss
+                <X size={11} strokeWidth={2} className="mr-1" /> Dismiss
               </Button>
             </li>
           ))}
           {staff.length === 0 && (
-            <li className="py-4 text-center text-[9px] text-[#8290aa]">
+            <li className="py-4 text-center text-[9px] text-muted">
               No staff assigned to this facility yet.
             </li>
           )}
@@ -139,36 +144,43 @@ const FacilityStaffSection = ({ facilityId }) => {
       <h3 className="mb-2 text-[8px] font-semibold uppercase tracking-[0.7px] text-[#9aa8c5]">
         Assign staff
       </h3>
-      <input
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search staff accounts…"
-        className="mb-2 h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-      />
+      <div className="relative mb-2">
+        <Search
+          size={13}
+          strokeWidth={2}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-dim"
+        />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search staff accounts…"
+          aria-label="Search staff accounts"
+          className="h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2"
+        />
+      </div>
       <ul className="max-h-40 space-y-1 overflow-y-auto pr-1">
         {candidates.map((candidate) => (
-          <li key={candidate.id} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[#f6f8fc]">
+          <li
+            key={candidate.id}
+            className="flex items-center gap-3 rounded-clay-sm px-2 py-1.5 transition hover:bg-sunken"
+          >
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[9px] font-semibold text-[#35405d]">
+              <p className="truncate text-[9px] font-semibold text-ink-soft">
                 {candidate.firstName && candidate.lastName
                   ? `${candidate.firstName} ${candidate.lastName}`
                   : candidate.email}
               </p>
-              <p className="text-[8px] text-[#8290aa]">
+              <p className="text-[8px] text-muted">
                 {candidate.facility ? `Currently: ${candidate.facility.name} (will transfer)` : "Unassigned"}
               </p>
             </div>
-            <Button
-              onClick={() => assign(candidate)}
-              disabled={busy}
-              className="px-3 py-1 text-[9px]"
-            >
-              Assign
+            <Button size="sm" variant="soft" onClick={() => assign(candidate)} disabled={busy}>
+              <UserPlus size={11} strokeWidth={2} className="mr-1" /> Assign
             </Button>
           </li>
         ))}
         {candidates.length === 0 && (
-          <li className="py-3 text-center text-[9px] text-[#8290aa]">
+          <li className="py-3 text-center text-[9px] text-muted">
             {query ? "No staff accounts match that search." : "All staff accounts are already assigned here."}
           </li>
         )}
@@ -184,7 +196,7 @@ const FacilityStaffSection = ({ facilityId }) => {
           onCancel={() => setDismissTarget(null)}
         />
       )}
-    </section>
+    </Card>
   );
 };
 

@@ -1,3 +1,6 @@
+import Button from "../../../components/ui/Button";
+import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
+
 /**
  * Step 2 of the reset flow — verify the 5-digit OTP.
  * Calls POST /api/v1/auth/password/verify-reset (Bearer token from step 1).
@@ -7,9 +10,7 @@
 const ResetVerifyStep = ({ email, otp, onOtpChange, onSubmit, onResend, onRestart, busy }) => (
   <form onSubmit={onSubmit} className="space-y-3">
     <label className="block">
-      <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.7px] text-[#7f8eae]">
-        Verification code
-      </span>
+      <span className={LABEL_CLASS}>Verification code</span>
       <input
         type="text"
         name="otp"
@@ -22,34 +23,30 @@ const ResetVerifyStep = ({ email, otp, onOtpChange, onSubmit, onResend, onRestar
         value={otp}
         onChange={(event) => onOtpChange(event.target.value.replace(/\D/g, "").slice(0, 5))}
         placeholder="12345"
-        className="h-10 w-full rounded-xl bg-[#f6f8fc] px-3 text-center text-[16px] font-bold tracking-[8px] text-[#2f3d5f] shadow-[inset_0_2px_5px_rgba(40,55,90,0.12)] outline-none ring-[#5269ef] placeholder:text-[#c2cada] focus:ring-2"
+        className="h-10 w-full rounded-clay-sm bg-sunken px-3 text-center text-[16px] font-bold tracking-[8px] text-[#2f3d5f] shadow-clay-inset outline-none transition placeholder:font-medium placeholder:tracking-[8px] placeholder:text-[#c2cada] hover:bg-[#f2f5fb] ring-accent focus:ring-2"
       />
     </label>
-    <p className="text-[9px] leading-relaxed text-[#9aa4b8]">
+    <p className="text-[9px] leading-relaxed text-muted-dim">
       Enter the 5-digit code sent to{" "}
       <span className="font-semibold text-[#65718c]">{email}</span>. Wrong
       codes are limited — resend if you run out.
     </p>
-    <button
-      type="submit"
-      disabled={busy || otp.length !== 5}
-      className="min-h-10 w-full rounded-xl bg-[#5269ef] px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-[#4058df] disabled:cursor-not-allowed disabled:bg-[#aeb9ee]"
-    >
+    <Button type="submit" disabled={busy || otp.length !== 5} className="min-h-10 w-full">
       {busy ? "Verifying…" : "Verify code"}
-    </button>
+    </Button>
     <div className="flex items-center justify-between gap-2">
       <button
         type="button"
         onClick={onResend}
         disabled={busy}
-        className="text-[9px] font-semibold text-[#5269ef] transition hover:text-[#4058df] disabled:text-[#aeb9ee]"
+        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong disabled:text-[#aeb9ee]"
       >
         Resend code
       </button>
       <button
         type="button"
         onClick={onRestart}
-        className="text-[9px] font-semibold text-[#8290aa] transition hover:text-[#5269ef]"
+        className="text-[9px] font-semibold text-muted transition hover:text-accent"
       >
         Use a different email
       </button>

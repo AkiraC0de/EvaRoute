@@ -6,3 +6,7 @@ docs/
 
 # Dependencies
 node_modules/
+.codegraph
+
+# Graphify code-graph artifacts (generated)
+graphify-out/

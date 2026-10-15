@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import PageHeader from "../../components/ui/PageHeader";
+import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
+import StatusPill from "../../components/ui/StatusPill";
+import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 import FacilityCreateModal from "./FacilityCreateModal";
@@ -81,36 +84,50 @@ const FacilitiesPage = () => {
 
   return (
     <div>
-      <PageHeader
-        title="Facilities"
-        subtitle="Register, edit and restore evacuation centers"
-      />
+      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[20px] font-bold leading-tight text-ink">Facilities</h1>
+          <p className="mt-1 text-[11px] text-muted">
+            Register, edit and restore evacuation centers
+          </p>
+        </div>
+        <Button onClick={() => setCreating(true)} size="md">
+          <Plus size={13} strokeWidth={2.2} className="mr-1" /> Register facility
+        </Button>
+      </header>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search name or address…"
-          className="h-9 w-full max-w-[240px] rounded-xl bg-white px-3 text-[10px] font-medium text-[#35405e] shadow-[0_4px_12px_rgba(50,70,120,0.06)] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-        />
+      {/* Filter bar — recessed band */}
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
+        <div className="relative w-full max-w-[240px]">
+          <Search
+            size={13}
+            strokeWidth={2}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-dim"
+          />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search name or address…"
+            aria-label="Search facilities"
+            className="h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2"
+          />
+        </div>
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
-          className="h-9 rounded-xl bg-white px-3 text-[10px] font-medium text-[#35405e] shadow-[0_4px_12px_rgba(50,70,120,0.06)] outline-none ring-[#5269ef] focus:ring-2"
+          aria-label="Filter by status"
+          className="h-9 rounded-clay-sm bg-sunken px-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
         <Button
-          variant={showDeleted ? "primary" : "neutral"}
+          variant={showDeleted ? "soft" : "neutral"}
+          size="sm"
           onClick={() => setShowDeleted((current) => !current)}
-          className="px-3 py-1.5 text-[9px]"
         >
           {showDeleted ? "Showing deleted" : "Deleted facilities"}
-        </Button>
-        <Button onClick={() => setCreating(true)} className="ml-auto px-4 py-1.5 text-[9px]">
-          + Register facility
         </Button>
       </div>
 
@@ -133,76 +150,87 @@ const FacilitiesPage = () => {
       )}
 
       {!loading && !error && visible.length === 0 && (
-        <StatusPanel tone="empty" title={showDeleted ? "No deleted facilities" : "No facilities found"}>
-          {showDeleted
-            ? "Soft-deleted facilities will appear here so you can restore them."
-            : "Register a new evacuation center to get started."}
-        </StatusPanel>
+        <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
+          <EmptyArt variant={showDeleted ? "boxes" : "map"} className="mx-auto h-18 w-32" />
+          <p className="mt-3 text-[13px] font-bold text-ink-soft">
+            {showDeleted ? "No deleted facilities" : "No facilities found"}
+          </p>
+          <p className="mt-1 text-[10px] text-muted">
+            {showDeleted
+              ? "Soft-deleted facilities will appear here so you can restore them."
+              : "Register a new evacuation center to get started."}
+          </p>
+        </div>
       )}
 
       {!loading && !error && visible.length > 0 && (
-        <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[#eef1f8]">
-                {["Name", "Address", "Status", "Capacity", "Staff", "Actions"].map((label) => (
-                  <th key={label} className="px-4 py-2.5 text-[8px] font-semibold uppercase tracking-[0.7px] text-[#9aa8c5]">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((facility) => (
-                <tr key={facility.id} className="border-b border-[#f3f5fa] last:border-0">
-                  <td className="px-4 py-2.5 text-[10px] font-semibold text-[#35405e]">
-                    <Link to={`/facilities/${facility.id}`} className="text-[#5269ef] hover:text-[#4058df]">
-                      {facility.name}
-                    </Link>
-                  </td>
-                  <td className="max-w-[220px] truncate px-4 py-2.5 text-[9px] text-[#7180a0]">
+        <TableShell>
+          <thead>
+            <tr className="bg-sunken">
+              {["Name", "Address", "Status", "Capacity", "Staff", "Actions"].map((label) => (
+                <Th key={label}>{label}</Th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((facility) => (
+              <Tr key={facility.id}>
+                <Td>
+                  <Link
+                    to={`/facilities/${facility.id}`}
+                    className="text-[10px] font-semibold text-accent transition hover:text-accent-strong"
+                  >
+                    {facility.name}
+                  </Link>
+                </Td>
+                <Td>
+                  <span className="block max-w-[220px] truncate text-[9px] text-muted">
                     {facility.address}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-[8px] font-semibold ${
-                        facility.status === "AVAILABLE"
-                          ? "bg-[#e2f4e8] text-[#1f7a3d]"
-                          : "bg-[#fff3d9] text-[#a96a00]"
+                  </span>
+                </Td>
+                <Td>
+                  <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
+                    {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
+                  </StatusPill>
+                </Td>
+                <Td>
+                  <span className="text-[9px] text-muted">{facility.maxCapacity}</span>
+                </Td>
+                <Td>
+                  <span className="text-[9px] text-muted">{facility.staffCount ?? 0}</span>
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/facilities/${facility.id}`}
+                      className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                    >
+                      Manage
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionError("");
+                        setConfirmTarget(facility);
+                      }}
+                      className={`inline-flex items-center gap-1 text-[9px] font-semibold transition ${
+                        showDeleted
+                          ? "text-success hover:text-[#155c2c]"
+                          : "text-danger hover:text-danger-strong"
                       }`}
                     >
-                      {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-[9px] text-[#7180a0]">{facility.maxCapacity}</td>
-                  <td className="px-4 py-2.5 text-[9px] text-[#7180a0]">{facility.staffCount ?? 0}</td>
-                  <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        to={`/facilities/${facility.id}`}
-                        className="text-[9px] font-semibold text-[#5269ef] hover:text-[#4058df]"
-                      >
-                        Manage
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActionError("");
-                          setConfirmTarget(facility);
-                        }}
-                        className={`text-[9px] font-semibold ${
-                          showDeleted ? "text-[#1f7a3d] hover:text-[#155c2c]" : "text-[#d8322d] hover:text-[#b3261f]"
-                        }`}
-                      >
-                        {showDeleted ? "Restore" : "Delete"}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      {showDeleted ? (
+                        <><RotateCcw size={11} strokeWidth={2} /> Restore</>
+                      ) : (
+                        <><Trash2 size={11} strokeWidth={2} /> Delete</>
+                      )}
+                    </button>
+                  </div>
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </TableShell>
       )}
 
       {creating && (

@@ -1,3 +1,12 @@
+import {
+  Building2,
+  History,
+  Home,
+  LayoutDashboard,
+  SquareUser,
+  Users,
+  UserRound,
+} from "lucide-react";
 import { ROLES, ALL_PORTAL_ROLES, hasRole } from "./roles";
 
 /**
@@ -9,31 +18,34 @@ import { ROLES, ALL_PORTAL_ROLES, hasRole } from "./roles";
  * hides it and the route guard blocks manual URL entry. Detail screens (e.g.
  * /facilities/:facilityId) are not nav items; they are declared alongside the
  * table that links to them (see FACILITY_DETAIL in app/routes.jsx).
+ *
+ * `icon` is the sidebar glyph (a lucide component). Adding a screen is still
+ * a config change: pick an icon here and the sidebar renders it.
  */
 export const NAV_SECTIONS = [
   {
     id: "operations",
     label: "Operations",
     items: [
-      { id: "overview", label: "Overview", to: "/overview", home: true, roles: [ROLES.ADMIN] },
-      { id: "facilities", label: "Facilities", to: "/facilities", roles: [ROLES.ADMIN] },
-      { id: "staff", label: "Staff accounts", to: "/staff", roles: [ROLES.ADMIN] },
-      { id: "occupancy", label: "Occupancy", to: "/occupancy", roles: ALL_PORTAL_ROLES },
+      { id: "overview", label: "Overview", to: "/overview", home: true, icon: LayoutDashboard, roles: [ROLES.ADMIN] },
+      { id: "facilities", label: "Facilities", to: "/facilities", icon: Building2, roles: [ROLES.ADMIN] },
+      { id: "staff", label: "Staff accounts", to: "/staff", icon: SquareUser, roles: [ROLES.ADMIN] },
+      { id: "occupancy", label: "Occupancy", to: "/occupancy", icon: Users, roles: ALL_PORTAL_ROLES },
     ],
   },
   {
     id: "manage",
     label: "Manage",
     items: [
-      { id: "facility", label: "My Facility", to: "/facility", end: true, home: true, roles: [ROLES.FACILITY_STAFF] },
-      { id: "history", label: "History", to: "/history", roles: ALL_PORTAL_ROLES },
+      { id: "facility", label: "My Facility", to: "/facility", end: true, home: true, icon: Home, roles: [ROLES.FACILITY_STAFF] },
+      { id: "history", label: "History", to: "/history", icon: History, roles: ALL_PORTAL_ROLES },
     ],
   },
   {
     id: "account",
     label: "Account",
     items: [
-      { id: "profile", label: "Profile", to: "/profile", roles: ALL_PORTAL_ROLES },
+      { id: "profile", label: "Profile", to: "/profile", icon: UserRound, roles: ALL_PORTAL_ROLES },
     ],
   },
 ];

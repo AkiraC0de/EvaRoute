@@ -8,16 +8,16 @@ import Button from "./Button";
  */
 const TONES = {
   info: {
-    wrap: "bg-[#f6f8fc] text-[#65718c]",
-    title: "text-[#35405d]",
+    wrap: "bg-sunken text-[#65718c] shadow-clay-inset",
+    title: "text-ink-soft",
   },
   empty: {
-    wrap: "bg-[#f6f8fc] text-[#7180a0]",
-    title: "text-[#35405d]",
+    wrap: "bg-sunken text-[#7180a0] shadow-clay-inset",
+    title: "text-ink-soft",
   },
   error: {
-    wrap: "bg-[#fbe4e3] text-[#d8322d]",
-    title: "text-[#b3261f]",
+    wrap: "bg-danger-soft text-danger shadow-clay-inset",
+    title: "text-danger-strong",
   },
 };
 
@@ -27,14 +27,14 @@ const StatusPanel = ({ tone = "info", title, children, onRetry, retryLabel = "Tr
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className={`rounded-[18px] px-4 py-6 text-center text-[11px] ${palette.wrap}`}
+      className={`rounded-clay px-4 py-6 text-center text-[11px] ${palette.wrap}`}
     >
       {title && (
         <p className={`text-[12px] font-bold ${palette.title}`}>{title}</p>
       )}
       {children && <p className="mt-1 leading-relaxed">{children}</p>}
       {onRetry && (
-        <Button variant="neutral" onClick={onRetry} className="mt-3 px-3 py-1.5 text-[9px]">
+        <Button variant="neutral" size="sm" onClick={onRetry} className="mt-3">
           {retryLabel}
         </Button>
       )}

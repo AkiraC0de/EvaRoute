@@ -1,5 +1,57 @@
 @import "tailwindcss";
 
+/* =====================================================================
+ * EvaRoute admin — claymorphism design system
+ * Tokens extracted from the login screen (the visual source of truth):
+ * pale-blue canvas, white raised "clay" cards with a top sheen, recessed
+ * inset fields, indigo accent. Components consume these tokens
+ * (bg-surface, shadow-clay, rounded-clay, …) instead of raw hex values.
+ * ===================================================================== */
+@theme {
+  /* Surfaces */
+  --color-canvas: #e9edf7; /* app background */
+  --color-surface: #ffffff; /* raised clay cards */
+  --color-sunken: #f6f8fc; /* recessed fields / inset panels */
+  --color-line: #e6ebf6; /* hairline dividers */
+
+  /* Text */
+  --color-ink: #273556; /* headings */
+  --color-ink-soft: #35405e; /* primary text */
+  --color-muted: #6f7d9b; /* supporting text (≈4.6:1 on white) */
+  --color-muted-dim: #9aa4b8; /* decorative captions only */
+
+  /* Accent + feedback */
+  --color-accent: #5269ef;
+  --color-accent-strong: #4058df;
+  --color-accent-soft: #e8edff;
+  --color-danger: #d8322d;
+  --color-danger-strong: #b3261f;
+  --color-danger-soft: #fbe4e3;
+  --color-warning: #a96a00;
+  --color-warning-soft: #fff3d9;
+  --color-success: #1f7a3d;
+  --color-success-soft: #e2f4e8;
+
+  /* Clay shadows — puffy dual drop (tight + wide) with a white top sheen
+     and a faint inner bottom edge for the molded look */
+  --shadow-clay-xs: 0 1px 2px rgba(40, 60, 100, 0.05), 0 4px 10px rgba(40, 60, 100, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 2px rgba(40, 60, 100, 0.05);
+  --shadow-clay: 0 1px 2px rgba(40, 60, 100, 0.06), 0 10px 22px rgba(40, 60, 100, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 4px rgba(40, 60, 100, 0.06);
+  --shadow-clay-lg: 0 2px 4px rgba(40, 60, 100, 0.08), 0 18px 40px rgba(40, 60, 100, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -2px 5px rgba(40, 60, 100, 0.07);
+  --shadow-clay-accent: 0 2px 4px rgba(82, 105, 239, 0.2), 0 10px 20px rgba(82, 105, 239, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(35, 50, 130, 0.25);
+  --shadow-clay-inset: inset 0 2px 5px rgba(40, 55, 90, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-clay-inset-strong: inset 0 3px 7px rgba(40, 55, 90, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+
+  /* Radii */
+  --radius-clay: 20px;
+  --radius-clay-sm: 12px;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -13,5 +65,9 @@ body,
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-ink-soft);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }

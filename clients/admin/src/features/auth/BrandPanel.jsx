@@ -14,21 +14,21 @@ const HIGHLIGHTS = [
 ];
 
 const BrandPanel = () => (
-  <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-linear-to-br from-[#dfe7fa] via-[#e9edf7] to-[#cfd9f4] p-10 lg:flex">
+  <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-linear-to-br from-[#dfe7fa] via-canvas to-[#cfd9f4] p-10 lg:flex">
     <div className="flex items-center gap-3">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-[0_8px_20px_rgba(40,60,100,0.12)]">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-surface shadow-clay">
         <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
       </div>
       <div>
-        <p className="text-2xl font-bold tracking-[0.3px] text-[#273556]">EvaRoute</p>
-        <p className="text-sm font-semibold uppercase tracking-[2px] text-[#8290aa]">
+        <p className="text-2xl font-bold tracking-[0.3px] text-ink">EvaRoute</p>
+        <p className="text-sm font-semibold uppercase tracking-[2px] text-muted">
           Staff Portal
         </p>
       </div>
     </div>
 
     <div className="relative z-10">
-      <h1 className="max-w-95 text-4xl font-bold leading-[1.15] text-[#273556]">
+      <h1 className="max-w-95 text-4xl font-bold leading-[1.15] text-ink">
         Every family,
         <br />
         routed to safety.
@@ -42,12 +42,12 @@ const BrandPanel = () => (
       <ul className="mt-6 space-y-2.5">
         {HIGHLIGHTS.map(([title, caption]) => (
           <li key={title} className="flex items-start gap-2.5">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#5269ef]">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent">
               <Check size={11} strokeWidth={2.5} color="white" />
             </span>
             <div>
-              <p className="text-sm font-bold text-[#35405e]">{title}</p>
-              <p className="text-sm leading-relaxed text-[#8290aa]">{caption}</p>
+              <p className="text-sm font-bold text-ink-soft">{title}</p>
+              <p className="text-sm leading-relaxed text-muted">{caption}</p>
             </div>
           </li>
         ))}
@@ -85,7 +85,7 @@ const BrandPanel = () => (
       </g>
     </svg>
 
-    <p className="relative z-10 text-[8px] font-medium uppercase tracking-[1.5px] text-[#9aa4b8]">
+    <p className="relative z-10 text-[8px] font-medium uppercase tracking-[1.5px] text-muted-dim">
       Evacuation center operations
     </p>
   </aside>

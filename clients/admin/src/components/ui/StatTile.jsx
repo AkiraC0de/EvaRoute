@@ -1,10 +1,25 @@
 /**
  * Small stat tile for breakdown grids (occupancy breakdown, admin overview).
+ * Optional `icon` renders in a soft clay chip beside the value.
  */
-const StatTile = ({ label, value }) => (
-  <div className="rounded-[15px] bg-[#f7f8fc] px-3 py-2 shadow-[inset_0_2px_5px_rgba(40,60,100,0.06)]">
-    <p className="text-[15px] font-bold leading-5 text-[#35405e]">{value}</p>
-    <p className="mt-1 text-[7px] font-semibold uppercase tracking-[0.5px] text-[#7f8eab]">{label}</p>
+const StatTile = ({ label, value, icon }) => (
+  <div className="rounded-clay-sm bg-surface px-3 py-2.5 shadow-clay-xs">
+    <div className="flex items-center gap-2">
+      {icon && (
+        <span
+          aria-hidden="true"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent"
+        >
+          {icon}
+        </span>
+      )}
+      <div className="min-w-0">
+        <p className="text-[15px] font-bold leading-5 text-ink-soft">{value}</p>
+        <p className="mt-0.5 text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">
+          {label}
+        </p>
+      </div>
+    </div>
   </div>
 );
 

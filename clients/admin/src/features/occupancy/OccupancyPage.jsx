@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { Users } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
 import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
+import { SelectField } from "../../components/ui/Field";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import useStays from "../../hooks/useStays";
 import * as api from "../../lib/api";
@@ -55,22 +57,19 @@ const OccupancyPage = () => {
       <PageHeader title="Occupancy" subtitle="Check evacuees in and out of a facility" />
 
       {isAdmin && facilities.length > 0 && (
-        <label className="mb-4 inline-block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Facility
-          </span>
-          <select
+        <div className="mb-4 w-full max-w-[320px]">
+          <SelectField
+            label="Facility"
             value={facilityId ?? ""}
             onChange={(event) => setFacilityId(event.target.value)}
-            className="h-9 w-full min-w-[240px] rounded-xl bg-white px-3 text-[10px] font-medium text-[#35405e] shadow-[0_4px_12px_rgba(50,70,120,0.06)] outline-none ring-[#5269ef] focus:ring-2"
           >
             {facilities.map((facility) => (
               <option key={facility.id} value={facility.id}>
                 {facility.name} · {facility.address}
               </option>
             ))}
-          </select>
-        </label>
+          </SelectField>
+        </div>
       )}
 
       {!facilityId && !loading && (
@@ -101,7 +100,7 @@ const OccupancyPage = () => {
             <StatTile label="Families" value={occupancy.families} />
             <StatTile label="Adults" value={occupancy.adults} />
             <StatTile label="Children" value={occupancy.children} />
-            <StatTile label="Left" value={occupancy.remaining} />
+            <StatTile label="Left" value={occupancy.remaining} icon={<Users size={13} strokeWidth={1.9} />} />
           </section>
 
           <div className="grid gap-4 md:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.55fr)]">

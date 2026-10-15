@@ -3,21 +3,18 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Sidebar from "./Sidebar";
 
 /**
- * Authenticated application shell: shared sidebar + content area.
- *
- * Every screen previously repeated this exact page frame
- * (`ml-49.5 min-h-screen bg-[#e9edf7] p-6 …`); it now lives here once so new
- * screens only render their content. Route changes play a short fade/slide
- * which is disabled when the user prefers reduced motion.
+ * Authenticated application shell: shared sidebar + content area on the clay
+ * canvas. Route changes play a short fade/slide which is disabled when the
+ * user prefers reduced motion.
  */
 const AppShell = () => {
   const location = useLocation();
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-[#e9edf7]">
+    <div className="min-h-screen bg-canvas">
       <Sidebar />
-      <main className="ml-49.5 min-h-screen bg-[#e9edf7] p-6 max-sm:ml-0 max-sm:p-4">
+      <main className="ml-49.5 min-h-screen bg-canvas p-6 max-sm:ml-0 max-sm:p-4">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}

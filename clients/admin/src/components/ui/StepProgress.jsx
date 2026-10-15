@@ -10,15 +10,15 @@ const StepProgress = ({ steps, current }) => (
         <li key={label} className="flex flex-1 flex-col gap-1">
           <span
             className={`h-1 rounded-full ${
-              state === "todo" ? "bg-[#e3e8f4]" : "bg-[#5269ef]"
+              state === "todo" ? "bg-[#e3e8f4]" : "bg-accent"
             }`}
           />
           <span
             className={`text-[8px] font-semibold uppercase tracking-[0.6px] ${
               state === "current"
-                ? "text-[#5269ef]"
+                ? "text-accent"
                 : state === "done"
-                  ? "text-[#8290aa]"
+                  ? "text-muted"
                   : "text-[#b3bccd]"
             }`}
           >

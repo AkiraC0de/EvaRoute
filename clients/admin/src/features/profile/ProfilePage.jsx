@@ -14,12 +14,6 @@ import SecuritySection from "./SecuritySection";
  * ({ email, firstname, lastName, role, isSetupDone }); the assigned facility
  * comes from GET /api/v1/facility (useAssignedFacility). Both are genuine
  * API values.
- *
- * Removed because the API has no such field anywhere in the schema:
- *   - "Mobile No."  (no phone column on User)
- *   - "Staff ID EM-0241" (login does not return the user id)
- *   - "Joined Mar 2025" (createdAt is not returned by login or refresh)
- * Those rows were hardcoded demo data, not real records.
  */
 const ProfilePage = () => {
   const { user } = useAuth();

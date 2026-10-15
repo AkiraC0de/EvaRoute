@@ -12,7 +12,7 @@ const DeleteResourceButton = ({ name, busy, onAsk }) => (
     aria-label={`Remove ${name}`}
     disabled={busy}
     onClick={onAsk}
-    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#9aa4b8] transition hover:bg-[#fbe4e3] hover:text-[#d8322d] disabled:opacity-50"
+    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-clay-sm text-muted-dim transition hover:bg-danger-soft hover:text-danger disabled:opacity-50"
   >
     <Trash2 size={14} strokeWidth={1.8} />
   </button>

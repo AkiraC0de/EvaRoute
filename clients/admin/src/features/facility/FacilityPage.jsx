@@ -87,7 +87,7 @@ const FacilityPage = () => {
             <h2 className="text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">
               Resources
             </h2>
-            <span className="text-[9px] text-[#8995ad]">
+            <span className="text-[9px] text-muted">
               {sortedResources.length} recorded
             </span>
           </div>

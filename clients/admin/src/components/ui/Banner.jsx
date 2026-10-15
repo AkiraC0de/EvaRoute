@@ -6,17 +6,20 @@
  * their exact look; the default matches the most common variant.
  */
 const TONES = {
-  error: { wrap: "bg-[#fbe4e3] font-semibold text-[#d8322d]", role: "alert" },
-  warning: { wrap: "bg-[#fff3d9] font-medium text-[#a96a00]", role: "status" },
-  info: { wrap: "bg-[#f6f8fc] text-[#65718c]", role: "status" },
-  success: { wrap: "bg-[#e2f4e8] font-medium text-[#1f7a3d]", role: "status" },
+  error: { wrap: "bg-danger-soft font-semibold text-danger", role: "alert" },
+  warning: { wrap: "bg-warning-soft font-medium text-warning", role: "status" },
+  info: { wrap: "bg-sunken text-[#65718c]", role: "status" },
+  success: { wrap: "bg-success-soft font-medium text-success", role: "status" },
 };
 
 const Banner = ({ tone = "info", className = "px-3 py-2 text-[10px]", children }) => {
   const palette = TONES[tone] ?? TONES.info;
 
   return (
-    <div role={palette.role} className={`rounded-xl ${palette.wrap} ${className}`}>
+    <div
+      role={palette.role}
+      className={`rounded-clay-sm shadow-clay-inset ${palette.wrap} ${className}`}
+    >
       {children}
     </div>
   );

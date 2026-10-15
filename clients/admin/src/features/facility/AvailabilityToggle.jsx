@@ -3,7 +3,7 @@
  * isAvailable (true / false / null = unset); toggling calls `onToggle(next)`.
  */
 const AvailabilityToggle = ({ value, busy, onToggle }) => (
-  <div className="flex w-full items-center rounded-full bg-[#f0f2f7] p-1">
+  <div className="flex w-full items-center rounded-full bg-sunken p-1 shadow-clay-inset">
     {[
       { label: "Available", next: true, active: value === true },
       { label: "Unavailable", next: false, active: value === false },
@@ -17,9 +17,9 @@ const AvailabilityToggle = ({ value, busy, onToggle }) => (
         className={`flex-1 rounded-full px-3 py-1.5 text-[9px] font-semibold transition disabled:opacity-60 ${
           option.active
             ? option.next
-              ? "bg-[#188f61] text-white"
-              : "bg-[#dbe1ed] text-[#35405e]"
-            : "text-[#8995ad] hover:text-[#35405e]"
+              ? "bg-success text-white shadow-clay-xs"
+              : "bg-surface text-ink-soft shadow-clay-xs"
+            : "text-muted hover:text-ink-soft"
         }`}
       >
         {option.label}

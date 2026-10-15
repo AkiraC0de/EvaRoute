@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Plus, Search } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import EmptyArt from "../../components/ui/EmptyArt";
 import Modal from "../../components/ui/Modal";
-import PageHeader from "../../components/ui/PageHeader";
 import StatusPanel from "../../components/ui/StatusPanel";
+import StatusPill from "../../components/ui/StatusPill";
+import TextField from "../../components/ui/Field";
+import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
@@ -118,22 +122,39 @@ const StaffAccountsPage = () => {
 
   return (
     <div>
-      <PageHeader
-        title="Staff accounts"
-        subtitle="Create and manage the accounts that run your facilities"
-      />
+      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[20px] font-bold leading-tight text-ink">Staff accounts</h1>
+          <p className="mt-1 text-[11px] text-muted">
+            Create and manage the accounts that run your facilities
+          </p>
+        </div>
+        <Button onClick={() => setCreating(true)}>
+          <Plus size={13} strokeWidth={2.2} className="mr-1" /> Create staff account
+        </Button>
+      </header>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <input
-          value={filters.search}
-          onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-          placeholder="Search email or name…"
-          className="h-9 w-full max-w-[240px] rounded-xl bg-white px-3 text-[10px] font-medium text-[#35405e] shadow-[0_4px_12px_rgba(50,70,120,0.06)] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-        />
+      {/* Filter bar */}
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
+        <div className="relative w-full max-w-[240px]">
+          <Search
+            size={13}
+            strokeWidth={2}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-dim"
+          />
+          <input
+            value={filters.search}
+            onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
+            placeholder="Search email or name…"
+            aria-label="Search staff accounts"
+            className="h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2"
+          />
+        </div>
         <select
           value={filters.status}
           onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
-          className="h-9 rounded-xl bg-white px-3 text-[10px] font-medium text-[#35405e] shadow-[0_4px_12px_rgba(50,70,120,0.06)] outline-none ring-[#5269ef] focus:ring-2"
+          aria-label="Filter by status"
+          className="h-9 rounded-clay-sm bg-sunken px-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -146,13 +167,10 @@ const StaffAccountsPage = () => {
             onChange={(event) =>
               setFilters((current) => ({ ...current, unassigned: event.target.checked }))
             }
-            className="h-3.5 w-3.5 rounded accent-[#5269ef]"
+            className="h-3.5 w-3.5 rounded accent-accent"
           />
           <span className="text-[9px] font-medium text-[#65718c]">Unassigned only</span>
         </label>
-        <Button onClick={() => setCreating(true)} className="ml-auto px-4 py-1.5 text-[9px]">
-          + Create staff account
-        </Button>
       </div>
 
       {actionError && (
@@ -174,119 +192,119 @@ const StaffAccountsPage = () => {
       )}
 
       {!loading && !error && visible.length === 0 && (
-        <StatusPanel tone="empty" title="No staff accounts found">
-          Create an account so staff can sign in and run a facility.
-        </StatusPanel>
+        <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
+          <EmptyArt variant="people" className="mx-auto h-18 w-32" />
+          <p className="mt-3 text-[13px] font-bold text-ink-soft">No staff accounts found</p>
+          <p className="mt-1 text-[10px] text-muted">
+            Create an account so staff can sign in and run a facility.
+          </p>
+        </div>
       )}
 
       {!loading && !error && visible.length > 0 && (
-        <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[#eef1f8]">
-                {["Name", "Email", "Facility", "Status", "Actions"].map((label) => (
-                  <th key={label} className="px-4 py-2.5 text-[8px] font-semibold uppercase tracking-[0.7px] text-[#9aa8c5]">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((staff) => {
-                const isSelf = staff.email === me?.email;
-                return (
-                  <tr key={staff.id} className="border-b border-[#f3f5fa] last:border-0">
-                    <td className="px-4 py-2.5 text-[10px] font-semibold text-[#35405e]">
+        <TableShell>
+          <thead>
+            <tr className="bg-sunken">
+              {["Name", "Email", "Facility", "Status", "Actions"].map((label) => (
+                <Th key={label}>{label}</Th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((staff) => {
+              const isSelf = staff.email === me?.email;
+              return (
+                <Tr key={staff.id}>
+                  <Td>
+                    <span className="text-[10px] font-semibold text-ink-soft">
                       {staff.firstName || staff.lastName
                         ? `${staff.firstName ?? ""} ${staff.lastName ?? ""}`.trim()
                         : "—"}
-                      {isSelf && <span className="ml-2 text-[8px] text-[#9aa4b8]">(you)</span>}
-                    </td>
-                    <td className="px-4 py-2.5 text-[9px] text-[#7180a0]">{staff.email}</td>
-                    <td className="px-4 py-2.5 text-[9px] text-[#7180a0]">
+                    </span>
+                    {isSelf && <span className="ml-2 text-[8px] text-muted-dim">(you)</span>}
+                  </Td>
+                  <Td>
+                    <span className="text-[9px] text-muted">{staff.email}</span>
+                  </Td>
+                  <Td>
+                    <span className="text-[9px] text-muted">
                       {staff.facility ? staff.facility.name : "Unassigned"}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[8px] font-semibold ${
-                          staff.isActive
-                            ? "bg-[#e2f4e8] text-[#1f7a3d]"
-                            : "bg-[#fbe4e3] text-[#d8322d]"
-                        }`}
+                    </span>
+                  </Td>
+                  <Td>
+                    <StatusPill tone={staff.isActive ? "success" : "danger"}>
+                      {staff.isActive ? "Active" : "Inactive"}
+                    </StatusPill>
+                  </Td>
+                  <Td>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(staff);
+                          setEditDraft({
+                            firstName: staff.firstName ?? "",
+                            lastName: staff.lastName ?? "",
+                          });
+                        }}
+                        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
                       >
-                        {staff.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditing(staff);
-                            setEditDraft({
-                              firstName: staff.firstName ?? "",
-                              lastName: staff.lastName ?? "",
-                            });
-                          }}
-                          className="text-[9px] font-semibold text-[#5269ef] hover:text-[#4058df]"
-                        >
-                          Edit
-                        </button>
-                        {staff.isActive ? (
-                          !isSelf && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActionError("");
-                                setConfirmAction({ type: "deactivate", staff });
-                              }}
-                              className="text-[9px] font-semibold text-[#a96a00] hover:text-[#8a5400]"
-                            >
-                              Deactivate
-                            </button>
-                          )
-                        ) : (
+                        Edit
+                      </button>
+                      {staff.isActive ? (
+                        !isSelf && (
                           <button
                             type="button"
                             onClick={() => {
                               setActionError("");
-                              setConfirmAction({ type: "activate", staff });
+                              setConfirmAction({ type: "deactivate", staff });
                             }}
-                            className="text-[9px] font-semibold text-[#1f7a3d] hover:text-[#155c2c]"
+                            className="text-[9px] font-semibold text-warning transition hover:text-[#8a5400]"
                           >
-                            Activate
+                            Deactivate
                           </button>
-                        )}
+                        )
+                      ) : (
                         <button
                           type="button"
                           onClick={() => {
                             setActionError("");
-                            setConfirmAction({ type: "reset", staff });
+                            setConfirmAction({ type: "activate", staff });
                           }}
-                          className="text-[9px] font-semibold text-[#5269ef] hover:text-[#4058df]"
+                          className="text-[9px] font-semibold text-success transition hover:text-[#155c2c]"
                         >
-                          Reset password
+                          Activate
                         </button>
-                        {!isSelf && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActionError("");
-                              setConfirmAction({ type: "delete", staff });
-                            }}
-                            className="text-[9px] font-semibold text-[#d8322d] hover:text-[#b3261f]"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActionError("");
+                          setConfirmAction({ type: "reset", staff });
+                        }}
+                        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                      >
+                        Reset password
+                      </button>
+                      {!isSelf && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActionError("");
+                            setConfirmAction({ type: "delete", staff });
+                          }}
+                          className="text-[9px] font-semibold text-danger transition hover:text-danger-strong"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </Td>
+                </Tr>
+              );
+            })}
+          </tbody>
+        </TableShell>
       )}
 
       {creating && (
@@ -298,28 +316,23 @@ const StaffAccountsPage = () => {
             }}
             className="space-y-3"
           >
-            <label className="block">
-              <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-                Work email
-              </span>
-              <input
-                type="email"
-                required
-                value={createEmail}
-                onChange={(event) => setCreateEmail(event.target.value)}
-                placeholder="you@example.com"
-                className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-              />
-            </label>
-            <p className="text-[9px] leading-relaxed text-[#9aa4b8]">
+            <TextField
+              label="Work email"
+              type="email"
+              required
+              value={createEmail}
+              onChange={(event) => setCreateEmail(event.target.value)}
+              placeholder="you@example.com"
+            />
+            <p className="text-[9px] leading-relaxed text-muted-dim">
               The server generates a default password and emails it to the staff member. You
               will also see it once so you can share it securely.
             </p>
             <div className="flex justify-end gap-2">
-              <Button variant="neutral" onClick={() => setCreating(false)} className="px-3 py-1.5 text-[9px]">
+              <Button variant="neutral" size="sm" onClick={() => setCreating(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={busy} className="px-3 py-1.5 text-[9px]">
+              <Button type="submit" size="sm" disabled={busy}>
                 {busy ? "Creating…" : "Create account"}
               </Button>
             </div>
@@ -336,35 +349,25 @@ const StaffAccountsPage = () => {
             }}
             className="space-y-3"
           >
-            <label className="block">
-              <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-                First name
-              </span>
-              <input
-                value={editDraft.firstName}
-                onChange={(event) =>
-                  setEditDraft((current) => ({ ...current, firstName: event.target.value }))
-                }
-                className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-                Last name
-              </span>
-              <input
-                value={editDraft.lastName}
-                onChange={(event) =>
-                  setEditDraft((current) => ({ ...current, lastName: event.target.value }))
-                }
-                className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-              />
-            </label>
+            <TextField
+              label="First name"
+              value={editDraft.firstName}
+              onChange={(event) =>
+                setEditDraft((current) => ({ ...current, firstName: event.target.value }))
+              }
+            />
+            <TextField
+              label="Last name"
+              value={editDraft.lastName}
+              onChange={(event) =>
+                setEditDraft((current) => ({ ...current, lastName: event.target.value }))
+              }
+            />
             <div className="flex justify-end gap-2">
-              <Button variant="neutral" onClick={() => setEditing(null)} className="px-3 py-1.5 text-[9px]">
+              <Button variant="neutral" size="sm" onClick={() => setEditing(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={busy} className="px-3 py-1.5 text-[9px]">
+              <Button type="submit" size="sm" disabled={busy}>
                 {busy ? "Saving…" : "Save"}
               </Button>
             </div>

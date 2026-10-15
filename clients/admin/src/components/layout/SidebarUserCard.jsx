@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { displayNameOf, initialsOf, roleLabelOf } from "../../lib/user";
 
 /**
- * Signed-in user card at the bottom of the sidebar. Acts as the desktop
- * entry point to the Profile screen (on mobile the Profile nav link shows
- * instead — see SidebarNav).
+ * Signed-in user card at the bottom of the sidebar — a quiet recessed pill
+ * that lifts on hover and signals the Profile screen it links to (desktop
+ * entry point; on mobile the Profile nav link shows instead — see SidebarNav).
  */
 const SidebarUserCard = () => {
   const { user } = useAuth();
@@ -16,24 +17,30 @@ const SidebarUserCard = () => {
         to="/profile"
         aria-label={`View profile for ${displayNameOf(user)}`}
         className={({ isActive }) =>
-          `flex items-center gap-3 rounded-xl border px-3 py-2 ${
+          `flex items-center gap-3 rounded-clay-sm px-3 py-2 transition ${
             isActive
-              ? "border-[#b7c2ff] bg-white shadow-[0_4px_12px_rgba(50,70,120,0.08)]"
-              : "border-transparent bg-white shadow-[0_4px_12px_rgba(50,70,120,0.08)] hover:border-[#d9def0]"
+              ? "bg-accent-soft ring-1 ring-accent/25"
+              : "bg-sunken hover:bg-accent-soft/60"
           }`
         }
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e9edff] text-[10px] font-bold text-[#536be8]">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[10px] font-bold text-accent-strong">
           {initialsOf(user)}
         </span>
-        <span className="min-w-0">
-          <span className="block truncate text-[10px] font-semibold text-[#35405d]">
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[10px] font-semibold text-ink-soft">
             {displayNameOf(user)}
           </span>
-          <span className="block text-[8px] text-[#9aa4b8]">
+          <span className="block text-[8px] text-muted-dim">
             {roleLabelOf(user?.role)}
           </span>
         </span>
+        <ChevronRight
+          size={14}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="shrink-0 text-muted-dim"
+        />
       </NavLink>
     </div>
   );

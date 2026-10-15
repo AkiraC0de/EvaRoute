@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import TextField, { SelectField } from "../../components/ui/Field";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 
@@ -38,97 +40,56 @@ const FacilityEditForm = ({ facility, onSaved }) => {
     });
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        submit();
-      }}
-      className="rounded-[18px] bg-white p-4 shadow-[0_8px_20px_rgba(40,60,100,0.08)]"
-    >
-      <h2 className="mb-3 text-[12px] font-bold text-[#35405e]">Facility details</h2>
+    <Card as="form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
+      <h2 className="mb-3 text-[12px] font-bold text-ink-soft">Facility details</h2>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Name
-          </span>
-          <input
-            value={draft.name}
-            onChange={(event) => update({ name: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Address
-          </span>
-          <input
-            value={draft.address}
-            onChange={(event) => update({ address: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Note
-          </span>
-          <input
-            value={draft.note}
-            onChange={(event) => update({ note: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Max capacity
-          </span>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            value={draft.maxCapacity}
-            onChange={(event) => update({ maxCapacity: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Status
-          </span>
-          <select
-            value={draft.status}
-            onChange={(event) => update({ status: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          >
-            <option value="AVAILABLE">Available</option>
-            <option value="UNAVAILABLE">Unavailable</option>
-          </select>
-        </label>
+        <TextField
+          label="Name"
+          value={draft.name}
+          onChange={(event) => update({ name: event.target.value })}
+        />
+        <TextField
+          label="Address"
+          value={draft.address}
+          onChange={(event) => update({ address: event.target.value })}
+        />
+        <TextField
+          label="Note"
+          value={draft.note}
+          onChange={(event) => update({ note: event.target.value })}
+        />
+        <TextField
+          label="Max capacity"
+          type="number"
+          min="1"
+          step="1"
+          value={draft.maxCapacity}
+          onChange={(event) => update({ maxCapacity: event.target.value })}
+        />
+        <SelectField
+          label="Status"
+          value={draft.status}
+          onChange={(event) => update({ status: event.target.value })}
+        >
+          <option value="AVAILABLE">Available</option>
+          <option value="UNAVAILABLE">Unavailable</option>
+        </SelectField>
         <div className="grid grid-cols-2 gap-2">
-          <label className="block">
-            <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-              Latitude
-            </span>
-            <input
-              type="number"
-              step="any"
-              value={draft.latitude}
-              onChange={(event) => update({ latitude: event.target.value })}
-              className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-              Longitude
-            </span>
-            <input
-              type="number"
-              step="any"
-              value={draft.longitude}
-              onChange={(event) => update({ longitude: event.target.value })}
-              className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-            />
-          </label>
+          <TextField
+            label="Latitude"
+            type="number"
+            step="any"
+            value={draft.latitude}
+            onChange={(event) => update({ latitude: event.target.value })}
+          />
+          <TextField
+            label="Longitude"
+            type="number"
+            step="any"
+            value={draft.longitude}
+            onChange={(event) => update({ longitude: event.target.value })}
+          />
         </div>
       </div>
 
@@ -138,10 +99,10 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         </div>
       )}
 
-      <Button type="submit" disabled={busy} className="mt-4 px-4 py-1.5 text-[9px]">
+      <Button type="submit" disabled={busy} size="sm" className="mt-4">
         {busy ? "Saving…" : "Save changes"}
       </Button>
-    </form>
+    </Card>
   );
 };
 

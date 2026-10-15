@@ -1,5 +1,9 @@
 import { useState } from "react";
+import { UserPlus, X } from "lucide-react";
 import Banner from "../../components/ui/Banner";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import TextField, { SelectField } from "../../components/ui/Field";
 import useAsyncAction from "../../hooks/useAsyncAction";
 
 /**
@@ -41,48 +45,47 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
   const overCapacity = people > remaining;
 
   return (
-    <form
+    <Card
+      as="form"
       onSubmit={(event) => {
         event.preventDefault();
         if (!incomplete && !overCapacity) submit();
       }}
-      className="rounded-[18px] bg-white p-4 shadow-[0_8px_20px_rgba(40,60,100,0.08)]"
     >
-      <h2 className="mb-2 text-[12px] font-bold text-[#35405e]">New check-in</h2>
+      <h2 className="mb-2 text-[12px] font-bold text-ink-soft">New check-in</h2>
 
-      <label htmlFor="household-name" className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.5px] text-[#8290aa]">
-        Household / family name
-      </label>
-      <input
+      <TextField
         id="household-name"
+        label="Household / family name"
         value={familyName}
         onChange={(event) => setFamilyName(event.target.value)}
         placeholder="Enter family name"
-        className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
       />
 
-      <p className="mb-1 mt-3 text-[8px] font-semibold uppercase tracking-[0.5px] text-[#8290aa]">
+      <p className="mb-1 mt-3 text-[8px] font-semibold uppercase tracking-[0.5px] text-muted">
         Family members
       </p>
       <ul className="space-y-2">
         {members.map((member, index) => (
-          <li key={index} className="flex items-center gap-2">
-            <input
+          <li key={index} className="flex items-end gap-2">
+            <TextField
+              className="min-w-0 flex-1"
+              label={index === 0 ? "Full name" : undefined}
               value={member.fullName}
               onChange={(event) => updateMember(index, { fullName: event.target.value })}
               placeholder="Full name"
               aria-label={`Member ${index + 1} full name`}
-              className="h-9 min-w-0 flex-1 rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
             />
-            <select
+            <SelectField
+              className="w-28 shrink-0"
+              label={index === 0 ? "Category" : undefined}
               value={member.ageGroup}
               onChange={(event) => updateMember(index, { ageGroup: event.target.value })}
               aria-label={`Member ${index + 1} category`}
-              className="h-9 rounded-xl bg-[#f3f5fa] px-2 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
             >
               <option value="ADULT">Adult</option>
               <option value="CHILD">Child</option>
-            </select>
+            </SelectField>
             <button
               type="button"
               aria-label={`Remove member ${index + 1}`}
@@ -90,9 +93,9 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               onClick={() =>
                 setMembers((current) => current.filter((_, i) => i !== index))
               }
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f3f5fa] text-[#8290aa] transition hover:bg-[#fbe4e3] hover:text-[#d8322d] disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-clay-sm bg-sunken text-muted shadow-clay-inset transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
             >
-              ✕
+              <X size={14} strokeWidth={2} />
             </button>
           </li>
         ))}
@@ -101,9 +104,9 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       <button
         type="button"
         onClick={() => setMembers((current) => [...current, emptyMember()])}
-        className="mt-2 text-[9px] font-semibold text-[#5269ef] transition hover:text-[#4058df]"
+        className="mt-2 inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
       >
-        + Add family member
+        <UserPlus size={12} strokeWidth={2} /> Add family member
       </button>
 
       {error && (
@@ -112,19 +115,15 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         </div>
       )}
       {overCapacity && (
-        <p role="status" className="mt-2 text-[9px] text-[#b54b4b]">
+        <p role="status" className="mt-2 text-[9px] text-danger">
           Not enough capacity for this household ({people} people, {remaining} slot{remaining === 1 ? "" : "s"} left).
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={busy || incomplete || overCapacity}
-        className="mt-4 min-h-9 w-full rounded-xl bg-[#5269ef] px-3 py-2 text-[10px] font-semibold text-white transition hover:bg-[#4058df] disabled:cursor-not-allowed disabled:bg-[#aeb9ee]"
-      >
+      <Button type="submit" disabled={busy || incomplete || overCapacity} className="mt-4 min-h-9 w-full" size="sm">
         {busy ? "Checking in…" : `Check in household · ${people} ${people === 1 ? "person" : "people"}`}
-      </button>
-    </form>
+      </Button>
+    </Card>
   );
 };
 

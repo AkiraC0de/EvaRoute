@@ -2,6 +2,7 @@ import { useState } from "react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
+import TextField from "../../components/ui/Field";
 import * as api from "../../lib/api";
 
 /**
@@ -71,87 +72,57 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
   return (
     <Modal title="Register facility" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-3">
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Name
-          </span>
-          <input
-            value={draft.name}
-            onChange={(event) => update({ name: event.target.value })}
-            placeholder="e.g. Paco Park School"
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Address
-          </span>
-          <input
-            value={draft.address}
-            onChange={(event) => update({ address: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-            Note (optional)
-          </span>
-          <input
-            value={draft.note}
-            onChange={(event) => update({ note: event.target.value })}
-            className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] focus:ring-2"
-          />
-        </label>
+        <TextField
+          label="Name"
+          value={draft.name}
+          onChange={(event) => update({ name: event.target.value })}
+          placeholder="e.g. Paco Park School"
+        />
+        <TextField
+          label="Address"
+          value={draft.address}
+          onChange={(event) => update({ address: event.target.value })}
+        />
+        <TextField
+          label="Note (optional)"
+          value={draft.note}
+          onChange={(event) => update({ note: event.target.value })}
+        />
         <div className="grid grid-cols-3 gap-2">
-          <label className="block">
-            <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-              Max capacity
-            </span>
-            <input
-              type="number"
-              min="1"
-              step="1"
-              value={draft.maxCapacity}
-              onChange={(event) => update({ maxCapacity: event.target.value })}
-              placeholder="e.g. 400"
-              className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-              Latitude
-            </span>
-            <input
-              type="number"
-              step="any"
-              value={draft.latitude}
-              onChange={(event) => update({ latitude: event.target.value })}
-              placeholder="14.5995"
-              className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.6px] text-[#8290aa]">
-              Longitude
-            </span>
-            <input
-              type="number"
-              step="any"
-              value={draft.longitude}
-              onChange={(event) => update({ longitude: event.target.value })}
-              placeholder="120.9842"
-              className="h-9 w-full rounded-xl bg-[#f3f5fa] px-3 text-[10px] font-medium text-[#35405e] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-            />
-          </label>
+          <TextField
+            label="Max capacity"
+            type="number"
+            min="1"
+            step="1"
+            value={draft.maxCapacity}
+            onChange={(event) => update({ maxCapacity: event.target.value })}
+            placeholder="e.g. 400"
+          />
+          <TextField
+            label="Latitude"
+            type="number"
+            step="any"
+            value={draft.latitude}
+            onChange={(event) => update({ latitude: event.target.value })}
+            placeholder="14.5995"
+          />
+          <TextField
+            label="Longitude"
+            type="number"
+            step="any"
+            value={draft.longitude}
+            onChange={(event) => update({ longitude: event.target.value })}
+            placeholder="120.9842"
+          />
         </div>
 
         {error && <Banner tone="error">{error}</Banner>}
 
         <div className="flex justify-end gap-2">
-          <Button variant="neutral" onClick={onClose} className="px-3 py-1.5 text-[9px]">
+          <Button variant="neutral" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={busy} className="px-3 py-1.5 text-[9px]">
+          <Button type="submit" size="sm" disabled={busy}>
             {busy ? "Registering…" : "Register facility"}
           </Button>
         </div>

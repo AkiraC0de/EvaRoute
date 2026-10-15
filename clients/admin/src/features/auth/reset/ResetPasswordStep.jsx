@@ -1,3 +1,4 @@
+import Button from "../../../components/ui/Button";
 import PasswordInput from "../../../components/ui/PasswordInput";
 import PasswordRulesChecklist from "./PasswordRulesChecklist";
 
@@ -30,17 +31,13 @@ const ResetPasswordStep = ({ newPassword, confirmPassword, onChange, onSubmit, b
 
     <PasswordRulesChecklist password={newPassword} />
 
-    <p className="text-[9px] leading-relaxed text-[#9aa4b8]">
+    <p className="text-[9px] leading-relaxed text-muted-dim">
       Changing your password signs you out of every device, including this
       one.
     </p>
-    <button
-      type="submit"
-      disabled={busy}
-      className="min-h-10 w-full rounded-xl bg-[#5269ef] px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-[#4058df] disabled:cursor-not-allowed disabled:bg-[#aeb9ee]"
-    >
+    <Button type="submit" disabled={busy} className="min-h-10 w-full">
       {busy ? "Saving…" : "Reset password"}
-    </button>
+    </Button>
   </form>
 );
 

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Banner from "../../components/ui/Banner";
+import Button from "../../components/ui/Button";
+import TextField from "../../components/ui/Field";
 import PasswordInput from "../../components/ui/PasswordInput";
 import { useAuth } from "../../context/AuthContext";
 
@@ -32,8 +34,8 @@ const SignInForm = ({ onForgotPassword }) => {
 
   return (
     <>
-      <h2 className="text-3xl font-bold text-[#273556]">Sign in</h2>
-      <p className="mt-1 text-xs text-[#8290aa]">
+      <h2 className="text-3xl font-bold text-ink">Sign in</h2>
+      <p className="mt-1 text-xs text-muted">
         Use the staff account issued by your administrator.
       </p>
 
@@ -44,21 +46,16 @@ const SignInForm = ({ onForgotPassword }) => {
       )}
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-        <label className="block">
-          <span className="mb-1 block text-[8px] font-semibold uppercase tracking-[0.7px] text-[#7f8eae]">
-            Email
-          </span>
-          <input
-            type="email"
-            name="email"
-            autoComplete="username"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@example.com"
-            className="h-10 w-full rounded-xl bg-[#f6f8fc] px-3 text-[11px] font-medium text-[#2f3d5f] shadow-[inset_0_2px_5px_rgba(40,55,90,0.12)] outline-none ring-[#5269ef] placeholder:text-[#9aa4b8] focus:ring-2"
-          />
-        </label>
+        <TextField
+          label="Email"
+          type="email"
+          name="email"
+          autoComplete="username"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@example.com"
+        />
 
         <PasswordInput
           id="signin-password"
@@ -75,7 +72,7 @@ const SignInForm = ({ onForgotPassword }) => {
               type="checkbox"
               checked={keepLogin}
               onChange={(event) => setKeepLogin(event.target.checked)}
-              className="h-3.5 w-3.5 rounded accent-[#5269ef]"
+              className="h-3.5 w-3.5 rounded accent-accent"
             />
             <span className="text-[10px] font-medium text-[#65718c]">
               Keep me signed in
@@ -84,7 +81,7 @@ const SignInForm = ({ onForgotPassword }) => {
           <button
             type="button"
             onClick={onForgotPassword}
-            className="text-[9px] font-semibold text-[#5269ef] transition hover:text-[#4058df]"
+            className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
           >
             Forgot password?
           </button>
@@ -92,16 +89,12 @@ const SignInForm = ({ onForgotPassword }) => {
 
         {error && <Banner tone="error">{error}</Banner>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-2 min-h-10 w-full rounded-xl bg-[#5269ef] px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-[#4058df] disabled:cursor-not-allowed disabled:bg-[#aeb9ee]"
-        >
+        <Button type="submit" disabled={submitting} className="mt-2 min-h-10 w-full">
           {submitting ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
 
-      <p className="mt-4 border-t border-[#eef1f8] pt-3 text-[9px] leading-relaxed text-[#9aa4b8]">
+      <p className="mt-4 border-t border-line pt-3 text-[9px] leading-relaxed text-muted-dim">
         Need an account? Staff accounts are created by an
         administrator — contact your coordinator to get access.
       </p>

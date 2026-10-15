@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Trash2, RotateCcw } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import PageHeader from "../../components/ui/PageHeader";
 import StatusPanel from "../../components/ui/StatusPanel";
+import StatusPill from "../../components/ui/StatusPill";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import useFacilityResources from "../../hooks/useFacilityResources";
 import useStays from "../../hooks/useStays";
@@ -58,10 +59,9 @@ const FacilityDetailPage = () => {
         if (!found) setError(new Error("Facility not found."));
       })
       .catch((err) => {
-        if (!cancelled) {
-          setError(err);
-          setLoading(false);
-        }
+        if (cancelled) return;
+        setError(err);
+        setLoading(false);
       });
 
     return () => {
@@ -86,69 +86,71 @@ const FacilityDetailPage = () => {
 
   return (
     <div>
-      <PageHeader
-        title={facility?.name ?? "Facility"}
-        subtitle={facility ? facility.address : "Loading facility…"}
-      />
-
-      <Link to="/facilities" className="text-[9px] font-semibold text-[#5269ef] hover:text-[#4058df]">
-        ← Back to facilities
+      <Link
+        to="/facilities"
+        className="inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+      >
+        <ArrowLeft size={12} strokeWidth={2} /> Back to facilities
       </Link>
 
+      <header className="mb-4 mt-2 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[20px] font-bold leading-tight text-ink">
+            {facility?.name ?? "Facility"}
+          </h1>
+          <p className="mt-1 text-[11px] text-muted">
+            {facility ? facility.address : "Loading facility…"}
+          </p>
+        </div>
+        {facility && (
+          <Button
+            variant={deleted ? "primary" : "danger"}
+            size="sm"
+            onClick={() => {
+              setActionError("");
+              setConfirmDelete(true);
+            }}
+          >
+            {deleted ? (
+              <><RotateCcw size={12} strokeWidth={2} className="mr-1" /> Restore facility</>
+            ) : (
+              <><Trash2 size={12} strokeWidth={2} className="mr-1" /> Delete facility</>
+            )}
+          </Button>
+        )}
+      </header>
+
       {actionError && (
-        <div className="mt-3">
+        <div className="mb-3">
           <Banner tone="error">{actionError}</Banner>
         </div>
       )}
 
       {loading && (
-        <div className="mt-4">
-          <StatusPanel title="Loading facility…">
-            Fetching the facility record from the EvaRoute API.
-          </StatusPanel>
-        </div>
+        <StatusPanel title="Loading facility…">
+          Fetching the facility record from the EvaRoute API.
+        </StatusPanel>
       )}
 
       {!loading && error && (
-        <div className="mt-4">
-          <StatusPanel tone="error" title="Could not load the facility" onRetry={retry}>
-            {error.message}
-          </StatusPanel>
-        </div>
+        <StatusPanel tone="error" title="Could not load the facility" onRetry={retry}>
+          {error.message}
+        </StatusPanel>
       )}
 
       {!loading && !error && facility && (
-        <div className="mt-4 space-y-4">
+        <div className="space-y-4">
           {deleted && (
             <Banner tone="warning">
-              This facility is soft-deleted. Restore it from the Facilities list to make it
-              available for operations again.
+              This facility is soft-deleted. Restore it to make it available for operations again.
             </Banner>
           )}
 
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`rounded-full px-3 py-1 text-[8px] font-semibold ${
-                facility.status === "AVAILABLE"
-                  ? "bg-[#e2f4e8] text-[#1f7a3d]"
-                  : "bg-[#fff3d9] text-[#a96a00]"
-              }`}
-            >
+            <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
               {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-            </span>
-            <span className="rounded-full bg-[#e9edf5] px-3 py-1 text-[8px] font-semibold text-[#7180a0]">
-              Capacity {facility.maxCapacity}
-            </span>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setActionError("");
-                setConfirmDelete(true);
-              }}
-              className="ml-auto px-3 py-1.5 text-[9px]"
-            >
-              {deleted ? "Restore facility" : "Delete facility"}
-            </Button>
+            </StatusPill>
+            <StatusPill tone="neutral">Capacity {facility.maxCapacity}</StatusPill>
           </div>
 
           <FacilityEditForm
@@ -196,7 +198,7 @@ const FacilityDetailPage = () => {
               Checked-in evacuees
             </h2>
             {occupancy && (
-              <p className="mb-3 text-[9px] text-[#8995ad]">
+              <p className="mb-3 text-[9px] text-muted">
                 {occupancy.members} of {occupancy.maxCapacity} places occupied ·{" "}
                 {occupancy.remaining} remaining
               </p>

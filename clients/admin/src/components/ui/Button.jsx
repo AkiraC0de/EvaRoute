@@ -1,22 +1,36 @@
+/**
+ * Shared clay button. `variant` picks the tone; `size` the footprint.
+ *
+ * Tactile feedback without gimmicks: raised clay by default (top sheen),
+ * subtle lift on hover, pressed-inset look on active, accent ring on
+ * keyboard focus, faded + not-allowed when disabled.
+ */
 const variants = {
-  primary: "bg-[#5269ef] text-white hover:bg-[#4058df]",
-  neutral: "bg-[#f7f8fc] text-[#65718c] hover:bg-[#edf0f8]",
-  danger: "bg-[#fbe4e3] text-[#d8322d] hover:bg-[#f8d8d6]",
+  primary:
+    "bg-accent text-white shadow-clay-accent hover:bg-accent-strong active:shadow-clay-inset-strong",
+  neutral:
+    "bg-surface text-[#65718c] shadow-clay-xs hover:text-accent hover:shadow-clay active:shadow-clay-inset",
+  soft: "bg-accent-soft text-accent hover:bg-[#dfe6ff] active:shadow-clay-inset",
+  danger:
+    "bg-danger-soft text-danger shadow-clay-xs hover:bg-[#f8d8d6] active:shadow-clay-inset",
 };
 
-/**
- * Shared button primitive. `variant` picks the tone; className extends it.
- */
+const sizes = {
+  sm: "px-3 py-1.5 text-[9px]",
+  md: "px-4 py-2.5 text-[11px]",
+};
+
 const Button = ({
   children,
   variant = "primary",
+  size = "md",
   className = "",
   type = "button",
   ...props
 }) => (
   <button
     type={type}
-    className={`inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5269ef] disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${className}`}
+    className={`inline-flex items-center justify-center rounded-clay-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none ${variants[variant]} ${sizes[size]} ${className}`}
     {...props}
   >
     {children}

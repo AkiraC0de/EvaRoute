@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button";
 /**
  * One row in the Security section: icon + title (+ description) and the
  * action control. `variant="danger"` renders the row itself as the button
- * (destructive actions); the default renders a neutral row with a text
+ * (destructive actions); the default renders a recessed row with a text
  * action on the right.
  */
 const SecurityAction = ({
@@ -19,8 +19,8 @@ const SecurityAction = ({
   const iconElement = (
     <span
       aria-hidden="true"
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white ${
-        variant === "danger" ? "text-[#e64b43]" : "text-[#5269ef]"
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-surface shadow-clay-xs ${
+        variant === "danger" ? "text-danger" : "text-accent"
       }`}
     >
       {icon}
@@ -32,7 +32,7 @@ const SecurityAction = ({
       <button
         type="button"
         onClick={onClick}
-        className="flex min-h-12 w-full items-center gap-3 rounded-2xl bg-[#fbe4e3] px-3 py-2 text-left text-[#d8322d] transition hover:bg-[#f8d8d6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e64b43]"
+        className="flex min-h-12 w-full items-center gap-3 rounded-2xl bg-danger-soft px-3 py-2 text-left text-danger shadow-clay-xs transition hover:bg-[#f8d8d6] active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
       >
         {iconElement}
         <span className="text-[10px] font-semibold">{title}</span>
@@ -41,18 +41,18 @@ const SecurityAction = ({
   }
 
   return (
-    <div className="flex min-h-12 items-center gap-3 rounded-2xl bg-[#f6f8fc] px-3 py-2 shadow-[inset_0_2px_5px_rgba(40,55,90,0.12)]">
+    <div className="flex min-h-12 items-center gap-3 rounded-2xl bg-sunken px-3 py-2 shadow-clay-inset">
       {iconElement}
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-bold text-[#35405d]">{title}</p>
+        <p className="text-[10px] font-bold text-ink-soft">{title}</p>
         {description && (
-          <p className="text-[9px] text-[#7180a0]">{description}</p>
+          <p className="text-[9px] text-muted">{description}</p>
         )}
       </div>
       <Button
         variant={variant}
         onClick={onClick}
-        className="shrink-0 bg-transparent px-1 py-1 text-[9px] hover:bg-transparent"
+        className="shrink-0 bg-transparent px-1 py-1 text-[9px] shadow-none hover:bg-transparent hover:shadow-none"
       >
         {actionLabel}
         {showArrow && <ChevronRight size={15} className="ml-2 leading-none" />}

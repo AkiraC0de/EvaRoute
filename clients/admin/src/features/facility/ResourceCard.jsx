@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Banner from "../../components/ui/Banner";
+import Card from "../../components/ui/Card";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import {
   displaySubtitle,
@@ -42,14 +43,14 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
     );
 
   return (
-    <article className="flex min-h-60 flex-col rounded-[18px] bg-white p-4 shadow-[0_8px_20px_rgba(40,60,100,0.07)]">
+    <Card as="article" pad="p-4" className="flex min-h-60 flex-col">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f3ff] text-[#5370f5]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset">
           <ResourceIcon name={resource.name} />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[12px] font-bold text-[#35405e]">{resource.name}</h3>
-          <p className="mt-0.5 text-[9px] text-[#7180a0]">{displaySubtitle(resource)}</p>
+          <h3 className="truncate text-[12px] font-bold text-ink-soft">{resource.name}</h3>
+          <p className="mt-0.5 text-[9px] text-muted">{displaySubtitle(resource)}</p>
         </div>
         {!confirmingDelete && (
           <DeleteResourceButton
@@ -65,17 +66,17 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
 
       <div className="mt-3 flex items-baseline justify-between gap-2">
         <div>
-          <span className="text-[18px] font-bold text-[#35405e]">{displayValue(resource)}</span>
-          {unit && <span className="ml-1 text-[9px] text-[#7180a0]">{unit}</span>}
+          <span className="text-[18px] font-bold text-ink-soft">{displayValue(resource)}</span>
+          {unit && <span className="ml-1 text-[9px] text-muted">{unit}</span>}
         </div>
         {quantity && percentage !== null && (
-          <span className="shrink-0 text-[8px] text-[#8995ad]">{percentage}% stock</span>
+          <span className="shrink-0 text-[8px] text-muted">{percentage}% stock</span>
         )}
       </div>
 
       {quantity && percentage !== null && (
         <div className="mt-2">
-          <div className="h-2 overflow-hidden rounded-full bg-[#edf0f6]">
+          <div className="h-2 overflow-hidden rounded-full bg-[#edf0f6] shadow-clay-inset">
             <div
               className="h-full rounded-full bg-[#4bc996]"
               style={{ width: `${percentage}%` }}
@@ -119,7 +120,7 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
           />
         )}
       </div>
-    </article>
+    </Card>
   );
 };
 

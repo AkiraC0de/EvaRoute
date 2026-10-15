@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
+import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import { homePathFor } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";
@@ -18,17 +19,17 @@ const UnauthorizedPage = () => {
   return (
     <div>
       <PageHeader title="Access denied" />
-      <div className="max-w-[480px] rounded-[20px] bg-white p-5 shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fbe4e3] text-[#e64b43]">
+      <div className="max-w-[480px] rounded-clay bg-surface p-5 shadow-clay">
+        <div className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-danger-soft text-danger shadow-clay-inset">
           <ShieldCheck size={20} strokeWidth={1.8} />
         </div>
-        <h2 className="mt-3 text-[13px] font-bold text-[#34405f]">
+        <h2 className="mt-3 text-[13px] font-bold text-ink">
           You don't have access to this page
         </h2>
-        <p className="mt-2 text-[10px] leading-relaxed text-[#7180a0]">
+        <p className="mt-2 text-[10px] leading-relaxed text-muted">
           {attempted ? (
             <>
-              The page <span className="font-semibold text-[#5f7197]">{attempted}</span> is
+              The page <span className="font-semibold text-ink-soft">{attempted}</span> is
               not available for your account ({user?.role === "ADMIN" ? "Administrator" : "Facility staff"}).
             </>
           ) : (
@@ -36,13 +37,13 @@ const UnauthorizedPage = () => {
           )}
           {" "}If you think this is a mistake, contact an administrator.
         </p>
-        <button
-          type="button"
+        <Button
+          size="sm"
           onClick={() => navigate(homePathFor(user), { replace: true })}
-          className="mt-4 min-h-9 rounded-xl bg-[#5269ef] px-4 py-2 text-[10px] font-semibold text-white transition hover:bg-[#4058df]"
+          className="mt-4"
         >
           Back to my home
-        </button>
+        </Button>
       </div>
     </div>
   );
