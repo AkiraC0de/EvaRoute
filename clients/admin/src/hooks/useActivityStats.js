@@ -14,6 +14,7 @@ export default function useActivityStats(window = {}) {
     forKey: null,
     total: 0,
     byAction: {},
+    timeline: null,
     error: null,
   });
 
@@ -24,11 +25,17 @@ export default function useActivityStats(window = {}) {
     listActivityStats(window)
       .then((result) => {
         if (keyRef.current !== key) return;
-        setState({ forKey: key, total: result.total, byAction: result.byAction, error: null });
+        setState({
+          forKey: key,
+          total: result.total,
+          byAction: result.byAction,
+          timeline: result.timeline,
+          error: null,
+        });
       })
       .catch((error) => {
         if (keyRef.current !== key) return;
-        setState({ forKey: key, total: 0, byAction: {}, error });
+        setState({ forKey: key, total: 0, byAction: {}, timeline: null, error });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- key derives from window
   }, [key]);
@@ -36,6 +43,7 @@ export default function useActivityStats(window = {}) {
   return {
     total: state.forKey === key ? state.total : 0,
     byAction: state.forKey === key ? state.byAction : {},
+    timeline: state.forKey === key ? state.timeline : null,
     loading: state.forKey !== key,
     error: state.error,
   };

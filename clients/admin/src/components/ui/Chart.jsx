@@ -1,0 +1,83 @@
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+/**
+ * Activity timeline chart (recharts — shadcn Chart's base library), themed
+ * with the clay tokens: accent bars for check-ins, soft accent for other
+ * events, recessed dashed gridlines, tiny tracked axis labels. `data` is the
+ * server's zero-filled per-day timeline:
+ *   [{ date: "YYYY-MM-DD", total, checkIns, checkOuts }]
+ */
+const ClayTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload ?? {};
+  return (
+    <div className="rounded-clay-sm border border-line bg-surface px-3 py-2 shadow-clay">
+      <p className="text-[9px] font-semibold text-ink">{label}</p>
+      <p className="mt-1 text-[9px] text-muted">
+        <span className="font-semibold text-accent">{row.checkIns ?? 0}</span> check-ins ·{" "}
+        <span className="font-semibold text-ink-soft">{row.total ?? 0}</span> events
+      </p>
+    </div>
+  );
+};
+
+const ActivityChart = ({ data = [], height = 220 }) => {
+  const chartData = data.map((bucket) => ({
+    ...bucket,
+    label: new Date(`${bucket.date}T00:00:00Z`).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }),
+    other: Math.max((bucket.total ?? 0) - (bucket.checkIns ?? 0), 0),
+  }));
+
+  return (
+    <div style={{ height }} className="w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
+          <CartesianGrid
+            stroke="var(--color-line)"
+            strokeDasharray="3 4"
+            vertical={false}
+          />
+          <XAxis
+            dataKey="label"
+            tick={{ fill: "var(--color-muted-dim)", fontSize: 8, fontWeight: 600 }}
+            tickLine={false}
+            axisLine={{ stroke: "var(--color-line)" }}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            allowDecimals={false}
+            tick={{ fill: "var(--color-muted-dim)", fontSize: 8, fontWeight: 600 }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            content={<ClayTooltip />}
+            cursor={{ fill: "var(--color-sunken)", opacity: 0.7 }}
+          />
+          {/* Stacked: other events underlay (soft), check-ins on top (accent). */}
+          <Bar dataKey="other" stackId="day" fill="var(--color-accent-soft)" radius={[0, 0, 6, 6]} />
+          <Bar dataKey="checkIns" stackId="day" radius={[6, 6, 0, 0]}>
+            {chartData.map((entry) => (
+              <Cell key={entry.date} fill="var(--color-accent)" />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+export default ActivityChart;

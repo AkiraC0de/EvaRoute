@@ -73,7 +73,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     "Login success.", {
       user: {
         email: user.email,
-        firstname: user.firstName,
+        firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         isSetupDone: user.isSetupDone
@@ -245,7 +245,7 @@ export const handleRefresh = async (req: Request, res: Response) => {
     "Refresh success.", {
       user: {
         email: user.email,
-        firstname: user.firstName,
+        firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         isSetupDone: user.isSetupDone

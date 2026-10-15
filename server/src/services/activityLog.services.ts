@@ -128,8 +128,43 @@ const countByAction = (query: Omit<ActivityListQuery, "cursor" | "limit">) =>
     _count: { _all: true }
   })
 
+/**
+ * Per-day timeline buckets (dashboard chart). Days are UTC calendar days and
+ * empty days are zero-filled so charts never gap. Window capped by the
+ * controller at 31 days; rows are selected two columns at a time and bucketed
+ * here (cheaper than a raw date_trunc for this window size).
+ */
+const countByDay = async (
+  query: Omit<ActivityListQuery, "cursor" | "limit"> & { from: Date; to: Date }
+) => {
+  const rows = await prisma.activityLog.findMany({
+    where: buildWhere(query),
+    select: { createdAt: true, action: true }
+  })
+
+  const buckets = new Map<string, { date: string; total: number; checkIns: number; checkOuts: number }>()
+  const cursor = new Date(query.from)
+  const end = new Date(query.to)
+  // Zero-fill every day in the window first.
+  while (cursor.getTime() <= end.getTime()) {
+    const date = cursor.toISOString().slice(0, 10)
+    buckets.set(date, { date, total: 0, checkIns: 0, checkOuts: 0 })
+    cursor.setUTCDate(cursor.getUTCDate() + 1)
+  }
+  for (const row of rows) {
+    const date = row.createdAt.toISOString().slice(0, 10)
+    const bucket = buckets.get(date) ?? { date, total: 0, checkIns: 0, checkOuts: 0 }
+    bucket.total += 1
+    if (row.action === "STAY_CHECKED_IN") bucket.checkIns += 1
+    if (row.action === "STAY_CHECKED_OUT") bucket.checkOuts += 1
+    buckets.set(date, bucket)
+  }
+  return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date))
+}
+
 export default {
   record,
   findMany,
-  countByAction
+  countByAction,
+  countByDay
 }

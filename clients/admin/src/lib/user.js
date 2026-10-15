@@ -21,7 +21,7 @@ export const initialsOf = (user) => {
 };
 
 export const displayNameOf = (user) =>
-  [user?.firstname, user?.lastName].filter(Boolean).join(" ") ||
+  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
   user?.email ||
   "Staff account";
 

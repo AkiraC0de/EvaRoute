@@ -1,40 +1,59 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Building2, Gauge, UserCheck, UserPlus, Users } from "lucide-react";
+import {
+  Building2,
+  Gauge,
+  History as HistoryIcon,
+  Users,
+  UserCheck,
+  UserPlus,
+} from "lucide-react";
+import Button from "../../components/ui/Button";
+import Chart from "../../components/ui/Chart";
 import EmptyArt from "../../components/ui/EmptyArt";
-import StatusPanel from "../../components/ui/StatusPanel";
 import Skeleton from "../../components/ui/Skeleton";
+import StatusPill from "../../components/ui/StatusPill";
 import ActivityFeed from "../activity/ActivityFeed";
 import useActivityStats from "../../hooks/useActivityStats";
-import * as api from "../../lib/api";
+import useDashboardSummary from "../../hooks/useDashboardSummary";
+import { useAuth } from "../../context/AuthContext";
 
 /**
- * Admin overview — network health at a glance, composed from existing
- * endpoints only (GET /facility, GET /staff, per-facility stay/occupancy).
- * No aggregate endpoint exists yet, so occupancy is summed client-side;
- * fine at the current number of facilities (see the plan's gap list).
+ * Admin Overview — a real operations dashboard, composed from the shared UI
+ * kit (shadcn composition rules) in the app's clay language:
  *
- * Styled per the EvaRoute claymorphism design spec (§4 color/status rules,
- * §6 spacing, §7 statistic cards, §8 typography): token-only colors,
- * `text-ink` values with `text-muted` support, status paired with labels,
- * and 4/8-based spacing.
+ *   hero header  → identity + quick actions (modern-dashboard-ui anatomy)
+ *   stat row     → 4 KPI cards with support captions + occupancy meter
+ *   two columns  → activity chart + recent feed | facility load + 24h strip
+ *
+ * Data: ONE GET /api/v1/dashboard/summary (facility states, live occupancy,
+ * staff states, rolling windows, per-facility load) plus the day-bucketed
+ * GET /api/v1/activity/stats?interval=day for the chart. No client-side
+ * aggregation, no N+1. Type scale matches the rest of the app: 20px page
+ * title, 22px KPI values, 8px tracked labels, 9–11px support text.
  */
 
-const FOCUS_RING = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+const FOCUS_RING =
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
-/** Icon-tile tones (spec §7: accent-soft or feedback-soft backgrounds). */
+const GRID = "grid grid-cols-2 gap-4 lg:grid-cols-4";
+const CARD = "rounded-clay bg-surface p-5 shadow-clay";
+
+/** Icon-tile tones (accent-soft or feedback-soft backgrounds only). */
 const ICON_TONES = {
   accent: "bg-accent-soft text-accent",
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
 };
 
-/** Prominent statistic card (spec §7: label, primary number, support, icon). */
-const StatCard = ({ icon, tone = "accent", label, value, caption }) => (
-  <div className="rounded-clay bg-surface p-6 shadow-clay">
+/** KPI card — label, primary number, support caption, optional meter. */
+const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
+  <div className={`${CARD} transition hover:-translate-y-0.5 hover:shadow-clay-lg`}>
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-[8px] font-semibold uppercase tracking-[0.8px] text-muted">{label}</p>
+        <p className="text-[8px] font-semibold uppercase tracking-[0.8px] text-muted">
+          {label}
+        </p>
         <p className="mt-1 text-[22px] font-bold leading-none text-ink">{value}</p>
         {caption && <p className="mt-1.5 text-[9px] text-muted">{caption}</p>}
       </div>
@@ -47,334 +66,248 @@ const StatCard = ({ icon, tone = "accent", label, value, caption }) => (
         </span>
       )}
     </div>
+    {/* Number.isFinite: `0 && …` would render a literal "0" (React falsy footgun). */}
+    {Number.isFinite(meter) && (
+      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-500"
+          style={{ width: `${Math.min(Math.max(meter, 0), 100)}%` }}
+        />
+      </div>
+    )}
   </div>
 );
 
-/** Compact figure inside a section — an inset statistic area (spec §4). */
+/** Compact figure — an inset statistic (spec §4). */
 const MiniStat = ({ label, value, caption }) => (
   <div className="rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
-    <p className="text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">{label}</p>
+    <p className="text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">
+      {label}
+    </p>
     <p className="mt-0.5 text-[15px] font-bold leading-5 text-ink">{value}</p>
     {caption && <p className="mt-0.5 text-[8px] text-muted">{caption}</p>}
   </div>
 );
 
-/** Section shell: raised card with a semibold `text-ink` title (spec §8). */
-const Section = ({ title, meta, action, children }) => (
-  <section className="rounded-clay bg-surface p-6 shadow-clay">
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+/** Section card with title, optional meta and an optional corner link. */
+const SectionCard = ({ title, meta, action, children }) => (
+  <section className={CARD}>
+    <div className="flex items-start justify-between gap-3">
       <div>
         <h2 className="text-[11px] font-bold text-ink-soft">{title}</h2>
         {meta && <p className="mt-1 text-[9px] text-muted">{meta}</p>}
       </div>
       {action}
     </div>
-    {children}
+    <div className="mt-4">{children}</div>
   </section>
 );
 
-const STATUS_BADGES = {
-  AVAILABLE: { label: "Available", className: "bg-success-soft text-success" },
-  UNAVAILABLE: { label: "Unavailable", className: "bg-warning-soft text-warning" },
-  LIMITED: { label: "Limited", className: "bg-accent-soft text-accent" },
-};
+/** Status → tone/label for the shared StatusPill (which renders children). */
+const STATUS_TONE = { AVAILABLE: "success", UNAVAILABLE: "danger", LIMITED: "warning" };
+const STATUS_LABEL = { AVAILABLE: "Available", UNAVAILABLE: "Unavailable", LIMITED: "Limited" };
 
-const StatusBadge = ({ status }) => {
-  const badge = STATUS_BADGES[status] ?? { label: status ?? "Unknown", className: "bg-sunken text-muted" };
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[8px] font-semibold ${badge.className}`}>
-      {badge.label}
-    </span>
-  );
-};
-
-const OccupancyBar = ({ members, capacity, className = "h-2.5" }) => {
-  const pct = capacity > 0 ? Math.min(100, Math.round((members / capacity) * 100)) : 0;
-  return (
-    <div
-      role="progressbar"
-      aria-valuemin={0}
-      aria-valuemax={capacity}
-      aria-valuenow={members}
-      className={`w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset ${className}`}
-    >
+/** One facility-load row: name, status, capacity meter. */
+const LoadRow = ({ facility }) => (
+  <div className="py-2.5 first:pt-0 last:pb-0">
+    <div className="flex items-center justify-between gap-2">
+      <p className="min-w-0 flex-1 truncate text-[10px] font-semibold text-ink-soft">
+        {facility.name}
+      </p>
+      <StatusPill tone={STATUS_TONE[facility.status] ?? "neutral"}>
+        {STATUS_LABEL[facility.status] ?? facility.status}
+      </StatusPill>
+      <p className="shrink-0 text-[9px] text-muted">
+        <span className="font-semibold text-ink-soft">{facility.occupied}</span>
+        /{facility.maxCapacity}
+      </p>
+    </div>
+    <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset">
       <div
-        className={`h-full rounded-full transition-[width] motion-reduce:transition-none ${
-          pct >= 90 ? "bg-danger" : pct >= 70 ? "bg-warning" : "bg-accent"
-        }`}
-        style={{ width: `${pct}%` }}
+        className="h-full rounded-full bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-500"
+        style={{ width: `${Math.min(facility.pct, 100)}%` }}
       />
     </div>
-  );
-};
-
-/** Capacity health — the bar's color is always paired with words (spec §4). */
-const capacityState = (pct) => {
-  if (pct >= 90) return { label: "Near capacity", className: "bg-danger-soft text-danger" };
-  if (pct >= 70) return { label: "Filling up", className: "bg-warning-soft text-warning" };
-  return { label: "Healthy", className: "bg-success-soft text-success" };
-};
+  </div>
+);
 
 const OverviewPage = () => {
-  const [stats, setStats] = useState(null);
-  const [error, setError] = useState(null);
-  const [reloadToken, setReloadToken] = useState(0);
+  const { user } = useAuth();
+  const { summary, loading, error, reload } = useDashboardSummary();
 
-  // Accurate 7-day activity aggregates (DB GROUP BY via /activity/stats).
-  const activityStats = useActivityStats();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const run = async () => {
-      try {
-        const [facilities, { staffs }] = await Promise.all([
-          api.listFacilities(),
-          api.listStaffAccounts(),
-        ]);
-
-        const occupancies = await Promise.all(
-          facilities.map((facility) =>
-            api.getOccupancy(facility.id).catch(() => ({
-              members: 0,
-              families: 0,
-              maxCapacity: facility.maxCapacity,
-            })),
-          ),
-        );
-
-        if (cancelled) return;
-
-        const rows = facilities.map((facility, index) => ({
-          ...facility,
-          occupancy: occupancies[index],
-        }));
-
-        setStats({
-          rows,
-          facilities: facilities.length,
-          available: facilities.filter((f) => f.status === "AVAILABLE").length,
-          unavailable: facilities.filter((f) => f.status === "UNAVAILABLE").length,
-          capacity: facilities.reduce((sum, f) => sum + f.maxCapacity, 0),
-          occupants: occupancies.reduce((sum, o) => sum + o.members, 0),
-          families: occupancies.reduce((sum, o) => sum + o.families, 0),
-          staffTotal: staffs.length,
-          staffActive: staffs.filter((s) => s.isActive).length,
-          staffUnassigned: staffs.filter((s) => !s.facility).length,
-        });
-      } catch (err) {
-        if (!cancelled) setError(err);
-      }
+  // Date-dependent values are computed once per mount (render purity).
+  const { today, greeting, chartWindow } = useMemo(() => {
+    const now = new Date();
+    const hour = now.getHours();
+    return {
+      today: now.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+      greeting:
+        hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening",
+      // Chart window: last 14 days, day-bucketed by the server (UTC days).
+      chartWindow: {
+        interval: "day",
+        from: new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString(),
+      },
     };
+  }, []);
+  const { timeline, loading: chartLoading } = useActivityStats(chartWindow);
 
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadToken]);
-
-  const retry = useCallback(() => setReloadToken((token) => token + 1), []);
-
-  const networkPct =
-    stats && stats.capacity > 0 ? Math.round((stats.occupants / stats.capacity) * 100) : 0;
+  const firstName = user?.firstName || String(user?.role).toLocaleLowerCase();
+  const occupancyPct = summary ? Math.round(summary.capacity.pct) : 0;
 
   return (
-    <div>
-      {/* Hero: title + quick actions (spec §7 buttons) */}
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[20px] font-bold leading-tight text-ink">Overview</h1>
-          <p className="mt-1 text-[11px] text-muted">
-            How your evacuation center network is doing right now
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            to="/facilities"
-            className={`inline-flex items-center gap-2 rounded-clay-sm bg-surface px-4 py-2.5 text-[11px] font-semibold text-ink-soft shadow-clay-xs transition hover:text-accent hover:shadow-clay ${FOCUS_RING}`}
-          >
-            <Building2 size={13} strokeWidth={1.9} /> Manage facilities
-          </Link>
-          <Link
-            to="/staff"
-            className={`inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-2.5 text-[11px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
-          >
-            <UserPlus size={13} strokeWidth={1.9} /> Create staff account
-          </Link>
+    <div className="flex flex-col gap-4">
+      {/* ── Hero header ─────────────────────────────────────────── */}
+      <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent-soft via-surface to-surface p-6 shadow-clay">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-soft opacity-60 blur-2xl"
+        />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[8px] font-semibold uppercase tracking-[1px] text-muted">
+              {today}
+            </p>
+            <h1 className="mt-1 text-[20px] font-bold leading-tight text-ink">
+              {greeting}, {firstName}
+            </h1>
+            <p className="mt-1 text-[11px] text-muted">
+              Network operations at a glance — occupancy, staffing and activity.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[8px] font-semibold text-ink-soft shadow-clay-xs">
+                {summary?.facilities.total ?? "—"} facilities
+              </span>
+              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[8px] font-semibold text-ink-soft shadow-clay-xs">
+                {summary?.occupants.families ?? "—"} families on site
+              </span>
+              <span className="inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[8px] font-semibold text-white">
+                {occupancyPct}% occupied
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link to="/facilities">
+              <Button variant="soft" size="md" className="inline-flex items-center gap-1.5">
+                <Building2 size={13} strokeWidth={1.9} aria-hidden="true" /> Facilities
+              </Button>
+            </Link>
+            <Link to="/staff">
+              <Button variant="soft" size="md" className="inline-flex items-center gap-1.5">
+                <UserPlus size={13} strokeWidth={1.9} aria-hidden="true" /> Staff
+              </Button>
+            </Link>
+            <Link to="/history">
+              <Button variant="primary" size="md" className="inline-flex items-center gap-1.5">
+                <HistoryIcon size={13} strokeWidth={1.9} aria-hidden="true" /> View history
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
+      {/* ── Stat row ───────────────────────────────────────────── */}
       {error && (
-        <StatusPanel tone="error" title="Could not load the overview" onRetry={retry}>
-          {error.message}
-        </StatusPanel>
+        <div className={CARD}>
+          <p className="text-[11px] font-semibold text-ink-soft">Could not load the dashboard</p>
+          <p className="mt-1 text-[10px] text-muted">{error.message}</p>
+          <Button variant="neutral" size="sm" className="mt-3" onClick={reload}>
+            Try again
+          </Button>
+        </div>
       )}
-
-      {!error && !stats && (
-        <div
-          role="status"
-          aria-label="Loading overview"
-          className="grid grid-cols-2 gap-4 lg:grid-cols-4"
-        >
+      {loading && !error && (
+        <div className={GRID} role="status" aria-label="Loading dashboard">
           {[0, 1, 2, 3].map((n) => (
-            <div key={n} className="rounded-clay bg-surface p-4 shadow-clay">
+            <div key={n} className={CARD}>
               <Skeleton className="h-2 w-16" />
               <Skeleton className="mt-3 h-6 w-20" />
               <Skeleton className="mt-3 h-2.5 w-24" />
             </div>
           ))}
-          <Skeleton className="col-span-2 h-44 rounded-clay lg:col-span-4" />
+        </div>
+      )}
+      {summary && (
+        <div className={GRID}>
+          <StatCard
+            icon={<Gauge size={20} strokeWidth={1.9} />}
+            tone="accent"
+            label="Network occupancy"
+            value={`${occupancyPct}%`}
+            caption={`${summary.capacity.occupied} of ${summary.capacity.total} places taken`}
+            meter={occupancyPct}
+          />
+          <StatCard
+            icon={<Users size={20} strokeWidth={1.9} />}
+            tone="success"
+            label="People on site"
+            value={summary.occupants.total}
+            caption={`${summary.occupants.families} families · ${summary.occupants.children} children, ${summary.occupants.adults} adults`}
+          />
+          <StatCard
+            icon={<Building2 size={20} strokeWidth={1.9} />}
+            tone="warning"
+            label="Facilities"
+            value={summary.facilities.total}
+            caption={`${summary.facilities.byStatus.AVAILABLE ?? 0} available · ${
+              (summary.facilities.byStatus.UNAVAILABLE ?? 0) +
+              (summary.facilities.byStatus.LIMITED ?? 0)
+            } limited/unavailable`}
+          />
+          <StatCard
+            icon={<UserCheck size={20} strokeWidth={1.9} />}
+            tone="accent"
+            label="Staff accounts"
+            value={summary.staff.total}
+            caption={`${summary.staff.active} active · ${summary.staff.disabled} disabled`}
+          />
         </div>
       )}
 
-      {stats && stats.facilities === 0 && (
-        <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
-          <EmptyArt variant="map" className="mx-auto h-20 w-36" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">No facilities yet</p>
-          <p className="mx-auto mt-1 max-w-md text-[10px] text-muted">
-            Register your first evacuation center to start tracking occupancy and resources.
-          </p>
-          <Link
-            to="/facilities"
-            className={`mt-4 inline-flex items-center gap-1.5 rounded-clay-sm bg-accent px-4 py-2 text-[10px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
-          >
-            <Building2 size={13} strokeWidth={1.9} /> Go to facilities
-          </Link>
-        </div>
-      )}
-
-      {stats && stats.facilities > 0 && (
-        <div className="space-y-6">
-          {/* Statistic cards (spec §7) */}
-          <section aria-label="Network summary" className="grid grid-cols-1 gap-4 md:grid-cols-4 sm:grid-cols-2">
-            <StatCard
-              icon={<Building2 size={19} strokeWidth={1.8} />}
-              label="Facilities"
-              value={stats.facilities}
-              caption={`${stats.available} available · ${stats.unavailable} unavailable`}
-            />
-            <StatCard
-              icon={<Gauge size={19} strokeWidth={1.8} />}
-              label="Checked in now"
-              value={stats.occupants}
-              caption={`of ${stats.capacity} places · ${stats.families} families`}
-            />
-            <StatCard
-              icon={<UserCheck size={19} strokeWidth={1.8} />}
-              label="Staff active"
-              value={stats.staffActive}
-              caption={`of ${stats.staffTotal} accounts`}
-            />
-            <StatCard
-              icon={<Users size={19} strokeWidth={1.8} />}
-              tone={stats.staffUnassigned > 0 ? "warning" : "accent"}
-              label="Unassigned staff"
-              value={stats.staffUnassigned}
-              caption={stats.staffUnassigned === 0 ? "Everyone has a facility" : "Needs assignment"}
-            />
-          </section>
-
-          {/* Network capacity — color paired with a status label (spec §4) */}
-          <Section
-            title="Network capacity"
-            meta={
-              <>
-                {stats.occupants} of {stats.capacity} places occupied
-                {stats.capacity > 0 && ` · ${networkPct}%`}
-              </>
-            }
+      {/* ── Two-column grid ────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_380px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <SectionCard
+            title="Activity — last 14 days"
+            meta="Daily check-ins and total events across the network."
             action={
-              <span
-                className={`inline-flex items-center rounded-full px-2.5 py-1 text-[8px] font-semibold ${
-                  capacityState(networkPct).className
-                }`}
-              >
-                {capacityState(networkPct).label}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 text-[8px] font-semibold text-muted">
+                  <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Check-ins
+                </span>
+                <span className="flex items-center gap-1.5 text-[8px] font-semibold text-muted">
+                  <span className="h-2 w-2 rounded-full bg-accent-soft" aria-hidden="true" /> Other events
+                </span>
+              </div>
             }
           >
-            <OccupancyBar members={stats.occupants} capacity={stats.capacity} className="h-3" />
-          </Section>
+            {chartLoading && <Skeleton className="h-[220px] w-full rounded-clay-sm" />}
+            {!chartLoading &&
+              timeline &&
+              (timeline.every((bucket) => bucket.total === 0) ? (
+                <div className="py-12 text-center">
+                  <EmptyArt variant="people" className="mx-auto h-16 w-28" />
+                  <p className="mt-2 text-[10px] text-muted">
+                    No activity in the last 14 days — it will appear here as it happens.
+                  </p>
+                </div>
+              ) : (
+                <Chart data={timeline} />
+              ))}
+            {!chartLoading && !timeline && (
+              <p className="py-10 text-center text-[10px] text-muted">
+                Activity data could not be loaded.
+              </p>
+            )}
+          </SectionCard>
 
-          {/* Per-facility occupancy strip */}
-          <Section title="Facilities" meta="Occupancy, families and staffing per evacuation center">
-            <ul className="space-y-2">
-              {stats.rows.map((row) => {
-                const pct =
-                  row.maxCapacity > 0
-                    ? Math.min(100, Math.round((row.occupancy.members / row.maxCapacity) * 100))
-                    : 0;
-                return (
-                  <li key={row.id}>
-                    <Link
-                      to={`/facilities/${row.id}`}
-                      className={`block rounded-clay-sm px-3 py-3 transition hover:bg-sunken ${FOCUS_RING}`}
-                    >
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="min-w-0 flex-1 truncate text-[10px] font-semibold text-ink-soft">
-                          {row.name}
-                        </p>
-                        <StatusBadge status={row.status} />
-                        <span className="shrink-0 rounded-full bg-sunken px-2 py-0.5 text-[8px] font-semibold text-ink-soft">
-                          {row.occupancy.members}/{row.maxCapacity}
-                        </span>
-                        <p className="shrink-0 text-[9px] text-muted">
-                          {row.occupancy.families} families · {row.staffCount ?? 0} staff
-                        </p>
-                      </div>
-                      <div className="mt-2.5">
-                        <OccupancyBar members={row.occupancy.members} capacity={row.maxCapacity} />
-                        <span className="sr-only">{pct}% occupied</span>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </Section>
-
-          {/* Activity summary metrics (accurate counts from /activity/stats) */}
-          <Section
-            title="Activity — last 7 days"
-            meta={
-              activityStats.loading
-                ? "Loading…"
-                : `${activityStats.total} recorded ${activityStats.total === 1 ? "event" : "events"}`
-            }
-          >
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <MiniStat
-                label="Check-ins"
-                value={activityStats.byAction.STAY_CHECKED_IN ?? 0}
-                caption="Families housed"
-              />
-              <MiniStat
-                label="Check-outs"
-                value={activityStats.byAction.STAY_CHECKED_OUT ?? 0}
-                caption="Families departed"
-              />
-              <MiniStat
-                label="Resource edits"
-                value={
-                  (activityStats.byAction.RESOURCE_CREATED ?? 0) +
-                  (activityStats.byAction.RESOURCE_UPDATED ?? 0) +
-                  (activityStats.byAction.RESOURCE_DELETED ?? 0)
-                }
-                caption="Added, changed, removed"
-              />
-              <MiniStat
-                label="Staff actions"
-                value={Object.entries(activityStats.byAction)
-                  .filter(([action]) => action.startsWith("STAFF_"))
-                  .reduce((sum, [, count]) => sum + count, 0)}
-                caption="Accounts & assignments"
-              />
-            </div>
-          </Section>
-
-          {/* Recent activity */}
-          <Section
+          <SectionCard
             title="Recent activity"
+            meta="The latest meaningful changes across the network."
             action={
               <Link
                 to="/history"
@@ -384,40 +317,59 @@ const OverviewPage = () => {
               </Link>
             }
           >
-            <div className="overflow-hidden rounded-clay-sm border border-line">
-              <ActivityFeed
-                query={{}}
-                limit={6}
-                showFacility
-                compact
-                emptyTitle="Nothing recorded yet"
-                emptyDetail="Check-ins, resource changes and account actions will appear here as they happen."
-              />
-            </div>
-          </Section>
+            <ActivityFeed limit={6} />
+          </SectionCard>
+        </div>
 
-          {/* Staff pulse */}
-          <Section
-            title="Staff"
-            meta="Facility staff accounts across the network"
+        <div className="flex min-w-0 flex-col gap-4">
+          <SectionCard
+            title="Facility load"
+            meta="Occupancy by facility, busiest first."
             action={
               <Link
-                to="/staff"
+                to="/facilities"
                 className={`inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
-                Manage staff accounts →
+                Manage →
               </Link>
             }
           >
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <MiniStat label="Total" value={stats.staffTotal} />
-              <MiniStat label="Active" value={stats.staffActive} />
-              <MiniStat label="Inactive" value={stats.staffTotal - stats.staffActive} />
-              <MiniStat label="Unassigned" value={stats.staffUnassigned} />
-            </div>
-          </Section>
+            {summary && summary.facilityLoad.length > 0 ? (
+              <div className="divide-y divide-line">
+                {summary.facilityLoad.slice(0, 5).map((facility) => (
+                  <LoadRow key={facility.id} facility={facility} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-6 text-center">
+                <EmptyArt variant="map" className="mx-auto h-16 w-28" />
+                <p className="mt-2 text-[10px] text-muted">
+                  No facilities yet — register one to start tracking load.
+                </p>
+              </div>
+            )}
+          </SectionCard>
+
+          {summary && (
+            <SectionCard title="Last 24 hours" meta="Rolling window, plus this week's volume.">
+              <div className="grid grid-cols-2 gap-3">
+                <MiniStat label="Check-ins" value={summary.activity.last24h.checkIns} />
+                <MiniStat label="Check-outs" value={summary.activity.last24h.checkOuts} />
+                <MiniStat
+                  label="Events (7 days)"
+                  value={summary.activity.last7d.events}
+                  caption="all recorded actions"
+                />
+                <MiniStat
+                  label="Unassigned staff"
+                  value={summary.staff.unassigned}
+                  caption="not yet at a facility"
+                />
+              </div>
+            </SectionCard>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

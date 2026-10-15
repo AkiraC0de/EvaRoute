@@ -87,12 +87,20 @@ export const handleGetActivityStats = async (req: Request, res: Response) => {
   const scope = await resolveScope(req)
 
   const until = query.to ?? new Date()
-  const since = query.from ?? new Date(until.getTime() - 7 * 24 * 60 * 60 * 1000)
+  let since = query.from ?? new Date(until.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  // Day-bucketed timelines are capped at 31 days so a bad query can never
+  // pull an unbounded scan into the bucketing step.
+  const maxWindow = 31 * 24 * 60 * 60 * 1000
+  if (query.interval === "day" && until.getTime() - since.getTime() > maxWindow) {
+    since = new Date(until.getTime() - maxWindow)
+  }
 
   if (scope.empty) {
     return new SuccessResponse("Activity stats fetched.", {
       total: 0,
       byAction: {},
+      ...(query.interval === "day" ? { timeline: [] } : {}),
       since,
       until
     }).send(res)
@@ -111,9 +119,18 @@ export const handleGetActivityStats = async (req: Request, res: Response) => {
     total += group._count._all
   }
 
+  const timeline = query.interval === "day"
+    ? await activityLogServices.countByDay({
+        facilityId: scope.facilityId,
+        from: since,
+        to: until
+      })
+    : undefined
+
   return new SuccessResponse("Activity stats fetched.", {
     total,
     byAction,
+    ...(timeline ? { timeline } : {}),
     since,
     until
   }).send(res)

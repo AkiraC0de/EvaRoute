@@ -51,5 +51,7 @@ export const getActivityQuerySchema = z.object({
 
 export const getActivityStatsQuerySchema = z.object({
   from: z.coerce.date("'from' must be a valid date.").optional(),
-  to: z.coerce.date("'to' must be a valid date.").optional()
+  to: z.coerce.date("'to' must be a valid date.").optional(),
+  // "day" adds per-day timeline buckets to the response (dashboard chart).
+  interval: z.literal("day", "'interval' only supports 'day'.").optional()
 })

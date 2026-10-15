@@ -11,6 +11,7 @@ import facilityRoute from "./routes/facility.routes"
 import publicRoute from "./routes/public.routes"
 import staffRoute from "./routes/staff.routes"
 import activityRoute from "./routes/activity.routes"
+import dashboardRoute from "./routes/dashboard.routes"
 
 const app = express()
 
@@ -38,6 +39,7 @@ app.use("/api/v1/facility", facilityRoute)
 app.use("/api/v1/public", publicRoute)
 app.use("/api/v1/staff", staffRoute)
 app.use("/api/v1/activity", activityRoute)
+app.use("/api/v1/dashboard", dashboardRoute)
 
 app.use("/", (req: Request, res: Response) => {
   res.status(400).json({

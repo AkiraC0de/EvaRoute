@@ -36,5 +36,6 @@ export const ENDPOINTS_LIST = [
   "POST api/v1/facility/:facilityId/stay/:stayId/checkout",
 
   "GET api/v1/activity",
-  "GET api/v1/activity/stats"
+  "GET api/v1/activity/stats",
+  "GET api/v1/dashboard/summary"
 ]

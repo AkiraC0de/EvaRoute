@@ -640,17 +640,39 @@ export async function listActivity(query = {}) {
  * Accurate DB-aggregated counts grouped by action (default window: last 7
  * days). FACILITY_STAFF is scoped server-side to their own facility.
  * Response data: { total, byAction: { [action]: number }, since, until }.
+ * Pass interval: "day" to also get zero-filled per-day timeline buckets:
+ *   timeline: [{ date: "YYYY-MM-DD", total, checkIns, checkOuts }] (UTC days)
  */
-export async function listActivityStats({ from, to } = {}) {
+export async function listActivityStats({ from, to, interval } = {}) {
   const params = new URLSearchParams();
   if (from) params.set("from", from);
   if (to) params.set("to", to);
+  if (interval) params.set("interval", interval);
   const qs = params.toString();
   const { data } = await request(`/activity/stats${qs ? `?${qs}` : ""}`);
   return {
     total: data.total ?? 0,
     byAction: data.byAction ?? {},
+    timeline: data.timeline ?? null,
     since: data.since,
     until: data.until,
   };
+}
+
+/**
+ * GET /api/v1/dashboard/summary  (FETCH_DASHBOARD)
+ * One aggregate for the admin Overview: facility states, live occupancy from
+ * active stays, staff states, rolling 24h/7d activity windows and per-facility
+ * load. ADMIN sees the network (optional facilityId scope); FACILITY_STAFF is
+ * forced server-side to their own facility.
+ * Response data: { scope, facilities, capacity, occupants, staff, activity,
+ *                  facilityLoad: [{ id, name, status, maxCapacity, occupied,
+ *                                   families, pct }] }
+ */
+export async function getDashboardSummary({ facilityId } = {}) {
+  const params = new URLSearchParams();
+  if (facilityId) params.set("facilityId", facilityId);
+  const qs = params.toString();
+  const { data } = await request(`/dashboard/summary${qs ? `?${qs}` : ""}`);
+  return data;
 }
