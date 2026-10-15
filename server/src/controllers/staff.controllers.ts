@@ -11,7 +11,8 @@ import { validateData, paramErr } from "../utils/validatorUtils"
 import { DEFAULT_PASSWORD_LENGTH } from "../configs/tokenConfig"
 import { ApiMailer } from "../core/ApiMailer"
 import { registerSchema, listStaffQuerySchema, patchStaffSchema } from "../validations/staff.validations"
-import { UserRole } from "../../generated/prisma"
+import { UserRole, ActivityAction } from "../../generated/prisma"
+import { logActivity } from "../utils/activityUtils"
 
 export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -25,11 +26,14 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
   const hashedPassword = await bcrypt.hash(defaultPassword, 12)
 
-  await userServices.create({
+  const createdUser = await userServices.create({
     email,
     password: hashedPassword,
   })
 
+  await logActivity(req, ActivityAction.STAFF_ACCOUNT_CREATED, {
+    target: { id: createdUser.id, label: email }
+  })
 
   await ApiMailer.sendStaffWelcome(email, email.split("@")[0], defaultPassword)
 
@@ -82,6 +86,14 @@ export const handlePatchStaff = async (req: Request, res: Response) => {
 
   const updatedUser = await userServices.update(userId, data)
 
+  await logActivity(req, ActivityAction.STAFF_ACCOUNT_UPDATED, {
+    target: { id: user.id, label: user.email },
+    metadata: {
+      before: { firstName: user.firstName, lastName: user.lastName },
+      after: { firstName: updatedUser.firstName, lastName: updatedUser.lastName }
+    }
+  })
+
   return new SuccessResponse("Staff account updated.", {
     staff: {
       id: updatedUser.id,
@@ -112,6 +124,10 @@ export const handleActivateStaff = async (req: Request, res: Response) => {
 
   await userServices.setActive(userId, true)
 
+  await logActivity(req, ActivityAction.STAFF_ACTIVATED, {
+    target: { id: user.id, label: user.email }
+  })
+
   return new SuccessMsgResponse(`Account for ${user.email} has been activated.`).send(res)
 }
 
@@ -138,6 +154,10 @@ export const handleDeactivateStaff = async (req: Request, res: Response) => {
   await userServices.setActive(userId, false)
   await refreshTokenService.deleteAllByUserId(userId)
 
+  await logActivity(req, ActivityAction.STAFF_DEACTIVATED, {
+    target: { id: user.id, label: user.email }
+  })
+
   return new SuccessMsgResponse(`Account for ${user.email} has been deactivated and signed out from all devices.`).send(res)
 }
 
@@ -163,6 +183,11 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
 
   await ApiMailer.sendStaffPasswordReset(user.email, user.email.split("@")[0], defaultPassword)
 
+  // Audit the reset — never the generated password.
+  await logActivity(req, ActivityAction.STAFF_PASSWORD_RESET, {
+    target: { id: user.id, label: user.email }
+  })
+
   return new SuccessResponse(
     `Password for ${user.email} has been reset. Share it with the staff securely; they must change it after logging in.`,
     { defaultPassword }
@@ -186,6 +211,10 @@ export const handleDeleteStaff = async (req: Request, res: Response) => {
   }
 
   await userServices.deleteById(userId)
+
+  await logActivity(req, ActivityAction.STAFF_DELETED, {
+    target: { id: userId, label: user.email }
+  })
 
   return new SuccessMsgResponse(`Account for ${user.email} has been permanently deleted.`).send(res)
 }

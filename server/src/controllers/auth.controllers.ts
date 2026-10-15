@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs"
 
 import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
+import { ActivityAction } from "../../generated/prisma"
+import { logActivity } from "../utils/activityUtils"
 
 import userService from "../services/user.services"
 import tokenService from "../services/token.services"
@@ -56,6 +58,17 @@ export const handleLogin = async (req: Request, res: Response) => {
     ...REFRESH_TOKEN.COOKIE_OPTIONS,
     expires: refreshTokenExpirationDate
   })
+
+  await logActivity(req, ActivityAction.AUTH_LOGIN, {
+    actor: {
+      id: user.id,
+      email: user.email,
+      name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || null,
+      role: user.role
+    },
+    metadata: { keepLogin }
+  })
+
   return new SuccessResponse(
     "Login success.", {
       user: {
@@ -85,6 +98,15 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
 
   await tokenService.createReqResetPass(user.id, hashedOtp, hashToken)
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
+
+  await logActivity(req, ActivityAction.AUTH_PASSWORD_RESET_REQUESTED, {
+    actor: {
+      id: user.id,
+      email: user.email,
+      name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || null,
+      role: user.role
+    }
+  })
 
   return new SuccessResponse(
     "We've sent an OTP to you via email. Please check your emails inbox or spam.",
@@ -146,6 +168,17 @@ export const handlePassReset = async (req: Request, res: Response) => {
 
   await userServices.updatePassword(token.userId, hashedPassword)
   await refreshTokenService.deleteAllByUserId(token.userId)
+
+  // Public flow (no access token): the actor comes from the reset token's
+  // user. Best-effort — never blocks the reset itself.
+  logActivity(req, ActivityAction.AUTH_PASSWORD_RESET, {
+    actor: {
+      id: token.user.id,
+      email: token.user.email,
+      name: `${token.user.firstName ?? ""} ${token.user.lastName ?? ""}`.trim() || null,
+      role: token.user.role
+    }
+  })
 
   return new SuccessMsgResponse("Your password has been changed. You have been signed out from all devices — please log in again.").send(res)
 }
@@ -235,6 +268,7 @@ export const handleSignOut = async (req: Request, res: Response) => {
   }
 
   res.clearCookie(REFRESH_TOKEN.COOKIE_NAME)
+  await logActivity(req, ActivityAction.AUTH_SIGN_OUT)
   return new SuccessMsgResponse("Signed out complete.").send(res)
 }
 
@@ -261,10 +295,12 @@ export const handleSignOutAllDevices = async (req: Request, res: Response) => {
     const refreshToken = await refreshTokenService.findByToken(cryptoHash(cookieToken))
     if (refreshToken && refreshToken.userId === userId) {
       await refreshTokenService.deleteAllByUserIdExcept(userId, refreshToken.id)
+      await logActivity(req, ActivityAction.AUTH_SIGN_OUT_ALL)
       return new SuccessMsgResponse("Signed out from all other devices.").send(res)
     }
   }
 
   await refreshTokenService.deleteAllByUserId(userId)
+  await logActivity(req, ActivityAction.AUTH_SIGN_OUT_ALL)
   return new SuccessMsgResponse("Signed out from all other devices.").send(res)
 }

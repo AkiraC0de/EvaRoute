@@ -14,6 +14,7 @@ import ResourceCard from "../facility/ResourceCard";
 import ResourceCreateForm from "../facility/ResourceCreateForm";
 import CheckInForm from "../occupancy/CheckInForm";
 import HouseholdList from "../occupancy/HouseholdList";
+import ActivityFeed from "../activity/ActivityFeed";
 import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
 
@@ -211,14 +212,27 @@ const FacilityDetailPage = () => {
                 }}
               />
               <HouseholdList
-                stays={stays}
-                busy={busy}
-                onCheckOut={(stay) => run(() => checkOut(stay.id))}
+              stays={stays}
+              busy={busy}
+              onCheckOut={(stay) => run(() => checkOut(stay.id))}
               />
-            </div>
-          </section>
-        </div>
-      )}
+              </div>
+              </section>
+
+              <section aria-label="Activity" className="rounded-clay bg-surface p-4 shadow-clay">
+              <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Activity</h2>
+              <div className="overflow-hidden rounded-3xl border border-border/60">
+              <ActivityFeed query={{ facilityId }} limit={5} compact />
+              </div>
+              <Link
+              to="/history"
+              className="mt-3 inline-flex items-center gap-1.5 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+              >
+              Open in history →
+              </Link>
+              </section>
+              </div>
+              )}
 
       {confirmDelete && facility && (
         <ConfirmDialog

@@ -6,6 +6,8 @@ import facilityStayServices from '../services/facilityStay.services'
 import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
 import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
 import { assertFacilityAccess } from '../utils/facilityUtils'
+import { ActivityAction } from '../../generated/prisma'
+import { logActivity } from '../utils/activityUtils'
 
 // GET /facility/:facilityId/stay?status=ACTIVE|CHECKED_OUT
 export const handleGetStays = async (req: Request, res: Response) => {
@@ -95,6 +97,20 @@ export const handleCheckIn = async (req: Request, res: Response) => {
     }
   })
 
+  // Member names are NOT duplicated into the log (PII minimization) — the
+  // stay record is the source of truth; the log keeps counts only.
+  await logActivity(req, ActivityAction.STAY_CHECKED_IN, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: stay.id, label: data.familyName },
+    metadata: {
+      stayId: stay.id,
+      familyName: data.familyName,
+      members: data.members.length,
+      adults: data.members.filter(m => m.ageGroup === "ADULT").length,
+      children: data.members.filter(m => m.ageGroup === "CHILD").length
+    }
+  })
+
   return new SuccessResponse(
     `Family ${data.familyName} has been checked in to facility ${facility.name}.`,
     { stay }
@@ -109,7 +125,7 @@ export const handleCheckOut = async (req: Request, res: Response) => {
     throw new BadRequestMsgError(paramErr(['facilityId', 'stayId']))
   }
 
-  await assertFacilityAccess(req, facilityId)
+  const facility = await assertFacilityAccess(req, facilityId)
 
   const stay = await facilityStayServices.findById(stayId)
   if(!stay || stay.facilityId !== facilityId){
@@ -121,6 +137,18 @@ export const handleCheckOut = async (req: Request, res: Response) => {
   }
 
   await facilityStayServices.checkOut(stayId)
+
+  const durationMs = stay.checkedInAt ? Date.now() - stay.checkedInAt.getTime() : null
+
+  await logActivity(req, ActivityAction.STAY_CHECKED_OUT, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: stay.id, label: stay.familyName },
+    metadata: {
+      stayId: stay.id,
+      familyName: stay.familyName,
+      durationMinutes: durationMs !== null ? Math.round(durationMs / 60000) : null
+    }
+  })
 
   return new SuccessMsgResponse(
     `Family ${stay.familyName} has checked out from facility ${stay.facility.name}.`

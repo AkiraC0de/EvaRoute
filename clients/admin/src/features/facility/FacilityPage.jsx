@@ -1,11 +1,15 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import PageHeader from "../../components/ui/PageHeader";
+import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
+import useActivityStats from "../../hooks/useActivityStats";
 import useAssignedFacility from "../../hooks/useAssignedFacility";
 import useFacilityResources from "../../hooks/useFacilityResources";
 import FacilitySummaryBar from "./FacilitySummaryBar";
 import ResourceCard from "./ResourceCard";
 import ResourceCreateForm from "./ResourceCreateForm";
+import ActivityFeed from "../activity/ActivityFeed";
 
 /**
  * "My Facility" — the staff member's own facility and its resources.
@@ -38,6 +42,16 @@ const FacilityPage = () => {
     saveResource,
     removeResource,
   } = useFacilityResources(facilityId);
+
+  // Shift-relevant activity metrics, scoped server-side to this facility.
+  // Two windows: today (check-ins/out counts) and the rolling 7-day total.
+  const startOfToday = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }, []);
+  const todayStats = useActivityStats({ from: startOfToday });
+  const weekStats = useActivityStats();
 
   const loading = facilityLoading || (Boolean(facilityId) && resourcesLoading);
   const error = facilityError ?? resourcesError;
@@ -111,6 +125,30 @@ const FacilityPage = () => {
                 ))}
               </section>
             )}
+          </div>
+
+          <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
+            <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Activity</h2>
+            <div className="grid grid-cols-3 gap-2">
+              <StatTile label="Check-ins today" value={todayStats.byAction.STAY_CHECKED_IN ?? 0} />
+              <StatTile label="Check-outs today" value={todayStats.byAction.STAY_CHECKED_OUT ?? 0} />
+              <StatTile label="Events (7 days)" value={weekStats.total} />
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[11px] font-bold text-ink-soft">Recent activity</h2>
+              <Link
+                to="/history"
+                className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+              >
+                View full history →
+              </Link>
+            </div>
+            <div className="overflow-hidden rounded-3xl border border-border/60">
+              <ActivityFeed query={{ facilityId }} limit={5} compact />
+            </div>
           </div>
         </>
       )}

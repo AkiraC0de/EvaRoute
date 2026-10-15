@@ -26,6 +26,7 @@ model User {
   facilityStaff FacilityStaff?
   token         Token[]
   refreshToken  RefreshToken[]
+  activityLogs  ActivityLog[]
 
   @@index([role])
   @@map("users")
@@ -51,6 +52,7 @@ model Facility {
   staff        FacilityStaff[]
   resource     FacilityResource[]
   FacilityStay FacilityStay[]
+  activityLogs ActivityLog[]
 
   @@unique([longitude, latitude])
   @@map("facilities")
@@ -158,4 +160,55 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_token")
+}
+
+enum ActivityAction {
+  AUTH_LOGIN
+  AUTH_SIGN_OUT
+  AUTH_SIGN_OUT_ALL
+  AUTH_PASSWORD_RESET_REQUESTED
+  AUTH_PASSWORD_RESET
+  FACILITY_CREATED
+  FACILITY_UPDATED
+  FACILITY_DELETED
+  FACILITY_RESTORED
+  STAFF_ACCOUNT_CREATED
+  STAFF_ACCOUNT_UPDATED
+  STAFF_ACTIVATED
+  STAFF_DEACTIVATED
+  STAFF_PASSWORD_RESET
+  STAFF_DELETED
+  STAFF_ASSIGNED
+  STAFF_DISMISSED
+  RESOURCE_CREATED
+  RESOURCE_UPDATED
+  RESOURCE_DELETED
+  STAY_CHECKED_IN
+  STAY_CHECKED_OUT
+}
+
+// Append-only activity log (no write API — rows are created server-side at
+// mutation points only). Actor/facility name snapshots are denormalized so
+// entries stay readable after the referenced records are deleted.
+model ActivityLog {
+  id           String         @id @default(uuid()) @db.Uuid
+  action       ActivityAction
+  actorId      String?        @db.Uuid
+  actorEmail   String
+  actorName    String?
+  actorRole    UserRole
+  facilityId   String?        @db.Uuid
+  facilityName String?
+  targetId     String?        @db.Uuid
+  targetLabel  String?
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+
+  actor    User?     @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  facility Facility? @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([facilityId, createdAt])
+  @@index([action, createdAt])
+  @@map("activity_log")
 }

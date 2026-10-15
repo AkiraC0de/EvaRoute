@@ -5,8 +5,9 @@ import { BadRequestMsgError, NotFoundError } from "../core/ApiError"
 
 import facilityStaffServices from "../services/facilityStaff.services"
 import userServices from "../services/user.services"
-import { UserRole } from "../../generated/prisma"
+import { UserRole, ActivityAction } from "../../generated/prisma"
 import { assertFacilityAccess } from "../utils/facilityUtils"
+import { logActivity } from "../utils/activityUtils"
 
 export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string
@@ -63,10 +64,21 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
   if (currentMembership) {
     await facilityStaffServices.transferStaff(userId, facilityId)
 
+    await logActivity(req, ActivityAction.STAFF_ASSIGNED, {
+      facility: { id: facility.id, name: facility.name },
+      target: { id: user.id, label: `${user.firstName} ${user.lastName}`.trim() || user.email },
+      metadata: { transferredFrom: currentMembership.facility.name }
+    })
+
     return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been transferred from facility ${currentMembership.facility.name} to facility ${facility.name}.`).send(res)
   }
 
   await facilityStaffServices.create(facilityId, userId)
+
+  await logActivity(req, ActivityAction.STAFF_ASSIGNED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: user.id, label: `${user.firstName} ${user.lastName}`.trim() || user.email }
+  })
 
   return new SuccessMsgResponse(`${user.firstName} ${user.lastName} is now a staff of facility ${facility.name}.`).send(res)
 }
@@ -91,6 +103,11 @@ export const handleDismissStaff = async (req: Request, res: Response) => {
   }
 
   await facilityStaffServices.deleteStaff(facilityId, userId)
+
+  await logActivity(req, ActivityAction.STAFF_DISMISSED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: user.id, label: `${user.firstName} ${user.lastName}`.trim() || user.email }
+  })
 
   return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been removed as a staff of facility ${facility.name}.`).send(res)
 }

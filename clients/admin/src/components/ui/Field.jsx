@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { FIELD_CLASS, LABEL_CLASS } from "./fieldStyles";
 
 /**
@@ -42,14 +43,30 @@ const TextField = ({
   hint,
   className = "",
   fieldClassName = "",
+  leadingIcon: LeadingIcon,
   ...props
 }) => (
   <FieldShell id={id} label={label} error={error} hint={hint} className={className}>
-    <input
-      id={id}
-      className={`${FIELD_CLASS} ${error ? ERROR_RING : ""} ${fieldClassName}`}
-      {...props}
-    />
+    {LeadingIcon ? (
+      <span className="relative block">
+        <LeadingIcon
+          size={15}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+          aria-hidden="true"
+        />
+        <input
+          id={id}
+          className={`${FIELD_CLASS} pl-9 ${error ? ERROR_RING : ""} ${fieldClassName}`}
+          {...props}
+        />
+      </span>
+    ) : (
+      <input
+        id={id}
+        className={`${FIELD_CLASS} ${error ? ERROR_RING : ""} ${fieldClassName}`}
+        {...props}
+      />
+    )}
   </FieldShell>
 );
 
@@ -64,13 +81,20 @@ const SelectField = ({
   ...props
 }) => (
   <FieldShell id={id} label={label} error={error} hint={hint} className={className}>
-    <select
-      id={id}
-      className={`${FIELD_CLASS} appearance-none pr-8 ${error ? ERROR_RING : ""} ${fieldClassName}`}
-      {...props}
-    >
-      {children}
-    </select>
+    <span className="relative block">
+      <select
+        id={id}
+        className={`${FIELD_CLASS} appearance-none pr-8 ${error ? ERROR_RING : ""} ${fieldClassName}`}
+        {...props}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={14}
+        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted"
+        aria-hidden="true"
+      />
+    </span>
   </FieldShell>
 );
 

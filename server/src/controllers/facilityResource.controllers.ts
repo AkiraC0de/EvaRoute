@@ -6,6 +6,8 @@ import facilityResourceServices from '../services/facilityResource.services'
 import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
 import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
 import { assertFacilityAccess } from '../utils/facilityUtils'
+import { ActivityAction } from '../../generated/prisma'
+import { logActivity } from '../utils/activityUtils'
 
 export const handleGetResources = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string
@@ -64,6 +66,17 @@ export const handleCreateResource = async (req: Request, res: Response) => {
     facility: { connect: { id: facilityId } }
   })
 
+  await logActivity(req, ActivityAction.RESOURCE_CREATED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: resource.id, label: resource.name },
+    metadata: {
+      type: resource.type,
+      availableValue: resource.availableValue,
+      maxValue: resource.maxValue,
+      isAvailable: resource.isAvailable
+    }
+  })
+
   return new SuccessResponse(`Resource ${data.name} has been added to facility ${facility.name}.`, { resource }).send(res)
 }
 
@@ -74,7 +87,7 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
     throw new BadRequestMsgError(paramErr(['facilityId', 'resourceId']))
   }
 
-  await assertFacilityAccess(req, facilityId)
+  const facility = await assertFacilityAccess(req, facilityId)
 
   const resource = await facilityResourceServices.findById(resourceId)
   if(!resource || resource.facilityId !== facilityId){
@@ -108,6 +121,27 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
     maxValue: data.maxValue
   })
 
+  await logActivity(req, ActivityAction.RESOURCE_UPDATED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: resource.id, label: updatedResource.name },
+    metadata: {
+      before: {
+        name: resource.name,
+        type: resource.type,
+        isAvailable: resource.isAvailable,
+        availableValue: resource.availableValue,
+        maxValue: resource.maxValue
+      },
+      after: {
+        name: updatedResource.name,
+        type: updatedResource.type,
+        isAvailable: updatedResource.isAvailable,
+        availableValue: updatedResource.availableValue,
+        maxValue: updatedResource.maxValue
+      }
+    }
+  })
+
   return new SuccessResponse(`Resource ${updatedResource.name} has been updated.`, { resource: updatedResource }).send(res)
 }
 
@@ -118,7 +152,7 @@ export const handleDeleteResource = async (req: Request, res: Response) => {
     throw new BadRequestMsgError(paramErr(['facilityId', 'resourceId']))
   }
 
-  await assertFacilityAccess(req, facilityId)
+  const facility = await assertFacilityAccess(req, facilityId)
 
   const resource = await facilityResourceServices.findById(resourceId)
   if(!resource || resource.facilityId !== facilityId){
@@ -126,6 +160,11 @@ export const handleDeleteResource = async (req: Request, res: Response) => {
   }
 
   await facilityResourceServices.deleteById(resourceId)
+
+  await logActivity(req, ActivityAction.RESOURCE_DELETED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: resourceId, label: resource.name }
+  })
 
   return new SuccessMsgResponse(`Resource ${resource.name} has been removed from the facility.`).send(res)
 }

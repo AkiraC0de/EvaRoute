@@ -5,10 +5,11 @@ import { getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } f
 import facilityServices from "../services/facility.services"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
 import { BadRequestMsgError, ForbiddenError, NotFoundError } from "../core/ApiError"
-import { UserRole } from "../../generated/prisma"
+import { UserRole, ActivityAction, Prisma } from "../../generated/prisma"
 import facilityStaffServices from "../services/facilityStaff.services"
 import { requireAuth } from "../utils/authUtils"
 import { assertFacilityAccess, toFacilityDTO } from "../utils/facilityUtils"
+import { logActivity } from "../utils/activityUtils"
 
 export const handleGetFacility = async (req: Request, res: Response) => {
   const { role } = requireAuth(req)
@@ -67,7 +68,13 @@ export const handleRegisterFacility = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("There is an existing facility on the location. Please select a new location point")
   }
   
-  await facilityServices.create(facilityData)
+  const createdFacility = await facilityServices.create(facilityData)
+
+  await logActivity(req, ActivityAction.FACILITY_CREATED, {
+    facility: { id: createdFacility.id, name: createdFacility.name },
+    target: { id: createdFacility.id, label: createdFacility.name },
+    metadata: { maxCapacity: createdFacility.maxCapacity }
+  })
 
   return new SuccessResponse(`New facility named ${facilityData.name} has been registered.`, facilityData).send(res)
 }
@@ -91,6 +98,10 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
     }
 
     await facilityServices.restoreById(facilityId)
+    await logActivity(req, ActivityAction.FACILITY_RESTORED, {
+      facility: { id: deletedFacility.id, name: deletedFacility.name },
+      target: { id: deletedFacility.id, label: deletedFacility.name }
+    })
     return new SuccessMsgResponse(`Facility ${deletedFacility.name} has been restored.`).send(res)
   }
 
@@ -106,6 +117,11 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
   }
 
   await facilityServices.softDeleteById(facilityId)
+
+  await logActivity(req, ActivityAction.FACILITY_DELETED, {
+    facility: { id: facility.id, name: facility.name },
+    target: { id: facility.id, label: facility.name }
+  })
 
   return new SuccessMsgResponse(`Facility ${facility.name} has been deleted.`).send(res)
 }
@@ -135,5 +151,19 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
 
   const updatedFacility = await facilityServices.update(facilityId, data)
 
-  return new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
+    // Log only the fields that actually changed (small diffs keep the log lean).
+    const before: Prisma.InputJsonValue = {}
+    const after: Prisma.InputJsonValue = {}
+    for (const key of Object.keys(data) as (keyof typeof data)[]) {
+      ;(before as Record<string, unknown>)[key] = (facility as Record<string, unknown>)[key]
+      ;(after as Record<string, unknown>)[key] = data[key]
+    }
+
+    await logActivity(req, ActivityAction.FACILITY_UPDATED, {
+      facility: { id: facility.id, name: facility.name },
+      target: { id: facility.id, label: facility.name },
+      metadata: { before, after }
+    })
+
+    return new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
 }

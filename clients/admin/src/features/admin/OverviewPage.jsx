@@ -4,6 +4,8 @@ import { Building2, Gauge, UserCheck, UserPlus, Users } from "lucide-react";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
+import ActivityFeed from "../activity/ActivityFeed";
+import useActivityStats from "../../hooks/useActivityStats";
 import * as api from "../../lib/api";
 
 /**
@@ -59,6 +61,9 @@ const OverviewPage = () => {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
   const [reloadToken, setReloadToken] = useState(0);
+
+  // Accurate 7-day activity aggregates (DB GROUP BY via /activity/stats).
+  const activityStats = useActivityStats();
 
   useEffect(() => {
     let cancelled = false;
@@ -242,6 +247,67 @@ const OverviewPage = () => {
                 </li>
               ))}
             </ul>
+          </section>
+
+          {/* Activity summary metrics (accurate counts from /activity/stats) */}
+          <section aria-label="Activity summary" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <h2 className="text-[11px] font-bold text-ink-soft">Activity — last 7 days</h2>
+              <p className="text-[9px] text-muted">
+                {activityStats.loading ? "Loading…" : `${activityStats.total} recorded ${activityStats.total === 1 ? "event" : "events"}`}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <StatTile
+                label="Check-ins"
+                value={activityStats.byAction.STAY_CHECKED_IN ?? 0}
+                caption="Families housed"
+              />
+              <StatTile
+                label="Check-outs"
+                value={activityStats.byAction.STAY_CHECKED_OUT ?? 0}
+                caption="Families departed"
+              />
+              <StatTile
+                label="Resource edits"
+                value={
+                  (activityStats.byAction.RESOURCE_CREATED ?? 0) +
+                  (activityStats.byAction.RESOURCE_UPDATED ?? 0) +
+                  (activityStats.byAction.RESOURCE_DELETED ?? 0)
+                }
+                caption="Added, changed, removed"
+              />
+              <StatTile
+                label="Staff actions"
+                value={Object.entries(activityStats.byAction)
+                  .filter(([action]) => action.startsWith("STAFF_"))
+                  .reduce((sum, [, count]) => sum + count, 0)}
+                caption="Accounts & assignments"
+              />
+            </div>
+          </section>
+
+          {/* Recent activity */}
+          <section aria-label="Recent activity" className="mb-4 rounded-clay bg-surface p-4 shadow-clay">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[11px] font-bold text-ink-soft">Recent activity</h2>
+              <Link
+                to="/history"
+                className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+              >
+                View full history →
+              </Link>
+            </div>
+            <div className="overflow-hidden rounded-3xl border border-border/60">
+              <ActivityFeed
+                query={{}}
+                limit={6}
+                showFacility
+                compact
+                emptyTitle="Nothing recorded yet"
+                emptyDetail="Check-ins, resource changes and account actions will appear here as they happen."
+              />
+            </div>
           </section>
 
           {/* Staff pulse */}
