@@ -6,21 +6,17 @@ import tailwindcss from "@tailwindcss/vite";
  * Why the dev server proxies /api instead of the app calling the API
  * cross-origin:
  *
- *   server/src/index.ts does `app.use(cors({ credentials: true }))` with no
- *   explicit origin, so the API answers every request with
- *   `Access-Control-Allow-Origin: *` AND
- *   `Access-Control-Allow-Credentials: true` (verified against the running
- *   backend). Browsers reject that combination for credentialed requests, so
- *   the httpOnly refresh cookie can never be stored or sent from
- *   http://localhost:5173 -> http://localhost:3000, and a session would die
- *   with the 15-minute access token.
+ *   The proxy keeps every dev API call same-origin, so auth works with zero
+ *   CORS involvement. (Historically the API also answered
+ *   `Access-Control-Allow-Origin: *` with `Allow-Credentials: true`, which
+ *   browsers reject for credentialed requests — server/src/index.ts now
+ *   echoes the request origin instead, so cross-origin via
+ *   VITE_API_BASE_URL also works.)
  *
- *   Proxying keeps every API call same-origin, so there is no CORS at all and
- *   the refresh cookie works normally. Nothing on the backend changes.
- *
- *   A production deployment needs the same arrangement (serve the built app
- *   and reverse-proxy /api to the backend). Setting VITE_API_BASE_URL to an
- *   absolute URL bypasses this proxy and falls back to Bearer-token-only auth.
+ *   A production deployment still needs the same arrangement (serve the built
+ *   app and reverse-proxy /api to the backend): browsers block third-party
+ *   cookies on cross-site setups, and SameSite=strict cookies would not
+ *   travel there either (see COOKIE_OPTIONS in server/src/configs/tokenConfig.ts).
  */
 const API_TARGET = process.env.EVAROUTE_API_TARGET || "http://localhost:3000";
 

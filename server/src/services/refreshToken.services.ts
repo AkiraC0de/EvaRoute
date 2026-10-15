@@ -26,7 +26,20 @@ const deleteById = (tokenId: string) => {
       id: tokenId
     }
   })
-} 
+}
+
+// Rotation grace: keep a rotated row alive for a short window instead of
+// deleting it (see REFRESH_TOKEN.ROTATION_GRACE_MS).
+const shortenExpiry = (tokenId: string, expiresAt: Date) => {
+  return prisma.refreshToken.update({
+    where: {
+      id: tokenId
+    },
+    data: {
+      expiresAt
+    }
+  })
+}
 
 const deleteByToken = (token: string) => {
   return prisma.refreshToken.delete({
@@ -58,6 +71,7 @@ export default {
   deleteByToken,
   create,
   findByToken,
+  shortenExpiry,
   deleteAllByUserIdExcept,
   deleteAllByUserId
 }

@@ -159,7 +159,10 @@ export const handleRefresh = async (req: Request, res: Response) => {
   const refreshToken = await refreshTokenService.findByToken(hashCookieRefreshToken)
   
   if(!refreshToken){
-    res.clearCookie(REFRESH_TOKEN.COOKIE_NAME, REFRESH_TOKEN.COOKIE_OPTIONS)
+    // No clearCookie here on purpose: during a rotation race the browser may
+    // legitimately hold a NEWER rotated cookie than the one sent — wiping the
+    // jar would destroy that valid session. A stale cookie expires on its
+    // own (see the expired branch below).
     throw new UnauthorizedError("Invalid token. Please proceed to login.") 
   }
 
@@ -178,8 +181,15 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new ForbiddenError("This account has been deactivated. Contact an administrator.")
   }
 
-  // Invalidate the previous token and keep its original expiry (rotation must not extend the session)
-  await refreshTokenService.deleteById(refreshToken.id)
+  // Rotation with grace: keep the previous row valid for a short window
+  // (bounded by its original expiry — rotation must not extend the session)
+  // so a concurrent request already in flight with the old cookie — a second
+  // tab, or React StrictMode's double-invoked effects — still succeeds
+  // instead of dying mid-rotation. The row expires naturally after the grace.
+  await refreshTokenService.shortenExpiry(
+    refreshToken.id,
+    new Date(Math.min(refreshToken.expiresAt.getTime(), Date.now() + REFRESH_TOKEN.ROTATION_GRACE_MS))
+  )
 
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
   await refreshTokenService.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)

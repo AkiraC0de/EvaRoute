@@ -31,8 +31,10 @@
  *
  * Empty (the default) means "same origin", which is what the Vite dev proxy in
  * vite.config.js serves. Setting VITE_API_BASE_URL to an absolute URL calls the
- * API cross-origin instead — that works, but the httpOnly refresh cookie is
- * then dropped by the browser (see the CORS note in vite.config.js).
+ * API cross-origin instead — that also works: fetch sends credentials
+ * ("include") and the server echoes the origin (see the CORS note in
+ * vite.config.js), so the httpOnly refresh cookie stores and travels either
+ * way. Keep the mode and the server CORS in sync when changing either.
  */
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 const API_PREFIX = `${BASE_URL}/api/v1`;
@@ -94,7 +96,7 @@ export function setUnauthorizedHandler(handler) {
  * Core request
  * ------------------------------------------------------------------ */
 
-async function request(path, { method = "GET", body, auth = true, token = null } = {}) {
+async function request(path, { method = "GET", body, auth = true, token = null, isRetry = false } = {}) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
@@ -112,7 +114,10 @@ async function request(path, { method = "GET", body, auth = true, token = null }
     response = await fetch(`${API_PREFIX}${path}`, {
       method,
       headers,
-      credentials: "same-origin",
+      // "include" so the httpOnly refresh cookie travels in BOTH supported
+      // topologies: same-origin via the dev proxy and cross-origin via
+      // VITE_API_BASE_URL (the server echoes the origin — see index.ts CORS).
+      credentials: "include",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
@@ -134,9 +139,20 @@ async function request(path, { method = "GET", body, auth = true, token = null }
   }
 
   if (!response.ok) {
-    // Only a session-token failure ends the session — a rejected reset token
-    // (auth: false + custom token) must not sign the user out.
+    // Session-token failure: mint a new access token from the httpOnly
+    // refresh cookie and replay the request ONCE before ending the session —
+    // this is what keeps a tab alive past the 15-minute access token. A
+    // rejected reset token (auth: false + custom token) must never sign the
+    // user out.
     if (response.status === 401 && auth && !token) {
+      if (!isRetry) {
+        try {
+          await refreshAccessToken();
+          return request(path, { method, body, auth, token, isRetry: true });
+        } catch {
+          // Refresh cookie missing/expired — the session is genuinely over.
+        }
+      }
       clearAccessToken();
       if (unauthorizedHandler) unauthorizedHandler();
     }
@@ -192,6 +208,24 @@ export async function refreshSession() {
   const { data } = await request("/auth/refresh", { auth: false });
   setAccessToken(data.accessToken);
   return data.user;
+}
+
+/**
+ * Single-flight refresh used by BOTH the 401-retry path and the boot
+ * restore: concurrent callers (React StrictMode double-invoked effects,
+ * parallel requests hitting an expired access token) share one
+ * /auth/refresh call — the server rotates the refresh token on every call,
+ * so uncoordinated parallel refreshes would race each other's cookies.
+ */
+let refreshInFlight = null;
+
+export function refreshAccessToken() {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshSession().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
 }
 
 /* ------------------------------------------------------------------ *

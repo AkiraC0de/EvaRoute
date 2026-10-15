@@ -13,9 +13,23 @@ import staffRoute from "./routes/staff.routes"
 
 const app = express()
 
+const allowedOrigins = process.env.CORS_ORIGINS
+  ?.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({credentials: true}))
+app.use(cors({
+  credentials: true,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || !allowedOrigins || allowedOrigins.includes(origin)) {
+      callback(null, true) // reflect the request origin
+      return
+    }
+    callback(null, false)
+  }
+}))
 
 // Endpoints
 app.use("/api/v1/auth", authRoute)
