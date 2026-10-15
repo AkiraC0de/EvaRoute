@@ -172,6 +172,15 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("Expired token. Please proceed to login.") 
   }
 
+  // Rotation grace window: a token already rotated more than
+  // ROTATION_GRACE_MS ago is dead even though its row still exists (the row
+  // keeps the original session horizon so grace successors inherit it — see
+  // the rotation block below).
+  if(refreshToken.rotatedAt && refreshToken.rotatedAt.getTime() + REFRESH_TOKEN.ROTATION_GRACE_MS < Date.now()){
+    await refreshTokenService.deleteById(refreshToken.id)
+    throw new UnauthorizedError("Invalid token. Please proceed to login.")
+  }
+
   const user = await userService.findById(refreshToken.userId)
   if(!user) {
     throw new UnauthorizedError("User not found. Please proceed to login.")
@@ -181,15 +190,13 @@ export const handleRefresh = async (req: Request, res: Response) => {
     throw new ForbiddenError("This account has been deactivated. Contact an administrator.")
   }
 
-  // Rotation with grace: keep the previous row valid for a short window
-  // (bounded by its original expiry — rotation must not extend the session)
-  // so a concurrent request already in flight with the old cookie — a second
-  // tab, or React StrictMode's double-invoked effects — still succeeds
-  // instead of dying mid-rotation. The row expires naturally after the grace.
-  await refreshTokenService.shortenExpiry(
-    refreshToken.id,
-    new Date(Math.min(refreshToken.expiresAt.getTime(), Date.now() + REFRESH_TOKEN.ROTATION_GRACE_MS))
-  )
+  // Rotation with grace: mark the previous row rotated instead of deleting
+  // it (grace window = REFRESH_TOKEN.ROTATION_GRACE_MS) so a concurrent
+  // request already in flight with the old cookie — a second tab, or React
+  // StrictMode's double-invoked effects — still succeeds instead of dying
+  // mid-rotation. `expiresAt` is NOT touched: the successor inherits the
+  // original session horizon (30d keep-login / 1h otherwise).
+  await refreshTokenService.markRotated(refreshToken.id)
 
   const [newRefreshToken, newRefreshTokenHash] = generateCryptoTokenHash() 
   await refreshTokenService.create(user.id, newRefreshTokenHash, refreshToken.expiresAt)

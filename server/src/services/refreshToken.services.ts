@@ -28,15 +28,17 @@ const deleteById = (tokenId: string) => {
   })
 }
 
-// Rotation grace: keep a rotated row alive for a short window instead of
-// deleting it (see REFRESH_TOKEN.ROTATION_GRACE_MS).
-const shortenExpiry = (tokenId: string, expiresAt: Date) => {
+// Rotation grace: mark a rotated row instead of deleting it (see
+// REFRESH_TOKEN.ROTATION_GRACE_MS). `expiresAt` is deliberately left alone —
+// it carries the session horizon (30d keep-login vs 1h) and grace-window
+// successors must inherit the ORIGINAL horizon, not a shortened one.
+const markRotated = (tokenId: string) => {
   return prisma.refreshToken.update({
     where: {
       id: tokenId
     },
     data: {
-      expiresAt
+      rotatedAt: new Date()
     }
   })
 }
@@ -71,7 +73,7 @@ export default {
   deleteByToken,
   create,
   findByToken,
-  shortenExpiry,
+  markRotated,
   deleteAllByUserIdExcept,
   deleteAllByUserId
 }

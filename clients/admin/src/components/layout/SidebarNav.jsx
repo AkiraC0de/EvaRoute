@@ -23,7 +23,7 @@ const SECTION_LABEL =
 
 const itemClasses = ({ isActive }) =>
   isActive
-    ? "bg-accent-soft before:absolute before:-left-1 before:top-1/2 before:h-4 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-accent before:content-['']"
+    ? "bg-accent-soft"
     : "hover:bg-sunken";
 
 const labelClasses = ({ isActive }) =>
