@@ -1,7 +1,7 @@
 /**
  * Session persistence for the staff portal.
  *
- * The identity payload ({ email, firstname, lastName, role, isSetupDone })
+ * The identity payload ({ email, firstName, lastName, role, isSetupDone })
  * returned by POST /auth/login and GET /auth/refresh is stored beside the
  * access token so a reload can restore the session without a "who am I"
  * endpoint (the API has none for staff).

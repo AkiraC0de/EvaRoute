@@ -11,7 +11,7 @@ import SecuritySection from "./SecuritySection";
  * Profile — real identity, real sign-out.
  *
  * Identity comes from the login/refresh payload
- * ({ email, firstname, lastName, role, isSetupDone }); the assigned facility
+ * ({ email, firstName, lastName, role, isSetupDone }); the assigned facility
  * comes from GET /api/v1/facility (useAssignedFacility). Both are genuine
  * API values.
  */

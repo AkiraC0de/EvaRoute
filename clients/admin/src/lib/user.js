@@ -1,14 +1,14 @@
 /**
  * Display helpers for the authenticated user payload returned by
  * POST /auth/login and GET /auth/refresh:
- *   { email, firstname, lastName, role, isSetupDone }
+ *   { email, firstName, lastName, role, isSetupDone }
  *
  * Shared by the sidebar user card, the profile page and the login flow so the
  * same identity is formatted identically everywhere.
  */
 
 export const initialsOf = (user) => {
-  const source = [user?.firstname, user?.lastName].filter(Boolean).join(" ");
+  const source = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   if (source) {
     return source
       .split(/\s+/)

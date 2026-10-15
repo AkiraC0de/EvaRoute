@@ -206,7 +206,7 @@ async function request(path, { method = "GET", body, auth = true, token = null, 
  * POST /api/v1/auth/login  (public)
  * Body: { email, password, keepLogin }  — all three are required by
  * `loginSchema`; `keepLogin` is NOT optional.
- * Response data: { user: { email, firstname, lastName, role, isSetupDone },
+ * Response data: { user: { email, firstName, lastName, role, isSetupDone },
  *                  accessToken }
  */
 export async function login({ email, password, keepLogin }) {

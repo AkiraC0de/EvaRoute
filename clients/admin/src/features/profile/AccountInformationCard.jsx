@@ -10,7 +10,7 @@ import { roleLabelOf } from "../../lib/user";
  */
 const AccountInformationCard = ({ user, facility }) => {
   const profileFields = [
-    { label: "First Name", value: user?.firstname || "—" },
+    { label: "First Name", value: user?.firstName || "—" },
     { label: "Last Name", value: user?.lastName || "—" },
     { label: "Work Email", value: user?.email || "—" },
     { label: "Role", value: roleLabelOf(user?.role) },

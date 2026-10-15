@@ -12,7 +12,7 @@ import { AuthContext } from "./AuthContext";
  *   "signedIn"  — `user` holds the identity returned by POST /auth/login
  *
  * `user` is exactly the payload the API returns:
- *   { email, firstname, lastName, role, isSetupDone }
+ *   { email, firstName, lastName, role, isSetupDone }
  * The API has no "who am I" endpoint for staff (GET /api/v1/staff/:userId needs
  * the admin-only FETCH_ALL_STAFF permission), so identity is persisted
  * alongside the token (see lib/sessionStorage.js) and re-validated on reload
