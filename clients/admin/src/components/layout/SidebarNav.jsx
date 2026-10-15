@@ -3,24 +3,27 @@ import { NAV_SECTIONS } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";
 
 /**
- * Sidebar navigation, driven entirely by app/navigation.js and filtered by the
+ * Sidebar rail navigation (sm+ only — on mobile the destinations live in
+ * MobileBottomNav), driven entirely by app/navigation.js and filtered by the
  * signed-in user's role. Adding a screen or restricting one to a role is a
  * config change, not a component change.
+ *
+ * The Account section is intentionally not rendered here: Profile opens from
+ * the user card on desktop and from the mobile bottom bar, so the desktop
+ * rail stays a clean destinations list.
  *
  * Modern rail treatment on the white sidebar: icon + label rows, an active
  * state as a soft accent pill with a slim accent indicator bar, quiet hover
  * on inactive rows.
  */
 const ITEM =
-  "group relative mb-1 flex w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition max-sm:w-auto";
-const ACCOUNT_ITEM =
-  "group relative hidden w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition max-sm:flex max-sm:w-auto";
+  "group relative mb-1 flex w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition";
 const SECTION_LABEL =
-  "mb-2 ml-2 text-[8px] font-semibold uppercase tracking-[1.5px] text-muted-dim max-sm:hidden";
+  "mb-2 ml-2 text-[8px] font-semibold uppercase tracking-[1.5px] text-muted-dim";
 
 const itemClasses = ({ isActive }) =>
   isActive
-    ? "bg-accent-soft"
+    ? "bg-accent-soft before:absolute before:-left-1 before:top-1/2 before:h-4 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-accent before:content-['']"
     : "hover:bg-sunken";
 
 const labelClasses = ({ isActive }) =>
@@ -37,30 +40,23 @@ const SidebarNav = () => {
   return (
     <nav
       aria-label="Staff navigation"
-      className="flex-1 px-3 max-sm:flex max-sm:flex-wrap max-sm:gap-1 max-sm:pb-3"
+      className="hidden flex-1 px-3 sm:block"
     >
       {NAV_SECTIONS.map((section) => {
+        if (section.id === "account") return null;
+
         const items = section.items.filter((item) => item.roles.includes(user?.role));
         if (items.length === 0) return null;
 
-        const isAccount = section.id === "account";
-
         return (
           <div key={section.id}>
-            {/* The Account section's only item is mobile-only (desktop opens
-                Profile via the user card), so its label would be a dead group
-                header on desktop — render it only where the items show. */}
-            {!isAccount && (
-              <p className={SECTION_LABEL}>{section.label}</p>
-            )}
+            <p className={SECTION_LABEL}>{section.label}</p>
             {items.map(({ label, to, end, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={end}
-                className={({ isActive }) =>
-                  `${isAccount ? ACCOUNT_ITEM : ITEM} ${itemClasses({ isActive })}`
-                }
+                className={({ isActive }) => `${ITEM} ${itemClasses({ isActive })}`}
               >
                 {({ isActive }) => (
                   <>
