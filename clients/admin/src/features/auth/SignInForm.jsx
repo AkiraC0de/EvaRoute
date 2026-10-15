@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
+import Checkbox from "../../components/ui/Checkbox";
 import TextField from "../../components/ui/Field";
 import PasswordInput from "../../components/ui/PasswordInput";
 import { useAuth } from "../../context/AuthContext";
@@ -68,11 +69,10 @@ const SignInForm = ({ onForgotPassword }) => {
 
         <div className="flex items-center justify-between gap-2 pt-1">
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={keepLogin}
               onChange={(event) => setKeepLogin(event.target.checked)}
-              className="h-3.5 w-3.5 rounded accent-accent"
+              ariaLabel="Keep me signed in"
             />
             <span className="text-[10px] font-medium text-[#65718c]">
               Keep me signed in

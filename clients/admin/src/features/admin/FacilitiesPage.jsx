@@ -7,6 +7,7 @@ import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
+import Skeleton from "../../components/ui/Skeleton";
 import StatusPill from "../../components/ui/StatusPill";
 import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
 import useAsyncAction from "../../hooks/useAsyncAction";
@@ -130,9 +131,17 @@ const FacilitiesPage = () => {
       )}
 
       {loading && (
-        <StatusPanel title="Loading facilities…">
-          Fetching the facility registry from the EvaRoute API.
-        </StatusPanel>
+        <div
+          role="status"
+          aria-label="Loading facilities"
+          className="rounded-clay bg-surface p-5 shadow-clay"
+        >
+          <Skeleton className="h-3 w-32" />
+          <Skeleton className="mt-4 h-9 w-full rounded-clay-sm" />
+          {[0, 1, 2].map((n) => (
+            <Skeleton key={n} className="mt-2 h-11 w-full rounded-clay-sm" />
+          ))}
+        </div>
       )}
 
       {!loading && error && (

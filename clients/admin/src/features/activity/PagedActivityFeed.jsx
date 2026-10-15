@@ -1,6 +1,7 @@
 import Button from "../../components/ui/Button";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
+import Skeleton from "../../components/ui/Skeleton";
 import { RefreshCw } from "lucide-react";
 import useActivityPage from "../../hooks/useActivityPage";
 import ActivityRow from "./ActivityRow";
@@ -57,7 +58,14 @@ export default function PagedActivityFeed({
       <>
         {header}
         <div className="px-4 pb-4">
-          <StatusPanel title="Loading activity…" />
+          <div role="status" aria-label="Loading activity" className="space-y-2">
+            {[0, 1, 2].map((n) => (
+              <div key={n} className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-3 flex-1" />
+              </div>
+            ))}
+          </div>
         </div>
       </>
     );

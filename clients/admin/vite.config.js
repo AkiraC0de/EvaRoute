@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath, URL } from "node:url";
 
 /**
  * Why the dev server proxies /api instead of the app calling the API
@@ -25,6 +26,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  resolve: {
+    // shadcn/ui generated components import via "@/…"
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   server: {
     proxy: {
       "/api": {

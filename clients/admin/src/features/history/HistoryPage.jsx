@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
-import { FilterSearch, FilterSelect, FilterDate } from "../../components/ui/FilterControls";
+import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
+import DateRangePicker from "../../components/ui/DateRangePicker";
 import { useAuth } from "../../context/AuthContext";
 import { hasRole, ROLES } from "../../app/roles";
 import { listFacilities } from "../../lib/api";
@@ -62,8 +63,16 @@ export default function HistoryPage() {
     if (action) q.action = action;
     if (admin && facilityId) q.facilityId = facilityId;
     if (search) q.search = search;
-    if (from) q.from = from;
-    if (to) q.to = new Date(new Date(to).getTime() + 24 * 60 * 60 * 1000 - 1).toISOString();
+    // Day bounds are computed in LOCAL time so the filtered rows match the
+    // local day-group labels the user sees (bare "YYYY-MM-DD" parses as UTC).
+    if (from) {
+      const [fy, fm, fd] = from.split("-").map(Number);
+      q.from = new Date(fy, fm - 1, fd, 0, 0, 0, 0).toISOString();
+    }
+    if (to) {
+      const [ty, tm, td] = to.split("-").map(Number);
+      q.to = new Date(ty, tm - 1, td, 23, 59, 59, 999).toISOString();
+    }
     return q;
   }, [action, facilityId, search, from, to, admin]);
 
@@ -101,17 +110,13 @@ export default function HistoryPage() {
               ))}
             </FilterSelect>
           )}
-          <FilterDate
-            label="From"
-            value={from}
-            onChange={(event) => setFrom(event.target.value)}
-            ariaLabel="From date"
-          />
-          <FilterDate
-            label="To"
-            value={to}
-            onChange={(event) => setTo(event.target.value)}
-            ariaLabel="To date"
+          <DateRangePicker
+            from={from}
+            to={to}
+            onChange={(next) => {
+              setFrom(next.from);
+              setTo(next.to);
+            }}
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">

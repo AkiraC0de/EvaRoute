@@ -37,7 +37,19 @@
  * way. Keep the mode and the server CORS in sync when changing either.
  */
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+import { toast } from "sonner";
+
 const API_PREFIX = `${BASE_URL}/api/v1`;
+
+// Mutation feedback (sonner): successful non-GET calls toast the server's own
+// message. Auth flows stay quiet — they redirect or carry their own UI.
+const QUIET_TOAST_PATHS = [
+  "/auth/login",
+  "/auth/refresh",
+  "/auth/signout",
+  "/auth/signout-all",
+  "/auth/reset-password",
+];
 const TOKEN_STORAGE_KEY = "evaroute.admin.accessToken";
 
 export class ApiError extends Error {
@@ -173,6 +185,14 @@ async function request(path, { method = "GET", body, auth = true, token = null, 
       "The API returned a response this app cannot read.",
       response.status,
     );
+  }
+
+  if (
+    method !== "GET" &&
+    !QUIET_TOAST_PATHS.some((quiet) => path.startsWith(quiet)) &&
+    payload?.message
+  ) {
+    toast.success(payload.message);
   }
 
   return payload;

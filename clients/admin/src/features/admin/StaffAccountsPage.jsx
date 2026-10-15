@@ -3,10 +3,12 @@ import { Plus } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
+import Checkbox from "../../components/ui/Checkbox";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyArt from "../../components/ui/EmptyArt";
 import Modal from "../../components/ui/Modal";
 import StatusPanel from "../../components/ui/StatusPanel";
+import Skeleton from "../../components/ui/Skeleton";
 import StatusPill from "../../components/ui/StatusPill";
 import TextField from "../../components/ui/Field";
 import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
@@ -153,13 +155,12 @@ const StaffAccountsPage = () => {
           ))}
         </FilterSelect>
         <label className="flex items-center gap-1.5">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={filters.unassigned}
             onChange={(event) =>
               setFilters((current) => ({ ...current, unassigned: event.target.checked }))
             }
-            className="h-3.5 w-3.5 rounded accent-accent"
+            ariaLabel="Unassigned only"
           />
           <span className="text-[9px] font-medium text-[#65718c]">Unassigned only</span>
         </label>
@@ -172,9 +173,17 @@ const StaffAccountsPage = () => {
       )}
 
       {loading && (
-        <StatusPanel title="Loading staff accounts…">
-          Fetching accounts from the EvaRoute API.
-        </StatusPanel>
+        <div
+          role="status"
+          aria-label="Loading staff accounts"
+          className="rounded-clay bg-surface p-5 shadow-clay"
+        >
+          <Skeleton className="h-3 w-28" />
+          <Skeleton className="mt-4 h-9 w-full rounded-clay-sm" />
+          {[0, 1, 2].map((n) => (
+            <Skeleton key={n} className="mt-2 h-11 w-full rounded-clay-sm" />
+          ))}
+        </div>
       )}
 
       {!loading && error && (

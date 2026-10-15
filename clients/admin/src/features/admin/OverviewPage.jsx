@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Building2, Gauge, UserCheck, UserPlus, Users } from "lucide-react";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
+import Skeleton from "../../components/ui/Skeleton";
 import ActivityFeed from "../activity/ActivityFeed";
 import useActivityStats from "../../hooks/useActivityStats";
 import * as api from "../../lib/api";
@@ -33,9 +34,9 @@ const StatCard = ({ icon, tone = "accent", label, value, caption }) => (
   <div className="rounded-clay bg-surface p-6 shadow-clay">
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-sm font-medium text-muted">{label}</p>
-        <p className="mt-2 text-3xl font-bold leading-none text-ink">{value}</p>
-        {caption && <p className="mt-2 text-sm text-muted">{caption}</p>}
+        <p className="text-[8px] font-semibold uppercase tracking-[0.8px] text-muted">{label}</p>
+        <p className="mt-1 text-[22px] font-bold leading-none text-ink">{value}</p>
+        {caption && <p className="mt-1.5 text-[9px] text-muted">{caption}</p>}
       </div>
       {icon && (
         <span
@@ -52,9 +53,9 @@ const StatCard = ({ icon, tone = "accent", label, value, caption }) => (
 /** Compact figure inside a section — an inset statistic area (spec §4). */
 const MiniStat = ({ label, value, caption }) => (
   <div className="rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
-    <p className="text-sm font-medium text-muted">{label}</p>
-    <p className="mt-1 text-2xl font-bold leading-none text-ink">{value}</p>
-    {caption && <p className="mt-1.5 text-sm text-muted">{caption}</p>}
+    <p className="text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">{label}</p>
+    <p className="mt-0.5 text-[15px] font-bold leading-5 text-ink">{value}</p>
+    {caption && <p className="mt-0.5 text-[8px] text-muted">{caption}</p>}
   </div>
 );
 
@@ -63,8 +64,8 @@ const Section = ({ title, meta, action, children }) => (
   <section className="rounded-clay bg-surface p-6 shadow-clay">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 className="text-lg font-semibold text-ink">{title}</h2>
-        {meta && <p className="mt-1 text-sm text-muted">{meta}</p>}
+        <h2 className="text-[11px] font-bold text-ink-soft">{title}</h2>
+        {meta && <p className="mt-1 text-[9px] text-muted">{meta}</p>}
       </div>
       {action}
     </div>
@@ -81,7 +82,7 @@ const STATUS_BADGES = {
 const StatusBadge = ({ status }) => {
   const badge = STATUS_BADGES[status] ?? { label: status ?? "Unknown", className: "bg-sunken text-muted" };
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${badge.className}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[8px] font-semibold ${badge.className}`}>
       {badge.label}
     </span>
   );
@@ -182,23 +183,23 @@ const OverviewPage = () => {
       {/* Hero: title + quick actions (spec §7 buttons) */}
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold leading-tight text-ink">Overview</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-[20px] font-bold leading-tight text-ink">Overview</h1>
+          <p className="mt-1 text-[11px] text-muted">
             How your evacuation center network is doing right now
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/facilities"
-            className={`inline-flex items-center gap-2 rounded-clay-sm bg-surface px-4 py-3 text-sm font-semibold text-ink-soft shadow-clay-xs transition hover:text-accent hover:shadow-clay ${FOCUS_RING}`}
+            className={`inline-flex items-center gap-2 rounded-clay-sm bg-surface px-4 py-2.5 text-[11px] font-semibold text-ink-soft shadow-clay-xs transition hover:text-accent hover:shadow-clay ${FOCUS_RING}`}
           >
-            <Building2 size={15} strokeWidth={1.9} /> Manage facilities
+            <Building2 size={13} strokeWidth={1.9} /> Manage facilities
           </Link>
           <Link
             to="/staff"
-            className={`inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-3 text-sm font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
+            className={`inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-2.5 text-[11px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
           >
-            <UserPlus size={15} strokeWidth={1.9} /> Create staff account
+            <UserPlus size={13} strokeWidth={1.9} /> Create staff account
           </Link>
         </div>
       </header>
@@ -210,23 +211,34 @@ const OverviewPage = () => {
       )}
 
       {!error && !stats && (
-        <StatusPanel title="Loading overview…">
-          Fetching facilities, occupancy and staff from the EvaRoute API.
-        </StatusPanel>
+        <div
+          role="status"
+          aria-label="Loading overview"
+          className="grid grid-cols-2 gap-4 lg:grid-cols-4"
+        >
+          {[0, 1, 2, 3].map((n) => (
+            <div key={n} className="rounded-clay bg-surface p-4 shadow-clay">
+              <Skeleton className="h-2 w-16" />
+              <Skeleton className="mt-3 h-6 w-20" />
+              <Skeleton className="mt-3 h-2.5 w-24" />
+            </div>
+          ))}
+          <Skeleton className="col-span-2 h-44 rounded-clay lg:col-span-4" />
+        </div>
       )}
 
       {stats && stats.facilities === 0 && (
         <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
           <EmptyArt variant="map" className="mx-auto h-20 w-36" />
-          <p className="mt-4 text-lg font-semibold text-ink">No facilities yet</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+          <p className="mt-3 text-[13px] font-bold text-ink-soft">No facilities yet</p>
+          <p className="mx-auto mt-1 max-w-md text-[10px] text-muted">
             Register your first evacuation center to start tracking occupancy and resources.
           </p>
           <Link
             to="/facilities"
-            className={`mt-5 inline-flex items-center gap-2 rounded-clay-sm bg-accent px-4 py-3 text-sm font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
+            className={`mt-4 inline-flex items-center gap-1.5 rounded-clay-sm bg-accent px-4 py-2 text-[10px] font-semibold text-white shadow-clay-accent transition hover:bg-accent-strong ${FOCUS_RING}`}
           >
-            <Building2 size={15} strokeWidth={1.9} /> Go to facilities
+            <Building2 size={13} strokeWidth={1.9} /> Go to facilities
           </Link>
         </div>
       )}
@@ -234,7 +246,7 @@ const OverviewPage = () => {
       {stats && stats.facilities > 0 && (
         <div className="space-y-6">
           {/* Statistic cards (spec §7) */}
-          <section aria-label="Network summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section aria-label="Network summary" className="grid grid-cols-1 gap-4 md:grid-cols-4 sm:grid-cols-2">
             <StatCard
               icon={<Building2 size={19} strokeWidth={1.8} />}
               label="Facilities"
@@ -273,7 +285,7 @@ const OverviewPage = () => {
             }
             action={
               <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-[8px] font-semibold ${
                   capacityState(networkPct).className
                 }`}
               >
@@ -299,14 +311,14 @@ const OverviewPage = () => {
                       className={`block rounded-clay-sm px-3 py-3 transition hover:bg-sunken ${FOCUS_RING}`}
                     >
                       <div className="flex flex-wrap items-center gap-3">
-                        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
+                        <p className="min-w-0 flex-1 truncate text-[10px] font-semibold text-ink-soft">
                           {row.name}
                         </p>
                         <StatusBadge status={row.status} />
-                        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-sm font-medium text-ink-soft">
+                        <span className="shrink-0 rounded-full bg-sunken px-2 py-0.5 text-[8px] font-semibold text-ink-soft">
                           {row.occupancy.members}/{row.maxCapacity}
                         </span>
-                        <p className="shrink-0 text-sm text-muted">
+                        <p className="shrink-0 text-[9px] text-muted">
                           {row.occupancy.families} families · {row.staffCount ?? 0} staff
                         </p>
                       </div>
@@ -366,7 +378,7 @@ const OverviewPage = () => {
             action={
               <Link
                 to="/history"
-                className={`inline-flex items-center gap-1 text-sm font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
                 View full history →
               </Link>
@@ -391,7 +403,7 @@ const OverviewPage = () => {
             action={
               <Link
                 to="/staff"
-                className={`inline-flex items-center gap-1 text-sm font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
                 Manage staff accounts →
               </Link>

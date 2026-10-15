@@ -1,5 +1,5 @@
-import { ChevronDown } from "lucide-react";
 import { FIELD_CLASS, LABEL_CLASS } from "./fieldStyles";
+import SelectInput from "./Select";
 
 /**
  * Clay form fields — the login screen's input language, centralized.
@@ -81,20 +81,14 @@ const SelectField = ({
   ...props
 }) => (
   <FieldShell id={id} label={label} error={error} hint={hint} className={className}>
-    <span className="relative block">
-      <select
-        id={id}
-        className={`${FIELD_CLASS} appearance-none pr-8 ${error ? ERROR_RING : ""} ${fieldClassName}`}
-        {...props}
-      >
-        {children}
-      </select>
-      <ChevronDown
-        size={14}
-        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted"
-        aria-hidden="true"
-      />
-    </span>
+    {/* Radix Select behind the native <select> contract — see Select.jsx. */}
+    <SelectInput
+      id={id}
+      className={`${FIELD_CLASS} appearance-none pr-8 ${error ? ERROR_RING : ""} ${fieldClassName}`}
+      {...props}
+    >
+      {children}
+    </SelectInput>
   </FieldShell>
 );
 

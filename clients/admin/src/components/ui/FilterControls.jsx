@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import SelectInput from "./Select";
 
 /**
  * Compact filter-band controls — the recessed inputs used by the list-page
@@ -28,14 +29,15 @@ const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" 
 );
 
 const FilterSelect = ({ value, onChange, ariaLabel, children, className = "" }) => (
-  <select
+  /* Radix Select behind the native <select> contract — see Select.jsx. */
+  <SelectInput
     value={value}
     onChange={onChange}
-    aria-label={ariaLabel}
-    className={`${CONTROL_CLASS} ${className}`}
+    ariaLabel={ariaLabel}
+    className={`${CONTROL_CLASS} appearance-none pr-7 ${className}`}
   >
     {children}
-  </select>
+  </SelectInput>
 );
 
 const FilterDate = ({ value, onChange, ariaLabel, label }) => (

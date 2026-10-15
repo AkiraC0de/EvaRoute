@@ -71,3 +71,33 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+/* =====================================================================
+ * shadcn/ui theme bridge — maps the clay tokens onto shadcn's variable
+ * names so `shadcn add <component>` lands themed instead of default-zinc.
+ * (If a scoped palette block like .clay-scope is re-introduced later,
+ * re-declare these there too: custom properties resolve where they are
+ * defined, so scoped colors need their own bridge.)
+ * ===================================================================== */
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink-soft);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ink-soft);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ink-soft);
+  --primary: var(--color-accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-sunken);
+  --secondary-foreground: var(--color-ink-soft);
+  --muted: var(--color-sunken);
+  --muted-foreground: var(--color-muted);
+  --accent: var(--color-accent-soft);
+  --accent-foreground: var(--color-accent-strong);
+  --destructive: var(--color-danger);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-line);
+  --input: var(--color-sunken);
+  --ring: var(--color-accent);
+  --radius: var(--radius-clay-sm);
+}
