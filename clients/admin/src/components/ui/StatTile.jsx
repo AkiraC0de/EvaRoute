@@ -1,5 +1,5 @@
 /**
- * Small stat tile for the occupancy breakdown grid.
+ * Small stat tile for breakdown grids (occupancy breakdown, admin overview).
  */
 const StatTile = ({ label, value }) => (
   <div className="rounded-[15px] bg-[#f7f8fc] px-3 py-2 shadow-[inset_0_2px_5px_rgba(40,60,100,0.06)]">

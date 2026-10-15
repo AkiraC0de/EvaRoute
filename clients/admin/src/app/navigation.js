@@ -1,4 +1,4 @@
-import { ALL_PORTAL_ROLES, hasRole } from "./roles";
+import { ROLES, ALL_PORTAL_ROLES, hasRole } from "./roles";
 
 /**
  * Navigation model — the single source of truth for BOTH the sidebar menu and
@@ -6,18 +6,26 @@ import { ALL_PORTAL_ROLES, hasRole } from "./roles";
  * the two can never disagree.
  *
  * To restrict an item to one role, narrow its `roles` array — the sidebar
- * hides it and the route guard blocks manual URL entry. Example: an
- * admin-only "Staff accounts" screen would be
- *   { id: "staff", label: "Staff accounts", to: "/staff", roles: [ROLES.ADMIN] }
- * with its page component registered in app/routes.jsx.
+ * hides it and the route guard blocks manual URL entry. Detail screens (e.g.
+ * /facilities/:facilityId) are not nav items; they are declared alongside the
+ * table that links to them (see FACILITY_DETAIL in app/routes.jsx).
  */
 export const NAV_SECTIONS = [
+  {
+    id: "operations",
+    label: "Operations",
+    items: [
+      { id: "overview", label: "Overview", to: "/overview", home: true, roles: [ROLES.ADMIN] },
+      { id: "facilities", label: "Facilities", to: "/facilities", roles: [ROLES.ADMIN] },
+      { id: "staff", label: "Staff accounts", to: "/staff", roles: [ROLES.ADMIN] },
+      { id: "occupancy", label: "Occupancy", to: "/occupancy", roles: ALL_PORTAL_ROLES },
+    ],
+  },
   {
     id: "manage",
     label: "Manage",
     items: [
-      { id: "facility", label: "My Facility", to: "/facility", end: true, roles: ALL_PORTAL_ROLES },
-      { id: "occupancy", label: "Occupancy", to: "/occupancy", roles: ALL_PORTAL_ROLES },
+      { id: "facility", label: "My Facility", to: "/facility", end: true, home: true, roles: [ROLES.FACILITY_STAFF] },
       { id: "history", label: "History", to: "/history", roles: ALL_PORTAL_ROLES },
     ],
   },
@@ -40,8 +48,11 @@ export const visibleItems = (sectionId, user) => {
 };
 
 /**
- * Landing page for a user: the first item they are allowed to see.
- * Keeps role redirects correct even when a role's first screen differs.
+ * Landing page for a user: the item marked `home` that they are allowed to
+ * see (admin → /overview, facility staff → /facility — the pre-existing staff
+ * landing), falling back to the first visible item.
  */
 export const homePathFor = (user) =>
-  NAV_ITEMS.find((item) => hasRole(user, item.roles))?.to ?? "/unauthorized";
+  NAV_ITEMS.find((item) => item.home && hasRole(user, item.roles))?.to ??
+  NAV_ITEMS.find((item) => hasRole(user, item.roles))?.to ??
+  "/unauthorized";
