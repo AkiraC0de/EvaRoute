@@ -1,5 +1,5 @@
-import { Outlet, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "motion/react";
+import { useLocation, useOutlet } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import MobileBottomNav from "./MobileBottomNav";
 import Sidebar from "./Sidebar";
 
@@ -12,20 +12,27 @@ import Sidebar from "./Sidebar";
  */
 const AppShell = () => {
   const location = useLocation()
+  // Why useOutlet() instead of <Outlet />: AnimatePresence keeps the exiting
+  // wrapper mounted while it animates out, but a live <Outlet /> reads router
+  // context and re-renders the INCOMING page inside that exiting wrapper —
+  // the exit appears to never play and the enter appears to run twice.
+  // Capturing the outlet element freezes the old page for the exit.
+  const outlet = useOutlet();
+  const reduceMotion = useReducedMotion();
 
   return (
     <div className="min-h-screen bg-canvas">
       <Sidebar />
       <main className="ml-49.5 min-h-screen bg-canvas p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-6 max-sm:ml-0 max-sm:px-4 max-sm:pt-4">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 6 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            exit={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
           >
-            <Outlet />
+            {outlet}
           </motion.div>
         </AnimatePresence>
       </main>

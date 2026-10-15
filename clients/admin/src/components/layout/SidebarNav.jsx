@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
 import { NAV_SECTIONS } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";
 
@@ -12,22 +13,18 @@ import { useAuth } from "../../context/AuthContext";
  * the user card on desktop and from the mobile bottom bar, so the desktop
  * rail stays a clean destinations list.
  *
- * Modern rail treatment on the white sidebar: icon + label rows, an active
- * state as a soft accent pill with a slim accent indicator bar, quiet hover
- * on inactive rows.
+ * The active state is ONE shared highlight pill (motion `layoutId`): when the
+ * active destination changes, the pill slides from the previous row to the
+ * new one instead of fading out/in per row. Icon and label colors still
+ * switch instantly via CSS.
  */
 const ITEM =
   "group relative mb-1 flex w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition";
 const SECTION_LABEL =
   "mb-2 ml-2 text-[8px] font-semibold uppercase tracking-[1.5px] text-muted-dim";
 
-const itemClasses = ({ isActive }) =>
-  isActive
-    ? "bg-accent-soft"
-    : "hover:bg-sunken";
-
 const labelClasses = ({ isActive }) =>
-  `text-[11px] ${
+  `relative z-10 text-[11px] ${
     isActive ? "font-semibold text-accent-strong" : "font-medium text-[#687594]"
   }`;
 
@@ -36,6 +33,10 @@ const iconClasses = ({ isActive }) =>
 
 const SidebarNav = () => {
   const { user } = useAuth();
+  const reduceMotion = useReducedMotion();
+  const highlightTransition = reduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 480, damping: 40, mass: 0.85 };
 
   return (
     <nav
@@ -56,16 +57,27 @@ const SidebarNav = () => {
                 key={to}
                 to={to}
                 end={end}
-                className={({ isActive }) => `${ITEM} ${itemClasses({ isActive })}`}
+                className={({ isActive }) =>
+                  `${ITEM} ${isActive ? "" : "hover:bg-sunken"}`
+                }
               >
                 {({ isActive }) => (
                   <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="sidebar-nav-highlight"
+                        initial={false}
+                        aria-hidden="true"
+                        className="absolute inset-0 rounded-clay-sm bg-accent-soft"
+                        transition={highlightTransition}
+                      />
+                    )}
                     {Icon && (
                       <Icon
                         size={15}
                         strokeWidth={1.9}
                         aria-hidden="true"
-                        className={`shrink-0 transition-colors ${iconClasses({ isActive })}`}
+                        className={`relative z-10 shrink-0 transition-colors ${iconClasses({ isActive })}`}
                       />
                     )}
                     <span className={labelClasses({ isActive })}>{label}</span>

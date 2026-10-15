@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
 import { NAV_ITEMS } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,9 +8,10 @@ import { useAuth } from "../../context/AuthContext";
  *
  * A floating clay card pinned near the bottom of the viewport, built from the
  * same NAV_ITEMS model as the sidebar (role-filtered) so destinations and
- * permissions can never diverge. Design follows the reference's "tinted
- * pill + raised chip" pattern adapted to clay: the active destination is a
- * raised accent chip, inactive destinations stay quiet and press to an inset.
+ * permissions can never diverge. The active destination is a raised accent
+ * chip that SLIDES between items (motion `layoutId`) when the user taps a
+ * different destination; inactive destinations stay quiet and press to an
+ * inset.
  *
  * The bar's bottom padding includes env(safe-area-inset-bottom) so it clears
  * the home indicator; AppShell reserves matching space so content is never
@@ -19,6 +21,10 @@ import { useAuth } from "../../context/AuthContext";
 const MobileBottomNav = () => {
   const { user } = useAuth();
   const items = NAV_ITEMS.filter((item) => item.roles.includes(user?.role));
+  const reduceMotion = useReducedMotion();
+  const highlightTransition = reduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 480, damping: 40, mass: 0.85 };
 
   return (
     <nav
@@ -33,19 +39,37 @@ const MobileBottomNav = () => {
               end={end}
               aria-label={label}
               className={({ isActive }) =>
-                `flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-clay-sm px-1 py-1.5 transition active:shadow-clay-inset ${
+                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-clay-sm px-1 py-1.5 transition active:shadow-clay-inset ${
                   isActive
-                    ? "bg-accent-soft text-accent-strong shadow-clay-xs"
+                    ? "text-accent-strong"
                     : "text-[#96a2bb] hover:text-[#687594]"
                 }`
               }
             >
-              {Icon && (
-                <Icon size={18} strokeWidth={1.9} aria-hidden="true" className="shrink-0" />
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <motion.span
+                      layoutId="mobile-nav-highlight"
+                      initial={false}
+                      aria-hidden="true"
+                      className="absolute inset-0 rounded-clay-sm bg-accent-soft shadow-clay-xs"
+                      transition={highlightTransition}
+                    />
+                  )}
+                  {Icon && (
+                    <Icon
+                      size={18}
+                      strokeWidth={1.9}
+                      aria-hidden="true"
+                      className="relative z-10 shrink-0"
+                    />
+                  )}
+                  <span className="relative z-10 max-w-full truncate text-[8px] font-semibold leading-none">
+                    {shortLabel ?? label}
+                  </span>
+                </>
               )}
-              <span className="max-w-full truncate text-[8px] font-semibold leading-none">
-                {shortLabel ?? label}
-              </span>
             </NavLink>
           </li>
         ))}
