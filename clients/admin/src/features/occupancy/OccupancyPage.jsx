@@ -63,11 +63,11 @@ const OccupancyPage = () => {
             value={facilityId ?? ""}
             onChange={(event) => setFacilityId(event.target.value)}
           >
-            {facilities.map((facility) => (
-              <option key={facility.id} value={facility.id}>
-                {facility.name} · {facility.address}
+            {facilities.map((facility) => {
+              return <option key={facility.id} value={facility.id}>
+                {`${facility.name} - ${facility.address}`} 
               </option>
-            ))}
+            })}
           </SelectField>
         </div>
       )}
