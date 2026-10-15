@@ -94,11 +94,15 @@ export function setUnauthorizedHandler(handler) {
  * Core request
  * ------------------------------------------------------------------ */
 
-async function request(path, { method = "GET", body, auth = true } = {}) {
+async function request(path, { method = "GET", body, auth = true, token = null } = {}) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
-  if (auth) {
+  if (token) {
+    // Caller-supplied bearer token (the password-reset flow passes its own
+    // single-use tokens here — see requestPasswordReset/verifyResetOtp).
+    headers.Authorization = `Bearer ${token}`;
+  } else if (auth) {
     if (!accessToken) throw new ApiError("You are not signed in.", 401);
     headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -130,7 +134,9 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   }
 
   if (!response.ok) {
-    if (response.status === 401 && auth) {
+    // Only a session-token failure ends the session — a rejected reset token
+    // (auth: false + custom token) must not sign the user out.
+    if (response.status === 401 && auth && !token) {
       clearAccessToken();
       if (unauthorizedHandler) unauthorizedHandler();
     }
@@ -186,6 +192,73 @@ export async function refreshSession() {
   const { data } = await request("/auth/refresh", { auth: false });
   setAccessToken(data.accessToken);
   return data.user;
+}
+
+/* ------------------------------------------------------------------ *
+ * Password reset (public flow — no session required)
+ *
+ * Server contract (server/src/routes/auth.routes.ts):
+ *   1. GET  /auth/password/request-reset?email=...   -> { user, token }
+ *      The `token` is a raw single-use token; its SHA-256 hash is stored
+ *      server-side (TokenType.REQ_RESET_PASS) together with a hashed 5-digit
+ *      OTP that is emailed to the user. Expires in 15 minutes.
+ *   2. POST /auth/password/verify-reset  (Authorization: Bearer <token 1>)
+ *      Body { otp } — 5 digits, max 10 attempts.
+ *      -> { token } — a NEW raw token (TokenType.RESET_PASS, 15 min expiry).
+ *   3. POST /auth/password/reset  (Authorization: Bearer <token 2>)
+ *      Body { newPassword } — min 8 chars, upper + lower + digit + special
+ *      (@$!%*?&). Resets the password and revokes every refresh token, so the
+ *      user is signed out from all devices.
+ *
+ * Both verify-reset and reset are guarded by `verifyToken(<type>)`
+ * (server/src/middlewares/verifyToken.ts), which reads the token from the
+ * Authorization header — hence the custom `token` option on request().
+ * A401 from these calls means the token is invalid or expired and the flow
+ * must restart at step 1.
+ */
+
+/**
+ * Step 1 — request a reset OTP.
+ * Response data: { user: { email }, token } — keep `token` for step 2.
+ * 400 "Email is not registered." when the account does not exist.
+ */
+export async function requestPasswordReset(email) {
+  const { data } = await request(
+    `/auth/password/request-reset?email=${encodeURIComponent(email)}`,
+    { auth: false },
+  );
+  return data;
+}
+
+/**
+ * Step 2 — verify the emailed OTP.
+ * Pass the raw token from step 1 as the bearer; body is the 5-digit OTP.
+ * Response data: { token } — keep for step 3.
+ * 400 carries `details: { attempts, remainingAttempts }` so the UI can show
+ * the remaining tries; a 401 means the token itself is dead (restart at 1).
+ */
+export async function verifyResetOtp(resetToken, otp) {
+  const { data } = await request("/auth/password/verify-reset", {
+    method: "POST",
+    auth: false,
+    token: resetToken,
+    body: { otp },
+  });
+  return data;
+}
+
+/**
+ * Step 3 — set the new password with the token from step 2.
+ * Response: message only ("...signed out from all devices...").
+ * 400 carries `details.errors` (field-level password rule violations).
+ */
+export async function resetPassword(resetToken, newPassword) {
+  return request("/auth/password/reset", {
+    method: "POST",
+    auth: false,
+    token: resetToken,
+    body: { newPassword },
+  });
 }
 
 /**
