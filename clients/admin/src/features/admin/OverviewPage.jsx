@@ -162,20 +162,20 @@ const OverviewPage = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* ── Hero header ─────────────────────────────────────────── */}
-      <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent-soft via-surface to-surface p-6 shadow-clay">
+      <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent to-accent-strong p-6 shadow-clay">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-soft opacity-60 blur-2xl"
+          className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/25 blur-2xl"
         />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[8px] font-semibold uppercase tracking-[1px] text-muted">
+            <p className="text-[8px] font-semibold uppercase tracking-[1px] text-white">
               {today}
             </p>
-            <h1 className="mt-1 text-[20px] font-bold leading-tight text-ink">
+            <h1 className="mt-1 text-[20px] font-bold leading-tight text-white">
               {greeting}, {firstName}
             </h1>
-            <p className="mt-1 text-[11px] text-muted">
+            <p className="mt-1 text-[11px] text-white">
               Network operations at a glance — occupancy, staffing and activity.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -185,24 +185,24 @@ const OverviewPage = () => {
               <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[8px] font-semibold text-ink-soft shadow-clay-xs">
                 {summary?.occupants.families ?? "—"} families on site
               </span>
-              <span className="inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[8px] font-semibold text-white">
+              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[8px] font-semibold text-accent-strong">
                 {occupancyPct}% occupied
               </span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/facilities">
-              <Button variant="soft" size="md" className="inline-flex items-center gap-1.5">
+              <Button variant="onAccentGhost" size="md" className="inline-flex items-center gap-1.5">
                 <Building2 size={13} strokeWidth={1.9} aria-hidden="true" /> Facilities
               </Button>
             </Link>
             <Link to="/staff">
-              <Button variant="soft" size="md" className="inline-flex items-center gap-1.5">
+              <Button variant="onAccentGhost" size="md" className="inline-flex items-center gap-1.5">
                 <UserPlus size={13} strokeWidth={1.9} aria-hidden="true" /> Staff
               </Button>
             </Link>
             <Link to="/history">
-              <Button variant="primary" size="md" className="inline-flex items-center gap-1.5">
+              <Button variant="onAccent" size="md" className="inline-flex items-center gap-1.5">
                 <HistoryIcon size={13} strokeWidth={1.9} aria-hidden="true" /> View history
               </Button>
             </Link>
@@ -334,13 +334,24 @@ const OverviewPage = () => {
               </Link>
             }
           >
+            {loading && !summary && (
+              <div role="status" aria-label="Loading facility load">
+                {[0, 1, 2].map((n) => (
+                  <div key={n} className="py-2.5 first:pt-0 last:pb-0">
+                    <Skeleton className="h-3 w-2/3" />
+                    <Skeleton className="mt-2 h-2 w-full rounded-full" />
+                  </div>
+                ))}
+              </div>
+            )}
             {summary && summary.facilityLoad.length > 0 ? (
               <div className="divide-y divide-line">
                 {summary.facilityLoad.slice(0, 5).map((facility) => (
                   <LoadRow key={facility.id} facility={facility} />
                 ))}
               </div>
-            ) : (
+            ) : null}
+            {summary && summary.facilityLoad.length === 0 && (
               <div className="py-6 text-center">
                 <EmptyArt variant="map" className="mx-auto h-16 w-28" />
                 <p className="mt-2 text-[10px] text-muted">

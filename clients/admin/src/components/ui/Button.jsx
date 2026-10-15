@@ -13,6 +13,11 @@ const variants = {
   soft: "bg-accent-soft text-accent hover:bg-[#dfe6ff] active:shadow-clay-inset",
   danger:
     "bg-danger-soft text-danger shadow-clay-xs hover:bg-[#f8d8d6] active:shadow-clay-inset",
+  // For colored (accent) surfaces — e.g. the dashboard hero:
+  onAccent:
+    "bg-white text-accent-strong shadow-clay-xs hover:bg-[#eef1ff] active:shadow-clay-inset",
+  onAccentGhost:
+    "border border-white/40 bg-white/15 text-white hover:bg-white/25 active:shadow-clay-inset",
 };
 
 const sizes = {
