@@ -27,5 +27,11 @@ export const ENDPOINTS_LIST = [
   "GET api/v1/facility/:facilityId/resource/:resourceId",
   "POST api/v1/facility/:facilityId/resource",
   "PATCH api/v1/facility/:facilityId/resource/:resourceId",
-  "DELETE api/v1/facility/:facilityId/resource/:resourceId"
+  "DELETE api/v1/facility/:facilityId/resource/:resourceId",
+
+  "GET api/v1/facility/:facilityId/stay",
+  "GET api/v1/facility/:facilityId/stay/occupancy",
+  "GET api/v1/facility/:facilityId/stay/:stayId",
+  "POST api/v1/facility/:facilityId/stay",
+  "POST api/v1/facility/:facilityId/stay/:stayId/checkout"
 ]

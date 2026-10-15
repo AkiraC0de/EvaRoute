@@ -5,6 +5,7 @@ import { PERMISSION_TYPES } from '../configs/permissionConfig'
 
 import facilityStaffRoute from "./facilityStaff.routes"
 import facilityResourceRoute from "./facilityResource.routes"
+import facilityStayRoute from "./facilityStay.routes"
 
 import {
   handleDeleteFacility,
@@ -35,5 +36,8 @@ facilityRoute.use("/:facilityId/staff", facilityStaffRoute)
 
 // Resources
 facilityRoute.use("/:facilityId/resource", facilityResourceRoute)
+
+// Stays (evacuee check-in / check-out)
+facilityRoute.use("/:facilityId/stay", facilityStayRoute)
 
 export default facilityRoute
