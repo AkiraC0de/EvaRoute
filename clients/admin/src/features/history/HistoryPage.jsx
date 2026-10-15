@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Search } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
-import TextField, { SelectField } from "../../components/ui/Field";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import { FilterSearch, FilterSelect, FilterDate } from "../../components/ui/FilterControls";
 import { useAuth } from "../../context/AuthContext";
 import { hasRole, ROLES } from "../../app/roles";
 import { listFacilities } from "../../lib/api";
@@ -10,7 +11,8 @@ import PagedActivityFeed from "../activity/PagedActivityFeed";
 
 /**
  * Segmented action-group filters. `value` is the comma-separated `action`
- * query param the server accepts.
+ * query param the server accepts. Rendered as the app's standard soft/neutral
+ * toggle buttons (same language as the Facilities "deleted" toggle).
  */
 const GROUP_OPTIONS = [
   { value: "", label: "All activity" },
@@ -31,14 +33,6 @@ const GROUP_OPTIONS = [
 ];
 
 const PAGE_SIZE = 15;
-
-const chipClass = (active) =>
-  [
-    "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all",
-    active
-      ? "bg-accent text-white shadow-clay-accent"
-      : "border border-border/60 bg-canvas text-ink-muted shadow-clay hover:text-accent active:shadow-clay-inset",
-  ].join(" ");
 
 export default function HistoryPage() {
   const { user } = useAuth();
@@ -74,92 +68,79 @@ export default function HistoryPage() {
   }, [action, facilityId, search, from, to, admin]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div>
       <PageHeader
         title="Activity history"
-        detail={
+        subtitle={
           admin
             ? "Every meaningful change across the network — check-ins, resource edits, staff actions and sign-ins."
             : "Everything that has happened at your facility — check-ins, resource edits and staff actions."
         }
       />
 
-      <div className="overflow-hidden rounded-clay bg-surface shadow-clay">
-        {/* Toolbar: search + scope + date range */}
-        <div className="flex flex-col gap-3 border-b border-border/50 p-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <TextField
-              label="Search"
-              id="activity-search"
-              type="text"
-              className="lg:col-span-2"
-              leadingIcon={Search}
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Family, staff or facility name"
-            />
-
-            {admin && (
-              <SelectField
-                label="Facility"
-                id="activity-facility"
-                value={facilityId}
-                onChange={(event) => setFacilityId(event.target.value)}
-              >
-                <option value="">All facilities</option>
-                {facilityOptions.map((facility) => (
-                  <option key={facility.id} value={facility.id}>
-                    {facility.name}
-                  </option>
-                ))}
-              </SelectField>
-            )}
-
-            <TextField
-              label="From"
-              id="activity-from"
-              type="date"
-              value={from}
-              onChange={(event) => setFrom(event.target.value)}
-            />
-
-            <TextField
-              label="To"
-              id="activity-to"
-              type="date"
-              value={to}
-              onChange={(event) => setTo(event.target.value)}
-            />
-          </div>
-
-          {/* Segmented action-group filters */}
-          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by activity type">
-            {GROUP_OPTIONS.map((option) => (
-              <button
-                key={option.label}
-                type="button"
-                aria-pressed={action === option.value}
-                onClick={() => setAction(option.value)}
-                className={chipClass(action === option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+      {/* Filter bar — recessed band: controls row + action-group toggles row */}
+      <div className="mb-4 flex flex-col gap-2.5 rounded-clay bg-surface p-3 shadow-clay">
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterSearch
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search family, staff or facility…"
+            ariaLabel="Search activity"
+          />
+          {admin && (
+            <FilterSelect
+              value={facilityId}
+              onChange={(event) => setFacilityId(event.target.value)}
+              ariaLabel="Filter by facility"
+            >
+              <option value="">All facilities</option>
+              {facilityOptions.map((facility) => (
+                <option key={facility.id} value={facility.id}>
+                  {facility.name}
+                </option>
+              ))}
+            </FilterSelect>
+          )}
+          <FilterDate
+            label="From"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+            ariaLabel="From date"
+          />
+          <FilterDate
+            label="To"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            ariaLabel="To date"
+          />
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {GROUP_OPTIONS.map((option) => (
+            <Button
+              key={option.label}
+              size="sm"
+              variant={action === option.value ? "soft" : "neutral"}
+              aria-pressed={action === option.value}
+              onClick={() => setAction(option.value)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      </div>
 
-        {/* Date-grouped timeline with numbered pagination. The key remounts
-            the feed on filter changes so pagination restarts at page 1. */}
+      {/* Activity feed — raised surface. The key remounts the feed on filter
+          changes so pagination restarts at page 1. */}
+      <Card pad="">
         <PagedActivityFeed
           key={JSON.stringify(query)}
           query={query}
           pageSize={PAGE_SIZE}
           showFacility={admin}
         />
-      </div>
+      </Card>
 
-      <p className="flex items-center gap-1.5 px-1 text-xs text-ink-muted">
-        <CalendarDays size={13} />
+      <p className="mt-3 text-[9px] text-muted">
         Newest first. {admin ? "" : "Limited to your facility."} Times shown in your local timezone.
       </p>
     </div>

@@ -1,7 +1,8 @@
-import { RefreshCw } from "lucide-react";
-import useActivityPage from "../../hooks/useActivityPage";
+import Button from "../../components/ui/Button";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
+import { RefreshCw } from "lucide-react";
+import useActivityPage from "../../hooks/useActivityPage";
 import ActivityRow from "./ActivityRow";
 import PaginationBar from "./PaginationBar";
 import { dayLabel } from "./activityText";
@@ -19,11 +20,10 @@ function groupByDay(activities) {
 }
 
 /**
- * Full activity feed for the History screen: modern date-grouped timeline
- * with numbered pagination (server `page` mode) and a refresh control.
- *
- * @param {object} query      { facilityId?, action?, search?, from?, to? }
- * @param {number} pageSize   rows per page (default 15)
+ * Full activity feed for the History screen: date-grouped timeline with
+ * numbered pagination (server `page` mode) and a refresh control. Sits on a
+ * Card (HistoryPage) — the header strip follows the app's section-header
+ * language.
  */
 export default function PagedActivityFeed({
   query = {},
@@ -37,29 +37,28 @@ export default function PagedActivityFeed({
     pageSize,
   );
 
-  const statusBar = (
-    <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2.5">
-      <span className="text-[11px] font-bold text-ink-soft">
-        {loading ? "Loading…" : `${total} recorded ${total === 1 ? "event" : "events"}`}
-      </span>
-      <button
-        type="button"
-        onClick={reload}
-        disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-canvas px-3 py-1.5 text-xs font-medium text-ink-muted shadow-clay transition-all hover:text-accent active:shadow-clay-inset disabled:opacity-50"
-        aria-label="Refresh activity"
-      >
-        <RefreshCw size={12} />
+  const header = (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <h2 className="text-[11px] font-bold text-ink-soft">
+        Activity{" "}
+        <span className="ml-1 text-[9px] font-medium text-muted">
+          {loading ? "Loading…" : `${total} recorded ${total === 1 ? "event" : "events"}`}
+        </span>
+      </h2>
+      <Button variant="neutral" size="sm" onClick={reload} disabled={loading} aria-label="Refresh activity">
+        <RefreshCw size={11} className="mr-1" />
         Refresh
-      </button>
+      </Button>
     </div>
   );
 
   if (loading) {
     return (
       <>
-        {statusBar}
-        <StatusPanel loading />
+        {header}
+        <div className="px-4 pb-4">
+          <StatusPanel title="Loading activity…" />
+        </div>
       </>
     );
   }
@@ -67,8 +66,12 @@ export default function PagedActivityFeed({
   if (error) {
     return (
       <>
-        {statusBar}
-        <StatusPanel title="Activity could not be loaded." detail="Please try again." onRetry={reload} />
+        {header}
+        <div className="px-4 pb-4">
+          <StatusPanel tone="error" title="Could not load activity" onRetry={reload}>
+            The activity feed is unavailable right now. Please try again.
+          </StatusPanel>
+        </div>
       </>
     );
   }
@@ -76,21 +79,25 @@ export default function PagedActivityFeed({
   if (activities.length === 0) {
     return (
       <>
-        {statusBar}
-        <EmptyArt variant="boxes" title={emptyTitle} detail={emptyDetail} />
+        {header}
+        <div className="px-4 pb-8 pt-2 text-center">
+          <EmptyArt variant="boxes" className="mx-auto h-18 w-32" />
+          <p className="mt-3 text-[13px] font-bold text-ink-soft">{emptyTitle}</p>
+          <p className="mt-1 text-[10px] text-muted">{emptyDetail}</p>
+        </div>
       </>
     );
   }
 
   return (
     <div>
-      {statusBar}
+      {header}
       {groupByDay(activities).map((group) => (
         <section key={group.label} aria-label={group.label}>
-          <h3 className="bg-sunken/50 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">
+          <h3 className="bg-sunken px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">
             {group.label}
           </h3>
-          <ul className="divide-y divide-border/50">
+          <ul>
             {group.items.map((log) => (
               <ActivityRow key={log.id} log={log} showFacility={showFacility} />
             ))}

@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import Button from "../../components/ui/Button";
 import useActivity from "../../hooks/useActivity";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
@@ -28,45 +29,52 @@ export default function ActivityFeed({
   const { activities, nextCursor, loading, error, loadMore, loadingMore, reload } = useActivity(query, limit);
 
   const refreshButton = showRefresh && (
-    <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5">
+    <div className="flex items-center justify-between px-4 py-2.5">
       <span className="text-[11px] font-bold text-ink-soft">
         {loading ? "Loading…" : `${activities.length} recent ${activities.length === 1 ? "entry" : "entries"}`}
       </span>
-      <button
-        type="button"
-        onClick={reload}
-        disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-canvas px-3 py-1.5 text-xs font-medium text-ink-muted shadow-clay transition-all hover:text-accent active:shadow-clay-inset disabled:opacity-50"
-        aria-label="Refresh activity"
-      >
-        <RefreshCw size={12} />
+      <Button variant="neutral" size="sm" onClick={reload} disabled={loading} aria-label="Refresh activity">
+        <RefreshCw size={11} className="mr-1" />
         Refresh
-      </button>
+      </Button>
     </div>
   );
 
-  if (loading) return (<>{refreshButton}<StatusPanel loading /></>);
+  if (loading) {
+    return (
+      <>
+        {refreshButton}
+        <div className="px-4 pb-4">
+          <StatusPanel title="Loading activity…" />
+        </div>
+      </>
+    );
+  }
 
   if (error) {
     return (
       <>
         {refreshButton}
-        <StatusPanel
-          title="Activity could not be loaded."
-          detail="Please try again."
-          onRetry={reload}
-        />
+        <div className="px-4 pb-4">
+          <StatusPanel tone="error" title="Could not load activity" onRetry={reload}>
+            The activity feed is unavailable right now. Please try again.
+          </StatusPanel>
+        </div>
       </>
     );
   }
 
   if (activities.length === 0) {
     return compact ? (
-      <p className="px-4 py-3 text-sm text-ink-muted">No recent activity.</p>
+      <p className="px-4 py-3 text-[10px] text-muted">No recent activity.</p>
     ) : (
       <>
         {refreshButton}
-        <EmptyArt variant="boxes" title={emptyTitle} detail={emptyDetail} />
+        <div className="px-4 pb-8 pt-2 text-center">
+          <EmptyArt variant="boxes" className="mx-auto h-18 w-32" />
+          <p className="mt-3 text-[13px] font-bold text-ink-soft">{emptyTitle}</p>
+          <p className="mt-1 text-[10px] text-muted">{emptyDetail}</p>
+        </div>
       </>
     );
   }
@@ -80,15 +88,10 @@ export default function ActivityFeed({
         ))}
       </ul>
       {nextCursor && (
-        <div className="border-t border-border/60 p-3 text-center">
-          <button
-            type="button"
-            onClick={loadMore}
-            disabled={loadingMore}
-            className="rounded-clay-sm border border-border bg-canvas px-4 py-2 text-sm font-medium text-ink-muted transition-colors hover:text-accent disabled:opacity-50"
-          >
+        <div className="p-3 text-center">
+          <Button variant="neutral" size="sm" onClick={loadMore} disabled={loadingMore}>
             {loadingMore ? "Loading…" : "Load more"}
-          </button>
+          </Button>
         </div>
       )}
     </div>

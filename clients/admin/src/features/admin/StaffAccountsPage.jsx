@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
+import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import EmptyArt from "../../components/ui/EmptyArt";
 import Modal from "../../components/ui/Modal";
@@ -136,30 +137,21 @@ const StaffAccountsPage = () => {
 
       {/* Filter bar */}
       <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
-        <div className="relative w-full max-w-[240px]">
-          <Search
-            size={13}
-            strokeWidth={2}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-dim"
-          />
-          <input
-            value={filters.search}
-            onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-            placeholder="Search email or name…"
-            aria-label="Search staff accounts"
-            className="h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2"
-          />
-        </div>
-        <select
+        <FilterSearch
+          value={filters.search}
+          onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
+          placeholder="Search email or name…"
+          ariaLabel="Search staff accounts"
+        />
+        <FilterSelect
           value={filters.status}
           onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
-          aria-label="Filter by status"
-          className="h-9 rounded-clay-sm bg-sunken px-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2"
+          ariaLabel="Filter by status"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
-        </select>
+        </FilterSelect>
         <label className="flex items-center gap-1.5">
           <input
             type="checkbox"

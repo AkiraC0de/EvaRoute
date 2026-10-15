@@ -1,3 +1,4 @@
+import Button from "../../components/ui/Button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /** Windowed page numbers: 1 … 4 [5] 6 … 12 */
@@ -19,14 +20,15 @@ function pageWindow(current, total) {
 }
 
 /**
- * Numbered pagination bar for the History feed: "Showing x–y of z" plus
- * windowed page buttons with prev/next. Hidden when there is only one page.
+ * Numbered pagination for the History feed, built from the shared Button
+ * (neutral = inactive, primary = current page). Collapses to a plain count
+ * line when everything fits on one page.
  */
 export default function PaginationBar({ page, totalPages, total, pageSize, onChange }) {
   if (!total || totalPages <= 1) {
     return (
-      <div className="border-t border-border/50 px-4 py-2.5">
-        <p className="text-xs text-ink-muted">
+      <div className="px-4 py-2.5">
+        <p className="text-[9px] text-muted">
           {total ? `Showing ${total} ${total === 1 ? "entry" : "entries"}` : "No entries"}
         </p>
       </div>
@@ -40,54 +42,52 @@ export default function PaginationBar({ page, totalPages, total, pageSize, onCha
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/50 px-4 py-3">
-      <p className="text-xs text-ink-muted">
-        Showing <span className="font-medium text-ink">{first}–{last}</span> of{" "}
-        <span className="font-medium text-ink">{total}</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <p className="text-[9px] text-muted">
+        Showing <span className="font-semibold text-ink-soft">{first}–{last}</span> of{" "}
+        <span className="font-semibold text-ink-soft">{total}</span>
       </p>
 
-      <nav aria-label="Activity pages" className="flex items-center gap-1">
-        <button
-          type="button"
+      <nav aria-label="Activity pages" className="flex items-center gap-1.5">
+        <Button
+          variant="neutral"
+          size="sm"
           onClick={() => go(page - 1)}
           disabled={page === 1}
           aria-label="Previous page"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-canvas text-ink-muted shadow-clay transition-all hover:text-accent active:shadow-clay-inset disabled:pointer-events-none disabled:opacity-40"
+          className="px-2"
         >
-          <ChevronLeft size={15} />
-        </button>
+          <ChevronLeft size={13} />
+        </Button>
 
         {pageWindow(page, totalPages).map((entry, index) =>
           entry === "…" ? (
-            <span key={`gap-${index}`} className="px-1 text-xs text-ink-muted">
+            <span key={`gap-${index}`} className="px-0.5 text-[9px] text-muted">
               …
             </span>
           ) : (
-            <button
+            <Button
               key={entry}
-              type="button"
+              variant={entry === page ? "primary" : "neutral"}
+              size="sm"
               onClick={() => go(entry)}
               aria-current={entry === page ? "page" : undefined}
-              className={
-                entry === page
-                  ? "inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-accent px-2 text-xs font-semibold text-white shadow-clay-accent"
-                  : "inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-border/60 bg-canvas px-2 text-xs font-medium text-ink-muted shadow-clay transition-all hover:text-accent active:shadow-clay-inset"
-              }
             >
               {entry}
-            </button>
+            </Button>
           ),
         )}
 
-        <button
-          type="button"
+        <Button
+          variant="neutral"
+          size="sm"
           onClick={() => go(page + 1)}
           disabled={page === totalPages}
           aria-label="Next page"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-canvas text-ink-muted shadow-clay transition-all hover:text-accent active:shadow-clay-inset disabled:pointer-events-none disabled:opacity-40"
+          className="px-2"
         >
-          <ChevronRight size={15} />
-        </button>
+          <ChevronRight size={13} />
+        </Button>
       </nav>
     </div>
   );
