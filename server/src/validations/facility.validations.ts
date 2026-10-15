@@ -25,6 +25,12 @@ export const registerFacilitySchema = z.object({
 
 export const getFacilityQuerySchema = z.object({
   status: z.enum(["AVAILABLE", "UNAVAILABLE"]).optional(),
+  // `?deleted=true` lists soft-deleted facilities (ADMIN only — see
+  // handleGetFacility); absent/false keeps the current active-only listing.
+  deleted: z
+    .enum(["true", "false"], "deleted must be either true or false.")
+    .optional()
+    .transform((value) => value === "true"),
 })
 export const patchFacilitySchema = z.object({
   name: z
@@ -41,6 +47,9 @@ export const patchFacilitySchema = z.object({
     .optional(),
   maxCapacity: z
     .number("maxCapacity is required")
+    .optional(),
+  status: z
+    .enum(["AVAILABLE", "UNAVAILABLE"], "status must be either AVAILABLE or UNAVAILABLE.")
     .optional(),
   longitude: z
     .number("longitude must be a number.")

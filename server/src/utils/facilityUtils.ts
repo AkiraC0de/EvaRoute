@@ -19,6 +19,7 @@ export const toFacilityDTO = (f: FacilityEntity) => ({
   latitude: f.latitude,
   longitude: f.longitude,
   createdAt: f.createdAt,
+  deletedAt: f.deletedAt,
 })
 
 // Shared access check: admin may access any facility; staff only their own.

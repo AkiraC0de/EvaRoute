@@ -56,9 +56,12 @@ const deleteById = (facilityId: string) => {
   })
 }
 
-const findMany = (status?: FacilityStatus) => {
+const findMany = (status?: FacilityStatus, deleted?: boolean) => {
   return prisma.facility.findMany({
-    where: { deletedAt: null, ...(status ? { status } : {}) },
+    where: {
+      ...(deleted ? { deletedAt: { not: null } } : { deletedAt: null }),
+      ...(status ? { status } : {})
+    },
     orderBy: { createdAt: "asc" },
     include: {
       _count: {

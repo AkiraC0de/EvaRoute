@@ -12,11 +12,16 @@ import { assertFacilityAccess, toFacilityDTO } from "../utils/facilityUtils"
 
 export const handleGetFacility = async (req: Request, res: Response) => {
   const { role } = requireAuth(req)
-  const { status } = validateData<typeof getFacilityQuerySchema>(getFacilityQuerySchema, req.query, "query")
+  const { status, deleted } = validateData<typeof getFacilityQuerySchema>(getFacilityQuerySchema, req.query, "query")
+
+  // Soft-deleted listing is an ADMIN concern (it feeds the restore flow).
+  if (deleted && role !== UserRole.ADMIN) {
+    throw new ForbiddenError()
+  }
 
   switch (role){
     case UserRole.ADMIN:
-      return handleAdminGetFacility(res, status)
+      return handleAdminGetFacility(res, status, deleted)
 
     case UserRole.FACILITY_STAFF:
       return handleStaffGetFacility(req, res, status)
@@ -43,9 +48,9 @@ const handleStaffGetFacility = async (req: Request, res: Response, status?: "AVA
   return new SuccessResponse("Your assigned facility.", { facility }).send(res)
 }
 
-// Admin: ALL facilities
-const handleAdminGetFacility = async (res: Response, status?: "AVAILABLE" | "UNAVAILABLE") => {
-  const facilities = await facilityServices.findMany(status)
+// Admin: ALL facilities (soft-deleted included only on request)
+const handleAdminGetFacility = async (res: Response, status?: "AVAILABLE" | "UNAVAILABLE", deleted?: boolean) => {
+  const facilities = await facilityServices.findMany(status, deleted)
   const formatedFacilities = facilities.map(f => ({
     ...toFacilityDTO(f),
     staffCount: f._count.staff
