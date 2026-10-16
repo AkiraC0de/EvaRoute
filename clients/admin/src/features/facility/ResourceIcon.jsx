@@ -1,9 +1,16 @@
 import { Bed, Cross, Droplets, Package, Toilet, UtensilsCrossed, Zap } from "lucide-react";
 
 /**
- * Icon for a `FacilityResource` record, chosen by its name (the API stores no
- * icon field). Unknown names fall back to a generic package icon.
+ * Icon for a `FacilityResource` record. Mandatory essentials match by their
+ * stable identifier first; custom resources fall back to name matching
+ * (the API stores no icon field), then a generic package icon.
  */
+const ESSENTIAL_ICONS = {
+  ELECTRICITY: Zap,
+  WATER: Droplets,
+  COMFORT_ROOM: Toilet,
+};
+
 const ICONS = {
   Beds: Bed,
   Water: Droplets,
@@ -13,8 +20,9 @@ const ICONS = {
   Generators: Zap,
 };
 
-const ResourceIcon = ({ name, size = 17 }) => {
-  const Icon = ICONS[name] ?? Package;
+const ResourceIcon = ({ name, essentialType, size = 17 }) => {
+  const Icon =
+    (essentialType && ESSENTIAL_ICONS[essentialType]) || ICONS[name] || Package;
   return <Icon aria-hidden="true" size={size} strokeWidth={1.8} />;
 };
 

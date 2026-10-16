@@ -6,6 +6,7 @@ import facilityResourceServices from '../services/facilityResource.services.js'
 import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse.js'
 import { BadRequestMsgError, NotFoundError } from '../core/ApiError.js'
 import { assertFacilityAccess } from '../utils/facilityUtils.js'
+import { isEssentialName } from '../utils/essentialResources.js'
 import { ActivityAction } from '../../generated/prisma/index.js'
 import { logActivity } from '../utils/activityUtils.js'
 
@@ -55,6 +56,13 @@ export const handleCreateResource = async (req: Request, res: Response) => {
   const duplicate = await facilityResourceServices.findByNameInFacility(facilityId, data.name)
   if(duplicate){
     throw new BadRequestMsgError('A resource with this name already exists in this facility.')
+  }
+
+  // The three mandatory essentials are managed by the facility itself — a
+  // custom resource may not shadow one (that's how accidental duplicates
+  // happen), whether created or renamed into the name.
+  if(isEssentialName(data.name)){
+    throw new BadRequestMsgError('Essential resources are part of every facility — update its status instead of creating a copy.')
   }
 
   const resource = await facilityResourceServices.create({
@@ -111,6 +119,13 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
     if(duplicate){
       throw new BadRequestMsgError('A resource with this name already exists in this facility.')
     }
+
+    // The three mandatory essentials are managed by the facility itself — a
+    // custom resource may not shadow one (that's how accidental duplicates
+    // happen), whether created or renamed into the name.
+    if(isEssentialName(data.name)){
+      throw new BadRequestMsgError('Essential resources are part of every facility — update its status instead of creating a copy.')
+    }
   }
 
   const updatedResource = await facilityResourceServices.update(resourceId, {
@@ -157,6 +172,11 @@ export const handleDeleteResource = async (req: Request, res: Response) => {
   const resource = await facilityResourceServices.findById(resourceId)
   if(!resource || resource.facilityId !== facilityId){
     throw new NotFoundError('Resource not found.')
+  }
+
+  // Mandatory essentials are never removable through the resource API.
+  if(resource.essentialType){
+    throw new BadRequestMsgError('Essential resources cannot be removed. Update its status instead.')
   }
 
   await facilityResourceServices.deleteById(resourceId)

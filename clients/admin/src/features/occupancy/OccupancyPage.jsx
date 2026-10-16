@@ -78,7 +78,7 @@ const OccupancyPage = () => {
           >
             {facilities.map((facility) => (
               <option key={facility.id} value={facility.id}>
-                {`${facility.name} - ${facility.address}`}
+                {facility.name}
               </option>
             ))}
           </SelectField>

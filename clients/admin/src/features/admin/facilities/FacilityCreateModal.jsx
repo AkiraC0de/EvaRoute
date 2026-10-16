@@ -6,6 +6,9 @@ import TextField, { SelectField } from "../../../components/ui/Field";
 import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
 import LocationPickerMap from "../../map/LocationPickerMap";
 import { formatCoords, isValidCoords, toCoords } from "../../map/coordinateUtils";
+import ResourceIcon from "../../facility/ResourceIcon";
+import ResourceStatusToggle from "../../facility/ResourceStatusToggle";
+import { ESSENTIAL_RESOURCES, defaultEssentialDraft } from "../../facility/essentialResources";
 import * as api from "../../../lib/api";
 
 /**
@@ -21,6 +24,9 @@ const emptyDraft = () => ({
   status: "AVAILABLE",
   latitude: "",
   longitude: "",
+  // Initial availability of the three mandatory essentials (server creates
+  // them regardless — this only sets the starting status).
+  resources: defaultEssentialDraft(),
 });
 
 const FacilityCreateModal = ({ onCreated, onClose }) => {
@@ -63,6 +69,10 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
         status: draft.status,
         latitude,
         longitude,
+        resources: ESSENTIAL_RESOURCES.map((entry) => ({
+          essentialType: entry.key,
+          isAvailable: draft.resources[entry.key] === true,
+        })),
       });
       onCreated();
     } catch (err) {
@@ -110,6 +120,33 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
               <option value="AVAILABLE">Available</option>
               <option value="UNAVAILABLE">Unavailable</option>
             </SelectField>
+            <div>
+              <p className={LABEL_CLASS}>Essential resources</p>
+              <div className="space-y-2 rounded-clay-sm bg-sunken p-2.5 shadow-clay-inset">
+                {ESSENTIAL_RESOURCES.map((entry) => (
+                  <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex min-w-0 items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-clay-sm bg-surface text-accent shadow-clay-xs"
+                      >
+                        <ResourceIcon essentialType={entry.key} size={14} />
+                      </span>
+                      <span className="truncate text-[10px] font-semibold text-ink-soft">
+                        {entry.label}
+                      </span>
+                    </span>
+                    <ResourceStatusToggle
+                      name={entry.label}
+                      value={draft.resources[entry.key]}
+                      onChange={(next) =>
+                        update({ resources: { ...draft.resources, [entry.key]: next } })
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
             <div>
               <p className={LABEL_CLASS}>Selected location</p>
               <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[10px] font-medium text-ink-soft shadow-clay-inset">

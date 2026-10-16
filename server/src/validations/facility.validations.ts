@@ -24,6 +24,22 @@ export const registerFacilitySchema = z.object({
   // Optional at registration (defaults to AVAILABLE) — lets an admin open a
   // center as unavailable without editing it right after.
   status: z.enum(["AVAILABLE", "UNAVAILABLE"]).optional(),
+  // Optional initial availability for the three mandatory essentials. The
+  // server always creates all three regardless — entries here only set the
+  // starting status (omitted entries default to Unavailable).
+  resources: z
+    .array(
+      z.object({
+        essentialType: z.enum(
+          ["ELECTRICITY", "WATER", "COMFORT_ROOM"],
+          "unknown essential resource type.",
+        ),
+        isAvailable: z.boolean("isAvailable must be true or false."),
+      }),
+      "resources must be a list.",
+    )
+    .max(3, "At most one entry per essential resource.")
+    .optional(),
 })
 
 export const getFacilityQuerySchema = z.object({

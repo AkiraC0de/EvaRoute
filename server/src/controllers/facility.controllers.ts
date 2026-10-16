@@ -61,14 +61,15 @@ const handleAdminGetFacility = async (res: Response, status?: "AVAILABLE" | "UNA
 }
 
 export const handleRegisterFacility = async (req: Request, res: Response) => {
-  const facilityData = validateData<typeof registerFacilitySchema>(registerFacilitySchema, req.body)
+  const { resources, ...facilityData } = validateData<typeof registerFacilitySchema>(registerFacilitySchema, req.body)
 
   const facilityExistOnLocation = await facilityServices.findByLongLat([facilityData.longitude, facilityData.latitude])
   if(facilityExistOnLocation){
     throw new BadRequestMsgError("There is an existing facility on the location. Please select a new location point")
   }
   
-  const createdFacility = await facilityServices.create(facilityData)
+  // Atomic: the facility + its three essential resources commit together.
+  const createdFacility = await facilityServices.create(facilityData, resources)
 
   await logActivity(req, ActivityAction.FACILITY_CREATED, {
     facility: { id: createdFacility.id, name: createdFacility.name },

@@ -102,6 +102,13 @@ enum FacilityResourceType {
   BOOLEAN
 }
 
+/// The three mandatory essential resources every facility must carry.
+enum EssentialResourceType {
+  ELECTRICITY
+  WATER
+  COMFORT_ROOM
+}
+
 model FacilityResource {
   id             String               @id @default(uuid()) @db.Uuid
   facilityId     String               @db.Uuid
@@ -110,10 +117,15 @@ model FacilityResource {
   isAvailable    Boolean?
   availableValue Int?
   maxValue       Int?
+  /// Stable identifier for the mandatory essentials (NULL = custom resource).
+  essentialType  EssentialResourceType?
 
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
   @@index([facilityId, type])
+  /// One row per mandatory essential per facility (custom rows are NULL and
+  /// never collide — Postgres treats NULLs as distinct in unique indexes).
+  @@unique([facilityId, essentialType])
   @@map("facility_resource")
 }
 

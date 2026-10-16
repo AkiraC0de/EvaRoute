@@ -46,13 +46,20 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
     <Card as="article" pad="p-4" className="flex min-h-60 flex-col">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset">
-          <ResourceIcon name={resource.name} />
+          <ResourceIcon name={resource.name} essentialType={resource.essentialType} />
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[12px] font-bold text-ink-soft">{resource.name}</h3>
-          <p className="mt-0.5 text-[9px] text-muted">{displaySubtitle(resource)}</p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-[9px] text-muted">
+            {displaySubtitle(resource)}
+            {resource.essentialType && (
+              <span className="rounded-full bg-accent-soft px-1.5 py-px text-[7px] font-bold uppercase tracking-[0.5px] text-accent">
+                Essential
+              </span>
+            )}
+          </p>
         </div>
-        {!confirmingDelete && (
+        {!confirmingDelete && !resource.essentialType && (
           <DeleteResourceButton
             name={resource.name}
             busy={busy}

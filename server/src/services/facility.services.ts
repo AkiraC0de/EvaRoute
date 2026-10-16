@@ -1,5 +1,6 @@
-import { FacilityStatus, Prisma } from "../../generated/prisma/index.js"
+import { EssentialResourceType, FacilityStatus, Prisma } from "../../generated/prisma/index.js"
 import prisma from "../lib/prisma.js"
+import { ESSENTIAL_RESOURCES } from "../utils/essentialResources.js"
 
 const findById = (facilityId: string) => {
   return prisma.facility.findFirst({
@@ -22,9 +23,31 @@ const findByLongLat = (location: [longitude: number, latitude: number] ) => {
   })
 }
 
-const create = (data: Prisma.FacilityCreateInput) => {
-  return prisma.facility.create({
-    data
+/**
+ * Registers a facility together with its three mandatory essential resources
+ * in ONE transaction — a facility can never exist half-configured. Caller may
+ * pre-set initial availability per essential; anything omitted defaults to
+ * Unavailable (never assume a service exists just because the facility does).
+ */
+const create = async (
+  data: Prisma.FacilityCreateInput,
+  essentials?: ReadonlyArray<{ essentialType: EssentialResourceType; isAvailable: boolean }>
+) => {
+  return prisma.$transaction(async (tx) => {
+    const facility = await tx.facility.create({ data })
+
+    const requested = new Map((essentials ?? []).map((entry) => [entry.essentialType, entry.isAvailable]))
+    await tx.facilityResource.createMany({
+      data: ESSENTIAL_RESOURCES.map((entry) => ({
+        facilityId: facility.id,
+        name: entry.name,
+        type: "BOOLEAN" as const,
+        isAvailable: requested.get(entry.type) ?? false,
+        essentialType: entry.type,
+      })),
+    })
+
+    return facility
   })
 } 
 
