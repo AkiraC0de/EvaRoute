@@ -59,7 +59,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         />
         <TextField
           label="Note"
-          className="row-span-2"
+          className="sm:row-span-2"
           value={draft.note}
           onChange={(event) => update({ note: event.target.value })}
         />
@@ -79,7 +79,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <option value="AVAILABLE">Available</option>
           <option value="UNAVAILABLE">Unavailable</option>
         </SelectField>
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-3">
           <p className={LABEL_CLASS}>Location on map</p>
           <LocationPickerMap
             value={toCoords(draft.latitude, draft.longitude)}
@@ -99,9 +99,11 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         </div>
       )}
 
-      <Button type="submit" disabled={busy} size="sm" className="mt-4">
-        {busy ? "Saving…" : "Save changes"}
-      </Button>
+      <div className="w-full text-end">
+        <Button type="submit" disabled={busy} size="sm" className="mt-4">
+          {busy ? "Saving…" : "Save changes"}
+        </Button>
+      </div>
     </Card>
   );
 };

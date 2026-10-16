@@ -5,7 +5,7 @@ import HouseholdListItem from "./HouseholdListItem";
  * Checked-in households for one facility (real stay records).
  */
 const HouseholdList = ({ stays, busy, onCheckOut }) => (
-  <Card>
+  <Card className="h-100">
     <div className="mb-3 flex items-center justify-between gap-2">
       <h2 className="text-[12px] font-bold text-ink-soft">Checked in now</h2>
       <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[8px] font-semibold text-muted shadow-clay-inset">

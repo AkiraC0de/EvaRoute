@@ -46,6 +46,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
 
   return (
     <Card
+      className="max-h-max"
       as="form"
       onSubmit={(event) => {
         event.preventDefault();
