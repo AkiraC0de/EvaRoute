@@ -49,6 +49,7 @@ export const handleGetPublicFacilities = async (
         id: resource.id,
         name: resource.name,
         type: resource.type,
+        essentialType: resource.essentialType,
         isAvailable: resource.isAvailable,
         availableValue: resource.availableValue,
         maxValue: resource.maxValue,
