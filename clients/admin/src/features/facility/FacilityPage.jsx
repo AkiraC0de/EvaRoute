@@ -7,6 +7,7 @@ import useActivityStats from "../../hooks/useActivityStats";
 import useAssignedFacility from "../../hooks/useAssignedFacility";
 import useFacilityResources from "../../hooks/useFacilityResources";
 import FacilitySummaryBar from "./FacilitySummaryBar";
+import FacilityOverviewMap from "../map/FacilityOverviewMap";
 import ResourceCard from "./ResourceCard";
 import ResourceCreateForm from "./ResourceCreateForm";
 import ActivityFeed from "../activity/ActivityFeed";
@@ -96,6 +97,15 @@ const FacilityPage = () => {
       {!loading && !error && facility && (
         <>
           <FacilitySummaryBar facility={facility} available={available} />
+
+          {/* Read-only location map (staff cannot edit coordinates here). */}
+          <div className="mb-3 rounded-clay bg-surface p-4 shadow-clay">
+            <h2 className="text-[11px] font-bold text-ink-soft">Facility location</h2>
+            <p className="mt-1 text-[9px] text-muted">{facility.address}</p>
+            <div className="mt-3">
+              <FacilityOverviewMap facilities={[facility]} showLegend={false} height={220} />
+            </div>
+          </div>
 
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">

@@ -8,7 +8,7 @@ import * as Dialog from "@radix-ui/react-dialog";
  *
  * Styled with the clay design tokens (raised surface, soft overlay).
  */
-const Modal = ({ title, onClose, children }) => (
+const Modal = ({ title, onClose, children, size = "md" }) => (
   <Dialog.Root
     open
     onOpenChange={(open) => {
@@ -17,7 +17,11 @@ const Modal = ({ title, onClose, children }) => (
   >
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 z-[60] bg-[#273556]/40" />
-      <Dialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-clay bg-surface p-5 shadow-clay-lg">
+      <Dialog.Content
+        className={`fixed left-1/2 top-1/2 z-[61] max-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] ${
+          size === "lg" ? "max-w-4xl" : "max-w-[420px]"
+        } -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-clay bg-surface p-5 shadow-clay-lg`}
+      >
         <div className="mb-3 flex items-center justify-between gap-2">
           <Dialog.Title asChild>
             <h2 className="text-[13px] font-bold text-ink">{title}</h2>

@@ -1,0 +1,150 @@
+/**
+ * Leaflet chrome restyled to the clay design language. Everything here is
+ * scoped under `.clay-map` so the rest of the app is untouched, and colors
+ * reference the design tokens (no raw hex).
+ */
+
+.clay-map .leaflet-container {
+  background: var(--color-sunken);
+  font-family: var(--font-sans);
+}
+
+/* Zoom controls — soft clay buttons */
+.clay-map .leaflet-bar {
+  border: none;
+  border-radius: var(--radius-clay-sm);
+  box-shadow: var(--shadow-clay-xs);
+  overflow: hidden;
+}
+.clay-map .leaflet-bar a {
+  border: none;
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+  font-size: 14px;
+  line-height: 26px;
+}
+.clay-map .leaflet-bar a:hover {
+  background: var(--color-sunken);
+  color: var(--color-accent);
+}
+
+/* Attribution chip */
+.clay-map .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  color: var(--color-muted);
+  font-size: 8px;
+  border-radius: 6px 0 0 0;
+  padding: 2px 6px;
+}
+.clay-map .leaflet-control-attribution a {
+  color: var(--color-accent);
+}
+
+/* Status markers — token-colored clay dots with a white ring */
+.clay-marker {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 3px solid var(--color-surface);
+  box-shadow: var(--shadow-clay-xs);
+}
+.clay-marker--available {
+  background: var(--color-success);
+}
+.clay-marker--unavailable {
+  background: var(--color-danger);
+}
+.clay-marker--limited {
+  background: var(--color-warning);
+}
+.clay-marker--unknown {
+  background: var(--color-muted-dim);
+}
+/* The picker's selected-location pin */
+.clay-marker--selected {
+  width: 22px;
+  height: 22px;
+  background: var(--color-accent);
+  border-width: 4px;
+}
+
+/* Popups — a small clay card */
+.clay-map .leaflet-popup-content-wrapper {
+  border-radius: var(--radius-clay-sm);
+  box-shadow: var(--shadow-clay-lg);
+  padding: 0;
+  background: var(--color-surface);
+}
+.clay-map .leaflet-popup-content {
+  margin: 10px 12px;
+  min-width: 170px;
+  font-family: var(--font-sans);
+}
+.clay-map .leaflet-popup-tip {
+  background: var(--color-surface);
+}
+.clay-map .popup-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.clay-map .popup-address {
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--color-muted);
+}
+.clay-map .popup-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+.clay-map .popup-view {
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+.clay-map .popup-view:hover {
+  background: var(--color-accent-strong);
+}
+
+/* Picker hint chip, anchored over the map */
+.clay-map-hint {
+  position: absolute;
+  z-index: 500;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 20px);
+  padding: 5px 10px;
+  border-radius: 9999px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-clay-xs);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  pointer-events: none;
+}
+
+/* Popup status chip */
+.clay-map .popup-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.clay-map .popup-status .clay-marker {
+  width: 10px;
+  height: 10px;
+  border-width: 2px;
+}
+.clay-map .popup-status-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}

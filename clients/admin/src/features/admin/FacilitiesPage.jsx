@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, RotateCcw, Trash2 } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
@@ -10,6 +10,7 @@ import StatusPanel from "../../components/ui/StatusPanel";
 import Skeleton from "../../components/ui/Skeleton";
 import StatusPill from "../../components/ui/StatusPill";
 import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
+import FacilityOverviewMap from "../map/FacilityOverviewMap";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 import FacilityCreateModal from "./FacilityCreateModal";
@@ -39,6 +40,8 @@ const FacilitiesPage = () => {
   const [showDeleted, setShowDeleted] = useState(false);
   const [creating, setCreating] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState(null); // facility pending delete/restore
+  const [view, setView] = useState("table"); // "table" | "map"
+  const navigate = useNavigate();
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
   useEffect(() => {
@@ -122,11 +125,44 @@ const FacilitiesPage = () => {
         >
           {showDeleted ? "Showing deleted" : "Deleted facilities"}
         </Button>
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant={view === "table" ? "soft" : "neutral"}
+            size="sm"
+            onClick={() => setView("table")}
+          >
+            Table
+          </Button>
+          <Button
+            variant={view === "map" ? "soft" : "neutral"}
+            size="sm"
+            onClick={() => setView("map")}
+          >
+            Map
+          </Button>
+        </div>
       </div>
 
       {actionError && (
         <div className="mb-3">
           <Banner tone="error">{actionError}</Banner>
+        </div>
+      )}
+
+      {view === "map" && !loading && !error && (
+        <div className="rounded-clay bg-surface p-4 shadow-clay">
+          <h2 className="text-[11px] font-bold text-ink-soft">Facility map</h2>
+          <p className="mt-1 text-[9px] text-muted">
+            {visible.length} {visible.length === 1 ? "facility" : "facilities"} · click a
+            marker for details
+          </p>
+          <div className="mt-3">
+            <FacilityOverviewMap
+              facilities={visible}
+              height={420}
+              onView={(facilityId) => navigate(`/facilities/${facilityId}`)}
+            />
+          </div>
         </div>
       )}
 
@@ -164,7 +200,7 @@ const FacilitiesPage = () => {
         </div>
       )}
 
-      {!loading && !error && visible.length > 0 && (
+      {view === "table" && !loading && !error && visible.length > 0 && (
         <TableShell>
           <thead>
             <tr className="bg-sunken">

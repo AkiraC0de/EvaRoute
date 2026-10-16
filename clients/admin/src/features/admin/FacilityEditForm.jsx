@@ -3,6 +3,9 @@ import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import TextField, { SelectField } from "../../components/ui/Field";
+import { LABEL_CLASS } from "../../components/ui/fieldStyles";
+import LocationPickerMap from "../map/LocationPickerMap";
+import { formatCoords, toCoords } from "../map/coordinateUtils";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 
@@ -75,21 +78,17 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <option value="AVAILABLE">Available</option>
           <option value="UNAVAILABLE">Unavailable</option>
         </SelectField>
-        <div className="grid grid-cols-2 gap-2">
-          <TextField
-            label="Latitude"
-            type="number"
-            step="any"
-            value={draft.latitude}
-            onChange={(event) => update({ latitude: event.target.value })}
+        <div className="sm:col-span-2">
+          <p className={LABEL_CLASS}>Location on map</p>
+          <LocationPickerMap
+            value={toCoords(draft.latitude, draft.longitude)}
+            onChange={({ latitude, longitude }) => update({ latitude, longitude })}
+            height={240}
           />
-          <TextField
-            label="Longitude"
-            type="number"
-            step="any"
-            value={draft.longitude}
-            onChange={(event) => update({ longitude: event.target.value })}
-          />
+          <p className="mt-1 text-[9px] text-muted">
+            {formatCoords(draft.latitude, draft.longitude) ||
+              "No location set — click the map to place the marker."}
+          </p>
         </div>
       </div>
 
