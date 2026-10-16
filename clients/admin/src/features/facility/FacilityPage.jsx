@@ -97,18 +97,18 @@ const FacilityPage = () => {
 
           {/* Read-only location map (staff cannot edit coordinates here). */}
           <div className="mb-3 rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="text-[11px] font-bold text-ink-soft">Facility location</h2>
-            <p className="mt-1 text-[9px] text-muted">{facility.address}</p>
+            <h2 className="text-[13px] font-bold text-ink-soft">Facility location</h2>
+            <p className="mt-1 text-[11px] text-muted">{facility.address}</p>
             <div className="mt-3">
               <FacilityOverviewMap facilities={[facility]} showLegend={false} height={220} />
             </div>
           </div>
 
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">
               Resources
             </h2>
-            <span className="text-[9px] text-muted">
+            <span className="text-[11px] text-muted">
               {sortedResources.length} recorded
             </span>
           </div>
@@ -121,7 +121,7 @@ const FacilityPage = () => {
                 This facility has no resources yet. Add the first one above.
               </StatusPanel>
             ) : (
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {sortedResources.map((resource) => (
                   <ResourceCard
                     key={resource.id}
@@ -135,7 +135,7 @@ const FacilityPage = () => {
           </div>
 
           <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Activity</h2>
+            <h2 className="mb-3 text-[13px] font-bold text-ink-soft">Activity</h2>
             <div className="grid grid-cols-3 gap-2">
               <StatTile label="Check-ins today" value={todayStats.byAction.STAY_CHECKED_IN ?? 0} />
               <StatTile label="Check-outs today" value={todayStats.byAction.STAY_CHECKED_OUT ?? 0} />
@@ -145,10 +145,10 @@ const FacilityPage = () => {
 
           <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[11px] font-bold text-ink-soft">Recent activity</h2>
+              <h2 className="text-[13px] font-bold text-ink-soft">Recent activity</h2>
               <Link
                 to="/history"
-                className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
               >
                 View full history →
               </Link>

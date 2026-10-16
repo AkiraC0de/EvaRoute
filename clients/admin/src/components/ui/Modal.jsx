@@ -24,7 +24,7 @@ const Modal = ({ title, onClose, children, size = "md" }) => (
       >
         <div className="mb-3 flex items-center justify-between gap-2">
           <Dialog.Title asChild>
-            <h2 className="text-[13px] font-bold text-ink">{title}</h2>
+            <h2 className="text-[15px] font-bold text-ink">{title}</h2>
           </Dialog.Title>
           <Dialog.Close asChild>
             <button

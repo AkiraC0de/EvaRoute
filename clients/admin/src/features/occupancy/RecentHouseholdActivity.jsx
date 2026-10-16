@@ -9,7 +9,7 @@ import ActivityFeed from "../activity/ActivityFeed";
 const RecentHouseholdActivity = ({ facilityId }) => (
   <Card className="h-full">
     <div className="mb-2 flex items-center justify-between gap-2">
-      <h2 className="text-[12px] font-bold text-ink-soft">Recent check-ins &amp; check-outs</h2>
+      <h2 className="text-[14px] font-bold text-ink-soft">Recent check-ins &amp; check-outs</h2>
     </div>
     <ActivityFeed
       query={{ facilityId, action: "STAY_CHECKED_IN,STAY_CHECKED_OUT" }}

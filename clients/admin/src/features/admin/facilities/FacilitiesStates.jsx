@@ -20,10 +20,10 @@ const FacilitiesLoading = () => (
 const FacilitiesEmpty = ({ showDeleted }) => (
   <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
     <EmptyArt variant={showDeleted ? "boxes" : "map"} className="mx-auto h-18 w-32" />
-    <p className="mt-3 text-[13px] font-bold text-ink-soft">
+    <p className="mt-3 text-[15px] font-bold text-ink-soft">
       {showDeleted ? "No deleted facilities" : "No facilities found"}
     </p>
-    <p className="mt-1 text-[10px] text-muted">
+    <p className="mt-1 text-[12px] text-muted">
       {showDeleted
         ? "Soft-deleted facilities will appear here so you can restore them."
         : "Register a new evacuation center to get started."}

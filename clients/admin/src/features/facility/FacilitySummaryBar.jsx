@@ -11,8 +11,8 @@ const FacilitySummaryBar = ({ facility, available }) => (
     </div>
 
     <div>
-      <h2 className="text-[13px] font-bold text-ink">{facility.name}</h2>
-      <p className="text-[9px] text-muted">
+      <h2 className="text-[15px] font-bold text-ink">{facility.name}</h2>
+      <p className="text-[11px] text-muted">
         Capacity {facility.maxCapacity}
       </p>
     </div>

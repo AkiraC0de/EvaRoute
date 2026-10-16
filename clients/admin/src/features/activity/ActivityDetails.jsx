@@ -18,20 +18,20 @@ export default function ActivityDetails({ metadata }) {
       <dl className="space-y-1">
         {rows.map((row) => (
           <div key={row.label} className="flex items-baseline justify-between gap-4">
-            <dt className="shrink-0 text-[9px] font-medium text-[#65718c]">{row.label}</dt>
+            <dt className="shrink-0 text-[11px] font-medium text-[#65718c]">{row.label}</dt>
             <dd className="min-w-0 text-right">
               {row.kind === "diff" ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="rounded-md border border-line bg-surface/70 px-1.5 py-0.5 text-[9px] text-muted line-through decoration-[#b9c3dc]">
+                  <span className="rounded-md border border-line bg-surface/70 px-1.5 py-0.5 text-[11px] text-muted line-through decoration-[#b9c3dc]">
                     {row.from}
                   </span>
                   <ArrowRight size={10} className="text-accent" />
-                  <span className="rounded-md bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-accent/20">
+                  <span className="rounded-md bg-accent/15 px-1.5 py-0.5 text-[12px] font-semibold text-accent ring-1 ring-accent/20">
                     {row.to}
                   </span>
                 </span>
               ) : (
-                <span className="truncate text-[10px] font-semibold text-ink-soft">{row.value}</span>
+                <span className="truncate text-[12px] font-semibold text-ink-soft">{row.value}</span>
               )}
             </dd>
           </div>

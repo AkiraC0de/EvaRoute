@@ -34,20 +34,20 @@ const BrandPanel = () => {
           <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
         </div>
         <div>
-          <p className="text-2xl font-bold tracking-[0.3px] text-ink">EvaRoute</p>
-          <p className="text-sm font-semibold uppercase tracking-[2px] text-muted">
+          <p className="text-[26px] font-bold tracking-[0.3px] text-ink">EvaRoute</p>
+          <p className="text-[16px] font-semibold uppercase tracking-[2px] text-muted">
             Staff Portal
           </p>
         </div>
       </motion.div>
 
       <motion.div variants={v.fadeUp} className="relative z-10">
-        <h1 className="max-w-95 text-4xl font-bold leading-[1.15] text-ink">
+        <h1 className="max-w-95 text-[38px] font-bold leading-[1.15] text-ink">
           Every family,
           <br />
           routed to safety.
         </h1>
-        <p className="mt-3 max-w-85 text-md leading-relaxed text-[#65718c]">
+        <p className="mt-3 max-w-85 text-[18px] leading-relaxed text-[#65718c]">
           Manage your evacuation center in one place — capacity, evacuee
           check-ins, supplies, and staff. Built for the people who keep
           families safe when it matters most.
@@ -60,8 +60,8 @@ const BrandPanel = () => {
                 <Check size={11} strokeWidth={2.5} color="white" />
               </span>
               <div>
-                <p className="text-sm font-bold text-ink-soft">{title}</p>
-                <p className="text-sm leading-relaxed text-muted">{caption}</p>
+                <p className="text-[16px] font-bold text-ink-soft">{title}</p>
+                <p className="text-[16px] leading-relaxed text-muted">{caption}</p>
               </div>
             </li>
           ))}
@@ -102,7 +102,7 @@ const BrandPanel = () => {
 
       <motion.p
         variants={v.fadeUp}
-        className="relative z-10 text-[8px] font-medium uppercase tracking-[1.5px] text-muted-dim"
+        className="relative z-10 text-[10px] font-medium uppercase tracking-[1.5px] text-muted-dim"
       >
         Evacuation center operations
       </motion.p>

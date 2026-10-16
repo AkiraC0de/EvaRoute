@@ -28,7 +28,7 @@ export default function PaginationBar({ page, totalPages, total, pageSize, onCha
   if (!total || totalPages <= 1) {
     return (
       <div className="px-4 py-2.5">
-        <p className="text-[9px] text-muted">
+        <p className="text-[11px] text-muted">
           {total ? `Showing ${total} ${total === 1 ? "entry" : "entries"}` : "No entries"}
         </p>
       </div>
@@ -43,7 +43,7 @@ export default function PaginationBar({ page, totalPages, total, pageSize, onCha
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-      <p className="text-[9px] text-muted">
+      <p className="text-[11px] text-muted">
         Showing <span className="font-semibold text-ink-soft">{first}–{last}</span> of{" "}
         <span className="font-semibold text-ink-soft">{total}</span>
       </p>
@@ -62,7 +62,7 @@ export default function PaginationBar({ page, totalPages, total, pageSize, onCha
 
         {pageWindow(page, totalPages).map((entry, index) =>
           entry === "…" ? (
-            <span key={`gap-${index}`} className="px-0.5 text-[9px] text-muted">
+            <span key={`gap-${index}`} className="px-0.5 text-[11px] text-muted">
               …
             </span>
           ) : (

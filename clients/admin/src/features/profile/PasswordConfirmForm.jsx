@@ -22,7 +22,7 @@ const PasswordConfirmForm = ({ password, onPasswordChange, onSubmit, onCancel, b
       onChange={(event) => onPasswordChange(event.target.value)}
       fieldClassName="bg-surface"
     />
-    <p className="mt-2 text-[8px] text-muted">
+    <p className="mt-2 text-[10px] text-muted">
       The API requires your password as proof of identity for this action.
     </p>
     <div className="mt-3 flex gap-2">

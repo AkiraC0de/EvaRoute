@@ -93,7 +93,7 @@ const FacilityOverviewMap = ({
         {status === "ready" && showLegend && <MapLegend />}
       </div>
       {skippedCount > 0 && (
-        <p className="mt-1.5 text-[9px] text-muted">
+        <p className="mt-1.5 text-[11px] text-muted">
           {skippedCount} {skippedCount === 1 ? "facility is" : "facilities are"} not shown —
           missing or invalid location.
         </p>

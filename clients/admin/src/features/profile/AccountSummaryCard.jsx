@@ -10,8 +10,8 @@ const AccountSummaryCard = ({ user, facility }) => {
 
   return (
     <Card as="section" aria-label="Staff account summary" pad="px-4 py-4" className="mb-4">
-      <h2 className="text-[13px] font-bold text-ink">{fullName}</h2>
-      <p className="text-[9px] text-muted">{user?.email || "—"}</p>
+      <h2 className="text-[15px] font-bold text-ink">{fullName}</h2>
+      <p className="text-[11px] text-muted">{user?.email || "—"}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         <StatusPill tone="neutral">{facility ? facility.name : "No facility assigned"}</StatusPill>
         <StatusPill tone="accent">{roleLabelOf(user?.role)}</StatusPill>

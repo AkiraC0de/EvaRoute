@@ -42,10 +42,10 @@ const SignInForm = ({ onForgotPassword }) => {
 
   return (
     <>
-      <motion.h2 variants={v.fadeUp} className="text-3xl font-bold text-ink">
+      <motion.h2 variants={v.fadeUp} className="text-[32px] font-bold text-ink">
         Sign in
       </motion.h2>
-      <motion.p variants={v.fadeUp} className="mt-1 text-xs text-muted">
+      <motion.p variants={v.fadeUp} className="mt-1 text-[14px] text-muted">
         Use the staff account issued by your administrator.
       </motion.p>
 
@@ -87,14 +87,14 @@ const SignInForm = ({ onForgotPassword }) => {
               onChange={(event) => setKeepLogin(event.target.checked)}
               ariaLabel="Keep me signed in"
             />
-            <span className="text-[10px] font-medium text-[#65718c]">
+            <span className="text-[12px] font-medium text-[#65718c]">
               Keep me signed in
             </span>
           </label>
           <button
             type="button"
             onClick={onForgotPassword}
-            className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+            className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
           >
             Forgot password?
           </button>
@@ -115,7 +115,7 @@ const SignInForm = ({ onForgotPassword }) => {
 
       <motion.p
         variants={v.fadeUp}
-        className="mt-4 border-t border-line pt-3 text-[9px] leading-relaxed text-muted-dim"
+        className="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted-dim"
       >
         Need an account? Staff accounts are created by an
         administrator — contact your coordinator to get access.

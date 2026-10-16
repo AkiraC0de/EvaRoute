@@ -21,8 +21,8 @@ const variants = {
 };
 
 const sizes = {
-  sm: "px-3 py-1.5 text-[9px]",
-  md: "px-4 py-2.5 text-[11px]",
+  sm: "px-3 py-1.5 text-[11px]",
+  md: "px-4 py-2.5 text-[13px]",
 };
 
 const Button = ({

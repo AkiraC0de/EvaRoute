@@ -11,7 +11,7 @@ const TableShell = ({ children }) => (
 );
 
 const Th = ({ children }) => (
-  <th className="px-4 py-2.5 text-[8px] font-semibold uppercase tracking-[0.7px] text-[#9aa8c5]">
+  <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.7px] text-[#9aa8c5]">
     {children}
   </th>
 );

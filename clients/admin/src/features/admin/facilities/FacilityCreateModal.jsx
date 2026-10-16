@@ -132,7 +132,7 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
                       >
                         <ResourceIcon essentialType={entry.key} size={14} />
                       </span>
-                      <span className="truncate text-[10px] font-semibold text-ink-soft">
+                      <span className="truncate text-[12px] font-semibold text-ink-soft">
                         {entry.label}
                       </span>
                     </span>
@@ -149,7 +149,7 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
             </div>
             <div>
               <p className={LABEL_CLASS}>Selected location</p>
-              <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[10px] font-medium text-ink-soft shadow-clay-inset">
+              <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[12px] font-medium text-ink-soft shadow-clay-inset">
                 {formatCoords(draft.latitude, draft.longitude) ||
                   "Not set — pick it on the map"}
               </p>

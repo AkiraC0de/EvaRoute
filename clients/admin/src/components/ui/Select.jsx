@@ -83,7 +83,7 @@ const SelectInput = ({
                   key={item.value}
                   value={item.value}
                   disabled={item.disabled}
-                  className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-clay-sm px-2.5 py-1.5 text-[10px] font-medium text-ink-soft outline-none transition hover:bg-sunken data-[highlighted]:bg-sunken data-[state=checked]:text-accent data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+                  className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-clay-sm px-2.5 py-1.5 text-[12px] font-medium text-ink-soft outline-none transition hover:bg-sunken data-[highlighted]:bg-sunken data-[state=checked]:text-accent data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
                 >
                   <SelectPrimitive.ItemText>{item.label}</SelectPrimitive.ItemText>
                   <SelectPrimitive.ItemIndicator>

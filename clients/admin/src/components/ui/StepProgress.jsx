@@ -14,7 +14,7 @@ const StepProgress = ({ steps, current }) => (
             }`}
           />
           <span
-            className={`text-[8px] font-semibold uppercase tracking-[0.6px] ${
+            className={`text-[10px] font-semibold uppercase tracking-[0.6px] ${
               state === "current"
                 ? "text-accent"
                 : state === "done"

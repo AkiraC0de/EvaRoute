@@ -44,11 +44,11 @@ const DateRangePicker = ({
 
   return (
     <label className="flex items-center gap-1.5">
-      <span className="text-[9px] font-medium text-[#65718c]">{label}</span>
+      <span className="text-[11px] font-medium text-[#65718c]">{label}</span>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           aria-label={ariaLabel}
-          className={`inline-flex h-9 items-center gap-2 rounded-clay-sm bg-sunken px-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2 ${
+          className={`inline-flex h-9 items-center gap-2 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2 ${
             hasRange ? "" : "text-muted-dim"
           }`}
         >
@@ -74,14 +74,14 @@ const DateRangePicker = ({
                   onChange?.({ from: "", to: "" });
                   setOpen(false);
                 }}
-                className="rounded-clay-sm px-2 py-1 text-[9px] font-semibold text-muted transition hover:bg-sunken hover:text-ink-soft"
+                className="rounded-clay-sm px-2 py-1 text-[11px] font-semibold text-muted transition hover:bg-sunken hover:text-ink-soft"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-clay-sm bg-accent px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-accent-strong"
+                className="rounded-clay-sm bg-accent px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
               >
                 Done
               </button>

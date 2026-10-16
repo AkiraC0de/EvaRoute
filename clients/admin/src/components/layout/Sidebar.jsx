@@ -14,8 +14,8 @@ const Sidebar = () => (
           <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
         </div>
         <div>
-          <p className="text-sm font-bold text-ink">EvaRoute</p>
-          <p className="text-[8px] font-medium tracking-[1px] text-muted-dim">
+          <p className="text-[16px] font-bold text-ink">EvaRoute</p>
+          <p className="text-[10px] font-medium tracking-[1px] text-muted-dim">
             STAFF PORTAL
           </p>
         </div>

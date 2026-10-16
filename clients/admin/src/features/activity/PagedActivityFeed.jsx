@@ -40,9 +40,9 @@ export default function PagedActivityFeed({
 
   const header = (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
-      <h2 className="text-[11px] font-bold text-ink-soft">
+      <h2 className="text-[13px] font-bold text-ink-soft">
         Activity{" "}
-        <span className="ml-1 text-[9px] font-medium text-muted">
+        <span className="ml-1 text-[11px] font-medium text-muted">
           {loading ? "Loading…" : `${total} recorded ${total === 1 ? "event" : "events"}`}
         </span>
       </h2>
@@ -90,8 +90,8 @@ export default function PagedActivityFeed({
         {header}
         <div className="px-4 pb-8 pt-2 text-center">
           <EmptyArt variant="boxes" className="mx-auto h-18 w-32" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">{emptyTitle}</p>
-          <p className="mt-1 text-[10px] text-muted">{emptyDetail}</p>
+          <p className="mt-3 text-[15px] font-bold text-ink-soft">{emptyTitle}</p>
+          <p className="mt-1 text-[12px] text-muted">{emptyDetail}</p>
         </div>
       </>
     );
@@ -102,7 +102,7 @@ export default function PagedActivityFeed({
       {header}
       {groupByDay(activities).map((group) => (
         <section key={group.label} aria-label={group.label}>
-          <h3 className="bg-sunken px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">
+          <h3 className="bg-sunken px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
             {group.label}
           </h3>
           <ul>

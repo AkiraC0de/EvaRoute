@@ -6,8 +6,8 @@ import FacilityOverviewMap from "../../map/FacilityOverviewMap";
  */
 const FacilitiesMapCard = ({ facilities, onView }) => (
   <div className="rounded-clay bg-surface p-4 mb-4 shadow-clay">
-    <h2 className="text-[11px] font-bold text-ink-soft">Facility map</h2>
-    <p className="mt-1 text-[9px] text-muted">
+    <h2 className="text-[13px] font-bold text-ink-soft">Facility map</h2>
+    <p className="mt-1 text-[11px] text-muted">
       {facilities.length} {facilities.length === 1 ? "facility" : "facilities"} · click a
       marker for details
     </p>

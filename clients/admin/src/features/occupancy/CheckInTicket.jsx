@@ -38,10 +38,10 @@ const CheckInTicket = ({ stay, onClose }) => {
         <div className="rounded-clay bg-white p-5 shadow-clay">
           {/* Printed header, like a real slip */}
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[8px] font-bold uppercase tracking-[2px] text-muted">
+            <p className="text-[10px] font-bold uppercase tracking-[2px] text-muted">
               EvaRoute · Check-in slip
             </p>
-            <p className="text-[8px] uppercase tracking-[1px] text-muted-dim">
+            <p className="text-[10px] uppercase tracking-[1px] text-muted-dim">
               {Number.isNaN(date.getTime())
                 ? ""
                 : date.toLocaleDateString(undefined, {
@@ -53,27 +53,27 @@ const CheckInTicket = ({ stay, onClose }) => {
           </div>
 
           <div className="mt-3 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-[8px] font-bold uppercase tracking-[1px] text-success">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[1px] text-success">
               <Check size={10} strokeWidth={3} aria-hidden="true" /> Checked in
             </span>
 
-            <p className="mt-4 text-[8px] font-semibold uppercase tracking-[2px] text-muted">
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[2px] text-muted">
               Check-in ID
             </p>
             <p
               aria-label={`Check-in ID ${code}`}
-              className="mt-1.5 font-mono text-[26px] font-bold leading-none tracking-[6px] text-ink"
+              className="mt-1.5 font-mono text-[28px] font-bold leading-none tracking-[6px] text-ink"
             >
               {code}
             </p>
 
             <div className="mt-4 space-y-1">
-              <p className="text-[13px] font-bold text-ink-soft">{stay.familyName}</p>
-              <p className="text-[9px] text-muted">
+              <p className="text-[15px] font-bold text-ink-soft">{stay.familyName}</p>
+              <p className="text-[11px] text-muted">
                 {total} {total === 1 ? "member" : "members"} · {adults} adult
                 {adults === 1 ? "" : "s"}, {children} {children === 1 ? "child" : "children"}
               </p>
-              <p className="text-[9px] text-muted">Checked in {formatCheckedInAt(stay.checkedInAt)}</p>
+              <p className="text-[11px] text-muted">Checked in {formatCheckedInAt(stay.checkedInAt)}</p>
             </div>
           </div>
 
@@ -105,14 +105,14 @@ const CheckInTicket = ({ stay, onClose }) => {
         {/* Stub */}
         <div className="flex items-center justify-between gap-3 rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
           <div>
-            <p className="text-[8px] font-semibold uppercase tracking-[2px] text-muted">
+            <p className="text-[10px] font-semibold uppercase tracking-[2px] text-muted">
               Keep this stub
             </p>
-            <p className="mt-0.5 font-mono text-[13px] font-bold tracking-[3px] text-ink-soft">
+            <p className="mt-0.5 font-mono text-[15px] font-bold tracking-[3px] text-ink-soft">
               {code}
             </p>
           </div>
-          <p className="text-[8px] font-semibold uppercase tracking-[1px] text-muted-dim">
+          <p className="text-[10px] font-semibold uppercase tracking-[1px] text-muted-dim">
             EvaRoute
           </p>
         </div>

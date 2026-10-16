@@ -35,7 +35,7 @@ const SecurityAction = ({
         className="flex min-h-12 w-full items-center gap-3 rounded-2xl bg-danger-soft px-3 py-2 text-left text-danger shadow-clay-xs transition hover:bg-[#f8d8d6] active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
       >
         {iconElement}
-        <span className="text-[10px] font-semibold">{title}</span>
+        <span className="text-[12px] font-semibold">{title}</span>
       </button>
     );
   }
@@ -44,15 +44,15 @@ const SecurityAction = ({
     <div className="flex min-h-12 items-center gap-3 rounded-2xl bg-sunken px-3 py-2 shadow-clay-inset">
       {iconElement}
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-bold text-ink-soft">{title}</p>
+        <p className="text-[12px] font-bold text-ink-soft">{title}</p>
         {description && (
-          <p className="text-[9px] text-muted">{description}</p>
+          <p className="text-[11px] text-muted">{description}</p>
         )}
       </div>
       <Button
         variant={variant}
         onClick={onClick}
-        className="shrink-0 bg-transparent px-1 py-1 text-[9px] shadow-none hover:bg-transparent hover:shadow-none"
+        className="shrink-0 bg-transparent px-1 py-1 text-[11px] shadow-none hover:bg-transparent hover:shadow-none"
       >
         {actionLabel}
         {showArrow && <ChevronRight size={15} className="ml-2 leading-none" />}

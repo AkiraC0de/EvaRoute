@@ -31,7 +31,7 @@ const ResetPasswordStep = ({ newPassword, confirmPassword, onChange, onSubmit, b
 
     <PasswordRulesChecklist password={newPassword} />
 
-    <p className="text-[9px] leading-relaxed text-muted-dim">
+    <p className="text-[11px] leading-relaxed text-muted-dim">
       Changing your password signs you out of every device, including this
       one.
     </p>

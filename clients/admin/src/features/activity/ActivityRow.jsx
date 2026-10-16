@@ -18,11 +18,11 @@ export default function ActivityRow({ log, showFacility = false }) {
     <li className="flex items-start gap-2.5 px-4 py-2.5 transition-colors border-b border-gray-200 hover:bg-sunken">
       <ActivityIcon log={log} className="h-7 w-7" />
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold leading-snug text-ink-soft">{describeActivity(log)}</p>
-        <div className="mt-0.5 flex items-center gap-2 text-[9px] text-muted">
+        <p className="text-[13px] font-semibold leading-snug text-ink-soft">{describeActivity(log)}</p>
+        <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
           <span className="shrink-0">{formatActivityTime(log.createdAt)}</span>
           {showFacility && (
-            <span className="shrink-0 rounded-full bg-sunken px-1.5 py-0.5 text-[9px] text-muted">
+            <span className="shrink-0 rounded-full bg-sunken px-1.5 py-0.5 text-[11px] text-muted">
               {log.facilityName || "Network"}
             </span>
           )}
@@ -31,7 +31,7 @@ export default function ActivityRow({ log, showFacility = false }) {
               type="button"
               onClick={() => setOpen((value) => !value)}
               aria-expanded={open}
-              className="ml-auto inline-flex shrink-0 items-center gap-1 text-[9px] font-semibold text-accent transition-colors hover:text-accent-strong"
+              className="ml-auto inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-accent transition-colors hover:text-accent-strong"
             >
               Details
               <ChevronDown

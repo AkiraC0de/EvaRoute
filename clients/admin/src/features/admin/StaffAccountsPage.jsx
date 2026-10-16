@@ -127,8 +127,8 @@ const StaffAccountsPage = () => {
     <div>
       <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[20px] font-bold leading-tight text-ink">Staff accounts</h1>
-          <p className="mt-1 text-[11px] text-muted">
+          <h1 className="text-[22px] font-bold leading-tight text-ink">Staff accounts</h1>
+          <p className="mt-1 text-[13px] text-muted">
             Create and manage the accounts that run your facilities
           </p>
         </div>
@@ -162,7 +162,7 @@ const StaffAccountsPage = () => {
             }
             ariaLabel="Unassigned only"
           />
-          <span className="text-[9px] font-medium text-[#65718c]">Unassigned only</span>
+          <span className="text-[11px] font-medium text-[#65718c]">Unassigned only</span>
         </label>
       </div>
 
@@ -195,8 +195,8 @@ const StaffAccountsPage = () => {
       {!loading && !error && visible.length === 0 && (
         <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
           <EmptyArt variant="people" className="mx-auto h-18 w-32" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">No staff accounts found</p>
-          <p className="mt-1 text-[10px] text-muted">
+          <p className="mt-3 text-[15px] font-bold text-ink-soft">No staff accounts found</p>
+          <p className="mt-1 text-[12px] text-muted">
             Create an account so staff can sign in and run a facility.
           </p>
         </div>
@@ -217,18 +217,18 @@ const StaffAccountsPage = () => {
               return (
                 <Tr key={staff.id}>
                   <Td>
-                    <span className="text-[10px] font-semibold text-ink-soft">
+                    <span className="text-[12px] font-semibold text-ink-soft">
                       {staff.firstName || staff.lastName
                         ? `${staff.firstName ?? ""} ${staff.lastName ?? ""}`.trim()
                         : "—"}
                     </span>
-                    {isSelf && <span className="ml-2 text-[8px] text-muted-dim">(you)</span>}
+                    {isSelf && <span className="ml-2 text-[10px] text-muted-dim">(you)</span>}
                   </Td>
                   <Td>
-                    <span className="text-[9px] text-muted">{staff.email}</span>
+                    <span className="text-[11px] text-muted">{staff.email}</span>
                   </Td>
                   <Td>
-                    <span className="text-[9px] text-muted">
+                    <span className="text-[11px] text-muted">
                       {staff.facility ? staff.facility.name : "Unassigned"}
                     </span>
                   </Td>
@@ -248,7 +248,7 @@ const StaffAccountsPage = () => {
                             lastName: staff.lastName ?? "",
                           });
                         }}
-                        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                        className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
                       >
                         Edit
                       </button>
@@ -260,7 +260,7 @@ const StaffAccountsPage = () => {
                               setActionError("");
                               setConfirmAction({ type: "deactivate", staff });
                             }}
-                            className="text-[9px] font-semibold text-warning transition hover:text-[#8a5400]"
+                            className="text-[11px] font-semibold text-warning transition hover:text-[#8a5400]"
                           >
                             Deactivate
                           </button>
@@ -272,7 +272,7 @@ const StaffAccountsPage = () => {
                             setActionError("");
                             setConfirmAction({ type: "activate", staff });
                           }}
-                          className="text-[9px] font-semibold text-success transition hover:text-[#155c2c]"
+                          className="text-[11px] font-semibold text-success transition hover:text-[#155c2c]"
                         >
                           Activate
                         </button>
@@ -283,7 +283,7 @@ const StaffAccountsPage = () => {
                           setActionError("");
                           setConfirmAction({ type: "reset", staff });
                         }}
-                        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                        className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
                       >
                         Reset password
                       </button>
@@ -294,7 +294,7 @@ const StaffAccountsPage = () => {
                             setActionError("");
                             setConfirmAction({ type: "delete", staff });
                           }}
-                          className="text-[9px] font-semibold text-danger transition hover:text-danger-strong"
+                          className="text-[11px] font-semibold text-danger transition hover:text-danger-strong"
                         >
                           Delete
                         </button>
@@ -325,7 +325,7 @@ const StaffAccountsPage = () => {
               onChange={(event) => setCreateEmail(event.target.value)}
               placeholder="you@example.com"
             />
-            <p className="text-[9px] leading-relaxed text-muted-dim">
+            <p className="text-[11px] leading-relaxed text-muted-dim">
               The server generates a default password and emails it to the staff member. You
               will also see it once so you can share it securely.
             </p>

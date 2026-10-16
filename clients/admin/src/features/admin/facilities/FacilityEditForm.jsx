@@ -48,7 +48,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
 
   return (
     <Card as="form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-      <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Facility details</h2>
+      <h2 className="mb-3 text-[13px] font-bold text-ink-soft">Facility details</h2>
 
       {/* Row 1 — identity: two long-text fields */}
       <div className="grid gap-3 sm:grid-cols-2">
@@ -111,7 +111,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           onChange={({ latitude, longitude }) => update({ latitude, longitude })}
           height={240}
         />
-        <p className="mt-1 text-[9px] text-muted">
+        <p className="mt-1 text-[11px] text-muted">
           {formatCoords(draft.latitude, draft.longitude) ||
             "No location set — click the map to place the marker."}
         </p>

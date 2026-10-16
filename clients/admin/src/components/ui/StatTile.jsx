@@ -14,8 +14,8 @@ const StatTile = ({ label, value, icon, className = "" }) => (
         </span>
       )}
       <div className="min-w-0">
-        <p className="text-[15px] font-bold leading-5 text-ink-soft">{value}</p>
-        <p className="mt-0.5 text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">
+        <p className="text-[17px] font-bold leading-5 text-ink-soft">{value}</p>
+        <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.5px] text-muted">
           {label}
         </p>
       </div>

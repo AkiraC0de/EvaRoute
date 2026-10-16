@@ -20,15 +20,15 @@ const MapErrorState = ({ height = 260, onRetry }) => (
     className="flex h-full w-full flex-col items-center justify-center gap-2 bg-sunken px-4 text-center"
     style={{ height }}
   >
-    <p className="text-[10px] font-semibold text-ink-soft">The map could not be loaded.</p>
-    <p className="text-[9px] text-muted">
+    <p className="text-[12px] font-semibold text-ink-soft">The map could not be loaded.</p>
+    <p className="text-[11px] text-muted">
       Locations still save as coordinates — the map is visual only.
     </p>
     {onRetry && (
       <button
         type="button"
         onClick={onRetry}
-        className="mt-1 rounded-clay-sm bg-accent px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-accent-strong"
+        className="mt-1 rounded-clay-sm bg-accent px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
       >
         Try again
       </button>

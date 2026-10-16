@@ -18,6 +18,11 @@ import ResourceIcon from "./ResourceIcon";
 /**
  * A single facility resource, backed by a real `FacilityResource` record.
  *
+ * Compact operational tile: identity row (icon, name, essential chip), one
+ * state line (status pill for availability resources, count + meter for
+ * counted stock), then the controls. No fixed minimum height — the tile is
+ * exactly as tall as its content.
+ *
  * Every mutation goes to the API and the card re-renders only from the record
  * the API returns — there is no optimistic local update and no local fallback,
  * so a failed PATCH can never look like a successful one.
@@ -25,9 +30,6 @@ import ResourceIcon from "./ResourceIcon";
  *   QUANTITY -> PATCH { availableValue }
  *   BOOLEAN  -> PATCH { isAvailable }
  *   remove   -> DELETE, behind an inline confirmation step
- *
- * Delete flow matches the original card: the header trash button hides while
- * confirming, and the footer controls are REPLACED by the confirm strip.
  */
 const ResourceCard = ({ resource, onSave, onDelete }) => {
   const { busy, error, setError, run } = useAsyncAction();
@@ -43,17 +45,24 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
     );
 
   return (
-    <Card as="article" pad="p-4" className="flex min-h-60 flex-col">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset">
-          <ResourceIcon name={resource.name} essentialType={resource.essentialType} />
+    <Card
+      as="article"
+      pad="p-3"
+      className="flex flex-col gap-2 transition duration-200 hover:-translate-y-0.5 hover:shadow-clay-lg"
+    >
+      {/* Identity */}
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset">
+          <ResourceIcon name={resource.name} essentialType={resource.essentialType} size={15} />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[12px] font-bold text-ink-soft">{resource.name}</h3>
-          <p className="mt-0.5 flex items-center gap-1.5 text-[9px] text-muted">
-            {displaySubtitle(resource)}
+          <h3 className="truncate text-[14px] font-bold leading-tight text-ink-soft" title={resource.name}>
+            {resource.name}
+          </h3>
+          <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-muted">
+            {quantity && <span className="truncate">{displaySubtitle(resource)}</span>}
             {resource.essentialType && (
-              <span className="rounded-full bg-accent-soft px-1.5 py-px text-[7px] font-bold uppercase tracking-[0.5px] text-accent">
+              <span className="shrink-0 rounded-full bg-sunken px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.5px] text-ink-soft shadow-clay-inset">
                 Essential
               </span>
             )}
@@ -71,36 +80,39 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
         )}
       </div>
 
-      <div className="mt-3 flex items-baseline justify-between gap-2">
-        <div>
-          <span className="text-[18px] font-bold text-ink-soft">{displayValue(resource)}</span>
-          {unit && <span className="ml-1 text-[9px] text-muted">{unit}</span>}
-        </div>
-        {quantity && percentage !== null && (
-          <span className="shrink-0 text-[8px] text-muted">{percentage}% stock</span>
-        )}
-      </div>
-
-      {quantity && percentage !== null && (
-        <div className="mt-2">
-          <div className="h-2 overflow-hidden rounded-full bg-sunken shadow-clay-inset">
-            <div
-              className="h-full rounded-full bg-success"
-              style={{ width: `${percentage}%` }}
-            />
+      {/* State — for counted stock. Availability resources show their state on
+          the control itself (the active segment is the label), so there is no
+          redundant status row. */}
+      {quantity && (
+        <>
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[17px] font-bold leading-none text-ink-soft">
+              {displayValue(resource)}
+              {unit && <span className="ml-1 text-[11px] font-medium text-muted">{unit}</span>}
+            </p>
+            {percentage !== null && (
+              <span className="shrink-0 text-[10px] text-muted">{percentage}% stock</span>
+            )}
           </div>
-        </div>
+          {percentage !== null && (
+            <div className="h-1.5 overflow-hidden rounded-full bg-sunken shadow-clay-inset">
+              <div
+                className="h-full rounded-full bg-success"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {error && (
-        <div className="mt-2">
-          <Banner tone="error" className="px-2.5 py-1.5 text-[9px]">
-            {error}
-          </Banner>
-        </div>
+        <Banner tone="error" className="px-2.5 py-1.5 text-[11px]">
+          {error}
+        </Banner>
       )}
 
-      <div className="mt-auto flex justify-center pt-3">
+      {/* Controls */}
+      <div className="flex justify-center">
         {confirmingDelete ? (
           <ConfirmDeleteBar
             busy={busy}

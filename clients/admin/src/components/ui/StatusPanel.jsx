@@ -27,10 +27,10 @@ const StatusPanel = ({ tone = "info", title, children, onRetry, retryLabel = "Tr
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className={`rounded-clay px-4 py-6 text-center text-[11px] ${palette.wrap}`}
+      className={`rounded-clay px-4 py-6 text-center text-[13px] ${palette.wrap}`}
     >
       {title && (
-        <p className={`text-[12px] font-bold ${palette.title}`}>{title}</p>
+        <p className={`text-[14px] font-bold ${palette.title}`}>{title}</p>
       )}
       {children && <p className="mt-1 leading-relaxed">{children}</p>}
       {onRetry && (

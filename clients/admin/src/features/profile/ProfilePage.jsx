@@ -33,7 +33,7 @@ const ProfilePage = () => {
         <section aria-labelledby="account-information-heading">
           <h2
             id="account-information-heading"
-            className="mb-3 text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
+            className="mb-3 text-[10px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
           >
             Account Information
           </h2>
@@ -43,7 +43,7 @@ const ProfilePage = () => {
         <section aria-labelledby="security-heading">
           <h2
             id="security-heading"
-            className="mb-3 text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
+            className="mb-3 text-[10px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
           >
             Security
           </h2>

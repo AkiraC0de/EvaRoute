@@ -21,20 +21,20 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
       <div className="flex min-h-8 items-center gap-3">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[9px] font-bold text-accent"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[11px] font-bold text-accent"
         >
           {initials}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[10px] font-bold text-ink-soft">{stay.familyName}</p>
-          <p className="text-[10px] font-semibold text-muted">
+          <p className="truncate text-[12px] font-bold text-ink-soft">{stay.familyName}</p>
+          <p className="text-[12px] font-semibold text-muted">
             {total} {total === 1 ? "member" : "members"} ({adults} adult{adults === 1 ? "" : "s"},{" "}
             {children} {children === 1 ? "child" : "children"}) · {formatCheckedInAt(stay.checkedInAt)}
           </p>
         </div>
         <span
           title={`Check-in ID ${code}`}
-          className="shrink-0 font-black rounded-full bg-sunken px-2.5 py-1 font-mono text-[10px] tracking-[1px] text-ink-soft shadow-clay-inset"
+          className="shrink-0 font-black rounded-full bg-sunken px-2.5 py-1 font-mono text-[12px] tracking-[1px] text-ink-soft shadow-clay-inset"
         >
           {code}
         </span>
@@ -52,7 +52,7 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
         {stay.members.map((member) => (
           <li
             key={member.id}
-            className={`rounded-full px-2 py-0.5 text-[8px] font-medium shadow-clay-inset ${
+            className={`rounded-full px-2 py-0.5 text-[10px] font-medium shadow-clay-inset ${
               member.ageGroup === "CHILD"
                 ? "bg-warning-soft text-warning"
                 : "bg-accent-soft text-accent"

@@ -53,7 +53,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         if (!incomplete && !overCapacity) submit();
       }}
     >
-      <h2 className="mb-2 text-[12px] font-bold text-ink-soft">New check-in</h2>
+      <h2 className="mb-2 text-[14px] font-bold text-ink-soft">New check-in</h2>
 
       <TextField
         id="household-name"
@@ -63,7 +63,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         placeholder="Enter family name"
       />
 
-      <p className="mb-1 mt-3 text-[8px] font-semibold uppercase tracking-[0.5px] text-muted">
+      <p className="mb-1 mt-3 text-[10px] font-semibold uppercase tracking-[0.5px] text-muted">
         Family members
       </p>
       <ul className="space-y-2">
@@ -105,7 +105,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       <button
         type="button"
         onClick={() => setMembers((current) => [...current, emptyMember()])}
-        className="mt-2 inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+        className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
       >
         <UserPlus size={12} strokeWidth={2} /> Add family member
       </button>
@@ -116,7 +116,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         </div>
       )}
       {overCapacity && (
-        <p role="status" className="mt-2 text-[9px] text-danger">
+        <p role="status" className="mt-2 text-[11px] text-danger">
           Not enough capacity for this household ({people} people, {remaining} slot{remaining === 1 ? "" : "s"} left).
         </p>
       )}

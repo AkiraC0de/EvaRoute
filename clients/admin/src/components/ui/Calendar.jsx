@@ -15,8 +15,8 @@ const Calendar = ({ mode = "single", selected, onSelect, className = "", ...prop
     classNames={{
       months: "flex gap-3",
       month: "space-y-2",
-      month_caption: "flex h-8 items-center justify-center text-[11px] font-bold text-ink",
-      caption_label: "text-[11px] font-bold text-ink",
+      month_caption: "flex h-8 items-center justify-center text-[13px] font-bold text-ink",
+      caption_label: "text-[13px] font-bold text-ink",
       nav: "flex items-center justify-between gap-1",
       button_previous:
         "flex h-7 w-7 items-center justify-center rounded-clay-sm text-muted transition hover:bg-sunken hover:text-ink",
@@ -25,12 +25,12 @@ const Calendar = ({ mode = "single", selected, onSelect, className = "", ...prop
       chevron: "fill-none stroke-current",
       month_grid: "w-full border-collapse",
       weekdays: "flex",
-      weekday: "w-8 py-1 text-center text-[8px] font-semibold uppercase text-muted",
+      weekday: "w-8 py-1 text-center text-[10px] font-semibold uppercase text-muted",
       weeks: "flex flex-col gap-0.5",
       week: "flex",
       day: "relative flex h-8 w-8 items-center justify-center",
       day_button:
-        "flex h-8 w-8 items-center justify-center rounded-clay-sm text-[10px] font-medium text-ink-soft outline-none transition hover:bg-sunken data-[focused]:ring-2 data-[focused]:ring-accent",
+        "flex h-8 w-8 items-center justify-center rounded-clay-sm text-[12px] font-medium text-ink-soft outline-none transition hover:bg-sunken data-[focused]:ring-2 data-[focused]:ring-accent",
       selected: "bg-transparent data-[selected]:text-white",
       range_start: "rounded-clay-sm bg-accent text-white",
       range_middle: "rounded-none bg-accent-soft text-accent-strong",

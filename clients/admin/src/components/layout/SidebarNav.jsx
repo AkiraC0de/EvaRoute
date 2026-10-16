@@ -21,10 +21,10 @@ import { useAuth } from "../../context/AuthContext";
 const ITEM =
   "group relative mb-1 flex w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition";
 const SECTION_LABEL =
-  "mb-2 ml-2 text-[8px] font-semibold uppercase tracking-[1.5px] text-muted-dim";
+  "mb-2 ml-2 text-[10px] font-semibold uppercase tracking-[1.5px] text-muted-dim";
 
 const labelClasses = ({ isActive }) =>
-  `relative z-10 text-[11px] ${
+  `relative z-10 text-[13px] ${
     isActive ? "font-semibold text-accent-strong" : "font-medium text-[#687594]"
   }`;
 

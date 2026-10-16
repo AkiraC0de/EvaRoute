@@ -145,7 +145,7 @@ export default function HistoryPage() {
         />
       </Card>
 
-      <p className="mt-3 text-[9px] text-muted">
+      <p className="mt-3 text-[11px] text-muted">
         Newest first. {admin ? "" : "Limited to your facility."} Times shown in your local timezone.
       </p>
     </div>

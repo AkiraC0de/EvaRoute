@@ -127,7 +127,7 @@ const SecuritySection = ({ onBusyChange }) => {
       </Card>
 
       {!error && !notice && (
-        <p className="mt-3 text-[9px] leading-relaxed text-muted-dim">
+        <p className="mt-3 text-[11px] leading-relaxed text-muted-dim">
           Sign-out actions call the live API. Password change is not wired.
         </p>
       )}

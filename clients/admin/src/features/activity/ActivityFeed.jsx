@@ -31,7 +31,7 @@ export default function ActivityFeed({
 
   const refreshButton = showRefresh && (
     <div className="flex items-center justify-between px-4 py-2.5">
-      <span className="text-[11px] font-bold text-ink-soft">
+      <span className="text-[13px] font-bold text-ink-soft">
         {loading ? "Loading…" : `${activities.length} recent ${activities.length === 1 ? "entry" : "entries"}`}
       </span>
       <Button variant="neutral" size="sm" onClick={reload} disabled={loading} aria-label="Refresh activity">
@@ -74,14 +74,14 @@ export default function ActivityFeed({
 
   if (activities.length === 0) {
     return compact ? (
-      <p className="px-4 py-3 text-[10px] text-muted">No recent activity.</p>
+      <p className="px-4 py-3 text-[12px] text-muted">No recent activity.</p>
     ) : (
       <>
         {refreshButton}
         <div className="px-4 pb-8 pt-2 text-center">
           <EmptyArt variant="boxes" className="mx-auto h-18 w-32" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">{emptyTitle}</p>
-          <p className="mt-1 text-[10px] text-muted">{emptyDetail}</p>
+          <p className="mt-3 text-[15px] font-bold text-ink-soft">{emptyTitle}</p>
+          <p className="mt-1 text-[12px] text-muted">{emptyDetail}</p>
         </div>
       </>
     );

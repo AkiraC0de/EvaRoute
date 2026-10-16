@@ -22,8 +22,8 @@ const HouseholdList = ({ stays, busy, onCheckOut }) => {
   return (
     <Card className="flex h-full w-full min-h-80 flex-col">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[12px] font-bold text-ink-soft">Checked in now</h2>
-        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[8px] font-semibold text-muted shadow-clay-inset">
+        <h2 className="text-[14px] font-bold text-ink-soft">Checked in now</h2>
+        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
           {stays.length} household{stays.length === 1 ? "" : "s"}
         </span>
       </div>
@@ -41,7 +41,7 @@ const HouseholdList = ({ stays, busy, onCheckOut }) => {
           <HouseholdListItem key={stay.id} stay={stay} busy={busy} onCheckOut={onCheckOut} />
         ))}
         {matches.length === 0 && (
-          <li className="py-8 text-center text-[10px] text-muted">
+          <li className="py-8 text-center text-[12px] text-muted">
             {needle
               ? `No households match “${searchInput.trim()}”. Try part of the family name or the check-in ID.`
               : "No households checked in."}
@@ -53,7 +53,7 @@ const HouseholdList = ({ stays, busy, onCheckOut }) => {
         <button
           type="button"
           onClick={() => setSearchInput("")}
-          className="mx-auto mt-3 block text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+          className="mx-auto mt-3 block text-[11px] font-semibold text-accent transition hover:text-accent-strong"
         >
           Clear search
         </button>

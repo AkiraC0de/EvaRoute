@@ -27,7 +27,7 @@ const AccountInformationCard = ({ user, facility }) => {
           <ReadOnlyField key={label} label={label} value={value} />
         ))}
       </div>
-      <p className="mt-4 px-1 text-[9px] leading-relaxed text-muted-dim">
+      <p className="mt-4 px-1 text-[11px] leading-relaxed text-muted-dim">
         These fields are read-only: the API exposes no staff self-edit
         endpoint (PATCH /api/v1/staff/:userId requires the admin-only
         EDIT_STAFF_ACC permission). Phone number and staff ID are not part

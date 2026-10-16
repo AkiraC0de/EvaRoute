@@ -23,10 +23,10 @@ const UnauthorizedPage = () => {
         <div className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-danger-soft text-danger shadow-clay-inset">
           <ShieldCheck size={20} strokeWidth={1.8} />
         </div>
-        <h2 className="mt-3 text-[13px] font-bold text-ink">
+        <h2 className="mt-3 text-[15px] font-bold text-ink">
           You don't have access to this page
         </h2>
-        <p className="mt-2 text-[10px] leading-relaxed text-muted">
+        <p className="mt-2 text-[12px] leading-relaxed text-muted">
           {attempted ? (
             <>
               The page <span className="font-semibold text-ink-soft">{attempted}</span> is

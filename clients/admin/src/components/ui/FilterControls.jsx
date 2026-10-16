@@ -8,7 +8,7 @@ import SelectInput from "./Select";
  */
 
 const CONTROL_CLASS =
-  "h-9 rounded-clay-sm bg-sunken px-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2";
+  "h-9 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-[#f2f5fb] ring-accent focus:ring-2";
 
 const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" }) => (
   <div className={`relative w-full max-w-[240px] ${className}`}>
@@ -23,7 +23,7 @@ const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" 
       onChange={onChange}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className={`h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2 ${className}`}
+      className={`h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-[#f2f5fb] ring-accent focus:ring-2 ${className}`}
     />
   </div>
 );
@@ -42,7 +42,7 @@ const FilterSelect = ({ value, onChange, ariaLabel, children, className = "" }) 
 
 const FilterDate = ({ value, onChange, ariaLabel, label }) => (
   <label className="flex items-center gap-1.5">
-    <span className="text-[9px] font-medium text-[#65718c]">{label}</span>
+    <span className="text-[11px] font-medium text-[#65718c]">{label}</span>
     <input
       type="date"
       value={value}

@@ -12,7 +12,7 @@ const TONES = {
 
 const StatusPill = ({ tone = "neutral", children }) => (
   <span
-    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[8px] font-semibold shadow-clay-inset ${TONES[tone] ?? TONES.neutral}`}
+    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold shadow-clay-inset ${TONES[tone] ?? TONES.neutral}`}
   >
     {children}
   </span>

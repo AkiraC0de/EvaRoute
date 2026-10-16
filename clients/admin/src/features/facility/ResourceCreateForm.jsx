@@ -104,7 +104,7 @@ const ResourceCreateForm = ({ onCreate }) => {
           onClose={close}
         >
           <form onSubmit={handleSubmit}>
-            <p className="mb-4 text-[10px] leading-relaxed text-muted">
+            <p className="mb-4 text-[12px] leading-relaxed text-muted">
               Add a supply or amenity to this facility. Counted resources track
               how much is left; availability resources are simply in stock or not.
             </p>

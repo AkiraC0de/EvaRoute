@@ -17,7 +17,7 @@ const ResetRequestStep = ({ email, onEmailChange, onSubmit, busy }) => (
       onChange={(event) => onEmailChange(event.target.value)}
       placeholder="you@example.com"
     />
-    <p className="text-[9px] leading-relaxed text-muted-dim">
+    <p className="text-[11px] leading-relaxed text-muted-dim">
       We'll email you a 5-digit code. The code is valid for 15 minutes.
     </p>
     <Button type="submit" disabled={busy} className="min-h-10 w-full">

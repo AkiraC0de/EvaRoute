@@ -65,7 +65,7 @@ const MobileBottomNav = () => {
                       className="relative z-10 shrink-0"
                     />
                   )}
-                  <span className="relative z-10 max-w-full truncate text-[8px] font-semibold leading-none">
+                  <span className="relative z-10 max-w-full truncate text-[10px] font-semibold leading-none">
                     {shortLabel ?? label}
                   </span>
                 </>

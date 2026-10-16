@@ -39,10 +39,10 @@ const ConfirmDialog = ({
         <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-[#273556]/40" />
         <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-clay bg-surface p-5 shadow-clay-lg">
           <AlertDialog.Title asChild>
-            <h2 className="text-[13px] font-bold text-ink">{title}</h2>
+            <h2 className="text-[15px] font-bold text-ink">{title}</h2>
           </AlertDialog.Title>
           <AlertDialog.Description asChild>
-            <p className="mt-2 text-[10px] leading-relaxed text-[#65718c]">{message}</p>
+            <p className="mt-2 text-[12px] leading-relaxed text-[#65718c]">{message}</p>
           </AlertDialog.Description>
 
           {requireText && (

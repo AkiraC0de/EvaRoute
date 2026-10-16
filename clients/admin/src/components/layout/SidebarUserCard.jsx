@@ -24,14 +24,14 @@ const SidebarUserCard = () => {
           }`
         }
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[10px] font-bold text-accent-strong">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[12px] font-bold text-accent-strong">
           {initialsOf(user)}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[10px] font-semibold text-ink-soft">
+          <span className="block truncate text-[12px] font-semibold text-ink-soft">
             {displayNameOf(user)}
           </span>
-          <span className="block text-[8px] text-muted-dim">
+          <span className="block text-[10px] text-muted-dim">
             {roleLabelOf(user?.role)}
           </span>
         </span>

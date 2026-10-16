@@ -95,18 +95,18 @@ const FacilityDetailPage = () => {
     <div>
       <Link
         to="/facilities"
-        className="inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+        className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
       >
         <ArrowLeft size={12} strokeWidth={2} /> Back to facilities
       </Link>
 
       <header className="mb-4 mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-[20px] font-bold leading-tight text-ink">
+          <h1 className="text-[22px] font-bold leading-tight text-ink">
             {facility?.name ?? "Facility"}
           </h1>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <p className="inline-flex items-center gap-1 text-[11px] text-muted">
+            <p className="inline-flex items-center gap-1 text-[13px] text-muted">
               <MapPin size={11} strokeWidth={1.9} aria-hidden="true" />
               {facility ? facility.address : "Loading facility…"}
             </p>
@@ -178,7 +178,7 @@ const FacilityDetailPage = () => {
                 This facility has no resources yet. Add the first one from the button above.
               </StatusPanel>
             ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {resources.map((resource) => (
                   <ResourceCard
                     key={resource.id}
@@ -193,7 +193,7 @@ const FacilityDetailPage = () => {
 
           <DetailSection title="Checked-in evacuees">
             {occupancy && (
-              <p className="mb-3 text-[9px] text-muted">
+              <p className="mb-3 text-[11px] text-muted">
                 {occupancy.members} of {occupancy.maxCapacity} places occupied ·{" "}
                 {occupancy.remaining} remaining
               </p>
@@ -218,7 +218,7 @@ const FacilityDetailPage = () => {
             action={
               <Link
                 to="/history"
-                className="inline-flex items-center gap-1.5 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
               >
                 Open in history →
               </Link>

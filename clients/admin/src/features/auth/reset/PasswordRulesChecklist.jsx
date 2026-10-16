@@ -22,13 +22,13 @@ const PasswordRulesChecklist = ({ password }) => (
       return (
         <li
           key={rule.label}
-          className={`flex items-center gap-1.5 text-[8px] font-medium ${
+          className={`flex items-center gap-1.5 text-[10px] font-medium ${
             met ? "text-[#1f7a3d]" : "text-[#8290aa]"
           }`}
         >
           <span
             aria-hidden="true"
-            className="flex h-3 w-3 items-center justify-center rounded-full text-[7px] font-bold text-white"
+            className="flex h-3 w-3 items-center justify-center rounded-full text-[9px] font-bold text-white"
             style={{ background: met ? "#3fa35f" : "#c2cada" }}
           >
             {met ? "✓" : ""}

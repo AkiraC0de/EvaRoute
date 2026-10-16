@@ -23,13 +23,13 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
           <Td>
             <Link
               to={`/facilities/${facility.id}`}
-              className="text-[10px] font-semibold text-accent transition hover:text-accent-strong"
+              className="text-[12px] font-semibold text-accent transition hover:text-accent-strong"
             >
               {facility.name}
             </Link>
           </Td>
           <Td>
-            <span className="block max-w-[220px] truncate text-[9px] text-muted">
+            <span className="block max-w-[220px] truncate text-[11px] text-muted">
               {facility.address}
             </span>
           </Td>
@@ -39,23 +39,23 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
             </StatusPill>
           </Td>
           <Td>
-            <span className="text-[9px] text-muted">{facility.maxCapacity}</span>
+            <span className="text-[11px] text-muted">{facility.maxCapacity}</span>
           </Td>
           <Td>
-            <span className="text-[9px] text-muted">{facility.staffCount ?? 0}</span>
+            <span className="text-[11px] text-muted">{facility.staffCount ?? 0}</span>
           </Td>
           <Td>
             <div className="flex items-center gap-2">
               <Link
                 to={`/facilities/${facility.id}`}
-                className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
               >
                 Manage
               </Link>
               <button
                 type="button"
                 onClick={() => onToggle(facility)}
-                className={`inline-flex items-center gap-1 text-[9px] font-semibold transition ${
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold transition ${
                   showDeleted
                     ? "text-success hover:text-[#155c2c]"
                     : "text-danger hover:text-danger-strong"

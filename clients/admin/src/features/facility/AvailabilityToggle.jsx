@@ -14,11 +14,11 @@ const AvailabilityToggle = ({ value, busy, onToggle }) => (
         aria-pressed={option.active}
         disabled={busy}
         onClick={() => onToggle(option.next)}
-        className={`flex-1 rounded-full px-3 py-1.5 text-[9px] font-semibold transition disabled:opacity-60 ${
+        className={`min-h-8 flex-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition disabled:opacity-60 ${
           option.active
             ? option.next
               ? "bg-success text-white shadow-clay-xs"
-              : "bg-surface text-ink-soft shadow-clay-xs"
+              : "bg-warning-soft text-warning shadow-clay-xs"
             : "text-muted hover:text-ink-soft"
         }`}
       >

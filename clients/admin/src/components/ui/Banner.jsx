@@ -12,7 +12,7 @@ const TONES = {
   success: { wrap: "bg-success-soft font-medium text-success", role: "status" },
 };
 
-const Banner = ({ tone = "info", className = "px-3 py-2 text-[10px]", children }) => {
+const Banner = ({ tone = "info", className = "px-3 py-2 text-[12px]", children }) => {
   const palette = TONES[tone] ?? TONES.info;
 
   return (

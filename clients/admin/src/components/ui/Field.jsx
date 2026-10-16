@@ -27,9 +27,9 @@ const FieldShell = ({ id, label, error, hint, className = "", children }) => (
       </span>
     )}
     {children}
-    {hint && !error && <p className="mt-1 text-[9px] text-muted">{hint}</p>}
+    {hint && !error && <p className="mt-1 text-[11px] text-muted">{hint}</p>}
     {error && (
-      <p role="alert" className="mt-1 text-[9px] font-medium text-danger">
+      <p role="alert" className="mt-1 text-[11px] font-medium text-danger">
         {error}
       </p>
     )}

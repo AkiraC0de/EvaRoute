@@ -29,10 +29,10 @@ const OccupancyMeter = ({ occupancy, capacity }) => {
       className="mb-4 rounded-clay bg-surface p-4 shadow-clay"
     >
       <div className="mb-3 flex flex-wrap items-baseline gap-2">
-        <span className="text-[20px] font-bold text-ink-soft">{occupancy}</span>
-        <span className="text-[11px] font-semibold text-muted">/ {capacity} places taken</span>
+        <span className="text-[22px] font-bold text-ink-soft">{occupancy}</span>
+        <span className="text-[13px] font-semibold text-muted">/ {capacity} places taken</span>
         <span
-          className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[8px] font-bold shadow-clay-inset ${CHIP_TONE[state.tone]}`}
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold shadow-clay-inset ${CHIP_TONE[state.tone]}`}
         >
           <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${BAR_TONE[state.tone]}`} />
           {state.label} · {pct}%
@@ -53,7 +53,7 @@ const OccupancyMeter = ({ occupancy, capacity }) => {
         />
       </div>
 
-      <div className="mt-1.5 flex justify-between text-[8px] text-muted">
+      <div className="mt-1.5 flex justify-between text-[10px] text-muted">
         <span>
           {remaining} seat{remaining === 1 ? "" : "s"} remaining
         </span>

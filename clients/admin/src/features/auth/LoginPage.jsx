@@ -36,8 +36,8 @@ const LoginPage = () => {
               <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
             </div>
             <div>
-              <p className="text-[13px] font-bold text-ink">EvaRoute</p>
-              <p className="text-[8px] font-semibold uppercase tracking-[1.5px] text-muted-dim">
+              <p className="text-[15px] font-bold text-ink">EvaRoute</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[1.5px] text-muted-dim">
                 Staff Portal
               </p>
             </div>
@@ -53,8 +53,8 @@ const LoginPage = () => {
                   animate="show"
                   exit="exit"
                 >
-                  <h2 className="text-[15px] font-bold text-ink">Reset your password</h2>
-                  <p className="mb-5 mt-1 text-[11px] text-muted">
+                  <h2 className="text-[17px] font-bold text-ink">Reset your password</h2>
+                  <p className="mb-5 mt-1 text-[13px] text-muted">
                     Follow the three steps to get back into your account.
                   </p>
                   <ResetPasswordFlow onBackToSignIn={() => setView("signin")} />
@@ -75,7 +75,7 @@ const LoginPage = () => {
 
           <motion.p
             variants={v.fadeUp}
-            className="mt-4 text-center text-[8px] font-medium uppercase tracking-[1.5px] text-muted-dim lg:hidden"
+            className="mt-4 text-center text-[10px] font-medium uppercase tracking-[1.5px] text-muted-dim lg:hidden"
           >
             Evacuation center operations
           </motion.p>

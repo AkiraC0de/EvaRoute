@@ -15,7 +15,7 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => (
       aria-pressed={value === true}
       disabled={disabled}
       onClick={() => onChange(true)}
-      className={`rounded-clay-sm px-2.5 py-1 text-[9px] font-semibold transition ${
+      className={`rounded-clay-sm px-2.5 py-1 text-[11px] font-semibold transition ${
         value === true
           ? "bg-success-soft text-success shadow-clay-xs"
           : "text-muted hover:text-ink-soft"
@@ -28,7 +28,7 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => (
       aria-pressed={value === false}
       disabled={disabled}
       onClick={() => onChange(false)}
-      className={`rounded-clay-sm px-2.5 py-1 text-[9px] font-semibold transition ${
+      className={`rounded-clay-sm px-2.5 py-1 text-[11px] font-semibold transition ${
         value === false
           ? "bg-surface text-ink-soft shadow-clay-xs"
           : "text-muted hover:text-ink-soft"

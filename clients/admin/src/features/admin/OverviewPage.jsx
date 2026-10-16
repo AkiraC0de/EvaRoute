@@ -51,11 +51,11 @@ const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
   <div className={`${CARD} transition hover:-translate-y-0.5 hover:shadow-clay-lg`}>
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-[8px] font-semibold uppercase tracking-[0.8px] text-muted">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.8px] text-muted">
           {label}
         </p>
-        <p className="mt-1 text-[22px] font-bold leading-none text-ink">{value}</p>
-        {caption && <p className="mt-1.5 text-[9px] text-muted">{caption}</p>}
+        <p className="mt-1 text-[24px] font-bold leading-none text-ink">{value}</p>
+        {caption && <p className="mt-1.5 text-[11px] text-muted">{caption}</p>}
       </div>
       {icon && (
         <span
@@ -81,11 +81,11 @@ const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
 /** Compact figure — an inset statistic (spec §4). */
 const MiniStat = ({ label, value, caption }) => (
   <div className="rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
-    <p className="text-[7px] font-semibold uppercase tracking-[0.5px] text-muted">
+    <p className="text-[9px] font-semibold uppercase tracking-[0.5px] text-muted">
       {label}
     </p>
-    <p className="mt-0.5 text-[15px] font-bold leading-5 text-ink">{value}</p>
-    {caption && <p className="mt-0.5 text-[8px] text-muted">{caption}</p>}
+    <p className="mt-0.5 text-[17px] font-bold leading-5 text-ink">{value}</p>
+    {caption && <p className="mt-0.5 text-[10px] text-muted">{caption}</p>}
   </div>
 );
 
@@ -94,8 +94,8 @@ const SectionCard = ({ title, meta, action, children }) => (
   <section className={CARD}>
     <div className="flex items-start justify-between gap-3">
       <div>
-        <h2 className="text-[11px] font-bold text-ink-soft">{title}</h2>
-        {meta && <p className="mt-1 text-[9px] text-muted">{meta}</p>}
+        <h2 className="text-[13px] font-bold text-ink-soft">{title}</h2>
+        {meta && <p className="mt-1 text-[11px] text-muted">{meta}</p>}
       </div>
       {action}
     </div>
@@ -111,13 +111,13 @@ const STATUS_LABEL = { AVAILABLE: "Available", UNAVAILABLE: "Unavailable", LIMIT
 const LoadRow = ({ facility }) => (
   <div className="py-2.5 first:pt-0 last:pb-0">
     <div className="flex items-center justify-between gap-2">
-      <p className="min-w-0 flex-1 truncate text-[10px] font-semibold text-ink-soft">
+      <p className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ink-soft">
         {facility.name}
       </p>
       <StatusPill tone={STATUS_TONE[facility.status] ?? "neutral"}>
         {STATUS_LABEL[facility.status] ?? facility.status}
       </StatusPill>
-      <p className="shrink-0 text-[9px] text-muted">
+      <p className="shrink-0 text-[11px] text-muted">
         <span className="font-semibold text-ink-soft">{facility.occupied}</span>
         /{facility.maxCapacity}
       </p>
@@ -169,23 +169,23 @@ const OverviewPage = () => {
         />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[8px] font-semibold uppercase tracking-[1px] text-white">
+            <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white">
               {today}
             </p>
-            <h1 className="mt-1 text-[20px] font-bold leading-tight text-white">
+            <h1 className="mt-1 text-[22px] font-bold leading-tight text-white">
               {greeting}, {firstName}
             </h1>
-            <p className="mt-1 text-[11px] text-white">
+            <p className="mt-1 text-[13px] text-white">
               Network operations at a glance — occupancy, staffing and activity.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[8px] font-semibold text-ink-soft shadow-clay-xs">
+              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[10px] font-semibold text-ink-soft shadow-clay-xs">
                 {summary?.facilities.total ?? "—"} facilities
               </span>
-              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[8px] font-semibold text-ink-soft shadow-clay-xs">
+              <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[10px] font-semibold text-ink-soft shadow-clay-xs">
                 {summary?.occupants.families ?? "—"} families on site
               </span>
-              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[8px] font-semibold text-accent-strong">
+              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-accent-strong">
                 {occupancyPct}% occupied
               </span>
             </div>
@@ -213,8 +213,8 @@ const OverviewPage = () => {
       {/* ── Stat row ───────────────────────────────────────────── */}
       {error && (
         <div className={CARD}>
-          <p className="text-[11px] font-semibold text-ink-soft">Could not load the dashboard</p>
-          <p className="mt-1 text-[10px] text-muted">{error.message}</p>
+          <p className="text-[13px] font-semibold text-ink-soft">Could not load the dashboard</p>
+          <p className="mt-1 text-[12px] text-muted">{error.message}</p>
           <Button variant="neutral" size="sm" className="mt-3" onClick={reload}>
             Try again
           </Button>
@@ -276,10 +276,10 @@ const OverviewPage = () => {
             meta="Daily check-ins and total events across the network."
             action={
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 text-[8px] font-semibold text-muted">
+                <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
                   <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Check-ins
                 </span>
-                <span className="flex items-center gap-1.5 text-[8px] font-semibold text-muted">
+                <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
                   <span className="h-2 w-2 rounded-full bg-accent-soft" aria-hidden="true" /> Other events
                 </span>
               </div>
@@ -291,7 +291,7 @@ const OverviewPage = () => {
               (timeline.every((bucket) => bucket.total === 0) ? (
                 <div className="py-12 text-center">
                   <EmptyArt variant="people" className="mx-auto h-16 w-28" />
-                  <p className="mt-2 text-[10px] text-muted">
+                  <p className="mt-2 text-[12px] text-muted">
                     No activity in the last 14 days — it will appear here as it happens.
                   </p>
                 </div>
@@ -299,7 +299,7 @@ const OverviewPage = () => {
                 <Chart data={timeline} />
               ))}
             {!chartLoading && !timeline && (
-              <p className="py-10 text-center text-[10px] text-muted">
+              <p className="py-10 text-center text-[12px] text-muted">
                 Activity data could not be loaded.
               </p>
             )}
@@ -311,7 +311,7 @@ const OverviewPage = () => {
             action={
               <Link
                 to="/history"
-                className={`inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
                 View full history →
               </Link>
@@ -328,7 +328,7 @@ const OverviewPage = () => {
             action={
               <Link
                 to="/facilities"
-                className={`inline-flex items-center gap-1 text-[9px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
               >
                 Manage →
               </Link>
@@ -354,7 +354,7 @@ const OverviewPage = () => {
             {summary && summary.facilityLoad.length === 0 && (
               <div className="py-6 text-center">
                 <EmptyArt variant="map" className="mx-auto h-16 w-28" />
-                <p className="mt-2 text-[10px] text-muted">
+                <p className="mt-2 text-[12px] text-muted">
                   No facilities yet — register one to start tracking load.
                 </p>
               </div>

@@ -23,10 +23,10 @@ const ResetVerifyStep = ({ email, otp, onOtpChange, onSubmit, onResend, onRestar
         value={otp}
         onChange={(event) => onOtpChange(event.target.value.replace(/\D/g, "").slice(0, 5))}
         placeholder="12345"
-        className="h-10 w-full rounded-clay-sm bg-sunken px-3 text-center text-[16px] font-bold tracking-[8px] text-[#2f3d5f] shadow-clay-inset outline-none transition placeholder:font-medium placeholder:tracking-[8px] placeholder:text-[#c2cada] hover:bg-[#f2f5fb] ring-accent focus:ring-2"
+        className="h-10 w-full rounded-clay-sm bg-sunken px-3 text-center text-[18px] font-bold tracking-[8px] text-[#2f3d5f] shadow-clay-inset outline-none transition placeholder:font-medium placeholder:tracking-[8px] placeholder:text-[#c2cada] hover:bg-[#f2f5fb] ring-accent focus:ring-2"
       />
     </label>
-    <p className="text-[9px] leading-relaxed text-muted-dim">
+    <p className="text-[11px] leading-relaxed text-muted-dim">
       Enter the 5-digit code sent to{" "}
       <span className="font-semibold text-[#65718c]">{email}</span>. Wrong
       codes are limited — resend if you run out.
@@ -39,14 +39,14 @@ const ResetVerifyStep = ({ email, otp, onOtpChange, onSubmit, onResend, onRestar
         type="button"
         onClick={onResend}
         disabled={busy}
-        className="text-[9px] font-semibold text-accent transition hover:text-accent-strong disabled:text-[#aeb9ee]"
+        className="text-[11px] font-semibold text-accent transition hover:text-accent-strong disabled:text-[#aeb9ee]"
       >
         Resend code
       </button>
       <button
         type="button"
         onClick={onRestart}
-        className="text-[9px] font-semibold text-muted transition hover:text-accent"
+        className="text-[11px] font-semibold text-muted transition hover:text-accent"
       >
         Use a different email
       </button>

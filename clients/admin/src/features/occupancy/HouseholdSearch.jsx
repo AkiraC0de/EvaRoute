@@ -17,14 +17,14 @@ const HouseholdSearch = ({ value, onChange, resultCount }) => (
     />
     {value && (
       <>
-        <span className="text-[9px] text-muted">
+        <span className="text-[11px] text-muted">
           {resultCount} match{resultCount === 1 ? "" : "es"}
         </span>
         <button
           type="button"
           aria-label="Clear household search"
           onClick={() => onChange({ target: { value: "" } })}
-          className="inline-flex h-9 items-center gap-1 rounded-clay-sm bg-sunken px-2.5 text-[9px] font-semibold text-muted shadow-clay-inset transition hover:text-ink-soft"
+          className="inline-flex h-9 items-center gap-1 rounded-clay-sm bg-sunken px-2.5 text-[11px] font-semibold text-muted shadow-clay-inset transition hover:text-ink-soft"
         >
           <X size={11} strokeWidth={2} /> Clear
         </button>

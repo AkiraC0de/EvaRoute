@@ -20,7 +20,7 @@
   border: none;
   color: var(--color-ink-soft);
   background: var(--color-surface);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 26px;
 }
 .clay-map .leaflet-bar a:hover {
@@ -32,7 +32,7 @@
 .clay-map .leaflet-control-attribution {
   background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   color: var(--color-muted);
-  font-size: 8px;
+  font-size: 10px;
   border-radius: 6px 0 0 0;
   padding: 2px 6px;
 }
@@ -89,7 +89,7 @@
   height: 20px;
   border-radius: 9999px;
   color: var(--color-muted);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20px;
   text-align: center;
 }
@@ -114,14 +114,14 @@
   background: var(--color-surface);
 }
 .clay-map .popup-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-ink);
   overflow-wrap: break-word;
 }
 .clay-map .popup-address {
   margin-top: 2px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--color-muted);
 }
 .clay-map .popup-foot {
@@ -135,7 +135,7 @@
   border: none;
   background: var(--color-accent);
   color: #ffffff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -156,7 +156,7 @@
   border-radius: 9999px;
   background: var(--color-surface);
   box-shadow: var(--shadow-clay-xs);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-ink-soft);
   pointer-events: none;
@@ -174,7 +174,7 @@
   border-width: 2px;
 }
 .clay-map .popup-status-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-ink-soft);
 }

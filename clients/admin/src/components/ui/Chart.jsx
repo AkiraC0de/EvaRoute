@@ -21,8 +21,8 @@ const ClayTooltip = ({ active, payload, label }) => {
   const row = payload[0]?.payload ?? {};
   return (
     <div className="rounded-clay-sm border border-line bg-surface px-3 py-2 shadow-clay">
-      <p className="text-[9px] font-semibold text-ink">{label}</p>
-      <p className="mt-1 text-[9px] text-muted">
+      <p className="text-[11px] font-semibold text-ink">{label}</p>
+      <p className="mt-1 text-[11px] text-muted">
         <span className="font-semibold text-accent">{row.checkIns ?? 0}</span> check-ins ·{" "}
         <span className="font-semibold text-ink-soft">{row.total ?? 0}</span> events
       </p>

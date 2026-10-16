@@ -91,7 +91,7 @@ const FacilityStaffSection = ({ facilityId }) => {
 
   return (
     <Card>
-      <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Staff assignment</h2>
+      <h2 className="mb-3 text-[13px] font-bold text-ink-soft">Staff assignment</h2>
 
       {actionError && (
         <div className="mb-3">
@@ -103,8 +103,8 @@ const FacilityStaffSection = ({ facilityId }) => {
         {/* Left pane — the roster */}
         <div>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="text-[10px] font-bold text-ink-soft">Assigned staff</h3>
-            <span className="shrink-0 rounded-full bg-sunken px-2 py-0.5 text-[8px] font-semibold text-muted shadow-clay-inset">
+            <h3 className="text-[12px] font-bold text-ink-soft">Assigned staff</h3>
+            <span className="shrink-0 rounded-full bg-sunken px-2 py-0.5 text-[10px] font-semibold text-muted shadow-clay-inset">
               {staff.length}
             </span>
           </div>
@@ -125,12 +125,12 @@ const FacilityStaffSection = ({ facilityId }) => {
                   className="flex items-center gap-3 rounded-clay-sm bg-sunken px-3 py-2 shadow-clay-inset"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-semibold text-ink-soft">
+                    <p className="truncate text-[12px] font-semibold text-ink-soft">
                       {member.firstName && member.lastName
                         ? `${member.firstName} ${member.lastName}`
                         : member.email}
                     </p>
-                    <p className="text-[8px] text-muted">{member.email}</p>
+                    <p className="text-[10px] text-muted">{member.email}</p>
                   </div>
                   <Button
                     variant="neutral"
@@ -145,7 +145,7 @@ const FacilityStaffSection = ({ facilityId }) => {
                 </li>
               ))}
               {staff.length === 0 && (
-                <li className="rounded-clay-sm bg-sunken py-4 text-center text-[9px] text-muted shadow-clay-inset">
+                <li className="rounded-clay-sm bg-sunken py-4 text-center text-[11px] text-muted shadow-clay-inset">
                   No staff assigned to this facility yet.
                 </li>
               )}
@@ -155,7 +155,7 @@ const FacilityStaffSection = ({ facilityId }) => {
 
         {/* Right pane — the assign picker */}
         <div className="rounded-clay-sm bg-sunken p-3 shadow-clay-inset">
-          <h3 className="mb-2 inline-flex items-center gap-1.5 text-[10px] font-bold text-ink-soft">
+          <h3 className="mb-2 inline-flex items-center gap-1.5 text-[12px] font-bold text-ink-soft">
             <UserPlus size={12} strokeWidth={2} aria-hidden="true" /> Assign staff
           </h3>
 
@@ -170,7 +170,7 @@ const FacilityStaffSection = ({ facilityId }) => {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search staff accounts…"
               aria-label="Search staff accounts"
-              className="h-9 w-full rounded-clay-sm bg-surface pl-8 pr-3 text-[10px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim ring-accent focus:ring-2"
+              className="h-9 w-full rounded-clay-sm bg-surface pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim ring-accent focus:ring-2"
             />
           </div>
 
@@ -181,12 +181,12 @@ const FacilityStaffSection = ({ facilityId }) => {
                 className="flex items-center gap-2 rounded-clay-sm px-2 py-1.5 transition hover:bg-surface"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[9px] font-semibold text-ink-soft">
+                  <p className="truncate text-[11px] font-semibold text-ink-soft">
                     {candidate.firstName && candidate.lastName
                       ? `${candidate.firstName} ${candidate.lastName}`
                       : candidate.email}
                   </p>
-                  <p className="text-[8px] text-muted">
+                  <p className="text-[10px] text-muted">
                     {candidate.facility ? `Currently: ${candidate.facility.name} (will transfer)` : "Unassigned"}
                   </p>
                 </div>
@@ -196,7 +196,7 @@ const FacilityStaffSection = ({ facilityId }) => {
               </li>
             ))}
             {candidates.length === 0 && (
-              <li className="py-3 text-center text-[9px] text-muted">
+              <li className="py-3 text-center text-[11px] text-muted">
                 {query ? "No staff accounts match that search." : "All staff accounts are already assigned here."}
               </li>
             )}
