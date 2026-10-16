@@ -61,7 +61,7 @@ export default function RoutePreviewCard({ facility, routeData, routeLoading, on
           </div>
           <div className="route-preview-stat">
             <StatIcon type="time"/>
-            <span>ETA</span>
+            <span>DURATION</span>
             <strong>{eta}</strong>
           </div>
           <div className="route-preview-stat">

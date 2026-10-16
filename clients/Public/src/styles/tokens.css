@@ -1,60 +1,66 @@
 :root {
   /* ============================================================
-   * EvaRoute Design Tokens — PROVISIONAL STARTER VALUES
+   * EvaRoute Design Tokens — v2 "Warm Clay"
    * ============================================================
-   * These values are based on the visual design specification's
-   * approximate values. They are NOT exact Figma values.
-   * Figma MCP is currently unavailable for verification.
-   * Replace with verified values when Figma MCP becomes available.
+   * One harmonized system for the public map app, in the same clay
+   * family as the admin client. Rules of the system:
+   *   - Accent blue is the ONLY brand colour; every accent tint comes
+   *     from --color-primary-soft / --color-primary (no raw rgba blues).
+   *   - Surfaces are warm-tinted white; depth comes from navy-tinted
+   *     three-layer shadows + a white top-left clay highlight.
+   *   - Wells (recessed groups) use --surface-inset with a soft inner
+   *     shadow; never a hard border on a structural surface.
    * ============================================================ */
 
   /* --- Surface Tokens --- */
-  --surface-base: #F0F4F8;
-  --surface-raised: #FFFFFF;
-  --surface-inset: #E2E8F0;
+  --surface-base: #EEF2F8;
+  --surface-raised: #FCFDFF; /* faint tint so the clay highlight reads */
+  --surface-inset: #E9EEF7;
 
   /* --- Color Tokens --- */
   --color-primary: #4A72FF;
-  --color-primary-hover: #3B62E0;
-  --color-text-primary: #1A2332;
-  --color-text-secondary: #64748B;
-  --color-text-caption: #94A3B8;
-  --color-success: #4CAF50;
-  --color-success-soft: #E8F5E9;
-  --color-warning: #FFA000;
-  --color-warning-soft: #FFF4D6;
-  --color-danger: #EF4444;
-  --color-full: #EF4444;
-  --color-full-soft: #FDECEC;
+  --color-primary-hover: #3A5EE8;
+  --color-primary-soft: #DFE8FF;
+  --color-text-primary: #1B2A44;
+  --color-text-secondary: #56678A;
+  --color-text-caption: #8B9BB8;
+  --color-border-subtle: rgba(27, 42, 68, 0.08);
+  --color-success: #2FA968;
+  --color-success-soft: #E3F6EC;
+  --color-warning: #D98A0B;
+  --color-warning-soft: #FCF1DC;
+  --color-danger: #E5484D;
+  --color-full: #E5484D;
+  --color-full-soft: #FCEBEB;
 
-  /* --- Map Tokens (provisional) --- */
+  /* --- Map Tokens --- */
   --color-map-land: #E8E0D5;
   --color-map-water: #C5D8E8;
   --color-map-park: #D4E8D0;
 
   /* --- Border Radius Tokens --- */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
   --radius-full: 999px;
 
-  /* --- Elevation / Shadow Tokens --- */
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-raised-sm: 0 2px 8px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-raised-md: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
-  --shadow-raised-lg: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
-  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.20), 0 4px 16px rgba(0, 0, 0, 0.14);
+  /* --- Elevation / Shadow Tokens ---
+   * Navy-tinted, three-layer "warm lift": an ultra-faint ring, a soft
+   * ambient shadow, and the primary lift. Never pure black. */
+  --shadow-inset: inset 0 2px 5px rgba(27, 42, 68, 0.10);
+  --shadow-raised-sm: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 1px 2px rgba(27, 42, 68, 0.06), 0 2px 8px rgba(27, 42, 68, 0.05);
+  --shadow-raised-md: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 2px 6px rgba(27, 42, 68, 0.06), 0 12px 28px rgba(27, 42, 68, 0.10);
+  --shadow-raised-lg: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 4px 10px rgba(27, 42, 68, 0.08), 0 20px 40px rgba(27, 42, 68, 0.14);
+  --shadow-floating: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 8px 16px rgba(27, 42, 68, 0.10), 0 28px 64px rgba(27, 42, 68, 0.18);
 
   /* --- Claymorphic recipe ---
-   * The clay look is a raised white surface + soft outer shadow + a white
-   * inner highlight that lights the top-left edge. This trio was previously
-   * copy-pasted inline with three different highlight opacities; these tokens
-   * are the single source so every raised surface matches. */
-  --clay-highlight: inset 4px 4px 10px rgba(255, 255, 255, 0.8);
-  /* Recessed clay control (search fields). Reads as pressed-in rather than
-     raised: a light inner top edge plus a soft dark well beneath it. */
-  --clay-inset: inset 0 2px 5px rgba(148, 163, 184, 0.28),
+   * Raised clay = warm lift + a white top-left inner highlight (the
+   * "lit edge" that makes a surface read as moulded rather than flat).
+   * Recessed clay = a soft dark well with a light bottom edge. */
+  --clay-highlight: inset 3px 3px 8px rgba(255, 255, 255, 0.9),
+                   inset -3px -3px 8px rgba(27, 42, 68, 0.07);
+  --clay-inset: inset 0 2px 5px rgba(27, 42, 68, 0.12),
                inset 0 -1px 0 rgba(255, 255, 255, 0.9);
   --shadow-clay-sm: var(--shadow-raised-sm), var(--clay-highlight);
   --shadow-clay-md: var(--shadow-raised-md), var(--clay-highlight);
@@ -73,7 +79,9 @@
   --space-2xl: 48px;
   --space-panel-margin: 24px;
 
-  /* --- Typography Tokens --- */
+  /* --- Typography Tokens ---
+   * Warm, confident weights (500–700 for UI); display sizes take a
+   * slight negative tracking for a modern, intimate feel. */
   --font-sans: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
   --font-size-xs: 11px;
   --font-size-sm: 13px;
@@ -85,6 +93,8 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --tracking-tight: -0.015em;
+  --tracking-wide: 0.06em;
 
   /* --- Z-index Tokens --- */
   --z-base: 0;
@@ -95,7 +105,7 @@
   --z-tooltip: 40;
   --z-modal: 50;
 
-  /* --- Responsive Breakpoint (provisional) --- */
+  /* --- Responsive Breakpoint --- */
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
@@ -104,7 +114,8 @@
   --panel-width: 400px;
   --route-card-width: var(--panel-width);
 
-  /* --- Animation Tokens --- */
+  /* --- Animation Tokens ---
+   * Motion is transform/opacity-first (cheap, compositor-friendly). */
   --duration-xs: 100ms;
   --duration-sm: 150ms;
   --duration-md: 250ms;
