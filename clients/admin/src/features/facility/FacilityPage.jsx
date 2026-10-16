@@ -68,7 +68,7 @@ const FacilityPage = () => {
   );
 
   return (
-    <div className="min-h-[calc(100vh-48px)] flex">
+    <div className="min-h-[calc(100vh-48px)]">
       <PageHeader
         title="My Facility"
         subtitle={facility ? facility.address : "Loading your assignment…"}
