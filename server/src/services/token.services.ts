@@ -1,6 +1,6 @@
-import prisma from "../lib/prisma"
-import { Prisma, TokenType, Token } from "../../generated/prisma/client";
-import { REQ_RESET_PASS_TOKEN, RESET_PASS_TOKEN } from "../configs/tokenConfig";
+import prisma from "../lib/prisma.js"
+import { Prisma, TokenType, Token } from "../../generated/prisma/client.js";
+import { REQ_RESET_PASS_TOKEN, RESET_PASS_TOKEN } from "../configs/tokenConfig.js";
 
 const findByUserIdType = (userId: string, type: TokenType) => {
   return prisma.token.findFirst({

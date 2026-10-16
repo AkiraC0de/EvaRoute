@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { PUBLIC_FACILITY } from "../configs/publicConfig"
+import { PUBLIC_FACILITY } from "../configs/publicConfig.js"
 
 // Query strings arrive as strings, so coerce them to numbers.
 export const publicFacilityQuerySchema = z.object({

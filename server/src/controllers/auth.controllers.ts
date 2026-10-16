@@ -1,26 +1,26 @@
-import { passResetSchema, signOutAllSchema, verifyResetPassSchema } from './../validations/auth.validations'
+import { passResetSchema, signOutAllSchema, verifyResetPassSchema } from './../validations/auth.validations.js'
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 
-import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError"
-import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
-import { ActivityAction } from "../../generated/prisma"
-import { logActivity } from "../utils/activityUtils"
+import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError.js"
+import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
+import { ActivityAction } from "../../generated/prisma/index.js"
+import { logActivity } from "../utils/activityUtils.js"
 
-import userService from "../services/user.services"
-import tokenService from "../services/token.services"
-import refreshTokenService from '../services/refreshToken.services';
+import userService from "../services/user.services.js"
+import tokenService from "../services/token.services.js"
+import refreshTokenService from '../services/refreshToken.services.js';
 
-import { validateData } from "../utils/validatorUtils"
-import { loginSchema, passReqResetSchema } from "../validations/auth.validations"
-import { requireAuth } from "../utils/authUtils"
-import { createAccessToken } from "./../utils/jwtUtils"
-import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils"
-import { ApiMailer } from "../core/ApiMailer"
-import tokenServices from '../services/token.services'
-import userServices from '../services/user.services'
-import { REFRESH_TOKEN, OTP } from '../configs/tokenConfig'
+import { validateData } from "../utils/validatorUtils.js"
+import { loginSchema, passReqResetSchema } from "../validations/auth.validations.js"
+import { requireAuth } from "../utils/authUtils.js"
+import { createAccessToken } from "./../utils/jwtUtils.js"
+import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils.js"
+import { ApiMailer } from "../core/ApiMailer.js"
+import tokenServices from '../services/token.services.js'
+import userServices from '../services/user.services.js'
+import { REFRESH_TOKEN, OTP } from '../configs/tokenConfig.js'
 
 export const handleLogin = async (req: Request, res: Response) => {
   const userData = validateData<typeof loginSchema>(loginSchema, req.body)

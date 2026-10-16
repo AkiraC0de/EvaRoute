@@ -1,18 +1,18 @@
 import express from 'express'
-import verifyAuthentication from '../middlewares/verifyAuthentication'
-import verifyAuthorization from '../middlewares/verifyAuthorization'
-import { PERMISSION_TYPES } from '../configs/permissionConfig'
+import verifyAuthentication from '../middlewares/verifyAuthentication.js'
+import verifyAuthorization from '../middlewares/verifyAuthorization.js'
+import { PERMISSION_TYPES } from '../configs/permissionConfig.js'
 
-import facilityStaffRoute from "./facilityStaff.routes"
-import facilityResourceRoute from "./facilityResource.routes"
-import facilityStayRoute from "./facilityStay.routes"
+import facilityStaffRoute from "./facilityStaff.routes.js"
+import facilityResourceRoute from "./facilityResource.routes.js"
+import facilityStayRoute from "./facilityStay.routes.js"
 
 import {
   handleDeleteFacility,
   handlePatchFacility,
   handleRegisterFacility,
   handleGetFacility
-} from "../controllers/facility.controllers"
+} from "../controllers/facility.controllers.js"
 
 const facilityRoute = express.Router()
 

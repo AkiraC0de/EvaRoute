@@ -1,9 +1,9 @@
 import crypto from "crypto"
-import { BadRequestMsgError } from "../core/ApiError"
+import { BadRequestMsgError } from "../core/ApiError.js"
 import { Request } from "express"
-import { AuthContext, TokenWithUser } from "./jwtUtils"
-import { Prisma, Token, User } from "../../generated/prisma"
-import { REFRESH_TOKEN } from "../configs/tokenConfig"
+import { AuthContext, TokenWithUser } from "./jwtUtils.js"
+import { Prisma, Token, User } from "../../generated/prisma/index.js"
+import { REFRESH_TOKEN } from "../configs/tokenConfig.js"
 
 // return random 5 digit string
 export const generateOTP = () => {

@@ -1,5 +1,5 @@
-import prisma from "../lib/prisma"
-import { Prisma } from "../../generated/prisma/client";
+import prisma from "../lib/prisma.js"
+import { Prisma } from "../../generated/prisma/client.js";
 
 const findById = (resourceId: string) => {
   return prisma.facilityResource.findUnique({

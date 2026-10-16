@@ -1,13 +1,13 @@
 import { Request, Response } from 'express'
-import { validateData, paramErr } from '../utils/validatorUtils'
-import { checkInSchema, getStaysQuerySchema } from '../validations/facilityStay.validations'
+import { validateData, paramErr } from '../utils/validatorUtils.js'
+import { checkInSchema, getStaysQuerySchema } from '../validations/facilityStay.validations.js'
 
-import facilityStayServices from '../services/facilityStay.services'
-import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
-import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
-import { assertFacilityAccess } from '../utils/facilityUtils'
-import { ActivityAction } from '../../generated/prisma'
-import { logActivity } from '../utils/activityUtils'
+import facilityStayServices from '../services/facilityStay.services.js'
+import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse.js'
+import { BadRequestMsgError, NotFoundError } from '../core/ApiError.js'
+import { assertFacilityAccess } from '../utils/facilityUtils.js'
+import { ActivityAction } from '../../generated/prisma/index.js'
+import { logActivity } from '../utils/activityUtils.js'
 
 // GET /facility/:facilityId/stay?status=ACTIVE|CHECKED_OUT
 export const handleGetStays = async (req: Request, res: Response) => {

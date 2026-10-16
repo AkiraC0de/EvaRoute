@@ -1,7 +1,7 @@
 import express from "express"
-import verifyAuthentication from "../middlewares/verifyAuthentication"
-import verifyAuthorization from "../middlewares/verifyAuthorization"
-import { PERMISSION_TYPES } from "../configs/permissionConfig"
+import verifyAuthentication from "../middlewares/verifyAuthentication.js"
+import verifyAuthorization from "../middlewares/verifyAuthorization.js"
+import { PERMISSION_TYPES } from "../configs/permissionConfig.js"
 
 import {
   handleCreateStaffAccount,
@@ -12,7 +12,7 @@ import {
   handleDeactivateStaff,
   handleResetStaffPassword,
   handleDeleteStaff
-} from "../controllers/staff.controllers"
+} from "../controllers/staff.controllers.js"
 
 const staffRoute = express.Router()
 

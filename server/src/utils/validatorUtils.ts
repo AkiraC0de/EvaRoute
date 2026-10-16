@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BadRequestError, NoEntryError } from "../core/ApiError";
+import { BadRequestError, NoEntryError } from "../core/ApiError.js";
 
 export type FieldError = {
   field: string;

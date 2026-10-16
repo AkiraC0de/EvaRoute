@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
-    "rootDir": "./", // Where your source files are
-    "outDir": "./dist", // Where compiled JS goes
-    "skipLibCheck": true, // Skips type-checking .d.ts files (faster builds)
-    "resolveJsonModule": true, // Allows importing .json files
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "bundler",// Prevents case-sensitivity bugs
-    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "target": "ES2023",
     "strict": true,
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0"
   },
-  
-  "include": ["src/**/*.ts"], // Which files to compile
-  "exclude": ["node_modules"] // Which files to ignore
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

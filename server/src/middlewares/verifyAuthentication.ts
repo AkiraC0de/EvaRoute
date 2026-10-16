@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken"
 
 import { Request, Response, NextFunction } from "express"
-import { BadRequestMsgError, UnauthorizedError } from "../core/ApiError"
-import { AccessTokenPayload } from "../utils/jwtUtils"
-import { extractBearerToken } from "../utils/authUtils"
+import { BadRequestMsgError, UnauthorizedError } from "../core/ApiError.js"
+import { AccessTokenPayload } from "../utils/jwtUtils.js"
+import { extractBearerToken } from "../utils/authUtils.js"
 
 const verifyAuthentication = (req: Request, res: Response, next: NextFunction) => {
   const token = extractBearerToken(req)

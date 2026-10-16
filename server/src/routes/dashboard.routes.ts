@@ -1,8 +1,8 @@
 import { Router } from "express"
-import { handleGetDashboardSummary } from "../controllers/dashboard.controllers"
-import verifyAuthentication from "../middlewares/verifyAuthentication"
-import verifyAuthorization from "../middlewares/verifyAuthorization"
-import { PERMISSION_TYPES } from "../configs/permissionConfig"
+import { handleGetDashboardSummary } from "../controllers/dashboard.controllers.js"
+import verifyAuthentication from "../middlewares/verifyAuthentication.js"
+import verifyAuthorization from "../middlewares/verifyAuthorization.js"
+import { PERMISSION_TYPES } from "../configs/permissionConfig.js"
 
 const dashboardRoute = Router()
 

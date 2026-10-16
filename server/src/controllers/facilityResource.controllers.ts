@@ -1,13 +1,13 @@
 import { Request, Response } from 'express'
-import { validateData, paramErr } from '../utils/validatorUtils'
-import { createResourceSchema, updateResourceSchema } from '../validations/facilityResource.validations'
+import { validateData, paramErr } from '../utils/validatorUtils.js'
+import { createResourceSchema, updateResourceSchema } from '../validations/facilityResource.validations.js'
 
-import facilityResourceServices from '../services/facilityResource.services'
-import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse'
-import { BadRequestMsgError, NotFoundError } from '../core/ApiError'
-import { assertFacilityAccess } from '../utils/facilityUtils'
-import { ActivityAction } from '../../generated/prisma'
-import { logActivity } from '../utils/activityUtils'
+import facilityResourceServices from '../services/facilityResource.services.js'
+import { SuccessMsgResponse, SuccessResponse } from '../core/ApiResponse.js'
+import { BadRequestMsgError, NotFoundError } from '../core/ApiError.js'
+import { assertFacilityAccess } from '../utils/facilityUtils.js'
+import { ActivityAction } from '../../generated/prisma/index.js'
+import { logActivity } from '../utils/activityUtils.js'
 
 export const handleGetResources = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string

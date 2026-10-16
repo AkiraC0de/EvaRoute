@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
-import { validateData } from "../utils/validatorUtils"
-import { getDashboardSummaryQuerySchema } from "../validations/dashboard.validations"
-import { SuccessResponse } from "../core/ApiResponse"
-import { ForbiddenError } from "../core/ApiError"
-import { requireAuth } from "../utils/authUtils"
-import facilityStaffServices from "../services/facilityStaff.services"
-import dashboardServices from "../services/dashboard.services"
-import { UserRole } from "../../generated/prisma"
+import { validateData } from "../utils/validatorUtils.js"
+import { getDashboardSummaryQuerySchema } from "../validations/dashboard.validations.js"
+import { SuccessResponse } from "../core/ApiResponse.js"
+import { ForbiddenError } from "../core/ApiError.js"
+import { requireAuth } from "../utils/authUtils.js"
+import facilityStaffServices from "../services/facilityStaff.services.js"
+import dashboardServices from "../services/dashboard.services.js"
+import { UserRole } from "../../generated/prisma/index.js"
 
 /**
  * GET /api/v1/dashboard/summary — one aggregate for the admin Overview:

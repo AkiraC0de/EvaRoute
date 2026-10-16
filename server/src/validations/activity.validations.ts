@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ActivityAction } from "../../generated/prisma"
+import { ActivityAction } from "../../generated/prisma/index.js"
 
 export const getActivityQuerySchema = z.object({
   facilityId: z

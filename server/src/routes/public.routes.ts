@@ -3,7 +3,7 @@ import express from "express"
 import {
   handleGetPublicFacilities,
   handleGetRouteToFacility
-} from "../controllers/public.controllers"
+} from "../controllers/public.controllers.js"
 
 const publicRoute = express.Router()
 

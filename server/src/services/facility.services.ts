@@ -1,5 +1,5 @@
-import { FacilityStatus, Prisma } from "../../generated/prisma"
-import prisma from "../lib/prisma"
+import { FacilityStatus, Prisma } from "../../generated/prisma/index.js"
+import prisma from "../lib/prisma.js"
 
 const findById = (facilityId: string) => {
   return prisma.facility.findFirst({

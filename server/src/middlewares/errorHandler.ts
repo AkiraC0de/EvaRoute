@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express"
 
-import ApiError from "../core/ApiError"
-import { InternalResponse } from "../core/ApiResponse"
-import { Prisma } from "../../generated/prisma/client";
+import ApiError from "../core/ApiError.js"
+import { InternalResponse } from "../core/ApiResponse.js"
+import { Prisma } from "../../generated/prisma/client.js";
 
 function errorHandler(){
   return (err: Error, req: Request, res: Response, next: NextFunction) => {

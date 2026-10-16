@@ -1,15 +1,15 @@
 import { Request, Response } from "express"
-import { validateData } from "../utils/validatorUtils"
-import { getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations"
+import { validateData } from "../utils/validatorUtils.js"
+import { getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations.js"
 
-import facilityServices from "../services/facility.services"
-import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
-import { BadRequestMsgError, ForbiddenError, NotFoundError } from "../core/ApiError"
-import { UserRole, ActivityAction, Prisma } from "../../generated/prisma"
-import facilityStaffServices from "../services/facilityStaff.services"
-import { requireAuth } from "../utils/authUtils"
-import { assertFacilityAccess, toFacilityDTO } from "../utils/facilityUtils"
-import { logActivity } from "../utils/activityUtils"
+import facilityServices from "../services/facility.services.js"
+import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
+import { BadRequestMsgError, ForbiddenError, NotFoundError } from "../core/ApiError.js"
+import { UserRole, ActivityAction, Prisma } from "../../generated/prisma/index.js"
+import facilityStaffServices from "../services/facilityStaff.services.js"
+import { requireAuth } from "../utils/authUtils.js"
+import { assertFacilityAccess, toFacilityDTO } from "../utils/facilityUtils.js"
+import { logActivity } from "../utils/activityUtils.js"
 
 export const handleGetFacility = async (req: Request, res: Response) => {
   const { role } = requireAuth(req)

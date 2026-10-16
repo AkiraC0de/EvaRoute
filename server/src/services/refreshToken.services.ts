@@ -1,6 +1,6 @@
-import { REFRESH_TOKEN } from "../configs/tokenConfig"
-import prisma from "../lib/prisma"
-import { getRefeshTokenExpirationDate } from "../utils/authUtils"
+import { REFRESH_TOKEN } from "../configs/tokenConfig.js"
+import prisma from "../lib/prisma.js"
+import { getRefeshTokenExpirationDate } from "../utils/authUtils.js"
 
 const findByToken = (tokenHash: string) => {
   return prisma.refreshToken.findUnique({

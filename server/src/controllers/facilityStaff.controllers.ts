@@ -1,13 +1,13 @@
 import { Request, Response } from "express"
 
-import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse"
-import { BadRequestMsgError, NotFoundError } from "../core/ApiError"
+import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
+import { BadRequestMsgError, NotFoundError } from "../core/ApiError.js"
 
-import facilityStaffServices from "../services/facilityStaff.services"
-import userServices from "../services/user.services"
-import { UserRole, ActivityAction } from "../../generated/prisma"
-import { assertFacilityAccess } from "../utils/facilityUtils"
-import { logActivity } from "../utils/activityUtils"
+import facilityStaffServices from "../services/facilityStaff.services.js"
+import userServices from "../services/user.services.js"
+import { UserRole, ActivityAction } from "../../generated/prisma/index.js"
+import { assertFacilityAccess } from "../utils/facilityUtils.js"
+import { logActivity } from "../utils/activityUtils.js"
 
 export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
   const facilityId = req.params.facilityId as string

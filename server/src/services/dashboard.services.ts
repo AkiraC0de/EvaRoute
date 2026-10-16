@@ -1,5 +1,5 @@
-import prisma from "../lib/prisma"
-import { UserRole } from "../../generated/prisma"
+import prisma from "../lib/prisma.js"
+import { UserRole } from "../../generated/prisma/index.js"
 
 /**
  * Dashboard summary aggregates for GET /api/v1/dashboard/summary.

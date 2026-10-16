@@ -1,8 +1,8 @@
 import { Request } from "express"
-import { ActivityAction, Prisma, UserRole } from "../../generated/prisma"
-import { requireAuth } from "./authUtils"
-import userServices from "../services/user.services"
-import activityLogServices from "../services/activityLog.services"
+import { ActivityAction, Prisma, UserRole } from "../../generated/prisma/index.js"
+import { requireAuth } from "./authUtils.js"
+import userServices from "../services/user.services.js"
+import activityLogServices from "../services/activityLog.services.js"
 
 /**
  * One-call activity logging for mutation handlers.

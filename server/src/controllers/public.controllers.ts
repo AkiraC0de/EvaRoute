@@ -1,12 +1,12 @@
-import { Facility } from './../../generated/prisma/index.d';
+import { Facility } from './../../generated/prisma/index.js';
 import { Request, Response } from "express";
-import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse";
-import { validateData } from "../utils/validatorUtils";
-import { publicFacilityQuerySchema, publicRouteQuerySchema } from "../validations/public.validations";
-import facilityServices from "../services/facility.services";
-import { haversineKm } from "../utils/geoUtils";
-import { PUBLIC_FACILITY } from "../configs/publicConfig";
-import { InternalError, NotFoundError } from '../core/ApiError';
+import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js";
+import { validateData } from "../utils/validatorUtils.js";
+import { publicFacilityQuerySchema, publicRouteQuerySchema } from "../validations/public.validations.js";
+import facilityServices from "../services/facility.services.js";
+import { haversineKm } from "../utils/geoUtils.js";
+import { PUBLIC_FACILITY } from "../configs/publicConfig.js";
+import { InternalError, NotFoundError } from '../core/ApiError.js';
 
 export const handleGetPublicFacilities = async (
   req: Request,

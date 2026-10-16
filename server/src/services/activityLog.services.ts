@@ -1,5 +1,5 @@
-import prisma from "../lib/prisma"
-import { ActivityAction, Prisma, UserRole } from "../../generated/prisma"
+import prisma from "../lib/prisma.js"
+import { ActivityAction, Prisma, UserRole } from "../../generated/prisma/index.js"
 
 /**
  * Activity log storage — append-only. Rows are created at mutation points

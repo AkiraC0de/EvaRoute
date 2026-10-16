@@ -1,7 +1,7 @@
 import express from 'express'
-import verifyAuthentication from '../middlewares/verifyAuthentication'
-import verifyAuthorization from '../middlewares/verifyAuthorization'
-import { PERMISSION_TYPES } from '../configs/permissionConfig'
+import verifyAuthentication from '../middlewares/verifyAuthentication.js'
+import verifyAuthorization from '../middlewares/verifyAuthorization.js'
+import { PERMISSION_TYPES } from '../configs/permissionConfig.js'
 
 import {
   handleGetStays,
@@ -9,7 +9,7 @@ import {
   handleGetStay,
   handleCheckIn,
   handleCheckOut
-} from '../controllers/facilityStay.controllers'
+} from '../controllers/facilityStay.controllers.js'
 
 const facilityStayRoute = express.Router({ mergeParams: true })
 

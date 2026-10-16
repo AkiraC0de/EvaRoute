@@ -1,10 +1,10 @@
-import { Prisma } from "../../generated/prisma"
-import { UserRole } from "../../generated/prisma"
+import { Prisma } from "../../generated/prisma/index.js"
+import { UserRole } from "../../generated/prisma/index.js"
 
-import facilityServices from "../services/facility.services"
-import facilityStaffServices from "../services/facilityStaff.services"
-import { ForbiddenError, NotFoundError } from "../core/ApiError"
-import { requireAuth } from "./authUtils"
+import facilityServices from "../services/facility.services.js"
+import facilityStaffServices from "../services/facilityStaff.services.js"
+import { ForbiddenError, NotFoundError } from "../core/ApiError.js"
+import { requireAuth } from "./authUtils.js"
 import { Request } from "express"
 
 export type FacilityEntity = Prisma.FacilityGetPayload<Record<string, never>>

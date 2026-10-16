@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import jwt from "jsonwebtoken"
-import { Token, TokenType, UserRole, Prisma  } from "../../generated/prisma"
-import { ACCESS_TOKEN } from "../configs/tokenConfig"
+import { Token, TokenType, UserRole, Prisma  } from "../../generated/prisma/index.js"
+import { ACCESS_TOKEN } from "../configs/tokenConfig.js"
 
 export type AuthContext = {
   userId: string,

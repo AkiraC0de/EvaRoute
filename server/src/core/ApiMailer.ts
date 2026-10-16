@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
 import type { Transporter } from "nodemailer"
-import { FailedEmailError, InternalError } from "./ApiError"
-import { REQ_RESET_PASS_TOKEN } from "../configs/tokenConfig"
+import { FailedEmailError, InternalError } from "./ApiError.js"
+import { REQ_RESET_PASS_TOKEN } from "../configs/tokenConfig.js"
 
 // NOTES: 
 // - Do not touch the code above of the Public methods

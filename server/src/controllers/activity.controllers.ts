@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
-import { validateData } from "../utils/validatorUtils"
-import { getActivityQuerySchema, getActivityStatsQuerySchema } from "../validations/activity.validations"
-import { SuccessResponse } from "../core/ApiResponse"
-import { ForbiddenError } from "../core/ApiError"
-import { requireAuth } from "../utils/authUtils"
-import facilityStaffServices from "../services/facilityStaff.services"
-import activityLogServices from "../services/activityLog.services"
-import { ActivityAction, UserRole } from "../../generated/prisma"
+import { validateData } from "../utils/validatorUtils.js"
+import { getActivityQuerySchema, getActivityStatsQuerySchema } from "../validations/activity.validations.js"
+import { SuccessResponse } from "../core/ApiResponse.js"
+import { ForbiddenError } from "../core/ApiError.js"
+import { requireAuth } from "../utils/authUtils.js"
+import facilityStaffServices from "../services/facilityStaff.services.js"
+import activityLogServices from "../services/activityLog.services.js"
+import { ActivityAction, UserRole } from "../../generated/prisma/index.js"
 
 /**
  * Shared role scoping for every activity read:

@@ -3,15 +3,15 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 
 
-import errorHandler from "./middlewares/errorHandler"
-import { ENDPOINTS_LIST } from "./configs/mainConfig"
+import errorHandler from "./middlewares/errorHandler.js"
+import { ENDPOINTS_LIST } from "./configs/mainConfig.js"
 
-import authRoute from "./routes/auth.routes"
-import facilityRoute from "./routes/facility.routes"
-import publicRoute from "./routes/public.routes"
-import staffRoute from "./routes/staff.routes"
-import activityRoute from "./routes/activity.routes"
-import dashboardRoute from "./routes/dashboard.routes"
+import authRoute from "./routes/auth.routes.js"
+import facilityRoute from "./routes/facility.routes.js"
+import publicRoute from "./routes/public.routes.js"
+import staffRoute from "./routes/staff.routes.js"
+import activityRoute from "./routes/activity.routes.js"
+import dashboardRoute from "./routes/dashboard.routes.js"
 
 const app = express()
 

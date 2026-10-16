@@ -7,7 +7,7 @@ import {
   InternalResponse,
   NotFoundResponse,
   UnauthorizedResponse
-} from "./ApiResponse";
+} from "./ApiResponse.js";
 
 /**
  * ============================================================================

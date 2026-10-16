@@ -1,7 +1,7 @@
-import { UserRole } from "../../generated/prisma"
+import { UserRole } from "../../generated/prisma/index.js"
 import { Request, Response, NextFunction } from "express"
-import { ForbiddenError } from "../core/ApiError"
-import { PermissionsType, ROLE_PERMISSIONS } from "../configs/permissionConfig"
+import { ForbiddenError } from "../core/ApiError.js"
+import { PermissionsType, ROLE_PERMISSIONS } from "../configs/permissionConfig.js"
 
 // This middleware should always be used after verifyAuthentication
 // As it relies on req.user value from access token payload

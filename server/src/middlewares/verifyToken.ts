@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction} from "express"
-import { BadRequestMsgError, UnauthorizedError } from "../core/ApiError"
-import tokenServices from "../services/token.services"
-import { TokenType } from "../../generated/prisma"
-import { cryptoHash, cryptoHashCompare, extractBearerToken } from "../utils/authUtils"
+import { BadRequestMsgError, UnauthorizedError } from "../core/ApiError.js"
+import tokenServices from "../services/token.services.js"
+import { TokenType } from "../../generated/prisma/index.js"
+import { cryptoHash, cryptoHashCompare, extractBearerToken } from "../utils/authUtils.js"
 
 const verifyToken = (tokenType: TokenType) => {
   return async (req: Request, res: Response, next: NextFunction) => {
