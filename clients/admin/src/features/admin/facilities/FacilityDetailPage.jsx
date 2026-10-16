@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Trash2, RotateCcw } from "lucide-react";
+import { ArrowLeft, MapPin, Trash2, RotateCcw } from "lucide-react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
@@ -17,12 +17,17 @@ import HouseholdList from "../../occupancy/HouseholdList";
 import ActivityFeed from "../../activity/ActivityFeed";
 import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
+import DetailSection from "./DetailSection";
 import { FacilityDetailLoading } from "./FacilitiesStates";
 
 /**
  * Facility detail (ADMIN): edit form (+ status), staff assignment, resources,
  * and the stays/check-in section. Sections are independent — a failure in one
  * must not blank the others, hence the per-section hooks.
+ *
+ * Presentation: one hero header (name, location + status pills, danger zone
+ * action) over consistently-headed DetailSection blocks. The add-resource
+ * trigger lives in the Resources section header and opens a dialog.
  */
 const FacilityDetailPage = () => {
   const { facilityId } = useParams();
@@ -100,9 +105,20 @@ const FacilityDetailPage = () => {
           <h1 className="text-[20px] font-bold leading-tight text-ink">
             {facility?.name ?? "Facility"}
           </h1>
-          <p className="mt-1 text-[11px] text-muted">
-            {facility ? facility.address : "Loading facility…"}
-          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <p className="inline-flex items-center gap-1 text-[11px] text-muted">
+              <MapPin size={11} strokeWidth={1.9} aria-hidden="true" />
+              {facility ? facility.address : "Loading facility…"}
+            </p>
+            {facility && (
+              <>
+                <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
+                  {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
+                </StatusPill>
+                <StatusPill tone="neutral">Max capacity {facility.maxCapacity}</StatusPill>
+              </>
+            )}
+          </div>
         </div>
         {facility && (
           <Button
@@ -144,13 +160,6 @@ const FacilityDetailPage = () => {
             </Banner>
           )}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
-              {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-            </StatusPill>
-            <StatusPill tone="neutral">Capacity {facility.maxCapacity}</StatusPill>
-          </div>
-
           <FacilityEditForm
             facility={facility}
             onSaved={(saved) => {
@@ -160,41 +169,29 @@ const FacilityDetailPage = () => {
 
           <FacilityStaffSection facilityId={facilityId} />
 
-          <section aria-labelledby="resources-heading">
-            <h2
-              id="resources-heading"
-              className="mb-3 text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
-            >
-              Resources
-            </h2>
-            <ResourceCreateForm onCreate={createResource} />
-            <div className="mt-4">
-              {resources.length === 0 ? (
-                <StatusPanel tone="empty" title="No resources recorded">
-                  This facility has no resources yet. Add the first one above.
-                </StatusPanel>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {resources.map((resource) => (
-                    <ResourceCard
-                      key={resource.id}
-                      resource={resource}
-                      onSave={(patch) => saveResource(resource.id, patch)}
-                      onDelete={() => removeResource(resource.id)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+          <DetailSection
+            title="Resources"
+            action={<ResourceCreateForm onCreate={createResource} />}
+          >
+            {resources.length === 0 ? (
+              <StatusPanel tone="empty" title="No resources recorded">
+                This facility has no resources yet. Add the first one from the button above.
+              </StatusPanel>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {resources.map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    resource={resource}
+                    onSave={(patch) => saveResource(resource.id, patch)}
+                    onDelete={() => removeResource(resource.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </DetailSection>
 
-          <section aria-labelledby="stays-heading">
-            <h2
-              id="stays-heading"
-              className="mb-3 text-[8px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]"
-            >
-              Checked-in evacuees
-            </h2>
+          <DetailSection title="Checked-in evacuees">
             {occupancy && (
               <p className="mb-3 text-[9px] text-muted">
                 {occupancy.members} of {occupancy.maxCapacity} places occupied ·{" "}
@@ -209,27 +206,28 @@ const FacilityDetailPage = () => {
                 }}
               />
               <HouseholdList
-              stays={stays}
-              busy={busy}
-              onCheckOut={(stay) => run(() => checkOut(stay.id))}
+                stays={stays}
+                busy={busy}
+                onCheckOut={(stay) => run(() => checkOut(stay.id))}
               />
-              </div>
-              </section>
+            </div>
+          </DetailSection>
 
-              <section aria-label="Activity" className="rounded-clay bg-surface p-4 shadow-clay">
-              <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Activity</h2>
-              <div className="overflow-hidden rounded-3xl border border-line">
-              <ActivityFeed query={{ facilityId }} limit={5} compact />
-              </div>
+          <DetailSection
+            title="Activity"
+            action={
               <Link
-              to="/history"
-              className="mt-3 inline-flex items-center gap-1.5 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
+                to="/history"
+                className="inline-flex items-center gap-1.5 text-[9px] font-semibold text-accent transition hover:text-accent-strong"
               >
-              Open in history →
+                Open in history →
               </Link>
-              </section>
-              </div>
-              )}
+            }
+          >
+            <ActivityFeed query={{ facilityId }} limit={5} compact />
+          </DetailSection>
+        </div>
+      )}
 
       {confirmDelete && facility && (
         <ConfirmDialog

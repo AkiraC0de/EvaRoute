@@ -13,6 +13,10 @@ import * as api from "../../../lib/api";
  * Facility edit form (PATCH /facility/:facilityId). Mirrors
  * `patchFacilitySchema` — name, address, note, maxCapacity, status, lat/lng.
  * On success the parent gets the persisted record back and re-renders.
+ *
+ * Field widths are proportional to what the field holds, not equal thirds:
+ * name and note are long text (8/12), address is the longest (12/12), while
+ * max capacity (a number) and status (a short enum) stay compact (4/12).
  */
 const FacilityEditForm = ({ facility, onSaved }) => {
   const { busy, error, run } = useAsyncAction();
@@ -44,53 +48,73 @@ const FacilityEditForm = ({ facility, onSaved }) => {
 
   return (
     <Card as="form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-      <h2 className="mb-3 text-[12px] font-bold text-ink-soft">Facility details</h2>
+      <h2 className="mb-3 text-[11px] font-bold text-ink-soft">Facility details</h2>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <TextField
-          label="Name"
-          value={draft.name}
-          onChange={(event) => update({ name: event.target.value })}
-        />
-        <TextField
-          label="Address"
-          value={draft.address}
-          onChange={(event) => update({ address: event.target.value })}
-        />
-        <TextField
-          label="Note"
-          className="sm:row-span-2"
-          value={draft.note}
-          onChange={(event) => update({ note: event.target.value })}
-        />
-        <TextField
-          label="Max capacity"
-          type="number"
-          min="1"
-          step="1"
-          value={draft.maxCapacity}
-          onChange={(event) => update({ maxCapacity: event.target.value })}
-        />
-        <SelectField
-          label="Status"
-          value={draft.status}
-          onChange={(event) => update({ status: event.target.value })}
-        >
-          <option value="AVAILABLE">Available</option>
-          <option value="UNAVAILABLE">Unavailable</option>
-        </SelectField>
-        <div className="sm:col-span-3">
-          <p className={LABEL_CLASS}>Location on map</p>
-          <LocationPickerMap
-            value={toCoords(draft.latitude, draft.longitude)}
-            onChange={({ latitude, longitude }) => update({ latitude, longitude })}
-            height={240}
+      {/* Row 1 — identity: two long-text fields */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <TextField
+            label="Name"
+            value={draft.name}
+            onChange={(event) => update({ name: event.target.value })}
           />
-          <p className="mt-1 text-[9px] text-muted">
-            {formatCoords(draft.latitude, draft.longitude) ||
-              "No location set — click the map to place the marker."}
-          </p>
         </div>
+
+        <div>
+          <TextField
+            label="Address"
+            value={draft.address}
+            onChange={(event) => update({ address: event.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Row 2 — settings: widths are affordances for the data (a number, a
+          short enum, then free text that takes the rest). */}
+      <div className="mt-3 grid gap-3 sm:grid-cols-[7.5rem_10.5rem_minmax(0,1fr)]">
+        <div>
+          <TextField
+            label="Max capacity"
+            type="number"
+            min="1"
+            step="1"
+            value={draft.maxCapacity}
+            onChange={(event) => update({ maxCapacity: event.target.value })}
+          />
+        </div>
+
+        <div>
+          <SelectField
+            label="Status"
+            value={draft.status}
+            onChange={(event) => update({ status: event.target.value })}
+          >
+            <option value="AVAILABLE">Available</option>
+            <option value="UNAVAILABLE">Unavailable</option>
+          </SelectField>
+        </div>
+
+        <div>
+          <TextField
+            label="Note"
+            value={draft.note}
+            onChange={(event) => update({ note: event.target.value })}
+            placeholder="e.g. Access instructions, operating hours…"
+          />
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <p className={LABEL_CLASS}>Location on map</p>
+        <LocationPickerMap
+          value={toCoords(draft.latitude, draft.longitude)}
+          onChange={({ latitude, longitude }) => update({ latitude, longitude })}
+          height={240}
+        />
+        <p className="mt-1 text-[9px] text-muted">
+          {formatCoords(draft.latitude, draft.longitude) ||
+            "No location set — click the map to place the marker."}
+        </p>
       </div>
 
       {error && (

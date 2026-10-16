@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { Package, Plus } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
-import Card from "../../components/ui/Card";
+import Modal from "../../components/ui/Modal";
 import TextField, { SelectField } from "../../components/ui/Field";
 
 /**
- * Create a resource on the staff member's own facility.
+ * Create a resource on the staff member's own facility, in a dialog.
  *
  * Contract: POST /api/v1/facility/:facilityId/resource (auth + EDIT_RESOURCE,
  * which FACILITY_STAFF holds). The validation below mirrors
@@ -31,6 +32,12 @@ const ResourceCreateForm = ({ onCreate }) => {
   const [error, setError] = useState("");
 
   const update = (patch) => setDraft((current) => ({ ...current, ...patch }));
+
+  const close = () => {
+    setDraft(emptyDraft());
+    setError("");
+    setOpen(false);
+  };
 
   const validate = () => {
     const name = draft.name.trim();
@@ -67,8 +74,7 @@ const ResourceCreateForm = ({ onCreate }) => {
     setBusy(true);
     try {
       await onCreate(result.body);
-      setDraft(emptyDraft());
-      setOpen(false);
+      close();
     } catch (err) {
       setError(err.message || "The resource could not be created.");
     } finally {
@@ -76,99 +82,101 @@ const ResourceCreateForm = ({ onCreate }) => {
     }
   };
 
-  if (!open) {
-    return (
-      <div className="flex justify-end">
-        <Button
-          onClick={() => {
-            setError("");
-            setOpen(true);
-          }}
-          size="sm"
-        >
-          + Add resource
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <Card as="form" onSubmit={handleSubmit}>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-[12px] font-bold text-ink-soft">New resource</h2>
-        <button
-          type="button"
-          onClick={() => {
-            setDraft(emptyDraft());
-            setError("");
-            setOpen(false);
-          }}
-          className="text-[9px] font-semibold text-muted transition hover:text-ink-soft"
-        >
-          Cancel
-        </button>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <TextField
-          label="Name"
-          value={draft.name}
-          onChange={(event) => update({ name: event.target.value })}
-          placeholder="e.g. Beds"
-        />
-
-        <SelectField
-          label="Type"
-          value={draft.type}
-          onChange={(event) => update({ type: event.target.value })}
-        >
-          <option value="QUANTITY">Quantity (counted)</option>
-          <option value="BOOLEAN">Availability (yes / no)</option>
-        </SelectField>
-
-        {draft.type === "QUANTITY" ? (
-          <>
-            <TextField
-              label="Available"
-              type="number"
-              min="0"
-              step="1"
-              value={draft.availableValue}
-              onChange={(event) => update({ availableValue: event.target.value })}
-            />
-            <TextField
-              label="Maximum"
-              type="number"
-              min="1"
-              step="1"
-              value={draft.maxValue}
-              onChange={(event) => update({ maxValue: event.target.value })}
-              placeholder="e.g. 400"
-            />
-          </>
-        ) : (
-          <SelectField
-            label="Availability"
-            value={draft.isAvailable ? "yes" : "no"}
-            onChange={(event) => update({ isAvailable: event.target.value === "yes" })}
-            className="sm:col-span-2"
-          >
-            <option value="yes">Available</option>
-            <option value="no">Unavailable</option>
-          </SelectField>
-        )}
-      </div>
-
-      {error && (
-        <div className="mt-3">
-          <Banner tone="error">{error}</Banner>
-        </div>
-      )}
-
-      <Button type="submit" disabled={busy} size="sm" className="mt-4 w-full">
-        {busy ? "Saving…" : "Create resource"}
+    <>
+      <Button size="sm" onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5">
+        <Plus size={12} strokeWidth={2.2} aria-hidden="true" /> Add resource
       </Button>
-    </Card>
+
+      {open && (
+        <Modal
+          title={
+            <span className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="flex h-7 w-7 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+              >
+                <Package size={14} strokeWidth={1.9} />
+              </span>
+              New resource
+            </span>
+          }
+          onClose={close}
+        >
+          <form onSubmit={handleSubmit}>
+            <p className="mb-4 text-[10px] leading-relaxed text-muted">
+              Add a supply or amenity to this facility. Counted resources track
+              how much is left; availability resources are simply in stock or not.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TextField
+                label="Name"
+                value={draft.name}
+                onChange={(event) => update({ name: event.target.value })}
+                placeholder="e.g. Beds"
+              />
+
+              <SelectField
+                label="Type"
+                value={draft.type}
+                onChange={(event) => update({ type: event.target.value })}
+              >
+                <option value="QUANTITY">Quantity (counted)</option>
+                <option value="BOOLEAN">Availability (yes / no)</option>
+              </SelectField>
+
+              {draft.type === "QUANTITY" ? (
+                <>
+                  <TextField
+                    label="Available"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={draft.availableValue}
+                    onChange={(event) => update({ availableValue: event.target.value })}
+                  />
+                  <TextField
+                    label="Maximum"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={draft.maxValue}
+                    onChange={(event) => update({ maxValue: event.target.value })}
+                    placeholder="e.g. 400"
+                  />
+                </>
+              ) : (
+                <SelectField
+                  label="Availability"
+                  value={draft.isAvailable ? "yes" : "no"}
+                  onChange={(event) => update({ isAvailable: event.target.value === "yes" })}
+                  className="sm:col-span-2"
+                >
+                  <option value="yes">Available</option>
+                  <option value="no">Unavailable</option>
+                </SelectField>
+              )}
+            </div>
+
+            {error && (
+              <div className="mt-3">
+                <Banner tone="error">{error}</Banner>
+              </div>
+            )}
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <Button type="button" variant="neutral" size="sm" onClick={close} disabled={busy}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={busy} size="sm" className="min-w-28">
+                {busy ? "Saving…" : "Create resource"}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </>
   );
 };
 

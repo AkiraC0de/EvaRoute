@@ -76,9 +76,9 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
 
       {quantity && percentage !== null && (
         <div className="mt-2">
-          <div className="h-2 overflow-hidden rounded-full bg-[#edf0f6] shadow-clay-inset">
+          <div className="h-2 overflow-hidden rounded-full bg-sunken shadow-clay-inset">
             <div
-              className="h-full rounded-full bg-[#4bc996]"
+              className="h-full rounded-full bg-success"
               style={{ width: `${percentage}%` }}
             />
           </div>
