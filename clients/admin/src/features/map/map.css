@@ -73,21 +73,51 @@
 .clay-map .leaflet-popup-content-wrapper {
   border-radius: var(--radius-clay-sm);
   box-shadow: var(--shadow-clay-lg);
-  padding: 0;
+  padding: 12px 30px 12px 14px; /* right lane reserved for the close button */
   background: var(--color-surface);
 }
 .clay-map .leaflet-popup-content {
-  margin: 10px 12px;
-  min-width: 170px;
+  margin: 0;
+  min-width: 180px;
+  max-width: 240px;
   font-family: var(--font-sans);
 }
+.clay-map .leaflet-popup-close-button {
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+.clay-map .leaflet-popup-close-button:hover {
+  background: var(--color-sunken);
+  color: var(--color-ink-soft);
+}
+/* Tip: the rotated square is clipped to its lower half so the visible
+   triangle starts exactly at the card's bottom edge — no seam. */
+.clay-map .leaflet-popup-tip-container {
+  width: 22px;
+  height: 11px;
+  margin: -1px auto 0;
+  overflow: hidden;
+}
 .clay-map .leaflet-popup-tip {
+  width: 15px;
+  height: 15px;
+  margin: -7px auto 0;
+  padding: 0;
+  box-shadow: none;
   background: var(--color-surface);
 }
 .clay-map .popup-name {
   font-size: 11px;
   font-weight: 700;
   color: var(--color-ink);
+  overflow-wrap: break-word;
 }
 .clay-map .popup-address {
   margin-top: 2px;

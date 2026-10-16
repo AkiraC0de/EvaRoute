@@ -1,19 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Plus, RotateCcw, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Banner from "../../components/ui/Banner";
-import Button from "../../components/ui/Button";
-import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
-import Skeleton from "../../components/ui/Skeleton";
-import StatusPill from "../../components/ui/StatusPill";
-import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
-import FacilityOverviewMap from "../map/FacilityOverviewMap";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import * as api from "../../lib/api";
 import FacilityCreateModal from "./FacilityCreateModal";
+import FacilitiesHeader from "./FacilitiesHeader";
+import FacilitiesFilterBar from "./FacilitiesFilterBar";
+import FacilitiesMapCard from "./FacilitiesMapCard";
+import FacilitiesTable from "./FacilitiesTable";
+import { FacilitiesLoading, FacilitiesEmpty } from "./FacilitiesStates";
 
 /**
  * Facilities registry (ADMIN).
@@ -22,13 +19,10 @@ import FacilityCreateModal from "./FacilityCreateModal";
  * pagination, so search is client-side over the fetched rows (fine at current
  * scale — see the plan's gap list). The `deleted` tab drives the soft-delete
  * RESTORE flow: DELETE is a toggle server-side.
+ *
+ * This component owns data flow and composition only — the header, filter
+ * band, map card, table and list states each live in their own module.
  */
-
-const STATUS_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "AVAILABLE", label: "Available" },
-  { value: "UNAVAILABLE", label: "Unavailable" },
-];
 
 const FacilitiesPage = () => {
   const [facilities, setFacilities] = useState([]);
@@ -40,7 +34,6 @@ const FacilitiesPage = () => {
   const [showDeleted, setShowDeleted] = useState(false);
   const [creating, setCreating] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState(null); // facility pending delete/restore
-  const [view, setView] = useState("table"); // "table" | "map"
   const navigate = useNavigate();
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
@@ -89,59 +82,16 @@ const FacilitiesPage = () => {
 
   return (
     <div>
-      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-[20px] font-bold leading-tight text-ink">Facilities</h1>
-          <p className="mt-1 text-[11px] text-muted">
-            Register, edit and restore evacuation centers
-          </p>
-        </div>
-        <Button onClick={() => setCreating(true)} size="md">
-          <Plus size={13} strokeWidth={2.2} className="mr-1" /> Register facility
-        </Button>
-      </header>
+      <FacilitiesHeader onRegister={() => setCreating(true)} />
 
-      {/* Filter bar — recessed band */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
-        <FilterSearch
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search name or address…"
-          ariaLabel="Search facilities"
-        />
-        <FilterSelect
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          ariaLabel="Filter by status"
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </FilterSelect>
-        <Button
-          variant={showDeleted ? "soft" : "neutral"}
-          size="sm"
-          onClick={() => setShowDeleted((current) => !current)}
-        >
-          {showDeleted ? "Showing deleted" : "Deleted facilities"}
-        </Button>
-        <div className="ml-auto flex items-center gap-1">
-          <Button
-            variant={view === "table" ? "soft" : "neutral"}
-            size="sm"
-            onClick={() => setView("table")}
-          >
-            Table
-          </Button>
-          <Button
-            variant={view === "map" ? "soft" : "neutral"}
-            size="sm"
-            onClick={() => setView("map")}
-          >
-            Map
-          </Button>
-        </div>
-      </div>
+      <FacilitiesFilterBar
+        search={search}
+        onSearchChange={(event) => setSearch(event.target.value)}
+        statusFilter={statusFilter}
+        onStatusChange={(event) => setStatusFilter(event.target.value)}
+        showDeleted={showDeleted}
+        onToggleDeleted={() => setShowDeleted((current) => !current)}
+      />
 
       {actionError && (
         <div className="mb-3">
@@ -149,36 +99,14 @@ const FacilitiesPage = () => {
         </div>
       )}
 
-      {view === "map" && !loading && !error && (
-        <div className="rounded-clay bg-surface p-4 shadow-clay">
-          <h2 className="text-[11px] font-bold text-ink-soft">Facility map</h2>
-          <p className="mt-1 text-[9px] text-muted">
-            {visible.length} {visible.length === 1 ? "facility" : "facilities"} · click a
-            marker for details
-          </p>
-          <div className="mt-3">
-            <FacilityOverviewMap
-              facilities={visible}
-              height={420}
-              onView={(facilityId) => navigate(`/facilities/${facilityId}`)}
-            />
-          </div>
-        </div>
+      {!loading && !error && visible.length > 0 && (
+        <FacilitiesMapCard
+          facilities={visible}
+          onView={(facilityId) => navigate(`/facilities/${facilityId}`)}
+        />
       )}
 
-      {loading && (
-        <div
-          role="status"
-          aria-label="Loading facilities"
-          className="rounded-clay bg-surface p-5 shadow-clay"
-        >
-          <Skeleton className="h-3 w-32" />
-          <Skeleton className="mt-4 h-9 w-full rounded-clay-sm" />
-          {[0, 1, 2].map((n) => (
-            <Skeleton key={n} className="mt-2 h-11 w-full rounded-clay-sm" />
-          ))}
-        </div>
-      )}
+      {loading && <FacilitiesLoading />}
 
       {!loading && error && (
         <StatusPanel tone="error" title="Could not load facilities" onRetry={retry}>
@@ -187,87 +115,18 @@ const FacilitiesPage = () => {
       )}
 
       {!loading && !error && visible.length === 0 && (
-        <div className="rounded-clay bg-surface p-8 text-center shadow-clay">
-          <EmptyArt variant={showDeleted ? "boxes" : "map"} className="mx-auto h-18 w-32" />
-          <p className="mt-3 text-[13px] font-bold text-ink-soft">
-            {showDeleted ? "No deleted facilities" : "No facilities found"}
-          </p>
-          <p className="mt-1 text-[10px] text-muted">
-            {showDeleted
-              ? "Soft-deleted facilities will appear here so you can restore them."
-              : "Register a new evacuation center to get started."}
-          </p>
-        </div>
+        <FacilitiesEmpty showDeleted={showDeleted} />
       )}
 
-      {view === "table" && !loading && !error && visible.length > 0 && (
-        <TableShell>
-          <thead>
-            <tr className="bg-sunken">
-              {["Name", "Address", "Status", "Capacity", "Staff", "Actions"].map((label) => (
-                <Th key={label}>{label}</Th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((facility) => (
-              <Tr key={facility.id}>
-                <Td>
-                  <Link
-                    to={`/facilities/${facility.id}`}
-                    className="text-[10px] font-semibold text-accent transition hover:text-accent-strong"
-                  >
-                    {facility.name}
-                  </Link>
-                </Td>
-                <Td>
-                  <span className="block max-w-[220px] truncate text-[9px] text-muted">
-                    {facility.address}
-                  </span>
-                </Td>
-                <Td>
-                  <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
-                    {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-                  </StatusPill>
-                </Td>
-                <Td>
-                  <span className="text-[9px] text-muted">{facility.maxCapacity}</span>
-                </Td>
-                <Td>
-                  <span className="text-[9px] text-muted">{facility.staffCount ?? 0}</span>
-                </Td>
-                <Td>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      to={`/facilities/${facility.id}`}
-                      className="text-[9px] font-semibold text-accent transition hover:text-accent-strong"
-                    >
-                      Manage
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActionError("");
-                        setConfirmTarget(facility);
-                      }}
-                      className={`inline-flex items-center gap-1 text-[9px] font-semibold transition ${
-                        showDeleted
-                          ? "text-success hover:text-[#155c2c]"
-                          : "text-danger hover:text-danger-strong"
-                      }`}
-                    >
-                      {showDeleted ? (
-                        <><RotateCcw size={11} strokeWidth={2} /> Restore</>
-                      ) : (
-                        <><Trash2 size={11} strokeWidth={2} /> Delete</>
-                      )}
-                    </button>
-                  </div>
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </TableShell>
+      {!loading && !error && visible.length > 0 && (
+        <FacilitiesTable
+          facilities={visible}
+          showDeleted={showDeleted}
+          onToggle={(facility) => {
+            setActionError("");
+            setConfirmTarget(facility);
+          }}
+        />
       )}
 
       {creating && (
