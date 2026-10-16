@@ -64,7 +64,9 @@ export function createInitialState() {
     hasTransitionedToMap: false,
     locationSkipped: false,
     routeAwaitingLocation: false,
-    mobilePanelExpanded: true,
+    // Mobile sheet starts CLOSED (map-first on first visit); the handle
+    // expands it, and selecting a center opens its details.
+    mobilePanelExpanded: false,
   };
 }
 
@@ -173,7 +175,14 @@ export function AppStateProvider({ children }) {
   }, [state.status, state.hasTransitionedToMap, enterDiscovery]);
 
   const selectCenter = useCallback((facility) => {
-    dispatch({ type: 'goto', to: 'center_selected', patch: { facility, sheetExpanded: true } });
+    // mobilePanelExpanded: clicking a marker on the map should open the
+    // details, not a collapsed strip — the sheet was closed only for the
+    // first-visit map-first state.
+    dispatch({
+      type: 'goto',
+      to: 'center_selected',
+      patch: { facility, sheetExpanded: true, mobilePanelExpanded: true },
+    });
   }, []);
 
   const getRoute = useCallback(() => {
