@@ -68,7 +68,7 @@ export default function OverlayContainer({
             'relative flex w-full min-w-0 flex-1 flex-col px-4',
             isCollapsedRouteCard
               ? 'pt-2 pb-[calc(8px+env(safe-area-inset-bottom))]'
-              : 'pt-6 pb-[calc(24px+env(safe-area-inset-bottom))]',
+              : 'pt-2 pb-[calc(20px+env(safe-area-inset-bottom))]',
             !isMobileExpanded && collapsedContent ? 'h-full items-center' : '',
           ]
             .filter(Boolean)

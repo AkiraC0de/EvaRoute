@@ -169,7 +169,7 @@ function AmenityRow({ resource }) {
   let state;
   if (isQuantity) {
     state = (
-      <div className="flex flex-col gap-20 min-w-[96px] shrink-0 justify-items-end">
+      <div className="flex flex-col gap-1 min-w-[96px] shrink-0 justify-items-end">
         <span className="whitespace-nowrap text-[11px] font-semibold tabular-nums text-ink">
           {resource.availableValue ?? 0}
           {hasMax ? ` / ${resource.maxValue}` : ""} left

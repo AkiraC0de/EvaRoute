@@ -44,7 +44,7 @@ export default function FacilityOverlay() {
           onClick={actions.expand}
           aria-label="Show details"
         >
-          <DragHandle className="mb-1 w-full" />
+          <DragHandle className="mb-1" />
           <span className="block max-w-full truncate whitespace-nowrap text-[13px] font-semibold text-ink">
             {facility.name}
           </span>
