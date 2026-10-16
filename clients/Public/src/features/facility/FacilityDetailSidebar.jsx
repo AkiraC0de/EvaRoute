@@ -4,17 +4,15 @@ import CenterStatusBadge from './CenterStatusBadge';
 /**
  * FacilityDetailSidebar — the selected center's detail sheet (frame 05).
  *
- * Rebuilt from scratch around the data that actually matters to an evacuee:
- * is it open, how far, how much room is left, and what supplies/services does
- * it have RIGHT NOW (the `resources[]` from GET /api/v1/public/facility —
- * boolean availability and counted stock both shown as first-class states).
+ * Built around the data that actually matters to an evacuee: is it open,
+ * how far, how much room is left, and what supplies/services does it have
+ * RIGHT NOW (the `resources[]` from GET /api/v1/public/facility — boolean
+ * availability and counted stock both shown as first-class states).
  */
 
 /* ── Amenity icons: one stroke language, keyed by resource name/essentialType ── */
 const ICON_PATHS = {
-  electricity: (
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 13h8l-1 8 9-10h-8l1-8z" />
-  ),
+  electricity: <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 13h8l-1 8 9-10h-8l1-8z" />,
   water: (
     <>
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 2.5a7 7 0 0 0-7 7c0 3.5 2.5 6.5 7 10 4.5-3.5 7-6.5 7-10a7 7 0 0 0-7-7z" />
@@ -39,9 +37,7 @@ const ICON_PATHS = {
       <path strokeLinecap="round" d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M12 11v5M9.5 13.5h5" />
     </>
   ),
-  shelter: (
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V8l7-4 7 4v13M8 21v-6h8v6" />
-  ),
+  shelter: <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V8l7-4 7 4v13M8 21v-6h8v6" />,
   phone: (
     <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.22 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.74 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.09 6.09l.81-.81a2 2 0 0 1 2.11-.45c.91.37 1.85.61 2.81.74a2 2 0 0 1 1.72 2z" />
   ),
@@ -107,44 +103,48 @@ function AmenityRow({ resource }) {
   let state;
   if (isQuantity) {
     state = (
-      <div className="fd-amenity-stock">
-        <span className="fd-amenity-stock-value">
+      <div className="grid min-w-[96px] shrink-0 justify-items-end gap-1">
+        <span className="whitespace-nowrap text-[11px] font-semibold tabular-nums text-ink">
           {resource.availableValue ?? 0}
           {hasMax ? ` / ${resource.maxValue}` : ''} left
         </span>
         {pct != null && (
-          <span className="fd-amenity-meter" aria-hidden="true">
-            <span className="fd-amenity-meter-fill" style={{ width: `${pct}%` }} />
+          <span className="block h-[5px] w-24 overflow-hidden rounded-full bg-sunken shadow-clay-inset" aria-hidden="true">
+            <span className="block h-full rounded-full bg-success transition-[width] duration-200" style={{ width: `${pct}%` }} />
           </span>
         )}
       </div>
     );
   } else if (resource.isAvailable === true) {
     state = (
-      <span className="fd-amenity-chip fd-amenity-chip--yes">
-        <span aria-hidden="true" className="fd-amenity-dot fd-amenity-dot--yes" />
+      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success">
+        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-success" />
         Available
       </span>
     );
   } else if (resource.isAvailable === false) {
     state = (
-      <span className="fd-amenity-chip fd-amenity-chip--no">
-        <span aria-hidden="true" className="fd-amenity-dot fd-amenity-dot--no" />
+      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger">
+        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-danger" />
         Unavailable
       </span>
     );
   } else {
-    state = <span className="fd-amenity-chip fd-amenity-chip--unknown">Status unknown</span>;
+    state = (
+      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-sunken px-2.5 py-1 text-[11px] font-semibold text-muted">
+        Status unknown
+      </span>
+    );
   }
 
   return (
-    <li className="fd-amenity-row">
-      <span className="fd-amenity-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7}>
+    <li className="flex min-w-0 items-center gap-2.5">
+      <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-xs" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} className="h-[18px] w-[18px]">
           {amenityIcon(resource)}
         </svg>
       </span>
-      <span className="fd-amenity-name">{resource.name}</span>
+      <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink">{resource.name}</span>
       {state}
     </li>
   );
@@ -166,25 +166,30 @@ export default function FacilityDetailSidebar({
   const amenities = sortAmenities(resources ?? []);
 
   return (
-    <div className="facility-detail-sidebar fd-sidebar">
+    <div className="no-scrollbar flex min-h-0 flex-col gap-4 overflow-y-auto">
       {/* Identity */}
-      <header className="fd-header">
+      <header className="flex min-w-0 items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="facility-detail-title">{facility.name}</h2>
-          <p className="facility-detail-address">{facility.address}</p>
+          <h2 className="text-[22px] font-bold leading-tight tracking-tight text-ink">{facility.name}</h2>
+          <p className="mt-1 break-words text-[13px] capitalize leading-snug text-muted">{facility.address}</p>
         </div>
-        <button type="button" className="facility-detail-close" onClick={onBack} aria-label="Close">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+        <button
+          type="button"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sunken text-muted shadow-clay-inset transition hover:bg-surface hover:text-accent"
+          onClick={onBack}
+          aria-label="Close"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </header>
 
       {/* Status + distance chips */}
-      <div className="fd-chips">
+      <div className="flex flex-wrap items-center gap-2">
         <CenterStatusBadge status={facility.status} fullLabel />
-        <span className="fd-chip fd-chip--distance">
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface px-[11px] py-[5px] text-[11px] font-semibold text-muted shadow-clay-xs">
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
             <circle cx="12" cy="12" r="8" />
             <path strokeLinecap="round" d="M12 8v4l2.5 2" />
           </svg>
@@ -195,63 +200,68 @@ export default function FacilityDetailSidebar({
       </div>
 
       {/* Capacity */}
-      <section className="fd-card" aria-labelledby="fd-capacity-heading">
-        <div className="fd-card-heading">
-          <h3 id="fd-capacity-heading">Capacity</h3>
-          <span className="fd-card-meta">{facility.maxCapacity.toLocaleString()} spaces max</span>
+      <section className="block w-full min-w-0 rounded-clay bg-surface p-4 shadow-clay-xs" aria-labelledby="fd-capacity-heading">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="fd-capacity-heading" className="text-[15px] font-semibold tracking-tight text-ink">
+            Capacity
+          </h3>
+          <span className="text-[11px] font-medium text-muted-dim">{facility.maxCapacity.toLocaleString()} spaces max</span>
         </div>
-        <CapacityProgress
-          current={currentOccupancy}
-          max={facility.maxCapacity}
-          showSlotsLeft
-          showPercentage
-          className="w-full"
-        />
+        <CapacityProgress current={currentOccupancy} max={facility.maxCapacity} showSlotsLeft showPercentage className="mt-3 w-full" />
         {currentOccupancy == null && (
-          <p className="facility-detail-muted">Current occupancy is reported once families check in.</p>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-dim">
+            Current occupancy is reported once families check in.
+          </p>
         )}
       </section>
 
       {/* Amenities & supplies — the resources[] from the public API */}
-      <section className="fd-card" aria-labelledby="fd-amenities-heading">
-        <div className="fd-card-heading">
-          <h3 id="fd-amenities-heading">Amenities &amp; supplies</h3>
-          {amenities.length > 0 && <span className="fd-card-meta">{amenities.length} listed</span>}
+      <section className="block w-full min-w-0 rounded-clay bg-surface p-4 shadow-clay-xs" aria-labelledby="fd-amenities-heading">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="fd-amenities-heading" className="text-[15px] font-semibold tracking-tight text-ink">
+            Amenities &amp; supplies
+          </h3>
+          {amenities.length > 0 && <span className="text-[11px] font-medium text-muted-dim">{amenities.length} listed</span>}
         </div>
         {amenities.length > 0 ? (
-          <ul className="fd-amenity-list">
+          <ul className="mt-4 grid list-none gap-2.5 p-0">
             {amenities.map((resource) => (
               <AmenityRow key={resource.id} resource={resource} />
             ))}
           </ul>
         ) : (
-          <p className="facility-detail-muted">This center has not listed any amenities yet.</p>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-dim">This center has not listed any amenities yet.</p>
         )}
       </section>
 
       {/* About */}
       {facility.note && (
-        <section className="fd-card" aria-labelledby="fd-about-heading">
-          <div className="fd-card-heading">
-            <h3 id="fd-about-heading">About this center</h3>
+        <section className="block w-full min-w-0 rounded-clay bg-surface p-4 shadow-clay-xs" aria-labelledby="fd-about-heading">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 id="fd-about-heading" className="text-[15px] font-semibold tracking-tight text-ink">
+              About this center
+            </h3>
           </div>
-          <p className="facility-detail-copy min-w-0">{facility.note}</p>
+          <p className="mt-2 break-words text-[13px] leading-relaxed text-muted hyphens-auto">{facility.note}</p>
         </section>
       )}
 
       {/* Inline location recovery — appears only after Get Route needs a real
-          location. Deliberately inline (not a second card) and kept above the
-          actions so the retry sits next to the button that triggered it. */}
+          location. Kept above the actions so the retry sits next to the
+          button that triggered it. */}
       {locationPrompt && (
-        <div className={`facility-detail-location-note ${locationPrompt.blocked ? 'is-blocked' : ''}`} role="status">
-          <p className="facility-detail-location-note-text">
+        <div
+          className={`mt-2 flex flex-wrap items-center gap-2 rounded-clay-sm bg-sunken px-4 py-2 shadow-clay-inset ${locationPrompt.blocked ? 'is-blocked' : ''}`}
+          role="status"
+        >
+          <p className="min-w-0 flex-1 basis-[200px] text-[11px] leading-snug text-muted">
             {locationPrompt.blocked
               ? 'Location is blocked for this site. To get directions from your position, allow location access in your browser\u2019s site settings, then try again.'
               : 'Location is needed to get directions from your current position.'}
           </p>
           <button
             type="button"
-            className="facility-detail-location-note-button"
+            className="motion-safe-transform min-h-9 shrink-0 rounded-full bg-surface px-4 py-1 text-[11px] font-semibold text-accent shadow-clay-xs transition active:shadow-clay-inset disabled:opacity-60"
             onClick={onEnableLocation}
             disabled={locationPrompt.requesting}
           >
@@ -261,13 +271,17 @@ export default function FacilityDetailSidebar({
       )}
 
       {/* Actions */}
-      <div className="facility-detail-actions max-h-10">
-        <button type="button" className="h-4 clay-button clay-button-secondary w-full" onClick={onBack}>
+      <div className="mt-auto flex flex-row gap-2 pt-2 pb-[env(safe-area-inset-bottom)]">
+        <button type="button" className="w-full rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-ink shadow-clay-xs transition hover:bg-sunken active:shadow-clay-inset" onClick={onBack}>
           Back
         </button>
-        <button type="button" className="h-4 clay-button clay-button-primary w-full" onClick={onGetRoute}>
+        <button
+          type="button"
+          className="motion-safe-transform inline-flex w-full items-center justify-center rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
+          onClick={onGetRoute}
+        >
           Get Route
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2} aria-hidden="true" style={{ marginLeft: 6 }}>
+          <svg className="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </button>

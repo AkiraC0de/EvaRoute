@@ -1,8 +1,8 @@
 /**
  * FacilityOverlay — the selected center's detail sheet (frame 05).
  *
- * Shows the facility detail sidebar expanded, or a compact collapsed summary
- * (name, address, status, capacity) in one tap target with the drag handle.
+ * Expanded shows the FacilityDetailSidebar; collapsed shows a compact
+ * summary (name, address, status, capacity) in one tap target with the grip.
  */
 import { useAppState } from '../../contexts/AppStateContext';
 import { haversineKm } from '../../lib/geo';
@@ -13,14 +13,7 @@ import CenterStatusBadge from './CenterStatusBadge';
 import FacilityDetailSidebar from './FacilityDetailSidebar';
 
 export default function FacilityOverlay() {
-  const {
-    state,
-    position,
-    geoLoading,
-    geoPermissionBlocked,
-    hasRealLocation,
-    actions,
-  } = useAppState();
+  const { state, position, geoLoading, geoPermissionBlocked, hasRealLocation, actions } = useAppState();
   const facility = state.facility;
   if (!facility) return null;
 
@@ -41,25 +34,26 @@ export default function FacilityOverlay() {
       expanded={state.sheetExpanded}
       mobileExpanded={state.mobilePanelExpanded}
       onMobileToggle={actions.toggleMobilePanel}
-      className="facility-detail-overlay"
+      className="facility-detail-overlay no-scrollbar"
       collapsedContent={
-        // One tap target holds the drag handle and the summary together, so the
-        // handle stays attached to the sheet it collapses. The handle is a
-        // sibling above the text rather than an overlay, so nothing overlaps.
+        // One tap target holds the grip and the summary together, so the
+        // handle stays attached to the sheet it collapses.
         <button
           type="button"
-          className="facility-detail-collapsed-summary"
+          className="flex w-full flex-col items-center gap-1 border-0 bg-transparent text-center touch-manipulation"
           onClick={actions.expand}
           aria-label="Show details"
         >
-          <span className="facility-detail-collapsed-handle" aria-hidden="true">
-            <DragHandle />
+          <DragHandle className="mb-1 w-full" />
+          <span className="block max-w-full truncate whitespace-nowrap text-[13px] font-semibold text-ink">
+            {facility.name}
           </span>
-          <span className="facility-detail-collapsed-name">{facility.name}</span>
-          <span className="facility-detail-collapsed-address">{facility.address}</span>
-          <span className="facility-detail-collapsed-status">
+          <span className="block max-w-full truncate whitespace-nowrap text-[11px] text-muted">
+            {facility.address}
+          </span>
+          <span className="mt-1 flex flex-wrap items-center justify-center gap-1">
             <CenterStatusBadge status={facility.status} fullLabel />
-            <span className="facility-detail-collapsed-capacity">
+            <span className="whitespace-nowrap text-[11px] font-medium text-muted">
               {formatCount(facility.maxCapacity)} spaces max
             </span>
           </span>

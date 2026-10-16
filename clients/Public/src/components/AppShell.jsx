@@ -1,18 +1,13 @@
 /**
  * AppShell — the root layout container for EvaRoute.
  *
- * Establishes the full-viewport, overlay-based architecture:
- * - A map area (absolute, full viewport, lowest z-index)
- * - An overlay area (absolute, full viewport, higher z-index, pointer-events: none)
- *   Overlay children re-enable pointer events individually.
- *
- * The map is always the background. Overlays appear on top based on state.
+ * Full-viewport, overlay-based architecture: the map is the background
+ * layer and overlays stack on top of it (children include both areas).
  */
 export default function AppShell({ children }) {
-    return (<div className="evaroute-shell">
-      {/* Map area — always present, behind all overlays */}
-      <div className="map-area">
-        {children}
-      </div>
-    </div>);
+  return (
+    <div className="relative h-dvh w-screen overflow-hidden">
+      <div className="absolute inset-0 z-[1]">{children}</div>
+    </div>
+  );
 }

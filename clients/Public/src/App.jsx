@@ -3,8 +3,6 @@
  *
  * Holds only the map viewport refs and the screen switch; all state lives in
  * contexts/AppStateContext and all screen composition lives in features/.
- * (Formerly an 800-line component owning fetching, filtering, sorting,
- * navigation tracking and every overlay.)
  */
 import { useRef, useMemo, useCallback } from 'react';
 import { useAppState } from './contexts/AppStateContext';
@@ -54,10 +52,10 @@ export default function App() {
   return (
     <AppShell>
       {/* Map area */}
-      <div className="map-area">
+      <div className="absolute inset-0 z-[1]">
         {showMap && (
           <>
-            <div ref={mapContainerRef} className="w-full h-full" />
+            <div ref={mapContainerRef} className="h-full w-full" />
             <EvaRouteMap
               containerRef={mapContainerRef}
               routeData={state.routeData}
@@ -80,7 +78,7 @@ export default function App() {
       </div>
 
       {/* Overlay area — one component per screen */}
-      <div className="overlay-area">
+      <div className="pointer-events-none absolute inset-0 z-30 [&>*]:pointer-events-auto">
         {(state.status === 'initializing' || state.status === 'location_ready') && <SplashFlow />}
         {state.status === 'discovery' && (
           <DiscoveryOverlay
@@ -89,6 +87,7 @@ export default function App() {
             totalFacilities={state.facilities.length}
             recenterSlot={
               <RecenterButton
+                inline
                 mapRef={leafletMapRef}
                 position={position?.coords ?? null}
                 defaultCenter={DEFAULT_CENTER}

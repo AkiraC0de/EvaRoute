@@ -1,7 +1,13 @@
 /**
- * DragHandle — small horizontal pill at top center of a mobile bottom sheet.
- * Visual indicator only; drag behavior is deferred.
+ * DragHandle — the grip pill at the top of a mobile bottom sheet.
+ * Visual indicator only; drag behaviour is deferred.
  */
-export default function DragHandle() {
-    return (<div className="drag-handle w-10 h-1 rounded-full bg-[var(--surface-inset)] mx-auto mt-3"/>);
+export default function DragHandle({ className = '' }) {
+  return (
+    <div
+      className={`mx-auto flex h-5 w-14 items-center justify-center rounded-full bg-surface shadow-clay-xs ${className}`}
+    >
+      <span className="h-1 w-6 rounded-full bg-sunken" />
+    </div>
+  );
 }

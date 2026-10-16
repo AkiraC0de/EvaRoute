@@ -20,31 +20,23 @@ export default function NavigationOverlay() {
   const instruction = currentStep?.text ?? 'Following route';
 
   const renderCollapsed = () => (
-    <div className="route-preview-collapsed">
-      {/* Shared DragHandle pill, matching the facility-detail and collapsed
-          route-preview grips. */}
+    <div className="flex w-full flex-col items-center gap-1">
       <button
-        className="route-preview-collapsed-chevron"
+        className="flex h-11 w-11 items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
         onClick={actions.expand}
         aria-label="Show navigation details"
       >
         <DragHandle />
       </button>
 
-      <div className="route-preview-collapsed-row">
-        <div className="route-preview-collapsed-info">
-          <div className="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse shrink-0" />
+      <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <div className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-success" />
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            style={{ backgroundColor: 'var(--color-primary)', opacity: 0.12 }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+            style={{ backgroundColor: 'var(--color-accent)', opacity: 0.12 }}
           >
-            <svg
-              className="w-5 h-5 text-[var(--color-primary)]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
+            <svg className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -53,12 +45,10 @@ export default function NavigationOverlay() {
             </svg>
           </div>
           <div className="min-w-0">
-            <div className="text-[var(--font-size-sm)] font-semibold text-[var(--color-text-primary)] truncate">
+            <div className="truncate text-[13px] font-semibold text-ink">
               {navRemainingKm != null ? `${navRemainingKm.toFixed(1)} km remaining` : 'Navigating'}
             </div>
-            <div className="text-[var(--font-size-xs)] text-[var(--color-text-caption)] truncate">
-              {facility.name}
-            </div>
+            <div className="truncate text-[11px] text-muted-dim">{facility.name}</div>
           </div>
         </div>
       </div>

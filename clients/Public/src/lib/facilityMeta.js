@@ -14,8 +14,8 @@ export const FACILITY_STATUS_META = {
     UNAVAILABLE: {
         label: 'Full',
         fullLabel: 'Full',
-        color: 'var(--color-full)',
-        background: 'var(--color-full-soft)',
+        color: 'var(--color-danger)',
+        background: 'var(--color-danger-soft)',
     },
 };
 /**
