@@ -1,8 +1,10 @@
 import { LogOut } from "lucide-react";
+import { formatCheckedInAt, splitMembers } from "./occupancyUtils";
 
 /**
- * One checked-in household (a `FacilityStay` with its members) and its
- * check-out control.
+ * One checked-in household (a `FacilityStay` with its members): initials,
+ * family name, Check-In ID (short form; full id in the title + on the
+ * ticket), check-in time, member chips and the check-out control.
  */
 const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const initials = stay.familyName
@@ -11,7 +13,8 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
     .map((word) => word[0])
     .join("")
     .toUpperCase();
-  const people = stay.members.length;
+  const { total, children, adults } = splitMembers(stay.members);
+  const shortId = String(stay.id).slice(0, 8);
 
   return (
     <li className="rounded-clay-sm bg-surface px-2.5 py-2 shadow-clay-xs">
@@ -25,10 +28,16 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
         <div className="min-w-0 flex-1">
           <p className="truncate text-[10px] font-semibold text-ink-soft">{stay.familyName}</p>
           <p className="text-[8px] text-muted">
-            {people} {people === 1 ? "member" : "members"} · checked in{" "}
-            {new Date(stay.checkedInAt).toLocaleString()}
+            {total} {total === 1 ? "member" : "members"} ({adults} adult{adults === 1 ? "" : "s"},{" "}
+            {children} {children === 1 ? "child" : "children"}) · {formatCheckedInAt(stay.checkedInAt)}
           </p>
         </div>
+        <span
+          title={`Check-in ID ${stay.id}`}
+          className="shrink-0 rounded-full bg-sunken px-2 py-0.5 font-mono text-[8px] font-semibold text-ink-soft shadow-clay-inset"
+        >
+          #{shortId}
+        </span>
         <button
           type="button"
           aria-label={`Check out ${stay.familyName}`}

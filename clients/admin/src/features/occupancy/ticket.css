@@ -1,0 +1,24 @@
+/**
+ * Print layout for the check-in ticket: when printing, hide everything except
+ * the ticket so paper gets just the admission slip — no dashboard, sidebar,
+ * buttons or overlays.
+ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .ticket-print-root,
+  .ticket-print-root * {
+    visibility: visible;
+  }
+  .ticket-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 24px;
+  }
+  .ticket-actions {
+    display: none !important;
+  }
+}

@@ -37,8 +37,11 @@ export default function useStays(facilityId) {
 
   const checkIn = useCallback(
     async (payload) => {
-      await api.checkIn(facilityId, payload);
+      const stay = await api.checkIn(facilityId, payload);
       refresh();
+      // Return the created stay so callers can show the check-in ticket with
+      // the server-assigned Check-In ID.
+      return stay;
     },
     [facilityId, refresh],
   );

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
-import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
 import { SelectField } from "../../components/ui/Field";
 import useAsyncAction from "../../hooks/useAsyncAction";
@@ -10,15 +8,24 @@ import * as api from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../app/roles";
 import CheckInForm from "./CheckInForm";
+import CheckInTicket from "./CheckInTicket";
 import HouseholdList from "./HouseholdList";
 import OccupancyMeter from "./OccupancyMeter";
+import OccupancySummary from "./OccupancySummary";
+import RecentHouseholdActivity from "./RecentHouseholdActivity";
 
 /**
- * Occupancy — real check-in / check-out against the stay API.
+ * Occupancy — the staff operational dashboard: live occupancy numbers,
+ * capacity visualization, household check-in/lookup, the checked-in
+ * household list and the recent check-in / check-out trail.
  *
  * FACILITY_STAFF operate on their assigned facility only (assertFacilityAccess
  * enforces it server-side too). ADMIN picks which facility to operate on from
  * a picker fed by GET /facility.
+ *
+ * This component owns data flow and composition; metrics, the meter, search,
+ * the household list, recent activity and the check-in ticket each live in
+ * their own module.
  */
 const OccupancyPage = () => {
   const { user } = useAuth();
@@ -26,6 +33,7 @@ const OccupancyPage = () => {
 
   const [facilities, setFacilities] = useState([]);
   const [facilityId, setFacilityId] = useState(null);
+  const [ticketStay, setTicketStay] = useState(null); // successful check-in -> ticket
   const { busy, run } = useAsyncAction();
 
   const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
@@ -63,11 +71,11 @@ const OccupancyPage = () => {
             value={facilityId ?? ""}
             onChange={(event) => setFacilityId(event.target.value)}
           >
-            {facilities.map((facility) => {
-              return <option key={facility.id} value={facility.id}>
-                {`${facility.name} - ${facility.address}`} 
+            {facilities.map((facility) => (
+              <option key={facility.id} value={facility.id}>
+                {`${facility.name} - ${facility.address}`}
               </option>
-            })}
+            ))}
           </SelectField>
         </div>
       )}
@@ -94,20 +102,17 @@ const OccupancyPage = () => {
 
       {facilityId && !loading && !error && occupancy && (
         <>
+          <OccupancySummary occupancy={occupancy} />
           <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} />
-
-          <section aria-label="Occupancy breakdown" className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <StatTile label="Families" value={occupancy.families} />
-            <StatTile label="Adults" value={occupancy.adults} />
-            <StatTile label="Children" value={occupancy.children} />
-            <StatTile label="Left" value={occupancy.remaining} icon={<Users size={13} strokeWidth={1.9} />} />
-          </section>
 
           <div className="grid gap-4 md:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.55fr)]">
             <CheckInForm
               remaining={occupancy.remaining}
               onCheckIn={async (payload) => {
-                await run(() => checkIn(payload));
+                // The form owns busy/error handling; on success the server's
+                // stay record (with the real Check-In ID) opens the ticket.
+                const stay = await checkIn(payload);
+                if (stay) setTicketStay(stay);
               }}
             />
             <HouseholdList
@@ -116,8 +121,12 @@ const OccupancyPage = () => {
               onCheckOut={(stay) => run(() => checkOut(stay.id))}
             />
           </div>
+
+          <RecentHouseholdActivity facilityId={facilityId} />
         </>
       )}
+
+      {ticketStay && <CheckInTicket stay={ticketStay} onClose={() => setTicketStay(null)} />}
     </div>
   );
 };
