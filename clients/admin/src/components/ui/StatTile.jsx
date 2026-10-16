@@ -2,8 +2,8 @@
  * Small stat tile for breakdown grids (occupancy breakdown, admin overview).
  * Optional `icon` renders in a soft clay chip beside the value.
  */
-const StatTile = ({ label, value, icon }) => (
-  <div className="rounded-clay-sm bg-surface px-3 py-2.5 shadow-clay-xs">
+const StatTile = ({ label, value, icon, className = "" }) => (
+  <div className={`rounded-clay-sm bg-surface px-3 py-2.5 shadow-clay-xs ${className}`}>
     <div className="flex items-center gap-2">
       {icon && (
         <span

@@ -105,24 +105,33 @@ const OccupancyPage = () => {
           <OccupancySummary occupancy={occupancy} />
           <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} />
 
-          <div className="grid gap-4 md:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.55fr)]">
-            <CheckInForm
-              remaining={occupancy.remaining}
-              onCheckIn={async (payload) => {
-                // The form owns busy/error handling; on success the server's
-                // stay record (with the real Check-In ID) opens the ticket.
-                const stay = await checkIn(payload);
-                if (stay) setTicketStay(stay);
-              }}
-            />
-            <HouseholdList
-              stays={stays}
-              busy={busy}
-              onCheckOut={(stay) => run(() => checkOut(stay.id))}
-            />
+          {/* Operational grid: check-in form + recent movement in the left
+              column, the household list spanning both rows on the right so it
+              gets the full height. Stacks on small screens (form, recent,
+              list) via the responsive columns breakpoint. */}
+          <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(0,1.4fr)] lg:grid-rows-[auto_1fr]">
+            <div className="lg:col-start-1 lg:row-start-1">
+              <CheckInForm
+                remaining={occupancy.remaining}
+                onCheckIn={async (payload) => {
+                  // The form owns busy/error handling; on success the server's
+                  // stay record (with the real Check-In ID) opens the ticket.
+                  const stay = await checkIn(payload);
+                  if (stay) setTicketStay(stay);
+                }}
+              />
+            </div>
+            <div className="lg:col-start-1 lg:row-start-2">
+              <RecentHouseholdActivity facilityId={facilityId} />
+            </div>
+            <div className="flex lg:col-start-2 lg:row-start-1 lg:row-span-2">
+              <HouseholdList
+                stays={stays}
+                busy={busy}
+                onCheckOut={(stay) => run(() => checkOut(stay.id))}
+              />
+            </div>
           </div>
-
-          <RecentHouseholdActivity facilityId={facilityId} />
         </>
       )}
 

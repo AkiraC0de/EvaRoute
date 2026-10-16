@@ -48,7 +48,7 @@ const OccupancyMeter = ({ occupancy, capacity }) => {
         className="h-2.5 overflow-hidden rounded-full bg-sunken shadow-clay-inset"
       >
         <div
-          className={`h-full rounded-full transition-[width] duration-500 ${BAR_TONE[state.tone]}`}
+          className={`h-full min-w-[6px] rounded-full transition-[width] duration-500 ${BAR_TONE[state.tone]}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>

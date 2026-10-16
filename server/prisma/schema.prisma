@@ -68,6 +68,9 @@ model FacilityStay {
   facilityId String @db.Uuid
 
   familyName String
+  /// Human-readable Check-In ID: "0001" — a zero-padded per-facility ticket
+  /// number (4 digits, cap 9999 per center). Unique within the facility.
+  checkInCode String
 
   checkedInAt  DateTime  @default(now())
   checkedOutAt DateTime?
@@ -77,6 +80,7 @@ model FacilityStay {
   members FacilityStayMember[]
 
   @@index([facilityId, checkedOutAt])
+  @@unique([facilityId, checkInCode])
   @@map("facility_stays")
 }
 

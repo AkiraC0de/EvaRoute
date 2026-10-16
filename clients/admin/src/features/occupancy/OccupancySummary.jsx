@@ -1,4 +1,4 @@
-import { Building2, Home, Percent, Users } from "lucide-react";
+import { Building2, Home, Armchair, Percent, Users } from "lucide-react";
 import StatTile from "../../components/ui/StatTile";
 import { occupancyPct } from "./occupancyUtils";
 
@@ -26,8 +26,17 @@ const OccupancySummary = ({ occupancy }) => {
         value={occupancy.maxCapacity}
         icon={<Building2 size={13} strokeWidth={1.9} />}
       />
-      <StatTile label="Seats remaining" value={occupancy.remaining} />
-      <StatTile label="Occupancy" value={`${pct}%`} icon={<Percent size={13} strokeWidth={1.9} />} />
+      <StatTile
+        label="Seats remaining"
+        value={occupancy.remaining}
+        icon={<Armchair size={13} strokeWidth={1.9} />}
+      />
+      <StatTile
+        label="Occupancy"
+        value={`${pct}%`}
+        icon={<Percent size={13} strokeWidth={1.9} />}
+        className="col-span-2 sm:col-span-1"
+      />
     </section>
   );
 };

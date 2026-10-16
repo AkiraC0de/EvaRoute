@@ -20,11 +20,33 @@ const findByFacilityId = (facilityId: string, status?: "ACTIVE" | "CHECKED_OUT")
   })
 }
 
-const create = (data: Prisma.FacilityStayCreateInput) => {
-  return prisma.facilityStay.create({
-    data,
-    include: { members: true }
-  })
+/**
+ * Human-readable Check-In ID: "0001" — zero-padded, sequential per facility
+ * (4 digits, cap 9999 per center; a center is never expected to exceed it).
+ * The unique (facilityId, checkInCode) index backs it; a collision (concurrent
+ * check-ins racing the counter) retries before giving up.
+ */
+const generateCheckInCode = async (facilityId: string): Promise<string> => {
+  const seq = (await prisma.facilityStay.count({ where: { facilityId } })) + 1
+  return String(seq).padStart(4, "0")
+}
+
+const create = async (data: Omit<Prisma.FacilityStayCreateInput, "checkInCode">) => {
+  const facilityId = (data.facility as { connect: { id: string } }).connect.id
+  for (let attempt = 0; attempt <= 3; attempt += 1) {
+    try {
+      return await prisma.facilityStay.create({
+        data: { ...data, checkInCode: await generateCheckInCode(facilityId) },
+        include: { members: true }
+      })
+    } catch (err) {
+      // P2002 = unique-constraint violation on (facilityId, checkInCode) ->
+      // try the next number.
+      const isUniqueViolation = (err as { code?: string })?.code === "P2002"
+      if (!isUniqueViolation || attempt === 3) throw err
+    }
+  }
+  throw new Error("Could not allocate a check-in code.")
 }
 
 const checkOut = (stayId: string) => {

@@ -1,10 +1,10 @@
 import { LogOut } from "lucide-react";
-import { formatCheckedInAt, splitMembers } from "./occupancyUtils";
+import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
 
 /**
  * One checked-in household (a `FacilityStay` with its members): initials,
- * family name, Check-In ID (short form; full id in the title + on the
- * ticket), check-in time, member chips and the check-out control.
+ * family name, Check-In ID ("0001", the per-facility ticket number), check-in
+ * time, member chips and the check-out control.
  */
 const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const initials = stay.familyName
@@ -14,7 +14,7 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
     .join("")
     .toUpperCase();
   const { total, children, adults } = splitMembers(stay.members);
-  const shortId = String(stay.id).slice(0, 8);
+  const code = checkInCode(stay);
 
   return (
     <li className="rounded-clay-sm bg-surface px-2.5 py-2 shadow-clay-xs">
@@ -26,17 +26,17 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
           {initials}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[10px] font-semibold text-ink-soft">{stay.familyName}</p>
-          <p className="text-[8px] text-muted">
+          <p className="truncate text-[10px] font-bold text-ink-soft">{stay.familyName}</p>
+          <p className="text-[10px] font-semibold text-muted">
             {total} {total === 1 ? "member" : "members"} ({adults} adult{adults === 1 ? "" : "s"},{" "}
             {children} {children === 1 ? "child" : "children"}) · {formatCheckedInAt(stay.checkedInAt)}
           </p>
         </div>
         <span
-          title={`Check-in ID ${stay.id}`}
-          className="shrink-0 rounded-full bg-sunken px-2 py-0.5 font-mono text-[8px] font-semibold text-ink-soft shadow-clay-inset"
+          title={`Check-in ID ${code}`}
+          className="shrink-0 font-black rounded-full bg-sunken px-2.5 py-1 font-mono text-[10px] tracking-[1px] text-ink-soft shadow-clay-inset"
         >
-          #{shortId}
+          {code}
         </span>
         <button
           type="button"

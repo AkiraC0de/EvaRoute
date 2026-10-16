@@ -30,6 +30,29 @@ export const capacityState = (members, capacity) => {
   return { key: "OPEN", label: "Open", tone: "success" };
 };
 
+/**
+ * Check-In ID display: the server's per-facility ticket number ("0001").
+ * Falls back to a short id segment if an old record predates the code.
+ */
+export const checkInCode = (stay) =>
+  stay.checkInCode ? String(stay.checkInCode) : `#${String(stay.id).slice(0, 8)}`;
+
+/** Strip separators/whitespace so "0001", " 0001 " and "#0001" all match. */
+export const normalizeCode = (value) =>
+  String(value ?? "").replace(/[^0-9a-z]/gi, "").toLowerCase();
+
+/** Household lookup: family name (partial, case-insensitive) or Check-In ID. */
+export const stayMatchesSearch = (stay, needle) => {
+  const q = needle.trim().toLowerCase();
+  if (!q) return true;
+  const codeNeedle = normalizeCode(q);
+  return (
+    stay.familyName.toLowerCase().includes(q) ||
+    (codeNeedle.length > 0 && normalizeCode(stay.checkInCode).includes(codeNeedle)) ||
+    String(stay.id).toLowerCase().includes(q)
+  );
+};
+
 /** Short, readable check-in timestamp: "Oct 15, 2:32 PM". */
 export const formatCheckedInAt = (value) => {
   const date = new Date(value);

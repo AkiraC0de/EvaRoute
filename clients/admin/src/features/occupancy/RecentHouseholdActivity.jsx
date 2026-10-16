@@ -7,7 +7,7 @@ import ActivityFeed from "../activity/ActivityFeed";
  * Reuses the shared compact feed instead of a second stay query.
  */
 const RecentHouseholdActivity = ({ facilityId }) => (
-  <Card className="mt-4">
+  <Card className="h-full">
     <div className="mb-2 flex items-center justify-between gap-2">
       <h2 className="text-[12px] font-bold text-ink-soft">Recent check-ins &amp; check-outs</h2>
     </div>

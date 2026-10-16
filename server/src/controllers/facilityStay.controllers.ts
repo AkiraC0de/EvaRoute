@@ -104,6 +104,7 @@ export const handleCheckIn = async (req: Request, res: Response) => {
     target: { id: stay.id, label: data.familyName },
     metadata: {
       stayId: stay.id,
+      checkInCode: stay.checkInCode,
       familyName: data.familyName,
       members: data.members.length,
       adults: data.members.filter(m => m.ageGroup === "ADULT").length,
@@ -145,6 +146,7 @@ export const handleCheckOut = async (req: Request, res: Response) => {
     target: { id: stay.id, label: stay.familyName },
     metadata: {
       stayId: stay.id,
+      checkInCode: stay.checkInCode,
       familyName: stay.familyName,
       durationMinutes: durationMs !== null ? Math.round(durationMs / 60000) : null
     }
