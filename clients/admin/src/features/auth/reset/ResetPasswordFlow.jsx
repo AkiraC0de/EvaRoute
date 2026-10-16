@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import * as api from "../../../lib/api";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
@@ -6,6 +7,7 @@ import StepProgress from "../../../components/ui/StepProgress";
 import ResetRequestStep from "./ResetRequestStep";
 import ResetVerifyStep from "./ResetVerifyStep";
 import ResetPasswordStep from "./ResetPasswordStep";
+import { authVariants } from "../authMotion";
 
 /**
  * 3-step password reset, mirroring the server contract exactly:
@@ -14,13 +16,19 @@ import ResetPasswordStep from "./ResetPasswordStep";
  *        -> { token } (RESET_PASS)
  *   3. POST /auth/password/reset  (Bearer token2 + { newPassword })
  * Tokens are single-use and live 15 minutes; a 401 at any point restarts
- * the flow (the server keeps no session for a dead token).
+ * the flow (the server keeps no session for it).
+ *
+ * Steps slide forward/back with the flow direction (advancing moves the
+ * panel in from the right, going back from the left); the success screen
+ * joins the same transition. Banners animate in and out.
  */
 
 const STEPS = ["Email", "Verify code", "New password"];
+const STEP_ORDER = { email: 0, otp: 1, password: 2 };
 
 const ResetPasswordFlow = ({ onBackToSignIn }) => {
   const [step, setStep] = useState("email");
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -31,13 +39,21 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const reduce = useReducedMotion();
+  const v = authVariants(reduce);
 
   const stepIndex = STEPS.findIndex((label) =>
     step === "email" ? label === "Email" : step === "otp" ? label === "Verify code" : label === "New password",
   );
 
+  // Step changes carry their direction so the slide reads as forward/back.
+  const goTo = (next) => {
+    setDirection(STEP_ORDER[next] >= (STEP_ORDER[step] ?? 0) ? 1 : -1);
+    setStep(next);
+  };
+
   const restart = () => {
-    setStep("email");
+    goTo("email");
     setOtp("");
     setNewPassword("");
     setConfirmPassword("");
@@ -65,7 +81,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
     try {
       const data = await api.requestPasswordReset(email.trim());
       setRequestToken(data.token);
-      setStep("otp");
+      goTo("otp");
       setNotice(data.message || "We've sent a 5-digit code to your email.");
     } catch (err) {
       failWith(err, "Could not request a reset code. Please try again.");
@@ -100,7 +116,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
     try {
       const data = await api.verifyResetOtp(requestToken, otp.trim());
       setResetToken(data.token);
-      setStep("password");
+      goTo("password");
     } catch (err) {
       // 400 carries { attempts, remainingAttempts } — surface the budget so
       // the user knows when a resend becomes mandatory.
@@ -130,6 +146,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
     setSubmitting(true);
     try {
       const data = await api.resetPassword(resetToken, newPassword);
+      setDirection(1);
       setDone(true);
       setNotice(data.message);
     } catch (err) {
@@ -145,79 +162,87 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
     }
   };
 
-  if (done) {
-    return (
-      <div>
-        <Banner tone="success" className="px-3 py-3 leading-relaxed">
-          {notice || "Your password has been changed."}
-        </Banner>
-        <Button onClick={onBackToSignIn} className="mt-5 min-h-10 w-full">
-          Back to sign in
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div>
-      <StepProgress steps={STEPS} current={stepIndex} />
+      {!done && <StepProgress steps={STEPS} current={stepIndex} />}
 
-      {notice && (
-        <div className="mb-3">
-          <Banner tone="warning">{notice}</Banner>
-        </div>
-      )}
-      {error && (
-        <div className="mb-3">
-          <Banner tone="error">{error}</Banner>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={done ? "done" : step}
+          variants={v.panel(direction)}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+        >
+          {!done && notice && (
+            <div className="mb-3">
+              <Banner tone="warning">{notice}</Banner>
+            </div>
+          )}
+          {!done && error && (
+            <div className="mb-3">
+              <Banner tone="error">{error}</Banner>
+            </div>
+          )}
 
-      {step === "email" && (
-        <ResetRequestStep
-          email={email}
-          onEmailChange={setEmail}
-          onSubmit={handleRequest}
-          busy={submitting}
-        />
-      )}
+          {done && (
+            <div>
+              <Banner tone="success" className="px-3 py-3 leading-relaxed">
+                {notice || "Your password has been changed."}
+              </Banner>
+              <Button onClick={onBackToSignIn} className="mt-5 min-h-10 w-full">
+                Back to sign in
+              </Button>
+            </div>
+          )}
 
-      {step === "otp" && (
-        <ResetVerifyStep
-          email={email}
-          otp={otp}
-          onOtpChange={setOtp}
-          onSubmit={handleVerify}
-          onResend={handleResend}
-          onRestart={() => {
-            restart();
-            setError("");
-            setNotice("");
-          }}
-          busy={submitting}
-        />
-      )}
+          {!done && step === "email" && (
+            <ResetRequestStep
+              email={email}
+              onEmailChange={setEmail}
+              onSubmit={handleRequest}
+              busy={submitting}
+            />
+          )}
+          {!done && step === "otp" && (
+            <ResetVerifyStep
+              email={email}
+              otp={otp}
+              onOtpChange={setOtp}
+              onSubmit={handleVerify}
+              onResend={handleResend}
+              onRestart={() => {
+                restart();
+                setError("");
+                setNotice("");
+              }}
+              busy={submitting}
+            />
+          )}
+          {!done && step === "password" && (
+            <ResetPasswordStep
+              newPassword={newPassword}
+              confirmPassword={confirmPassword}
+              onChange={(patch) => {
+                if (patch.newPassword !== undefined) setNewPassword(patch.newPassword);
+                if (patch.confirmPassword !== undefined) setConfirmPassword(patch.confirmPassword);
+              }}
+              onSubmit={handleReset}
+              busy={submitting}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-      {step === "password" && (
-        <ResetPasswordStep
-          newPassword={newPassword}
-          confirmPassword={confirmPassword}
-          onChange={(patch) => {
-            if (patch.newPassword !== undefined) setNewPassword(patch.newPassword);
-            if (patch.confirmPassword !== undefined) setConfirmPassword(patch.confirmPassword);
-          }}
-          onSubmit={handleReset}
-          busy={submitting}
-        />
+      {!done && (
+        <button
+          type="button"
+          onClick={onBackToSignIn}
+          className="mt-4 w-full text-center text-[9px] font-semibold text-muted transition hover:text-accent"
+        >
+          ← Back to sign in
+        </button>
       )}
-
-      <button
-        type="button"
-        onClick={onBackToSignIn}
-        className="mt-4 w-full text-center text-[9px] font-semibold text-muted transition hover:text-accent"
-      >
-        ← Back to sign in
-      </button>
     </div>
   );
 };

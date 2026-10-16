@@ -1,19 +1,26 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Checkbox from "../../components/ui/Checkbox";
 import TextField from "../../components/ui/Field";
 import PasswordInput from "../../components/ui/PasswordInput";
 import { useAuth } from "../../context/AuthContext";
+import { authVariants } from "./authMotion";
 
 /**
  * Sign-in form.
  *
  * Contract: POST /api/v1/auth/login, body { email, password, keepLogin }.
  * `keepLogin` is required by `loginSchema` (it is not optional server-side).
+ *
+ * The fields cascade in (shared authMotion stagger) so the card feels
+ * assembled rather than popped in.
  */
 const SignInForm = ({ onForgotPassword }) => {
   const { signIn, sessionMessage } = useAuth();
+  const reduce = useReducedMotion();
+  const v = authVariants(reduce);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLogin, setKeepLogin] = useState(false);
@@ -35,39 +42,45 @@ const SignInForm = ({ onForgotPassword }) => {
 
   return (
     <>
-      <h2 className="text-3xl font-bold text-ink">Sign in</h2>
-      <p className="mt-1 text-xs text-muted">
+      <motion.h2 variants={v.fadeUp} className="text-3xl font-bold text-ink">
+        Sign in
+      </motion.h2>
+      <motion.p variants={v.fadeUp} className="mt-1 text-xs text-muted">
         Use the staff account issued by your administrator.
-      </p>
+      </motion.p>
 
       {sessionMessage && (
-        <div className="mt-4">
+        <motion.div variants={v.fadeUp} className="mt-4">
           <Banner tone="warning">{sessionMessage}</Banner>
-        </div>
+        </motion.div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-        <TextField
-          label="Email"
-          type="email"
-          name="email"
-          autoComplete="username"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-        />
+      <motion.form onSubmit={handleSubmit} variants={v.stagger} className="mt-4 space-y-3">
+        <motion.div variants={v.fadeUp}>
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            autoComplete="username"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+          />
+        </motion.div>
 
-        <PasswordInput
-          id="signin-password"
-          name="password"
-          label="Password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+        <motion.div variants={v.fadeUp}>
+          <PasswordInput
+            id="signin-password"
+            name="password"
+            label="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </motion.div>
 
-        <div className="flex items-center justify-between gap-2 pt-1">
+        <motion.div variants={v.fadeUp} className="flex items-center justify-between gap-2 pt-1">
           <label className="flex items-center gap-2">
             <Checkbox
               checked={keepLogin}
@@ -85,19 +98,28 @@ const SignInForm = ({ onForgotPassword }) => {
           >
             Forgot password?
           </button>
-        </div>
+        </motion.div>
 
-        {error && <Banner tone="error">{error}</Banner>}
+        {error && (
+          <motion.div variants={v.fadeUp}>
+            <Banner tone="error">{error}</Banner>
+          </motion.div>
+        )}
 
-        <Button type="submit" disabled={submitting} className="mt-2 min-h-10 w-full">
-          {submitting ? "Signing in…" : "Sign in"}
-        </Button>
-      </form>
+        <motion.div variants={v.fadeUp}>
+          <Button type="submit" disabled={submitting} className="mt-2 min-h-10 w-full">
+            {submitting ? "Signing in…" : "Sign in"}
+          </Button>
+        </motion.div>
+      </motion.form>
 
-      <p className="mt-4 border-t border-line pt-3 text-[9px] leading-relaxed text-muted-dim">
+      <motion.p
+        variants={v.fadeUp}
+        className="mt-4 border-t border-line pt-3 text-[9px] leading-relaxed text-muted-dim"
+      >
         Need an account? Staff accounts are created by an
         administrator — contact your coordinator to get access.
-      </p>
+      </motion.p>
     </>
   );
 };
