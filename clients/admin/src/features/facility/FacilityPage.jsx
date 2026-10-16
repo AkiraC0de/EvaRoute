@@ -7,6 +7,7 @@ import useActivityStats from "../../hooks/useActivityStats";
 import useAssignedFacility from "../../hooks/useAssignedFacility";
 import useFacilityResources from "../../hooks/useFacilityResources";
 import FacilitySummaryBar from "./FacilitySummaryBar";
+import { FacilityLoading } from "./FacilityStates";
 import FacilityOverviewMap from "../map/FacilityOverviewMap";
 import ResourceCard from "./ResourceCard";
 import ResourceCreateForm from "./ResourceCreateForm";
@@ -75,11 +76,7 @@ const FacilityPage = () => {
         className="mb-5"
       />
 
-      {loading && (
-        <StatusPanel title="Loading your facility…">
-          Fetching your assignment and its resources from the EvaRoute API.
-        </StatusPanel>
-      )}
+      {loading && <FacilityLoading />}
 
       {!loading && error && (
         <StatusPanel tone="error" title="Could not load your facility" onRetry={retry}>

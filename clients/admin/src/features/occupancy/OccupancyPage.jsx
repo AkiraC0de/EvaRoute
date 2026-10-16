@@ -12,6 +12,7 @@ import CheckInTicket from "./CheckInTicket";
 import HouseholdList from "./HouseholdList";
 import OccupancyMeter from "./OccupancyMeter";
 import OccupancySummary from "./OccupancySummary";
+import { OccupancyLoading } from "./OccupancyStates";
 import RecentHouseholdActivity from "./RecentHouseholdActivity";
 
 /**
@@ -32,6 +33,7 @@ const OccupancyPage = () => {
   const isAdmin = user?.role === ROLES.ADMIN;
 
   const [facilities, setFacilities] = useState([]);
+  const [facilitiesLoading, setFacilitiesLoading] = useState(true);
   const [facilityId, setFacilityId] = useState(null);
   const [ticketStay, setTicketStay] = useState(null); // successful check-in -> ticket
   const { busy, run } = useAsyncAction();
@@ -53,6 +55,9 @@ const OccupancyPage = () => {
       })
       .catch(() => {
         // Handled by the stays error state below if the facility cannot load.
+      })
+      .finally(() => {
+        if (!cancelled) setFacilitiesLoading(false);
       });
 
     return () => {
@@ -80,7 +85,9 @@ const OccupancyPage = () => {
         </div>
       )}
 
-      {!facilityId && !loading && (
+      {facilitiesLoading && <OccupancyLoading />}
+
+      {!facilitiesLoading && !facilityId && !loading && (
         <StatusPanel tone="empty" title="No facility available">
           {isAdmin
             ? "Register a facility first — occupancy works per facility."
@@ -88,11 +95,7 @@ const OccupancyPage = () => {
         </StatusPanel>
       )}
 
-      {facilityId && loading && (
-        <StatusPanel title="Loading occupancy…">
-          Fetching checked-in households from the EvaRoute API.
-        </StatusPanel>
-      )}
+      {facilityId && loading && <OccupancyLoading />}
 
       {facilityId && error && (
         <StatusPanel tone="error" title="Could not load occupancy" onRetry={retry}>

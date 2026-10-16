@@ -17,6 +17,7 @@ import HouseholdList from "../../occupancy/HouseholdList";
 import ActivityFeed from "../../activity/ActivityFeed";
 import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
+import { FacilityDetailLoading } from "./FacilitiesStates";
 
 /**
  * Facility detail (ADMIN): edit form (+ status), staff assignment, resources,
@@ -127,11 +128,7 @@ const FacilityDetailPage = () => {
         </div>
       )}
 
-      {loading && (
-        <StatusPanel title="Loading facility…">
-          Fetching the facility record from the EvaRoute API.
-        </StatusPanel>
-      )}
+      {loading && <FacilityDetailLoading />}
 
       {!loading && error && (
         <StatusPanel tone="error" title="Could not load the facility" onRetry={retry}>

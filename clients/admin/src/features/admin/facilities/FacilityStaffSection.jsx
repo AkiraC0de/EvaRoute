@@ -7,6 +7,7 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import StatusPanel from "../../../components/ui/StatusPanel";
 import useAsyncAction from "../../../hooks/useAsyncAction";
 import * as api from "../../../lib/api";
+import { FacilityStaffLoading } from "./FacilitiesStates";
 
 /**
  * Staff assignment for one facility: the assigned list plus an assign picker
@@ -94,11 +95,7 @@ const FacilityStaffSection = ({ facilityId }) => {
         </div>
       )}
 
-      {loading && (
-        <StatusPanel title="Loading staff…">
-          Fetching the staff assigned to this facility.
-        </StatusPanel>
-      )}
+      {loading && <FacilityStaffLoading />}
 
       {!loading && error && (
         <StatusPanel tone="error" title="Could not load staff" onRetry={retry}>

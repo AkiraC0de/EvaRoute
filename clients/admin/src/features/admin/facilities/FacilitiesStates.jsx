@@ -31,4 +31,43 @@ const FacilitiesEmpty = ({ showDeleted }) => (
   </div>
 );
 
-export { FacilitiesLoading, FacilitiesEmpty };
+/** Loading skeleton for the facility detail page (tiles + form + staff). */
+const FacilityDetailLoading = () => (
+  <div role="status" aria-label="Loading facility" className="space-y-4">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {[0, 1, 2, 3].map((n) => (
+        <Skeleton key={n} className="h-14 rounded-clay-sm" />
+      ))}
+    </div>
+    <div className="rounded-clay bg-surface p-4 shadow-clay">
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="mt-3 h-8 w-full" />
+      <Skeleton className="mt-2 h-8 w-full" />
+      <Skeleton className="mt-2 h-8 w-1/2" />
+    </div>
+    <div className="rounded-clay bg-surface p-4 shadow-clay">
+      <Skeleton className="h-3 w-24" />
+      {[0, 1].map((n) => (
+        <Skeleton key={n} className="mt-3 h-9 w-full rounded-clay-sm" />
+      ))}
+    </div>
+  </div>
+);
+
+/** Loading skeleton for the assigned-staff list (avatar + name + role rows). */
+const FacilityStaffLoading = () => (
+  <ul role="status" aria-label="Loading staff" className="mb-4 space-y-2">
+    {[0, 1, 2].map((n) => (
+      <li key={n} className="flex items-center gap-3 rounded-clay-sm bg-surface p-2.5 shadow-clay-xs">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="min-w-0 flex-1">
+          <Skeleton className="h-3 w-1/3" />
+          <Skeleton className="mt-1.5 h-2 w-1/2" />
+        </div>
+        <Skeleton className="h-5 w-14 rounded-full" />
+      </li>
+    ))}
+  </ul>
+);
+
+export { FacilitiesLoading, FacilitiesEmpty, FacilityDetailLoading, FacilityStaffLoading };
