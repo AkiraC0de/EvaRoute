@@ -105,7 +105,9 @@ export default function FacilityDiscoveryPanel({ facilities, totalFacilities, on
             </div>
           </button>))}
 
-        {!loading && !error && facilities.length === 0 && (<div className="facility-empty-state">
+        {/* One empty state, chosen by cause: a filtered-out list, nothing in
+            the default radius, or nothing even after expanding. Never stacked. */}
+        {!loading && !error && facilities.length === 0 && totalFacilities > 0 && (<div className="facility-empty-state">
             <div className="facility-empty-icon" aria-hidden="true">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                 <circle cx="11" cy="11" r="7"/>
@@ -126,13 +128,24 @@ export default function FacilityDiscoveryPanel({ facilities, totalFacilities, on
           </button>
         </div>)}
 
+      {!loading && !error && totalFacilities === 0 && searchRadiusKm !== null && (<div className="facility-empty-state">
+          <div className="facility-empty-icon" aria-hidden="true">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+              <circle cx="11" cy="11" r="7"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 20l-4-4"/>
+            </svg>
+          </div>
+          <h3>No evacuation centers found</h3>
+          <p>Nothing within 200 km of your location.</p>
+        </div>)}
+
       <p className="facility-discovery-footer">
         {loading
             ? 'Loading…'
             : error
                 ? 'Centers unavailable'
                 : facilities.length === 0
-                    ? 'No matching centers'
+                    ? ''
                     : `${facilities.length} center${facilities.length === 1 ? '' : 's'} available`}
       </p>
     </div>);

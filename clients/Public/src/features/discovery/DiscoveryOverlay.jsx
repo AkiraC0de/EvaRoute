@@ -65,23 +65,6 @@ export default function DiscoveryOverlay({
             searchRadiusKm={state.searchRadiusKm}
             onExpandSearch={actions.expandSearchRadius}
           />
-          {!state.facilitiesLoading &&
-            !state.facilitiesError &&
-            sortedFacilities.length === 0 &&
-            state.searchRadiusKm === null && (
-              <div className="facility-expand-search">
-                <p className="facility-expand-search-text">
-                  No centers found within the default 10 km radius.
-                </p>
-                <button
-                  type="button"
-                  className="facility-expand-search-button"
-                  onClick={actions.expandSearchRadius}
-                >
-                  Search up to 200 km
-                </button>
-              </div>
-            )}
         </OverlayContainer>
       ) : (
         renderCollapsed()
