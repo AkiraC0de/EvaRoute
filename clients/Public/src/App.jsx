@@ -5,6 +5,7 @@
  * contexts/AppStateContext and all screen composition lives in features/.
  */
 import { useRef, useMemo, useCallback } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useAppState } from './contexts/AppStateContext';
 import { DEFAULT_CENTER } from './lib/constants';
 import { filterFacilities, sortClosest } from './features/discovery/facilityFilters';
@@ -77,28 +78,53 @@ export default function App() {
         )}
       </div>
 
-      {/* Overlay area — one component per screen */}
+      {/* Overlay area — one screen at a time; AnimatePresence mode="wait"
+          completes the exit before the next screen enters (motion-ui skill). */}
       <div className="pointer-events-none absolute inset-0 z-30 [&>*]:pointer-events-auto">
-        {(state.status === 'initializing' || state.status === 'location_ready') && <SplashFlow />}
-        {state.status === 'discovery' && (
-          <DiscoveryOverlay
-            facilities={state.facilities}
-            sortedFacilities={sortedFacilities}
-            totalFacilities={state.facilities.length}
-            recenterSlot={
-              <RecenterButton
-                inline
-                mapRef={leafletMapRef}
-                position={position?.coords ?? null}
-                defaultCenter={DEFAULT_CENTER}
+        <AnimatePresence mode="wait">
+          {(state.status === 'initializing' || state.status === 'location_ready') && (
+            <motion.div key="splash">
+              <SplashFlow />
+            </motion.div>
+          )}
+          {state.status === 'discovery' && (
+            <motion.div key="discovery">
+              <DiscoveryOverlay
+                facilities={state.facilities}
+                sortedFacilities={sortedFacilities}
+                totalFacilities={state.facilities.length}
+                recenterSlot={
+                  <RecenterButton
+                    inline
+                    mapRef={leafletMapRef}
+                    position={position?.coords ?? null}
+                    defaultCenter={DEFAULT_CENTER}
+                  />
+                }
               />
-            }
-          />
-        )}
-        {state.status === 'center_selected' && <FacilityOverlay />}
-        {state.status === 'route_preview' && <RoutePreviewOverlay />}
-        {state.status === 'navigating' && <NavigationOverlay />}
-        {state.status === 'arrived' && <ArrivalOverlay />}
+            </motion.div>
+          )}
+          {state.status === 'center_selected' && (
+            <motion.div key="center_selected">
+              <FacilityOverlay />
+            </motion.div>
+          )}
+          {state.status === 'route_preview' && (
+            <motion.div key="route_preview">
+              <RoutePreviewOverlay />
+            </motion.div>
+          )}
+          {state.status === 'navigating' && (
+            <motion.div key="navigating">
+              <NavigationOverlay />
+            </motion.div>
+          )}
+          {state.status === 'arrived' && (
+            <motion.div key="arrived">
+              <ArrivalOverlay />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </AppShell>
   );

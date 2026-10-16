@@ -182,6 +182,13 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
             lineJoin: 'round',
         }).addTo(mapRef.current);
         routeLineRef.current = line;
+        // Draw the route in: measure the path and let the stroke reveal it.
+        const path = line.getElement?.();
+        if (path && typeof path.getTotalLength === 'function') {
+            const length = path.getTotalLength();
+            path.style.setProperty('--route-path-length', String(length));
+            path.classList.add('animate-route-draw');
+        }
         mapRef.current.flyToBounds(line.getBounds(), {
             padding: [60, 60],
             maxZoom: 15,

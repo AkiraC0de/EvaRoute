@@ -1,3 +1,6 @@
+import { motion } from 'motion/react';
+import { motionTokens } from '../../lib/motion';
+
 const maneuverIconPaths = {
   right: 'M5 12h14m0 0l-5-5m5 5l-5 5',
   left: 'M19 12H5m0 0l5-5m-5 5l5 5',
@@ -19,7 +22,13 @@ export default function TurnInstruction({ instruction, maneuverType, distance })
   const pathD = maneuverIconPaths[key] ?? defaultIconPath();
 
   return (
-    <div className="pointer-events-none fixed left-1/2 top-3 z-40 flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-1.5 whitespace-normal rounded-full bg-surface py-2 pl-3 pr-4 leading-[1.35] text-ink shadow-floating md:top-6">
+    <motion.div
+      initial={{ opacity: 0, y: -24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -24 }}
+      transition={{ duration: motionTokens.duration.normal, ease: motionTokens.easing.smooth }}
+      className="pointer-events-none fixed left-1/2 top-3 z-40 flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-1.5 whitespace-normal rounded-full bg-surface py-2 pl-3 pr-4 leading-[1.35] text-ink shadow-floating md:top-6"
+    >
       <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-dim" aria-hidden="true">
         Next
       </span>
@@ -34,6 +43,6 @@ export default function TurnInstruction({ instruction, maneuverType, distance })
       {distance !== undefined && (
         <span className="ml-0.5 text-[13px] text-muted">{distance.toFixed(1)} km</span>
       )}
-    </div>
+    </motion.div>
   );
 }

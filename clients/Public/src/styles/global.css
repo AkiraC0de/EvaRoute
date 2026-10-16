@@ -198,9 +198,15 @@ button {
   .animate-fade-in,
   .animate-slide-up,
   .animate-fade-scale,
-  .animate-route-draw,
   .animate-spin {
     animation: none;
+  }
+  /* The route draw must show the FULL line when motion is off — killing the
+     animation alone would leave the dash offset at full length (invisible). */
+  .animate-route-draw {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
   .motion-safe-transform:hover {
     transform: none !important;

@@ -1,5 +1,7 @@
+import { motion } from 'motion/react';
 import CenterStatusBadge from '../facility/CenterStatusBadge';
 import CenterDistance from '../facility/CenterDistance';
+import { staggerContainer, staggerItem, tapPress } from '../../lib/motion';
 
 /**
  * FacilityDiscoveryPanel — the "Nearby Evacuation Centers" list.
@@ -71,14 +73,21 @@ export default function FacilityDiscoveryPanel({
       )}
 
       {/* List */}
-      <div className="grid min-h-0 grid-cols-1 grid-rows-[min-content] content-start gap-3 overflow-y-auto overflow-x-hidden p-0.5 md:flex-1">
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="grid min-h-0 grid-cols-1 grid-rows-[min-content] content-start gap-3 overflow-y-auto overflow-x-hidden p-0.5 md:flex-1"
+      >
         {facilities.map((facility) => {
           const hasDistance = facility.distance != null && facility.distance > 0;
           return (
-            <button
+            <motion.button
               key={facility.id}
+              variants={staggerItem}
+              {...tapPress}
               type="button"
-              className="motion-safe-transform group w-full rounded-clay-lg bg-surface p-4 text-left text-inherit shadow-clay transition hover:-translate-y-0.5 hover:shadow-clay-lg focus-visible:outline-2 focus-visible:outline-accent"
+              className="group w-full rounded-clay-lg bg-surface p-4 text-left text-inherit shadow-clay transition hover:shadow-clay-lg focus-visible:outline-2 focus-visible:outline-accent"
               onClick={() => onSelect(facility)}
             >
               <div className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-2">
@@ -117,7 +126,7 @@ export default function FacilityDiscoveryPanel({
                   Details <span aria-hidden="true">›</span>
                 </span>
               </div>
-            </button>
+            </motion.button>
           );
         })}
 
@@ -144,7 +153,7 @@ export default function FacilityDiscoveryPanel({
             <p className="mt-1 text-[13px] leading-snug">Try a different name or clear the current filters.</p>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Radius empty state (nothing within the default radius) */}
       {!loading && !error && totalFacilities === 0 && searchRadiusKm === null && (

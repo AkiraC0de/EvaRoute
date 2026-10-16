@@ -53,7 +53,7 @@ export default function RoutePreviewCard({
   const arrival = hasRoute ? formatArrivalTime(routeData.duration) : '—';
 
   return (
-    <div className="animate-fade-scale flex w-full flex-col gap-4 rounded-clay bg-surface p-4 shadow-clay">
+    <div className="flex w-full flex-col gap-4 rounded-clay bg-surface p-4 shadow-clay">
       {/* Destination */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">

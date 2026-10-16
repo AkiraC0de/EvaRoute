@@ -1,10 +1,29 @@
+import { motion } from 'motion/react';
 import DragHandle from './ui/DragHandle';
+import { motionTokens } from '../lib/motion';
 
 /* Desktop floating-panel anchoring per variant. */
 const desktopPosition = {
   sheet: 'md:top-[50%] md:right-6 md:translate-y-[calc(-50%-12px)]',
   panel: 'md:top-[50%] md:right-6 md:translate-y-[calc(-50%-12px)]',
   routeCard: 'md:bottom-6 md:right-6',
+};
+
+const { duration, easing, distance } = motionTokens;
+
+/* Motion must preserve spatial continuity: the mobile sheet rises from the
+   bottom edge it lives on; the desktop panel slides in from the right edge
+   it docks to. Transform/opacity only. */
+const sheetMotion = {
+  initial: { opacity: 0, y: distance.lg * 2 },
+  animate: { opacity: 1, y: 0, transition: { duration: duration.normal, ease: easing.smooth } },
+  exit: { opacity: 0, y: distance.lg * 2, transition: { duration: duration.fast, ease: easing.sharp } },
+};
+
+const panelMotion = {
+  initial: { opacity: 0, x: distance.lg },
+  animate: { opacity: 1, x: 0, transition: { duration: duration.normal, ease: easing.smooth } },
+  exit: { opacity: 0, x: distance.lg, transition: { duration: duration.fast, ease: easing.sharp } },
 };
 
 /**
@@ -14,7 +33,7 @@ const desktopPosition = {
  * The `overlay-mobile-sheet` / `overlay-mobile-expanded-content` class names
  * are mechanics hooks (state CSS in global.css drives the sheet height and
  * hidden-content handling via data attributes); everything visual is
- * Tailwind utilities.
+ * Tailwind utilities, all motion is motion/react.
  */
 export default function OverlayContainer({
   children,
@@ -32,7 +51,8 @@ export default function OverlayContainer({
   return (
     <>
       {/* ── Mobile: bottom sheet ── */}
-      <div
+      <motion.div
+        {...sheetMotion}
         data-variant={variant}
         data-mobile-expanded={isMobileExpanded}
         className={[
@@ -48,7 +68,7 @@ export default function OverlayContainer({
             'relative flex w-full min-w-0 flex-1 flex-col px-4',
             isCollapsedRouteCard
               ? 'pt-2 pb-[calc(8px+env(safe-area-inset-bottom))]'
-              : 'pt-2 pb-[calc(20px+env(safe-area-inset-bottom))]',
+              : 'pt-6 pb-[calc(24px+env(safe-area-inset-bottom))]',
             !isMobileExpanded && collapsedContent ? 'h-full items-center' : '',
           ]
             .filter(Boolean)
@@ -74,10 +94,11 @@ export default function OverlayContainer({
           </div>
           {!isMobileExpanded && collapsedContent ? collapsedContent : null}
         </div>
-      </div>
+      </motion.div>
 
       {/* ── Desktop: floating panel ── */}
-      <div
+      <motion.div
+        {...panelMotion}
         data-variant={variant}
         className={[
           'overlay-desktop-panel',
@@ -92,7 +113,7 @@ export default function OverlayContainer({
         style={{ width: '400px' }}
       >
         <div className="w-full min-w-0 p-5">{children}</div>
-      </div>
+      </motion.div>
     </>
   );
 }
