@@ -261,11 +261,11 @@ export default function FacilityDetailSidebar({
       )}
 
       {/* Actions */}
-      <div className="facility-detail-actions">
-        <button type="button" className="clay-button clay-button-secondary w-full" onClick={onBack}>
+      <div className="facility-detail-actions max-h-10">
+        <button type="button" className="h-4 clay-button clay-button-secondary w-full" onClick={onBack}>
           Back
         </button>
-        <button type="button" className="clay-button clay-button-primary w-full" onClick={onGetRoute}>
+        <button type="button" className="h-4 clay-button clay-button-primary w-full" onClick={onGetRoute}>
           Get Route
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2} aria-hidden="true" style={{ marginLeft: 6 }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />

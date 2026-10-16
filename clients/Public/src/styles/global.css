@@ -1731,6 +1731,24 @@ button {
   transition: width var(--duration-md) var(--ease-out);
 }
 
+
+/* Facility detail surface: stays scrollable, but no visible scrollbar chrome —
+   the sheet/panel geometry already communicates that the content scrolls. */
+.facility-detail-sidebar,
+.facility-detail-overlay .overlay-mobile-sheet,
+.facility-detail-overlay .overlay-mobile-inner,
+.facility-detail-overlay .overlay-desktop-panel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.facility-detail-sidebar::-webkit-scrollbar,
+.facility-detail-overlay .overlay-mobile-sheet::-webkit-scrollbar,
+.facility-detail-overlay .overlay-mobile-inner::-webkit-scrollbar,
+.facility-detail-overlay .overlay-desktop-panel::-webkit-scrollbar {
+  display: none;
+}
+
 /* Route preview card */
 .route-preview-card {
   display: flex;

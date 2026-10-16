@@ -136,6 +136,11 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
     // ── Camera: selecting a center moves the map to that center ──
     // One move per (map instance, selection) — never while navigating, where
     // the navigation follow effect owns the camera.
+    //
+    // Mobile: the detail sheet owns the lower half of the screen, so dead
+    // center hides the marker behind it. The target center is shifted H/6
+    // BELOW the facility, which lands the marker at the 1/3 line from the
+    // top — comfortably above the sheet. Desktop keeps the exact center.
     const lastCenterMoveRef = useRef({ map: null, id: null });
     useEffect(() => {
         if (!mapRef.current || !selectedCenter || isNavigating)
@@ -144,10 +149,16 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
         if (last.map === mapRef.current && last.id === selectedCenter.id)
             return;
         lastCenterMoveRef.current = { map: mapRef.current, id: selectedCenter.id };
-        mapRef.current.setView([selectedCenter.latitude, selectedCenter.longitude], 15, {
-            animate: true,
-            duration: 0.75,
-        });
+        const map = mapRef.current;
+        const zoom = 15;
+        const marker = L.latLng(selectedCenter.latitude, selectedCenter.longitude);
+        let target = marker;
+        if (window.matchMedia('(max-width: 767px)').matches) {
+            const point = map.project(marker, zoom);
+            point.y += Math.round(map.getSize().y / 6);
+            target = map.unproject(point, zoom);
+        }
+        map.setView(target, zoom, { animate: true, duration: 0.75 });
     }, [selectedCenter, isNavigating]);
     // ── Route line: dashed polyline, animated flyToBounds ──
     useEffect(() => {
