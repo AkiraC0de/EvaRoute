@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import Button from "../../components/ui/Button";
+import Button from "../../../components/ui/Button";
 
 /** Facilities page header — title block + the primary action. */
 const FacilitiesHeader = ({ onRegister }) => (

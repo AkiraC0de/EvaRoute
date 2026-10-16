@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { RotateCcw, Trash2 } from "lucide-react";
-import StatusPill from "../../components/ui/StatusPill";
-import { TableShell, Th, Td, Tr } from "../../components/ui/Table";
+import StatusPill from "../../../components/ui/StatusPill";
+import { TableShell, Th, Td, Tr } from "../../../components/ui/Table";
 
 /**
  * Facilities table — one row per facility with name link, status, capacity,

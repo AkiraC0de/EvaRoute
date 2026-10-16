@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
-import FacilityDetailPage from "../features/admin/FacilityDetailPage";
-import FacilitiesPage from "../features/admin/FacilitiesPage";
+import FacilityDetailPage from "../features/admin/facilities/FacilityDetailPage";
+import FacilitiesPage from "../features/admin/facilities/FacilitiesPage";
 import OverviewPage from "../features/admin/OverviewPage";
 import StaffAccountsPage from "../features/admin/StaffAccountsPage";
 import FacilityPage from "../features/facility/FacilityPage";

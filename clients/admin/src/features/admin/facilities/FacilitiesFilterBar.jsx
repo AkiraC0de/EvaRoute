@@ -1,5 +1,5 @@
-import Button from "../../components/ui/Button";
-import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
+import Button from "../../../components/ui/Button";
+import { FilterSearch, FilterSelect } from "../../../components/ui/FilterControls";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -30,9 +30,10 @@ const FacilitiesFilterBar = ({
       value={statusFilter}
       onChange={onStatusChange}
       ariaLabel="Filter by status"
+      className="w-25"
     >
       {STATUS_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value}>{option.label}</option>
+        <option  key={option.value} value={option.value}>{option.label}</option>
       ))}
     </FilterSelect>
     <Button

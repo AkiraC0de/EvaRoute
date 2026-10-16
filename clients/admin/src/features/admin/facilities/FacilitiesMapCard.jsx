@@ -1,4 +1,4 @@
-import FacilityOverviewMap from "../map/FacilityOverviewMap";
+import FacilityOverviewMap from "../../map/FacilityOverviewMap";
 
 /**
  * Facilities map card — the geographic overview shown above the table.

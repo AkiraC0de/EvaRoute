@@ -1,5 +1,5 @@
-import Skeleton from "../../components/ui/Skeleton";
-import EmptyArt from "../../components/ui/EmptyArt";
+import Skeleton from "../../../components/ui/Skeleton";
+import EmptyArt from "../../../components/ui/EmptyArt";
 
 /** Loading skeleton for the facilities list. */
 const FacilitiesLoading = () => (

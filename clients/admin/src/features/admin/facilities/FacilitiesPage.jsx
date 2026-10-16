@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Banner from "../../components/ui/Banner";
-import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import StatusPanel from "../../components/ui/StatusPanel";
-import useAsyncAction from "../../hooks/useAsyncAction";
-import * as api from "../../lib/api";
+import Banner from "../../../components/ui/Banner";
+import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import StatusPanel from "../../../components/ui/StatusPanel";
+import useAsyncAction from "../../../hooks/useAsyncAction";
+import * as api from "../../../lib/api";
 import FacilityCreateModal from "./FacilityCreateModal";
 import FacilitiesHeader from "./FacilitiesHeader";
 import FacilitiesFilterBar from "./FacilitiesFilterBar";

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Banner from "../../components/ui/Banner";
-import Button from "../../components/ui/Button";
-import Modal from "../../components/ui/Modal";
-import TextField from "../../components/ui/Field";
-import { LABEL_CLASS } from "../../components/ui/fieldStyles";
-import LocationPickerMap from "../map/LocationPickerMap";
-import { formatCoords, isValidCoords, toCoords } from "../map/coordinateUtils";
-import * as api from "../../lib/api";
+import Banner from "../../../components/ui/Banner";
+import Button from "../../../components/ui/Button";
+import Modal from "../../../components/ui/Modal";
+import TextField from "../../../components/ui/Field";
+import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
+import LocationPickerMap from "../../map/LocationPickerMap";
+import { formatCoords, isValidCoords, toCoords } from "../../map/coordinateUtils";
+import * as api from "../../../lib/api";
 
 /**
  * Register a new facility. Mirrors `registerFacilitySchema`

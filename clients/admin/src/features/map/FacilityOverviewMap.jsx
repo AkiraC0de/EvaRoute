@@ -76,7 +76,7 @@ const FacilityOverviewMap = ({
   return (
     <div className="w-full">
       <div
-        className="relative w-full overflow-hidden rounded-clay-sm shadow-clay-inset"
+        className="relative isolate w-full overflow-hidden rounded-clay-sm shadow-clay-inset"
         style={{ height }}
       >
         <div ref={containerRef} className="clay-map absolute inset-0" />
