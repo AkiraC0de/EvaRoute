@@ -21,6 +21,9 @@ export const registerFacilitySchema = z.object({
     .number("latitude is required.")
     .min(-90)
     .max(90),
+  // Optional at registration (defaults to AVAILABLE) — lets an admin open a
+  // center as unavailable without editing it right after.
+  status: z.enum(["AVAILABLE", "UNAVAILABLE"]).optional(),
 })
 
 export const getFacilityQuerySchema = z.object({

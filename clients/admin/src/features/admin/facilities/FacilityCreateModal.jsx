@@ -2,7 +2,7 @@ import { useState } from "react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
-import TextField from "../../../components/ui/Field";
+import TextField, { SelectField } from "../../../components/ui/Field";
 import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
 import LocationPickerMap from "../../map/LocationPickerMap";
 import { formatCoords, isValidCoords, toCoords } from "../../map/coordinateUtils";
@@ -18,6 +18,7 @@ const emptyDraft = () => ({
   address: "",
   note: "",
   maxCapacity: "",
+  status: "AVAILABLE",
   latitude: "",
   longitude: "",
 });
@@ -59,6 +60,7 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
         address: draft.address.trim(),
         note: draft.note.trim() || undefined,
         maxCapacity,
+        status: draft.status,
         latitude,
         longitude,
       });
@@ -100,6 +102,14 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
               onChange={(event) => update({ maxCapacity: event.target.value })}
               placeholder="e.g. 400"
             />
+            <SelectField
+              label="Status"
+              value={draft.status}
+              onChange={(event) => update({ status: event.target.value })}
+            >
+              <option value="AVAILABLE">Available</option>
+              <option value="UNAVAILABLE">Unavailable</option>
+            </SelectField>
             <div>
               <p className={LABEL_CLASS}>Selected location</p>
               <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[10px] font-medium text-ink-soft shadow-clay-inset">

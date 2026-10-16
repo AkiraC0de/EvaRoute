@@ -46,7 +46,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
     <Card as="form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
       <h2 className="mb-3 text-[12px] font-bold text-ink-soft">Facility details</h2>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <TextField
           label="Name"
           value={draft.name}
@@ -59,6 +59,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         />
         <TextField
           label="Note"
+          className="row-span-2"
           value={draft.note}
           onChange={(event) => update({ note: event.target.value })}
         />
