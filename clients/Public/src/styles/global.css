@@ -916,6 +916,10 @@ button {
 }
 .facility-list {
   display: grid;
+  /* Auto rows in a flexed grid stretch to fill leftover height by default,
+     which inflated the cards on mobile — pin rows to their content. */
+  grid-auto-rows: min-content;
+  align-content: start;
   gap: calc(var(--space-sm) + var(--space-xs));
   min-height: 0;
   overflow-y: auto;
@@ -1510,7 +1514,8 @@ button {
   .animate-fade-in,
   .animate-slide-up,
   .animate-fade-scale,
-  .animate-route-draw {
+  .animate-route-draw,
+  .splash-checklist-item {
     animation: none;
   }
   .clay-card-interactive:hover,
@@ -2099,7 +2104,13 @@ button {
   cursor: pointer;
 }
 .splash-recovery-button-primary {
-  color: var(--color-primary);
+  color: #fff;
+  background: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(74, 114, 255, 0.30),
+              inset 2px 2px 6px rgba(255, 255, 255, 0.25);
+}
+.splash-recovery-button-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
 }
 .splash-recovery-button:disabled {
   cursor: default;
@@ -2357,7 +2368,11 @@ button {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  animation: fadeIn 280ms var(--ease-out) backwards;
 }
+.splash-checklist-item:nth-child(1) { animation-delay: 40ms; }
+.splash-checklist-item:nth-child(2) { animation-delay: 90ms; }
+.splash-checklist-item:nth-child(3) { animation-delay: 140ms; }
 
 /* Requirement indicator.
    Incomplete/pending: inset neutral surface.
@@ -2367,10 +2382,11 @@ button {
    it runs once, not on every render. */
 .splash-checklist-radio {
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-full);
-  background: var(--surface-inset);
+  background: rgba(27, 42, 68, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(27, 42, 68, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2383,20 +2399,21 @@ button {
 }
 
 .splash-checklist-radio.complete {
-  background: var(--color-primary);
-  color: white;
-  box-shadow: 0 0 8px rgba(74, 114, 255, 0.30);
+  background: rgba(47, 169, 104, 0.18);
+  color: var(--color-success);
+  box-shadow: inset 0 0 0 1px rgba(47, 169, 104, 0.25);
 }
 
 .splash-checklist-radio.spinning {
-  background: var(--color-primary);
-  color: white;
+  background: rgba(74, 114, 255, 0.16);
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px rgba(74, 114, 255, 0.22);
 }
 
 .splash-checklist-radio.unavailable {
-  background: var(--color-danger);
-  color: white;
-  box-shadow: 0 0 8px rgba(229, 72, 77, 0.30);
+  background: rgba(229, 72, 77, 0.14);
+  color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px rgba(229, 72, 77, 0.22);
 }
 
 /* One-shot fulfilment flourish on a single row: a brief scale pop + glow
@@ -2410,15 +2427,15 @@ button {
 @keyframes splash-fulfil-pop {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(74, 114, 255, 0.45);
+    box-shadow: 0 0 0 0 rgba(47, 169, 104, 0.40);
   }
   35% {
     transform: scale(1.18);
-    box-shadow: 0 0 0 7px rgba(74, 114, 255, 0);
+    box-shadow: 0 0 0 7px rgba(47, 169, 104, 0);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 8px rgba(74, 114, 255, 0.35);
+    box-shadow: none;
   }
 }
 

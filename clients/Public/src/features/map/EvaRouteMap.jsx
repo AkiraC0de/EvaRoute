@@ -116,6 +116,39 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
         userMarkerRef.current = L.marker([latitude, longitude], { icon, interactive: false, zIndexOffset: 1000 }).addTo(mapRef.current);
         // Re-render on position change (nav tracking updates userPosition)
     }, [userPosition, geoLoading, geoDenied]);
+    // ── Camera: focus the user's location on the first real fix ──
+    // Opening the app should land on "where am I", not on DEFAULT_CENTER.
+    // Keyed to the MAP INSTANCE (not a boolean) so a re-created map — React
+    // StrictMode's double-mount removes and rebuilds it — still gets focused.
+    // Camera moves use setView: Leaflet's flyTo flight loop is unreliable here.
+    const focusedUserMapRef = useRef(null);
+    useEffect(() => {
+        if (!mapRef.current || focusedUserMapRef.current === mapRef.current)
+            return;
+        if (!userPosition || geoLoading || geoDenied || isNavigating)
+            return;
+        focusedUserMapRef.current = mapRef.current;
+        mapRef.current.setView([userPosition.latitude, userPosition.longitude], 15, {
+            animate: true,
+            duration: 0.75,
+        });
+    }, [userPosition, geoLoading, geoDenied, isNavigating]);
+    // ── Camera: selecting a center moves the map to that center ──
+    // One move per (map instance, selection) — never while navigating, where
+    // the navigation follow effect owns the camera.
+    const lastCenterMoveRef = useRef({ map: null, id: null });
+    useEffect(() => {
+        if (!mapRef.current || !selectedCenter || isNavigating)
+            return;
+        const last = lastCenterMoveRef.current;
+        if (last.map === mapRef.current && last.id === selectedCenter.id)
+            return;
+        lastCenterMoveRef.current = { map: mapRef.current, id: selectedCenter.id };
+        mapRef.current.setView([selectedCenter.latitude, selectedCenter.longitude], 15, {
+            animate: true,
+            duration: 0.75,
+        });
+    }, [selectedCenter, isNavigating]);
     // ── Route line: dashed polyline, animated flyToBounds ──
     useEffect(() => {
         if (!mapRef.current)

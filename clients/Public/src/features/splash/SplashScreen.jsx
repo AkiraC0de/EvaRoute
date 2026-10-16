@@ -15,9 +15,9 @@ function ProgressBar({ filled }) {
     </div>);
 }
 function SpinnerIcon({ className }) {
-    return (<svg className={className ?? 'w-3 h-3 animate-spin'} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v20M12 2l2 2M12 2l-2 2"/>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 22a10 10 0 1 1 0-20" strokeOpacity={0.3}/>
+    // Clean circular arc spinner — reads as "in progress" at any size.
+    return (<svg className={className ?? 'w-3.5 h-3.5 animate-spin'} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+      <path strokeLinecap="round" d="M12 3a9 9 0 1 1-6.36 2.64"/>
     </svg>);
 }
 /**
@@ -37,13 +37,20 @@ function ChecklistItem({ label, fulfilled, spinning, unavailable, flash, }) {
                 ? 'spinning'
                 : '';
     return (<div className={`splash-checklist-item ${flash ? 'is-fulfilled' : ''}`}>
+      {/* One line-icon language across all four states: hollow ring (pending),
+          arc spinner (working), check (done), slash-circle (unavailable) — all
+          stroke icons in soft tinted circles, never filled badge pictographs. */}
       <div className={`splash-checklist-radio ${stateClass}`} aria-hidden="true">
-        {fulfilled && (<svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden="true">
+        {fulfilled && (<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.6} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12.5l4 4L19 7"/>
           </svg>)}
-        {spinning && !fulfilled && <SpinnerIcon className="w-3 h-3"/>}
-        {unavailable && (<svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.6} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18"/>
+        {spinning && !fulfilled && <SpinnerIcon className="w-3.5 h-3.5"/>}
+        {unavailable && !fulfilled && (<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9} aria-hidden="true">
+            <circle cx="12" cy="12" r="6.5"/>
+            <path strokeLinecap="round" d="M7.8 16.2l8.4-8.4"/>
+          </svg>)}
+        {!fulfilled && !spinning && !unavailable && (<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2} aria-hidden="true">
+            <circle cx="12" cy="12" r="6.5" strokeOpacity={0.5}/>
           </svg>)}
       </div>
       <span className="splash-checklist-label">{label}</span>
