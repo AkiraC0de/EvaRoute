@@ -1,0 +1,11 @@
+import { FACILITY_STATUS_META } from '../../lib/facilityMeta';
+export default function CenterStatusBadge({ status, fullLabel = false, className = '', }) {
+    const statusMeta = FACILITY_STATUS_META[status];
+    return (<span className={`facility-status-badge ${className}`} style={{
+            backgroundColor: statusMeta.background,
+            color: statusMeta.color,
+        }}>
+      <span className="facility-status-dot" style={{ backgroundColor: statusMeta.color }} aria-hidden="true"/>
+      {fullLabel ? statusMeta.fullLabel : statusMeta.label}
+    </span>);
+}

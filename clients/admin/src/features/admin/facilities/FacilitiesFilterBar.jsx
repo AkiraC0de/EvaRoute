@@ -30,7 +30,7 @@ const FacilitiesFilterBar = ({
       value={statusFilter}
       onChange={onStatusChange}
       ariaLabel="Filter by status"
-      className="w-25"
+      className="w-27"
     >
       {STATUS_OPTIONS.map((option) => (
         <option  key={option.value} value={option.value}>{option.label}</option>
