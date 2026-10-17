@@ -82,7 +82,7 @@ export default function OverlayContainer({
             {onMobileToggle && isMobileExpanded && (
               <button
                 type="button"
-                className="flex h-11 w-full items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
+                className="focus-ring flex h-11 w-full items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
                 onClick={onMobileToggle}
                 aria-label="Collapse panel"
                 aria-expanded="true"

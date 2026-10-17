@@ -13,7 +13,7 @@ function CollapsedToggle({ onClick }) {
   return (
     <button
       type="button"
-      className="flex w-full flex-col items-center gap-1 border-0 bg-transparent py-2.5 touch-manipulation"
+      className="focus-ring flex w-full flex-col items-center gap-1 border-0 bg-transparent py-2.5 touch-manipulation"
       onClick={onClick}
       aria-label="Expand list"
     >

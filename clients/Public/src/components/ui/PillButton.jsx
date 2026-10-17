@@ -27,7 +27,7 @@ export default function PillButton({
     <motion.button
       {...tapPress}
       className={[
-        'inline-flex items-center justify-center rounded-full font-semibold transition disabled:opacity-40',
+        'focus-ring inline-flex items-center justify-center rounded-full font-semibold transition disabled:opacity-40',
         variantMap[variant] ?? variantMap.primary,
         sizeMap[size],
         loading ? 'opacity-60 cursor-wait' : '',

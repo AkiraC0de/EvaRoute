@@ -58,7 +58,7 @@ export default function RoutePreviewCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-[18px] font-bold leading-tight tracking-tight text-ink">{facility.name}</h2>
-          <p className="mt-1 break-words text-[11px] capitalize leading-snug text-muted">{facility.address}</p>
+          <p className="mt-1 break-words text-[12px] capitalize leading-snug text-muted">{facility.address}</p>
         </div>
         <CenterStatusBadge status={facility.status} fullLabel />
       </div>
@@ -79,7 +79,7 @@ export default function RoutePreviewCard({
       <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2">
         <div className="flex min-w-0 flex-col items-center gap-[3px] rounded-clay-sm bg-accent-soft px-1 py-2 text-center text-accent shadow-clay-xs">
           <StatIcon type="distance" />
-          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
+          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
             Distance
           </span>
           <strong className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-bold tabular-nums tracking-tight text-ink">
@@ -88,7 +88,7 @@ export default function RoutePreviewCard({
         </div>
         <div className="flex min-w-0 flex-col items-center gap-[3px] rounded-clay-sm bg-accent-soft px-1 py-2 text-center text-accent shadow-clay-xs">
           <StatIcon type="time" />
-          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
+          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
             Duration
           </span>
           <strong className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-bold tabular-nums tracking-tight text-ink">
@@ -97,7 +97,7 @@ export default function RoutePreviewCard({
         </div>
         <div className="flex min-w-0 flex-col items-center gap-[3px] rounded-clay-sm bg-accent-soft px-1 py-2 text-center text-accent shadow-clay-xs">
           <StatIcon type="arrival" />
-          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
+          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
             Arrival
           </span>
           <strong className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-bold tabular-nums tracking-tight text-ink">
@@ -129,7 +129,7 @@ export default function RoutePreviewCard({
         {!isNavigating && (
           <button
             type="button"
-            className="motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-muted shadow-clay-xs transition hover:bg-sunken hover:text-ink active:shadow-clay-inset"
+            className="focus-ring motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-muted shadow-clay-xs transition hover:bg-sunken hover:text-ink active:shadow-clay-inset"
             onClick={onCancel}
           >
             Cancel Route
@@ -138,7 +138,7 @@ export default function RoutePreviewCard({
         {!isNavigating && (
           <button
             type="button"
-            className="motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
+            className="focus-ring motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
             onClick={onStartNavigation}
           >
             Start Navigation
@@ -147,7 +147,7 @@ export default function RoutePreviewCard({
         {isNavigating && (
           <button
             type="button"
-            className="motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-muted shadow-clay-xs transition hover:bg-sunken hover:text-ink active:shadow-clay-inset"
+            className="focus-ring motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-muted shadow-clay-xs transition hover:bg-sunken hover:text-ink active:shadow-clay-inset"
             onClick={onCancel}
           >
             Cancel

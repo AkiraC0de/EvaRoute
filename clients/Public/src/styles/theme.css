@@ -18,17 +18,18 @@
   --color-ink: #1b2a44;
   --color-ink-soft: #2a3a58;
   --color-muted: #56678a;
-  --color-muted-dim: #8b9bb8;
+  --color-muted-dim: #5f7194;
 
-  /* Brand + semantics */
-  --color-accent: #4a72ff;
-  --color-accent-strong: #3a5ee8;
+  /* Brand + semantics (AA-tuned one shade deeper in the same families:
+     4.5:1+ for every small-text pair per ui-ux-pro-max) */
+  --color-accent: #2f4fd8;
+  --color-accent-strong: #2743bd;
   --color-accent-soft: #dfe8ff;
-  --color-success: #2fa968;
+  --color-success: #177a4a;
   --color-success-soft: #e3f6ec;
-  --color-warning: #d98a0b;
+  --color-warning: #9c6204;
   --color-warning-soft: #fcf1dc;
-  --color-danger: #e5484d;
+  --color-danger: #c62a2f;
   --color-danger-soft: #fcebeb;
 
   /* Clay depth — navy-tinted three-layer lift + lit top-left edge */

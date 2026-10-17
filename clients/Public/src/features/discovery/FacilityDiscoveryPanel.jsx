@@ -87,7 +87,7 @@ export default function FacilityDiscoveryPanel({
               variants={staggerItem}
               {...tapPress}
               type="button"
-              className="group w-full rounded-clay-lg bg-surface p-4 text-left text-inherit shadow-clay transition hover:shadow-clay-lg focus-visible:outline-2 focus-visible:outline-accent"
+              className="focus-ring group w-full rounded-clay-lg bg-surface p-4 text-left text-inherit shadow-clay transition hover:shadow-clay-lg"
               onClick={() => onSelect(facility)}
             >
               <div className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-2">

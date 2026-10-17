@@ -9,7 +9,7 @@ export default function RecenterButton({ mapRef, position, defaultCenter, inline
   return (
     <button
       className={[
-        'flex h-11 w-11 items-center justify-center rounded-full bg-surface text-accent shadow-clay transition hover:scale-105 hover:shadow-clay-lg active:scale-95 motion-safe-transform',
+        'focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-surface text-accent shadow-clay transition hover:scale-105 hover:shadow-clay-lg active:scale-95 motion-safe-transform',
         inline ? 'shrink-0' : 'fixed bottom-6 right-6 z-20',
         className,
       ]

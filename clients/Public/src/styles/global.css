@@ -193,6 +193,27 @@ button {
 /* ── Reduced motion ──
    Functional feedback survives (progress widths, colour changes);
    decorative/looping motion does not. */
+/* Tailwind v4 preflight leaves buttons at cursor: default — the ui-ux-pro-max
+   pre-delivery checklist wants a pointer on everything clickable. */
+button:not(:disabled),
+[role='button']:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
+/* One keyboard-focus language for every control: 3px ring, AA-contrast accent.
+   Outline follows the element's border radius, so pills get round rings. */
+.focus-ring:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Leaflet markers are focusable role=buttons — same 3px language. */
+.leaflet-marker-icon:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse,
   .animate-fade-in,

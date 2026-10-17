@@ -272,7 +272,7 @@ export default function FacilityDetailSidebar({
         </div>
         <button
           type="button"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sunken text-muted shadow-clay-inset transition hover:bg-surface hover:text-accent"
+          className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sunken text-muted shadow-clay-inset transition hover:bg-surface hover:text-accent"
           onClick={onBack}
           aria-label="Close"
         >
@@ -416,7 +416,7 @@ export default function FacilityDetailSidebar({
             </p>
             <button
               type="button"
-              className="motion-safe-transform min-h-9 shrink-0 rounded-full bg-surface px-4 py-1 text-[11px] font-semibold text-accent shadow-clay-xs transition active:shadow-clay-inset disabled:opacity-60"
+              className="focus-ring motion-safe-transform min-h-9 shrink-0 rounded-full bg-surface px-4 py-1 text-[11px] font-semibold text-accent shadow-clay-xs transition active:shadow-clay-inset disabled:opacity-60"
               onClick={onEnableLocation}
               disabled={locationPrompt.requesting}
             >
@@ -429,14 +429,14 @@ export default function FacilityDetailSidebar({
         <div className="mt-auto flex flex-row gap-2 pt-2 pb-[env(safe-area-inset-bottom)]">
           <button
             type="button"
-            className="w-full rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-ink shadow-clay-xs transition hover:bg-sunken active:shadow-clay-inset"
+            className="focus-ring w-full rounded-full bg-surface px-6 py-2.5 text-[15px] font-semibold text-ink shadow-clay-xs transition hover:bg-sunken active:shadow-clay-inset"
             onClick={onBack}
           >
             Back
           </button>
           <button
             type="button"
-            className="motion-safe-transform inline-flex w-full items-center justify-center rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
+            className="focus-ring motion-safe-transform inline-flex w-full items-center justify-center rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
             onClick={onGetRoute}
           >
             Get Route

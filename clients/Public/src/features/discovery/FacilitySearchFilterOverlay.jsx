@@ -43,7 +43,7 @@ export default function FacilitySearchFilterOverlay({
             placeholder="Search evacuation centers..."
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            className="h-11 w-full appearance-none rounded-full bg-surface py-0 pl-[42px] pr-4 text-[15px] text-ink shadow-clay-inset outline-none transition placeholder:text-muted-dim focus:ring-2 focus:ring-accent [&::-webkit-search-cancel-button]:appearance-none"
+            className="focus-ring h-11 w-full appearance-none rounded-full bg-surface py-0 pl-[42px] pr-4 text-[15px] text-ink shadow-clay-inset outline-none transition placeholder:text-muted-dim [&::-webkit-search-cancel-button]:appearance-none"
             aria-label="Search evacuation centers"
           />
         </div>
@@ -57,7 +57,7 @@ export default function FacilitySearchFilterOverlay({
             key={filter.value}
             type="button"
             className={[
-              'motion-safe-transform inline-flex min-h-8 items-center gap-1.5 rounded-full px-[11px] py-1.5 text-[11px] font-semibold transition',
+              'focus-ring motion-safe-transform inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-semibold transition',
               statusFilter === filter.value
                 ? 'bg-accent text-white shadow-clay-xs'
                 : 'bg-surface text-muted shadow-clay-xs hover:-translate-y-px hover:text-ink',
