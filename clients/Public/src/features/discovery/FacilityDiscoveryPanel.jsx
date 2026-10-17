@@ -48,7 +48,7 @@ export default function FacilityDiscoveryPanel({
             placeholder="Search centers..."
             value={searchQuery}
             onChange={(e) => onQueryChange?.(e.target.value)}
-            className="h-10 w-full rounded-full bg-sunken px-4 text-[13px] text-ink shadow-clay-inset outline-none placeholder:text-muted-dim focus:ring-2 focus:ring-accent"
+            className="focus-ring h-10 w-full rounded-full bg-sunken px-4 text-[13px] text-ink shadow-clay-inset outline-none placeholder:text-muted-dim"
             aria-label="Search centers"
           />
           <div className="flex flex-wrap gap-1 p-0.5">
@@ -57,7 +57,7 @@ export default function FacilityDiscoveryPanel({
                 key={option.value}
                 type="button"
                 className={[
-                  'motion-safe-transform inline-flex min-h-8 items-center rounded-full px-[11px] py-1.5 text-[11px] font-semibold transition',
+                  'focus-ring motion-safe-transform inline-flex min-h-9 items-center rounded-full px-3 py-2 text-[12px] font-semibold transition',
                   statusFilter === option.value
                     ? 'bg-accent-soft text-accent shadow-clay-xs'
                     : 'bg-surface text-muted shadow-clay-xs hover:-translate-y-px hover:text-ink',
@@ -98,26 +98,26 @@ export default function FacilityDiscoveryPanel({
                 </span>
                 <div className="min-w-0">
                   <h3 className="break-words text-[15px] font-semibold leading-tight text-ink">{facility.name}</h3>
-                  <p className="mt-[3px] break-words text-[11px] capitalize leading-snug text-muted">{facility.address}</p>
+                  <p className="mt-[3px] break-words text-[12px] capitalize leading-snug text-muted">{facility.address}</p>
                 </div>
                 <CenterStatusBadge status={facility.status} />
               </div>
 
               <div className="mt-4 grid grid-cols-[repeat(3,minmax(0,1fr))_auto] items-end gap-2 border-t border-line pt-2">
                 <div className="grid min-w-0 gap-0.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-dim">Distance</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-dim">Distance</span>
                   <span className="overflow-hidden truncate whitespace-nowrap text-[11px] font-semibold text-muted">
                     {hasDistance ? <CenterDistance distance={facility.distance} className="text-[11px] font-semibold text-muted" /> : '—'}
                   </span>
                 </div>
                 <div className="grid min-w-0 gap-0.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-dim">ETA</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-dim">ETA</span>
                   <span className="overflow-hidden truncate whitespace-nowrap text-[11px] font-semibold text-muted">
                     {hasDistance ? `${Math.max(1, Math.round(facility.distance / 0.2))} min` : '—'}
                   </span>
                 </div>
                 <div className="grid min-w-0 gap-0.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-dim">Capacity</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-dim">Capacity</span>
                   <span className="overflow-hidden truncate whitespace-nowrap text-[11px] font-semibold text-muted">
                     {facility.maxCapacity.toLocaleString()} max
                   </span>
