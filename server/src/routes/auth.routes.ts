@@ -6,6 +6,7 @@ import {
   handleLogin,
   handlePassReqReset,
   handlePassReset,
+  handleChangePassword,
   handleVerifyResetPass,
   handleRefresh,
   handleSignOutAllDevices,
@@ -23,7 +24,10 @@ authRoute.get("/password/request-reset", handlePassReqReset)
 
 authRoute.post("/password/verify-reset", verifyToken(TokenType.REQ_RESET_PASS), handleVerifyResetPass) 
  
-authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassReset) 
+authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassReset)
+
+// Change the signed-in user's password (ADMIN + FACILITY_STAFF)
+authRoute.post("/password/change", verifyAuthentication, handleChangePassword)
 
 authRoute.get("/refresh", handleRefresh) 
 

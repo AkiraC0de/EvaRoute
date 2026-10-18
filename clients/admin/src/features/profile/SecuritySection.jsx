@@ -1,24 +1,22 @@
 import { useState } from "react";
-import { Lock, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import PasswordConfirmForm from "./PasswordConfirmForm";
+import ChangePasswordAction from "./password/ChangePasswordAction";
 import SecurityAction from "./SecurityAction";
 
 /**
  * Security section of the profile page.
  *
  * Security actions:
+ *   - Password change              -> POST /api/v1/auth/password/change
+ *                                     (own component: features/profile/password/)
  *   - Sign out                     -> POST /api/v1/auth/signout        (wired)
  *   - Sign out to all other devices-> POST /api/v1/auth/signout-all    (wired,
  *                                     the API requires the account password)
- *   - Password change              -> NOT wired: the backend only offers the
- *                                     unauthenticated 3-step email OTP flow
- *                                     (request-reset -> verify-reset ->
- *                                     reset), which lives on the sign-in
- *                                     screen, not in an authenticated session.
  * `onBusyChange(busy)` reports the plain-sign-out in-flight state so the page
  * can render its status panel below the grid (matching the original layout).
  */
@@ -61,19 +59,7 @@ const SecuritySection = ({ onBusyChange }) => {
   return (
     <>
       <Card className="space-y-2">
-        <SecurityAction
-          icon={<Lock size={15} strokeWidth={1.8} />}
-          title="Password"
-          description="via email OTP"
-          actionLabel="Change"
-          showArrow
-          onClick={() => {
-            setError("");
-            setNotice(
-              "Not available in this portal yet. The API's only password change is the email OTP flow (GET /api/v1/auth/password/request-reset, then verify-reset, then reset) and it is not wired to a screen here. Ask an administrator to reset your password.",
-            );
-          }}
-        />
+        <ChangePasswordAction />
 
         <SecurityAction
           icon={<LogOut size={15} strokeWidth={1.8} />}
@@ -128,7 +114,8 @@ const SecuritySection = ({ onBusyChange }) => {
 
       {!error && !notice && (
         <p className="mt-3 text-[11px] leading-relaxed text-muted-dim">
-          Sign-out actions call the live API. Password change is not wired.
+          Sign-out actions call the live API. Changing your password keeps this
+          device signed in and signs out every other device.
         </p>
       )}
     </>

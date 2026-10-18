@@ -316,6 +316,18 @@ export async function resetPassword(resetToken, newPassword) {
 }
 
 /**
+ * POST /api/v1/auth/password/change  (authenticated; ADMIN + FACILITY_STAFF).
+ * Body: { currentPassword, newPassword } -> message only.
+ * 400 "Current password is incorrect." or details.errors (password rules).
+ */
+export async function changePassword(currentPassword, newPassword) {
+  return request("/auth/password/change", {
+    method: "POST",
+    body: { currentPassword, newPassword },
+  });
+}
+
+/**
  * GET /api/v1/facility  (auth + FETCH_FACILITY)
  *
  * Role-scoped by the controller: an ADMIN gets every facility, a

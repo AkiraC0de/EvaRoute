@@ -11,7 +11,6 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AuthProvider>
         <App />
-        {/* Mutation feedback toasts, themed with the clay tokens. */}
         <Toaster
           position="bottom-right"
           toastOptions={{

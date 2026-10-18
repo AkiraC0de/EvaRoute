@@ -1,4 +1,4 @@
-import { passResetSchema, signOutAllSchema, verifyResetPassSchema } from './../validations/auth.validations.js'
+import { passResetSchema, signOutAllSchema, verifyResetPassSchema, changePasswordSchema } from './../validations/auth.validations.js'
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
@@ -303,4 +303,39 @@ export const handleSignOutAllDevices = async (req: Request, res: Response) => {
   await refreshTokenService.deleteAllByUserId(userId)
   await logActivity(req, ActivityAction.AUTH_SIGN_OUT_ALL)
   return new SuccessMsgResponse("Signed out from all other devices.").send(res)
+}
+
+// Change the signed-in user's password. Proves identity with the CURRENT
+// password (same policy as signout-all), then revokes every OTHER session —
+// this device stays signed in.
+export const handleChangePassword = async (req: Request, res: Response) => {
+  const { userId } = requireAuth(req)
+  const { currentPassword, newPassword } = validateData<typeof changePasswordSchema>(changePasswordSchema, req.body)
+
+  const user = await userService.findById(userId)
+  if (!user) {
+    throw new NotFoundError("User not found.")
+  }
+
+  const passwordMatched = await bcrypt.compare(currentPassword, user.password)
+  if (!passwordMatched) {
+    throw new BadRequestMsgError("Current password is incorrect.")
+  }
+
+  await userService.updatePassword(userId, await bcrypt.hash(newPassword, 12))
+
+  // Keep THIS device's session when the cookie holds one of the user's valid
+  // refresh tokens; otherwise wipe them all (mirrors handleSignOutAllDevices).
+  const cookieToken = req.cookies[REFRESH_TOKEN.COOKIE_NAME]
+  const refreshToken = cookieToken
+    ? await refreshTokenService.findByToken(cryptoHash(cookieToken))
+    : null
+  if (refreshToken && refreshToken.userId === userId) {
+    await refreshTokenService.deleteAllByUserIdExcept(userId, refreshToken.id)
+  } else {
+    await refreshTokenService.deleteAllByUserId(userId)
+  }
+
+  await logActivity(req, ActivityAction.AUTH_PASSWORD_RESET)
+  return new SuccessMsgResponse("Password changed. You have been signed out of all other devices.").send(res)
 }
