@@ -84,7 +84,7 @@ export const handleGetActivities = async (req: Request, res: Response) => {
 // come from a DB GROUP BY, never from counting feed rows.
 export const handleGetActivityStats = async (req: Request, res: Response) => {
   const query = validateData<typeof getActivityStatsQuerySchema>(getActivityStatsQuerySchema, req.query, "query")
-  const scope = await resolveScope(req)
+  const scope = await resolveScope(req, query.facilityId)
 
   const until = query.to ?? new Date()
   let since = query.from ?? new Date(until.getTime() - 7 * 24 * 60 * 60 * 1000)

@@ -44,11 +44,12 @@ export async function listActivity(query = {}) {
  * Pass interval: "day" to also get zero-filled per-day timeline buckets:
  *   timeline: [{ date: "YYYY-MM-DD", total, checkIns, checkOuts }] (UTC days)
  */
-export async function listActivityStats({ from, to, interval } = {}) {
+export async function listActivityStats({ from, to, interval, facilityId } = {}) {
   const params = new URLSearchParams();
   if (from) params.set("from", from);
   if (to) params.set("to", to);
   if (interval) params.set("interval", interval);
+  if (facilityId) params.set("facilityId", facilityId);
   const qs = params.toString();
   const { data } = await request(`/activity/stats${qs ? `?${qs}` : ""}`);
   return {

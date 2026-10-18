@@ -9,6 +9,7 @@ import FacilityPicker from "./FacilityPicker";
 import OccupancyGrid from "./OccupancyGrid";
 import OccupancyMeter from "./OccupancyMeter";
 import OccupancySummary from "./OccupancySummary";
+import useActivityStats from "../../hooks/useActivityStats";
 import { OccupancyLoading, OccupancyEmpty, OccupancyError } from "./OccupancyStates";
 import useOccupancyFacilities from "./useOccupancyFacilities";
 
@@ -35,6 +36,16 @@ const OccupancyPage = () => {
 
   const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
 
+  // 14 days of per-day check-ins (two 7-day windows) for the meter's trend
+  // chart and delta pill — scoped to the selected facility.
+  const trendFrom = new Date();
+  trendFrom.setDate(trendFrom.getDate() - 13);
+  const { timeline } = useActivityStats({
+    from: trendFrom.toISOString(),
+    interval: "day",
+    ...(facilityId ? { facilityId } : {}),
+  });
+
   return (
     <div>
       <PageHeader title="Occupancy" subtitle="Check evacuees in and out of a facility" />
@@ -57,8 +68,10 @@ const OccupancyPage = () => {
 
       {facilityId && !loading && !error && occupancy && (
         <>
-          <OccupancySummary occupancy={occupancy} />
-          <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} />
+          <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
+            <OccupancySummary occupancy={occupancy} />
+          </div>
 
           <OccupancyGrid
             facilityId={facilityId}

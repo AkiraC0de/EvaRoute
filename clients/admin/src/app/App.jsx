@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 /**
  * Application root: session gate over the role-guarded routes.
  *
- *   status "checking"  -> session splash
+ *   status "checking"  -> centered loading spinner
  *   status "signedOut" -> sign-in screen
  *   status "signedIn"  -> the authenticated portal (AppRoutes + AppShell)
  *
@@ -17,10 +17,12 @@ function App() {
 
   if (status === "checking") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#e9edf7] p-4">
-        <p className="rounded-[18px] bg-white px-6 py-4 text-[13px] font-semibold text-[#65718c] shadow-[0_8px_20px_rgba(40,60,100,0.08)]">
-          Checking your session…
-        </p>
+      <main className="flex min-h-screen items-center justify-center bg-canvas">
+        <span
+          role="status"
+          aria-label="Checking your session"
+          className="block h-11 w-11 animate-spin rounded-full border-[3px] border-accent-soft border-t-accent motion-reduce:animate-none"
+        />
       </main>
     );
   }

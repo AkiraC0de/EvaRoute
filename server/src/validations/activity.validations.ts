@@ -53,5 +53,10 @@ export const getActivityStatsQuerySchema = z.object({
   from: z.coerce.date("'from' must be a valid date.").optional(),
   to: z.coerce.date("'to' must be a valid date.").optional(),
   // "day" adds per-day timeline buckets to the response (dashboard chart).
-  interval: z.literal("day", "'interval' only supports 'day'.").optional()
+  interval: z.literal("day", "'interval' only supports 'day'.").optional(),
+  // Optional facility filter (admin: any facility; staff: own only).
+  facilityId: z
+    .string("'facilityId' must be a string.")
+    .uuid("'facilityId' must be a valid uuid.")
+    .optional()
 })
