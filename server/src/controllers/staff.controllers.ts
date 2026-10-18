@@ -35,12 +35,24 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
     target: { id: createdUser.id, label: email }
   })
 
-  await ApiMailer.sendStaffWelcome(email, email.split("@")[0], defaultPassword)
+  let emailSent = true
+  try {
+    await ApiMailer.sendStaffWelcome(email, email.split("@")[0], defaultPassword)
+  } catch {
+    // Mail delivery is a convenience: the response returns the password for
+    // manual sharing. Failing the request here would strand an account that
+    // was ALREADY created above (password known to nobody, admin got a 500).
+    emailSent = false
+  }
 
   return new SuccessResponse(
-    "New account has been created.", {
+    emailSent
+      ? "New account has been created."
+      : "New account has been created, but the welcome email could not be sent. Share the password with the staff manually.",
+    {
       email,
-      defaultPassword
+      defaultPassword,
+      emailSent
     }
   ).send(res)
 }
@@ -181,7 +193,16 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
     await userServices.setActive(userId, true)
   }
 
-  await ApiMailer.sendStaffPasswordReset(user.email, user.email.split("@")[0], defaultPassword)
+  // Mail delivery is a convenience — the password was ALREADY rotated above,
+  // so a send failure must not 500: that would strand the staff with a temp
+  // password nobody has seen (it exists only in the unsent email) while the
+  // admin sees nothing. Return it for manual sharing and say so.
+  let emailSent = true
+  try {
+    await ApiMailer.sendStaffPasswordReset(user.email, user.email.split("@")[0], defaultPassword)
+  } catch {
+    emailSent = false
+  }
 
   // Audit the reset — never the generated password.
   await logActivity(req, ActivityAction.STAFF_PASSWORD_RESET, {
@@ -189,8 +210,10 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
   })
 
   return new SuccessResponse(
-    `Password for ${user.email} has been reset. Share it with the staff securely; they must change it after logging in.`,
-    { defaultPassword }
+    emailSent
+      ? `Password for ${user.email} has been reset. Share it with the staff securely; they must change it after logging in.`
+      : `Password for ${user.email} has been reset, but the email could not be sent. Share the password with the staff manually — they must change it after logging in.`,
+    { defaultPassword, emailSent }
   ).send(res)
 }
 
