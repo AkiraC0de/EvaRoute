@@ -2,11 +2,10 @@ import { useState } from "react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
-import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
-import LocationPickerMap from "../../map/LocationPickerMap";
-import { isValidCoords, toCoords } from "../../map/coordinateUtils";
-import { ESSENTIAL_RESOURCES, defaultEssentialDraft } from "../../facility/essentialResources";
 import FacilityFormFields from "./FacilityFormFields";
+import FacilityMapPicker from "./FacilityMapPicker";
+import { isValidCoords } from "../../map/coordinateUtils";
+import { ESSENTIAL_RESOURCES, defaultEssentialDraft } from "../../facility/essentialResources";
 import * as api from "../../../lib/api";
 
 /**
@@ -88,14 +87,11 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid gap-4 sm:grid-cols-2">
           <FacilityFormFields draft={draft} update={update} />
-          <div>
-            <p className={LABEL_CLASS}>Location on map</p>
-            <LocationPickerMap
-              value={toCoords(draft.latitude, draft.longitude)}
-              onChange={({ latitude, longitude }) => update({ latitude, longitude })}
-              height={280}
-            />
-          </div>
+          <FacilityMapPicker
+            latitude={draft.latitude}
+            longitude={draft.longitude}
+            onChange={({ latitude, longitude }) => update({ latitude, longitude })}
+          />
         </div>
 
         {error && <Banner tone="error">{error}</Banner>}
