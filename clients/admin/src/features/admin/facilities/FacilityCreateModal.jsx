@@ -2,19 +2,20 @@ import { useState } from "react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
-import TextField, { SelectField } from "../../../components/ui/Field";
 import { LABEL_CLASS } from "../../../components/ui/fieldStyles";
 import LocationPickerMap from "../../map/LocationPickerMap";
-import { formatCoords, isValidCoords, toCoords } from "../../map/coordinateUtils";
-import ResourceIcon from "../../facility/ResourceIcon";
-import ResourceStatusToggle from "../../facility/ResourceStatusToggle";
+import { isValidCoords, toCoords } from "../../map/coordinateUtils";
 import { ESSENTIAL_RESOURCES, defaultEssentialDraft } from "../../facility/essentialResources";
+import FacilityFormFields from "./FacilityFormFields";
 import * as api from "../../../lib/api";
 
 /**
  * Register a new facility. Mirrors `registerFacilitySchema`
  * (server/src/validations/facility.validations.ts) client-side; the server
  * remains the authority (e.g. its duplicate-location 400 is shown as-is).
+ *
+ * Owns the draft, validation and submit flow; the field column and the
+ * essential-resources toggles live in their own modules.
  */
 const emptyDraft = () => ({
   name: "",
@@ -86,75 +87,7 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
     <Modal title="Register facility" onClose={onClose} size="lg">
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-3">
-            <TextField
-              label="Name"
-              value={draft.name}
-              onChange={(event) => update({ name: event.target.value })}
-              placeholder="e.g. Paco Park School"
-            />
-            <TextField
-              label="Address"
-              value={draft.address}
-              onChange={(event) => update({ address: event.target.value })}
-            />
-            <TextField
-              label="Note (optional)"
-              value={draft.note}
-              onChange={(event) => update({ note: event.target.value })}
-            />
-            <TextField
-              label="Max capacity"
-              type="number"
-              min="1"
-              step="1"
-              value={draft.maxCapacity}
-              onChange={(event) => update({ maxCapacity: event.target.value })}
-              placeholder="e.g. 400"
-            />
-            <SelectField
-              label="Status"
-              value={draft.status}
-              onChange={(event) => update({ status: event.target.value })}
-            >
-              <option value="AVAILABLE">Available</option>
-              <option value="UNAVAILABLE">Unavailable</option>
-            </SelectField>
-            <div>
-              <p className={LABEL_CLASS}>Essential resources</p>
-              <div className="space-y-2 rounded-clay-sm bg-sunken p-2.5 shadow-clay-inset">
-                {ESSENTIAL_RESOURCES.map((entry) => (
-                  <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="inline-flex min-w-0 items-center gap-2">
-                      <span
-                        aria-hidden="true"
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-clay-sm bg-surface text-accent shadow-clay-xs"
-                      >
-                        <ResourceIcon essentialType={entry.key} size={14} />
-                      </span>
-                      <span className="truncate text-[12px] font-semibold text-ink-soft">
-                        {entry.label}
-                      </span>
-                    </span>
-                    <ResourceStatusToggle
-                      name={entry.label}
-                      value={draft.resources[entry.key]}
-                      onChange={(next) =>
-                        update({ resources: { ...draft.resources, [entry.key]: next } })
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className={LABEL_CLASS}>Selected location</p>
-              <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[12px] font-medium text-ink-soft shadow-clay-inset">
-                {formatCoords(draft.latitude, draft.longitude) ||
-                  "Not set — pick it on the map"}
-              </p>
-            </div>
-          </div>
+          <FacilityFormFields draft={draft} update={update} />
           <div>
             <p className={LABEL_CLASS}>Location on map</p>
             <LocationPickerMap

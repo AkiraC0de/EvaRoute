@@ -1,17 +1,15 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import PageHeader from "../../components/ui/PageHeader";
-import StatTile from "../../components/ui/StatTile";
 import StatusPanel from "../../components/ui/StatusPanel";
 import useActivityStats from "../../hooks/useActivityStats";
 import useAssignedFacility from "../../hooks/useAssignedFacility";
 import useFacilityResources from "../../hooks/useFacilityResources";
 import FacilitySummaryBar from "./FacilitySummaryBar";
 import { FacilityLoading } from "./FacilityStates";
-import FacilityOverviewMap from "../map/FacilityOverviewMap";
-import ResourceCard from "./ResourceCard";
-import ResourceCreateForm from "./ResourceCreateForm";
-import ActivityFeed from "../activity/ActivityFeed";
+import FacilityLocationCard from "./FacilityLocationCard";
+import FacilityResourcesSection from "./FacilityResourcesSection";
+import FacilityActivityStatsCard from "./FacilityActivityStatsCard";
+import FacilityRecentActivityCard from "./FacilityRecentActivityCard";
 
 /**
  * "My Facility" — the staff member's own facility and its resources.
@@ -96,67 +94,18 @@ const FacilityPage = () => {
           <FacilitySummaryBar facility={facility} available={available} />
 
           {/* Read-only location map (staff cannot edit coordinates here). */}
-          <div className="mb-3 rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="text-[13px] font-bold text-ink-soft">Facility location</h2>
-            <p className="mt-1 text-[11px] text-muted">{facility.address}</p>
-            <div className="mt-3">
-              <FacilityOverviewMap facilities={[facility]} showLegend={false} height={220} />
-            </div>
-          </div>
+          <FacilityLocationCard facility={facility} />
 
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">
-              Resources
-            </h2>
-            <span className="text-[11px] text-muted">
-              {sortedResources.length} recorded
-            </span>
-          </div>
+          <FacilityResourcesSection
+            resources={sortedResources}
+            createResource={createResource}
+            saveResource={saveResource}
+            removeResource={removeResource}
+          />
 
-          <ResourceCreateForm onCreate={createResource} />
+          <FacilityActivityStatsCard todayStats={todayStats} weekStats={weekStats} />
 
-          <div className="mt-4">
-            {sortedResources.length === 0 ? (
-              <StatusPanel tone="empty" title="No resources recorded">
-                This facility has no resources yet. Add the first one above.
-              </StatusPanel>
-            ) : (
-              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {sortedResources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    resource={resource}
-                    onSave={(patch) => saveResource(resource.id, patch)}
-                    onDelete={() => removeResource(resource.id)}
-                  />
-                ))}
-              </section>
-            )}
-          </div>
-
-          <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
-            <h2 className="mb-3 text-[13px] font-bold text-ink-soft">Activity</h2>
-            <div className="grid grid-cols-3 gap-2">
-              <StatTile label="Check-ins today" value={todayStats.byAction.STAY_CHECKED_IN ?? 0} />
-              <StatTile label="Check-outs today" value={todayStats.byAction.STAY_CHECKED_OUT ?? 0} />
-              <StatTile label="Events (7 days)" value={weekStats.total} />
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-clay bg-surface p-4 shadow-clay">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[13px] font-bold text-ink-soft">Recent activity</h2>
-              <Link
-                to="/history"
-                className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
-              >
-                View full history →
-              </Link>
-            </div>
-            <div className="overflow-hidden rounded-3xl border border-line">
-              <ActivityFeed query={{ facilityId }} limit={5} compact />
-            </div>
-          </div>
+          <FacilityRecentActivityCard facilityId={facilityId} />
         </>
       )}
     </div>

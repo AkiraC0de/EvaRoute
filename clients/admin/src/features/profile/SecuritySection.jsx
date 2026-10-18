@@ -6,6 +6,7 @@ import Card from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import PasswordConfirmForm from "./PasswordConfirmForm";
 import ChangePasswordAction from "./password/ChangePasswordAction";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import SecurityAction from "./SecurityAction";
 
 /**
@@ -27,6 +28,7 @@ const SecuritySection = ({ onBusyChange }) => {
   const [busy, setBusy] = useState(false);
   const [askingPassword, setAskingPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
 
   const handleSignOut = async () => {
     setBusy(true);
@@ -38,6 +40,8 @@ const SecuritySection = ({ onBusyChange }) => {
       setError(err.message || "Sign out failed.");
       setBusy(false);
       onBusyChange?.(false);
+      // Close the dialog on failure so the error banner is visible again.
+      setConfirmingSignOut(false);
     }
   };
 
@@ -92,7 +96,11 @@ const SecuritySection = ({ onBusyChange }) => {
           title="Sign out"
           actionLabel="Sign out"
           variant="danger"
-          onClick={handleSignOut}
+          onClick={() => {
+            setError("");
+            setNotice("");
+            setConfirmingSignOut(true);
+          }}
         />
 
         {error && <Banner tone="error">{error}</Banner>}
@@ -117,6 +125,18 @@ const SecuritySection = ({ onBusyChange }) => {
           Sign-out actions call the live API. Changing your password keeps this
           device signed in and signs out every other device.
         </p>
+      )}
+
+      {confirmingSignOut && (
+        <ConfirmDialog
+          title="Sign out of EvaRoute?"
+          message="You will be signed out of this device immediately. Any unsaved work will be lost — you can sign back in at any time."
+          confirmLabel="Sign out"
+          tone="danger"
+          busy={busy}
+          onConfirm={handleSignOut}
+          onCancel={() => setConfirmingSignOut(false)}
+        />
       )}
     </>
   );

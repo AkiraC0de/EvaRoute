@@ -1,4 +1,5 @@
 import Skeleton from "../../components/ui/Skeleton";
+import StatusPanel from "../../components/ui/StatusPanel";
 
 /**
  * Loading skeleton for the staff Occupancy dashboard — mirrors the real
@@ -37,4 +38,24 @@ const OccupancyLoading = () => (
   </div>
 );
 
-export { OccupancyLoading };
+/**
+ * No facility to operate on — admin vs staff guidance.
+ */
+const OccupancyEmpty = ({ isAdmin }) => (
+  <StatusPanel tone="empty" title="No facility available">
+    {isAdmin
+      ? "Register a facility first — occupancy works per facility."
+      : "Your account is not assigned to a facility yet. Ask an administrator to assign you."}
+  </StatusPanel>
+);
+
+/**
+ * Stays could not load — the API's own message plus a retry.
+ */
+const OccupancyError = ({ error, onRetry }) => (
+  <StatusPanel tone="error" title="Could not load occupancy" onRetry={onRetry}>
+    {error.message}
+  </StatusPanel>
+);
+
+export { OccupancyLoading, OccupancyEmpty, OccupancyError };

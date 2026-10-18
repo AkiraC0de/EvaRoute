@@ -1,23 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Trash2, RotateCcw } from "lucide-react";
+import { useParams } from "react-router-dom";
 import Banner from "../../../components/ui/Banner";
-import Button from "../../../components/ui/Button";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import StatusPanel from "../../../components/ui/StatusPanel";
-import StatusPill from "../../../components/ui/StatusPill";
 import useAsyncAction from "../../../hooks/useAsyncAction";
 import useFacilityResources from "../../../hooks/useFacilityResources";
 import useStays from "../../../hooks/useStays";
 import * as api from "../../../lib/api";
-import ResourceCard from "../../facility/ResourceCard";
-import ResourceCreateForm from "../../facility/ResourceCreateForm";
-import CheckInForm from "../../occupancy/CheckInForm";
-import HouseholdList from "../../occupancy/HouseholdList";
-import ActivityFeed from "../../activity/ActivityFeed";
 import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
-import DetailSection from "./DetailSection";
+import FacilityDetailHeader from "./FacilityDetailHeader";
+import FacilityResourcesSection from "./FacilityResourcesSection";
+import FacilityOccupancySection from "./FacilityOccupancySection";
+import FacilityActivitySection from "./FacilityActivitySection";
 import { FacilityDetailLoading } from "./FacilitiesStates";
 
 /**
@@ -93,50 +88,14 @@ const FacilityDetailPage = () => {
 
   return (
     <div>
-      <Link
-        to="/facilities"
-        className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
-      >
-        <ArrowLeft size={12} strokeWidth={2} /> Back to facilities
-      </Link>
-
-      <header className="mb-4 mt-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-[22px] font-bold leading-tight text-ink">
-            {facility?.name ?? "Facility"}
-          </h1>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <p className="inline-flex items-center gap-1 text-[13px] text-muted">
-              <MapPin size={11} strokeWidth={1.9} aria-hidden="true" />
-              {facility ? facility.address : "Loading facility…"}
-            </p>
-            {facility && (
-              <>
-                <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
-                  {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-                </StatusPill>
-                <StatusPill tone="neutral">Max capacity {facility.maxCapacity}</StatusPill>
-              </>
-            )}
-          </div>
-        </div>
-        {facility && (
-          <Button
-            variant={deleted ? "primary" : "danger"}
-            size="sm"
-            onClick={() => {
-              setActionError("");
-              setConfirmDelete(true);
-            }}
-          >
-            {deleted ? (
-              <><RotateCcw size={12} strokeWidth={2} className="mr-1" /> Restore facility</>
-            ) : (
-              <><Trash2 size={12} strokeWidth={2} className="mr-1" /> Delete facility</>
-            )}
-          </Button>
-        )}
-      </header>
+      <FacilityDetailHeader
+        facility={facility}
+        deleted={deleted}
+        onAction={() => {
+          setActionError("");
+          setConfirmDelete(true);
+        }}
+      />
 
       {actionError && (
         <div className="mb-3">
@@ -169,63 +128,24 @@ const FacilityDetailPage = () => {
 
           <FacilityStaffSection facilityId={facilityId} />
 
-          <DetailSection
-            title="Resources"
-            action={<ResourceCreateForm onCreate={createResource} />}
-          >
-            {resources.length === 0 ? (
-              <StatusPanel tone="empty" title="No resources recorded">
-                This facility has no resources yet. Add the first one from the button above.
-              </StatusPanel>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {resources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    resource={resource}
-                    onSave={(patch) => saveResource(resource.id, patch)}
-                    onDelete={() => removeResource(resource.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </DetailSection>
+          <FacilityResourcesSection
+            resources={resources}
+            createResource={createResource}
+            saveResource={saveResource}
+            removeResource={removeResource}
+          />
 
-          <DetailSection title="Checked-in evacuees">
-            {occupancy && (
-              <p className="mb-3 text-[11px] text-muted">
-                {occupancy.members} of {occupancy.maxCapacity} places occupied ·{" "}
-                {occupancy.remaining} remaining
-              </p>
-            )}
-            <div className="grid gap-4 md:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.55fr)]">
-              <CheckInForm
-                remaining={occupancy?.remaining ?? 0}
-                onCheckIn={async (payload) => {
-                  await run(() => checkIn(payload));
-                }}
-              />
-              <HouseholdList
-                stays={stays}
-                busy={busy}
-                onCheckOut={(stay) => run(() => checkOut(stay.id))}
-              />
-            </div>
-          </DetailSection>
+          <FacilityOccupancySection
+            occupancy={occupancy}
+            stays={stays}
+            busy={busy}
+            onCheckIn={async (payload) => {
+              await run(() => checkIn(payload));
+            }}
+            onCheckOut={(stay) => run(() => checkOut(stay.id))}
+          />
 
-          <DetailSection
-            title="Activity"
-            action={
-              <Link
-                to="/history"
-                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
-              >
-                Open in history →
-              </Link>
-            }
-          >
-            <ActivityFeed query={{ facilityId }} limit={5} compact />
-          </DetailSection>
+          <FacilityActivitySection facilityId={facilityId} />
         </div>
       )}
 
