@@ -8,11 +8,11 @@ import Button from "./Button";
  */
 const TONES = {
   info: {
-    wrap: "bg-sunken text-[#65718c] shadow-clay-inset",
+    wrap: "bg-sunken text-muted shadow-clay-inset",
     title: "text-ink-soft",
   },
   empty: {
-    wrap: "bg-sunken text-[#7180a0] shadow-clay-inset",
+    wrap: "bg-sunken text-muted shadow-clay-inset",
     title: "text-ink-soft",
   },
   error: {

@@ -9,30 +9,34 @@
 
 @theme {
   /* Surfaces */
-  --color-canvas: #eef2f8;
-  --color-surface: #fcfdff;
-  --color-sunken: #e9eef7;
-  --color-line: #e2e8f2;
+  --color-canvas: #eaeef8;
+  --color-surface: #ffffff;
+  --color-sunken: #f4f7fc;
+  --color-sunken-hover: #eef2f9;
+  --color-line: #e4eaf4;
 
   /* Text */
   --color-ink: #1b2a44;
   --color-ink-soft: #2a3a58;
   --color-muted: #56678a;
-  --color-muted-dim: #5f7194;
+  --color-muted-dim: #8794b0;
 
-  /* Brand + semantics (AA-tuned one shade deeper in the same families:
-     4.5:1+ for every small-text pair per ui-ux-pro-max) */
+  /* Brand + semantics (AA-tuned; semantic colors mean STATUS only) */
   --color-accent: #2f4fd8;
   --color-accent-strong: #2743bd;
-  --color-accent-soft: #dfe8ff;
+  --color-accent-soft: #e3ebff;
+  --color-accent-soft-hover: #dfe6ff;
   --color-success: #177a4a;
   --color-success-soft: #e3f6ec;
   --color-warning: #9c6204;
   --color-warning-soft: #fcf1dc;
   --color-danger: #c62a2f;
+  --color-danger-strong: #a51f24;
   --color-danger-soft: #fcebeb;
+  --color-danger-soft-hover: #f8d8d6;
 
-  /* Clay depth — navy-tinted three-layer lift + lit top-left edge */
+  /* Clay depth — navy-tinted three-layer lift + lit top-left edge
+     (identical recipe to the admin client — one material language) */
   --shadow-clay-xs: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 1px 2px rgba(27, 42, 68, 0.06),
     0 2px 8px rgba(27, 42, 68, 0.05), inset 3px 3px 8px rgba(255, 255, 255, 0.9);
   --shadow-clay: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 2px 6px rgba(27, 42, 68, 0.06),
@@ -41,8 +45,12 @@
   --shadow-clay-lg: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 4px 10px rgba(27, 42, 68, 0.08),
     0 20px 40px rgba(27, 42, 68, 0.14), inset 3px 3px 8px rgba(255, 255, 255, 0.9),
     inset -3px -3px 8px rgba(27, 42, 68, 0.07);
+  --shadow-clay-accent: 0 2px 4px rgba(47, 79, 216, 0.2), 0 10px 20px rgba(47, 79, 216, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(30, 45, 120, 0.25);
   --shadow-clay-inset: inset 0 2px 5px rgba(27, 42, 68, 0.12),
     inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-clay-inset-strong: inset 0 3px 7px rgba(27, 42, 68, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.7);
   --shadow-floating: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 8px 16px rgba(27, 42, 68, 0.1),
     0 28px 64px rgba(27, 42, 68, 0.18);
 
@@ -51,6 +59,36 @@
   --radius-clay-sm: 12px;
   --radius-clay-lg: 26px;
 
+  /* Type scale — 6 steps + the tracked micro-label (11px floor) */
+  --text-display: 40px;
+  --text-display--line-height: 1.1;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-h2: 20px;
+  --text-h2--line-height: 1.3;
+  --text-h3: 16px;
+  --text-h3--line-height: 1.4;
+  --text-body: 14px;
+  --text-body--line-height: 1.55;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.45;
+  --text-micro: 11px;
+  --text-micro--line-height: 1.3;
+
+  /* The one hero-band gradient (focal cards) — never ad-hoc copies */
+  --hero-gradient: linear-gradient(135deg, var(--color-accent) 0%, #3d55d8 100%);
+
   /* Type */
-  --font-sans: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Tracked micro-label — the system's label motif (eyebrows, field labels,
+   table headers). One class instead of ad-hoc `text-[9px] uppercase …`
+   strings; 11px is the UI text floor per the theme audit. */
+.label-micro {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }

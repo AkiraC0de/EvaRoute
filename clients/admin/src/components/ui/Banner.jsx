@@ -8,7 +8,7 @@
 const TONES = {
   error: { wrap: "bg-danger-soft font-semibold text-danger", role: "alert" },
   warning: { wrap: "bg-warning-soft font-medium text-warning", role: "status" },
-  info: { wrap: "bg-sunken text-[#65718c]", role: "status" },
+  info: { wrap: "bg-sunken text-muted", role: "status" },
   success: { wrap: "bg-success-soft font-medium text-success", role: "status" },
 };
 

@@ -9,13 +9,13 @@ const variants = {
   primary:
     "bg-accent text-white shadow-clay-accent hover:bg-accent-strong active:shadow-clay-inset-strong",
   neutral:
-    "bg-surface text-[#65718c] shadow-clay-xs hover:text-accent hover:shadow-clay active:shadow-clay-inset",
-  soft: "bg-accent-soft text-accent hover:bg-[#dfe6ff] active:shadow-clay-inset",
+    "bg-surface text-muted shadow-clay-xs hover:text-accent hover:shadow-clay active:shadow-clay-inset",
+  soft: "bg-accent-soft text-accent hover:bg-accent-soft-hover active:shadow-clay-inset",
   danger:
-    "bg-danger-soft text-danger shadow-clay-xs hover:bg-[#f8d8d6] active:shadow-clay-inset",
+    "bg-danger-soft text-danger shadow-clay-xs hover:bg-danger-soft-hover active:shadow-clay-inset",
   // For colored (accent) surfaces — e.g. the dashboard hero:
   onAccent:
-    "bg-white text-accent-strong shadow-clay-xs hover:bg-[#eef1ff] active:shadow-clay-inset",
+    "bg-white text-accent-strong shadow-clay-xs hover:bg-accent-soft active:shadow-clay-inset",
   onAccentGhost:
     "border border-white/40 bg-white/15 text-white hover:bg-white/25 active:shadow-clay-inset",
 };

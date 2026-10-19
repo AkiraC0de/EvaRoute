@@ -19,7 +19,7 @@ const Modal = ({ title, onClose, children, size = "md", dismissible = true }) =>
     }}
   >
     <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 z-[60] bg-[#273556]/40" />
+      <Dialog.Overlay className="fixed inset-0 z-[60] bg-ink/40" />
       <Dialog.Content
         onEscapeKeyDown={(event) => {
           if (!dismissible) event.preventDefault();

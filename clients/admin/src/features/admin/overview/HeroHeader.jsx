@@ -4,7 +4,7 @@ import Button from "../../../components/ui/Button";
 
 /** Hero header — identity, network pills and quick actions. */
 const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
-  <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent to-accent-strong p-6 shadow-clay">
+  <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent to-accent-strong p-6 shadow-2xs">
     <div
       aria-hidden="true"
       className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/25 blur-2xl"

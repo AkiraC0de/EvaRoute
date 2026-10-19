@@ -9,51 +9,93 @@
  * ===================================================================== */
 @theme {
   /* Surfaces */
-  --color-canvas: #e9edf7; /* app background */
+  --color-canvas: #eaeef8; /* app background */
   --color-surface: #ffffff; /* raised clay cards */
-  --color-sunken: #f6f8fc; /* recessed fields / inset panels */
-  --color-line: #e6ebf6; /* hairline dividers */
+  --color-sunken: #f4f7fc; /* recessed fields / inset panels */
+  --color-sunken-hover: #eef2f9; /* hover lift on inset controls */
+  --color-line: #e4eaf4; /* hairline dividers */
 
   /* Text */
-  --color-ink: #273556; /* headings */
-  --color-ink-soft: #35405e; /* primary text */
-  --color-muted: #6f7d9b; /* supporting text (≈4.6:1 on white) */
-  --color-muted-dim: #9aa4b8; /* decorative captions only */
+  --color-ink: #1b2a44; /* headings */
+  --color-ink-soft: #2a3a58; /* primary text */
+  --color-muted: #56678a; /* supporting text (AA on white) */
+  --color-muted-dim: #8794b0; /* captions / micro-labels (contrast floor) */
 
-  /* Accent + feedback */
-  --color-accent: #5269ef;
-  --color-accent-strong: #4058df;
-  --color-accent-soft: #e8edff;
-  --color-danger: #d8322d;
-  --color-danger-strong: #b3261f;
-  --color-danger-soft: #fbe4e3;
-  --color-warning: #a96a00;
-  --color-warning-soft: #fff3d9;
-  --color-success: #1f7a3d;
-  --color-success-soft: #e2f4e8;
+  /* Accent + feedback (AA-tuned; semantic colors mean STATUS only) */
+  --color-accent: #2f4fd8;
+  --color-accent-strong: #2743bd;
+  --color-accent-soft: #e3ebff;
+  --color-accent-soft-hover: #dfe6ff;
+  --color-danger: #c62a2f;
+  --color-danger-strong: #a51f24;
+  --color-danger-soft: #fcebeb;
+  --color-danger-soft-hover: #f8d8d6;
+  --color-warning: #9c6204;
+  --color-warning-soft: #fcf1dc;
+  --color-success: #177a4a;
+  --color-success-soft: #e3f6ec;
 
-  /* Clay shadows — puffy dual drop (tight + wide) with a white top sheen
-     and a faint inner bottom edge for the molded look */
-  --shadow-clay-xs: 0 1px 2px rgba(40, 60, 100, 0.05), 0 4px 10px rgba(40, 60, 100, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 2px rgba(40, 60, 100, 0.05);
-  --shadow-clay: 0 1px 2px rgba(40, 60, 100, 0.06), 0 10px 22px rgba(40, 60, 100, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 4px rgba(40, 60, 100, 0.06);
-  --shadow-clay-lg: 0 2px 4px rgba(40, 60, 100, 0.08), 0 18px 40px rgba(40, 60, 100, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -2px 5px rgba(40, 60, 100, 0.07);
-  --shadow-clay-accent: 0 2px 4px rgba(82, 105, 239, 0.2), 0 10px 20px rgba(82, 105, 239, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(35, 50, 130, 0.25);
-  --shadow-clay-inset: inset 0 2px 5px rgba(40, 55, 90, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
-  --shadow-clay-inset-strong: inset 0 3px 7px rgba(40, 55, 90, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  /* One clay shadow recipe for both clients: navy-tinted three-layer lift
+     + lit top-left edge. `accent` embosses primary actions; `inset` molds
+     recessed wells; `floating` is the top elevation (overlays/sheets). */
+  --shadow-clay-xs: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 1px 2px rgba(27, 42, 68, 0.06),
+    0 2px 8px rgba(27, 42, 68, 0.05), inset 3px 3px 8px rgba(255, 255, 255, 0.9);
+  --shadow-clay: 0 0 0 1px rgba(27, 42, 68, 0.05), 0 2px 6px rgba(27, 42, 68, 0.06),
+    0 12px 28px rgba(27, 42, 68, 0.1), inset 3px 3px 8px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 8px rgba(27, 42, 68, 0.07);
+  --shadow-clay-lg: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 4px 10px rgba(27, 42, 68, 0.08),
+    0 20px 40px rgba(27, 42, 68, 0.14), inset 3px 3px 8px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 8px rgba(27, 42, 68, 0.07);
+  --shadow-clay-accent: 0 2px 4px rgba(47, 79, 216, 0.2), 0 10px 20px rgba(47, 79, 216, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(30, 45, 120, 0.25);
+  --shadow-clay-inset: inset 0 2px 5px rgba(27, 42, 68, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-clay-inset-strong: inset 0 3px 7px rgba(27, 42, 68, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-floating: 0 0 0 1px rgba(27, 42, 68, 0.06), 0 8px 16px rgba(27, 42, 68, 0.1),
+    0 28px 64px rgba(27, 42, 68, 0.18);
 
   /* Radii */
   --radius-clay: 20px;
   --radius-clay-sm: 12px;
+  --radius-clay-lg: 26px;
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  /* Type scale — 6 steps + the tracked micro-label (11px floor).
+     Replaces the 18-sizes ad-hoc `text-[Npx]` sprawl as files get touched. */
+  --text-display: 40px;
+  --text-display--line-height: 1.1;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-h2: 20px;
+  --text-h2--line-height: 1.3;
+  --text-h3: 16px;
+  --text-h3--line-height: 1.4;
+  --text-body: 14px;
+  --text-body--line-height: 1.55;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.45;
+  --text-micro: 11px;
+  --text-micro--line-height: 1.3;
+
+  /* The one hero-band gradient (focal cards) — never ad-hoc copies */
+  --hero-gradient: linear-gradient(135deg, var(--color-accent) 0%, #3d55d8 100%);
+
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Tracked micro-label — the system's label motif (eyebrows, field labels,
+   table headers). One class instead of ad-hoc `text-[9px] uppercase …`
+   strings; 11px is the UI text floor per the theme audit. */
+.label-micro {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 html,
