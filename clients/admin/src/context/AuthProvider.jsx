@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as api from "../lib/api";
 import { readStoredUser, writeStoredUser } from "../lib/sessionStorage";
 import { AuthContext } from "./AuthContext";
@@ -25,14 +26,22 @@ function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
   const [status, setStatus] = useState("checking");
   const [sessionMessage, setSessionMessage] = useState("");
+  const navigate = useNavigate();
 
-  const forgetSession = useCallback((message = "") => {
-    api.clearAccessToken();
-    writeStoredUser(null);
-    setUser(null);
-    setStatus("signedOut");
-    setSessionMessage(message);
-  }, []);
+  const forgetSession = useCallback(
+    (message = "") => {
+      api.clearAccessToken();
+      writeStoredUser(null);
+      setUser(null);
+      setStatus("signedOut");
+      setSessionMessage(message);
+      // A finished session always returns to "/" — keeping the old URL
+      // (e.g. /profile) would drop the next sign-in straight back onto the
+      // page the user just left.
+      navigate("/", { replace: true });
+    },
+    [navigate],
+  );
 
   // Any authenticated 401 from anywhere in the app ends the session here.
   useEffect(() => {
@@ -97,14 +106,20 @@ function AuthProvider({ children }) {
     setUser(nextUser);
   }, []);
 
-  const signIn = useCallback(async ({ email, password, keepLogin }) => {
-    const nextUser = await api.login({ email, password, keepLogin });
-    writeStoredUser(nextUser);
-    setUser(nextUser);
-    setSessionMessage("");
-    setStatus("signedIn");
-    return nextUser;
-  }, []);
+  const signIn = useCallback(
+    async ({ email, password, keepLogin }) => {
+      const nextUser = await api.login({ email, password, keepLogin });
+      writeStoredUser(nextUser);
+      setUser(nextUser);
+      setSessionMessage("");
+      setStatus("signedIn");
+      // Always land on the router's home entry ("/" then routes to the
+      // role's home screen) — never back on a deep-linked page.
+      navigate("/", { replace: true });
+      return nextUser;
+    },
+    [navigate],
+  );
 
   const signOut = useCallback(async () => {
     try {

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import useStays from "../../hooks/useStays";
@@ -14,6 +16,7 @@ import SectionHeader from "./SectionHeader";
 import useActivityStats from "../../hooks/useActivityStats";
 import { OccupancyLoading, OccupancyEmpty, OccupancyError } from "./OccupancyStates";
 import useOccupancyFacilities from "./useOccupancyFacilities";
+import ExportCheckInsModal from "./ExportCheckInsModal";
 
 /**
  * Occupancy — the staff operational dashboard: live occupancy numbers,
@@ -34,6 +37,8 @@ const OccupancyPage = () => {
 
   const { facilities, facilitiesLoading, facilityId, setFacilityId } = useOccupancyFacilities(isAdmin);
   const [ticketStay, setTicketStay] = useState(null); // successful check-in -> ticket
+  const [exportOpen, setExportOpen] = useState(false); // export dialog
+  const selectedFacility = facilities.find((facility) => facility.id === facilityId) ?? null;
   const { busy, run } = useAsyncAction();
 
   const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
@@ -91,10 +96,18 @@ const OccupancyPage = () => {
 
       {facilityId && !loading && !error && occupancy && (
         <div>
-          <SectionHeader
-            title="Occupancy overview"
-            caption="Live numbers for the selected facility"
-          />
+          {/* Overview band header + export entry point */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <SectionHeader
+              title="Occupancy overview"
+              caption="Live numbers for the selected facility"
+            />
+            {occupancy && (
+              <Button variant="neutral" size="sm" onClick={() => setExportOpen(true)}>
+                <Download size={12} strokeWidth={2} className="mr-1" /> Export data
+              </Button>
+            )}
+          </div>
           {/* Hero band: the occupancy hero beside the 2×2 metric wall */}
           <motion.div {...rise()} className="mt-3 grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
             <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
@@ -126,6 +139,16 @@ const OccupancyPage = () => {
       )}
 
       {ticketStay && <CheckInTicket stay={ticketStay} onClose={() => setTicketStay(null)} />}
+
+      {exportOpen && occupancy && (
+        <ExportCheckInsModal
+          stays={stays}
+          occupancy={occupancy}
+          facility={selectedFacility}
+          user={user}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
     </div>
   );
 };

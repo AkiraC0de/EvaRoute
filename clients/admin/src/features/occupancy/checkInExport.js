@@ -1,0 +1,209 @@
+/**
+ * Check-in exports — a printable PDF evacuee list and a raw CSV, generated
+ * entirely client-side from the stays the page already loaded (the stays
+ * endpoint returns the complete active list, so nothing is invented or
+ * fetched extra).
+ *
+ * PDF: official-looking report for "who is checked in" — facility header,
+ * a summary block that doubles as the meal count (adults / children /
+ * total), then one row per person. CSV: one row per person for spreadsheets
+ * (meal planning, relief packing, reconciliation).
+ */
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+import { checkInCode, splitMembers } from "./occupancyUtils";
+
+const CATEGORY_LABEL = { CHILD: "Child", ADULT: "Adult" };
+
+/** Spreadsheet-friendly timestamp: "2026-03-03 14:32" (local time). */
+const isoStamp = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    ` ${pad(date.getHours())}:${pad(date.getMinutes())}`
+  );
+};
+
+/** Readable timestamp for the PDF: "Mar 3, 2026, 2:32 PM". */
+const prettyStamp = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const slugify = (value) =>
+  String(value ?? "facility")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "facility";
+
+/** Roll order: by per-facility Check-In ID ("0001" first). */
+const sortedStays = (stays = []) =>
+  [...stays].sort((a, b) =>
+    String(a.checkInCode ?? "").localeCompare(String(b.checkInCode ?? ""), undefined, {
+      numeric: true,
+    }),
+  );
+
+/** Summary block — the meal count lives here. */
+export const buildSummary = (stays = []) => {
+  const totals = stays.reduce(
+    (acc, stay) => {
+      const { total, children, adults } = splitMembers(stay.members);
+      return {
+        households: acc.households + 1,
+        people: acc.people + total,
+        children: acc.children + children,
+        adults: acc.adults + adults,
+      };
+    },
+    { households: 0, people: 0, children: 0, adults: 0 },
+  );
+  return totals;
+};
+
+/** One row per person: [checkInCode, family, member, category, stamp]. */
+const personRows = (stays, stamp) =>
+  sortedStays(stays).flatMap((stay) =>
+    (stay.members ?? []).map((member) => [
+      checkInCode(stay),
+      stay.familyName,
+      member.fullName,
+      CATEGORY_LABEL[member.ageGroup] ?? member.ageGroup,
+      stamp(stay.checkedInAt),
+    ]),
+  );
+
+const fileStamp = () => isoStamp(new Date()).slice(0, 10);
+
+const downloadBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+};
+
+/* ------------------------------------------------------------------ *
+ * CSV — pure data, one row per person, BOM so Excel reads UTF-8.
+ * ------------------------------------------------------------------ */
+const csvCell = (value) => {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+};
+
+export const exportCheckInsCsv = ({ stays, facility }) => {
+  const headers = ["Check-in ID", "Family name", "Member name", "Category", "Checked in at"];
+  const rows = personRows(stays, isoStamp);
+  const lines = [headers, ...rows].map((row) => row.map(csvCell).join(","));
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const filename = `EvaRoute_${slugify(facility?.name)}_checkins_${fileStamp()}.csv`;
+  downloadBlob(blob, filename);
+  return filename;
+};
+
+/* ------------------------------------------------------------------ *
+ * PDF — the printable evacuee list.
+ * ------------------------------------------------------------------ */
+export const exportCheckInsPdf = ({ stays, facility, occupancy, user }) => {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const summary = buildSummary(stays);
+  const generatedAt = prettyStamp(new Date());
+  const generatedBy =
+    user && (user.firstName || user.lastName)
+      ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+      : user?.email ?? "—";
+
+  // Report header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("EvaRoute — Evacuation Center Operations", 40, 46);
+  doc.setFontSize(12);
+  doc.text("Checked-in Evacuee List", 40, 64);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(`Facility: ${facility?.name ?? "—"}`, 40, 82);
+  doc.text(`Address: ${facility?.address ?? "—"}`, 40, 95);
+  doc.text(`Generated: ${generatedAt}  ·  Generated by: ${generatedBy}`, 40, 108);
+
+  // Summary block — the "how many meals" answer sits above the names.
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text(
+    `${summary.households} household${summary.households === 1 ? "" : "s"}` +
+      `  ·  ${summary.adults} adult${summary.adults === 1 ? "" : "s"}` +
+      `  ·  ${summary.children} child${summary.children === 1 ? "" : "ren"}` +
+      `  ·  ${summary.people} total people`,
+    40,
+    128,
+  );
+  if (occupancy) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(
+      `Capacity ${occupancy.maxCapacity}  ·  ${occupancy.remaining} places remaining`,
+      40,
+      142,
+    );
+  }
+
+  // The roll table — one row per person, grouped by household via the
+  // Check-In ID column.
+  autoTable(doc, {
+    startY: occupancy ? 156 : 142,
+    head: [["No.", "Check-in ID", "Family name", "Member name", "Category", "Checked in at"]],
+    body: personRows(stays, prettyStamp).map((row, index) => [index + 1, ...row]),
+    theme: "striped",
+    styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
+    headStyles: { fillColor: [82, 105, 239], textColor: 255, fontStyle: "bold" },
+    alternateRowStyles: { fillColor: [246, 248, 252] },
+    columnStyles: {
+      0: { cellWidth: 28 },
+      1: { cellWidth: 64, font: "courier" },
+      5: { cellWidth: 96 },
+    },
+  });
+
+  // Totals row under the table.
+  const endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 18 : 0;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text(
+    `Total: ${summary.households} households  ·  ${summary.people} people` +
+      ` (${summary.adults} adults · ${summary.children} children)`,
+    40,
+    endY,
+  );
+
+  // Page footers.
+  const pages = doc.internal.getNumberOfPages();
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  for (let page = 1; page <= pages; page += 1) {
+    doc.setPage(page);
+    doc.text(
+      `EvaRoute · ${facility?.name ?? ""} · ${fileStamp()} · Page ${page} of ${pages}`,
+      40,
+      doc.internal.pageSize.getHeight() - 24,
+    );
+  }
+
+  const filename = `EvaRoute_${slugify(facility?.name)}_checkins_${fileStamp()}.pdf`;
+  doc.save(filename);
+  return filename;
+};

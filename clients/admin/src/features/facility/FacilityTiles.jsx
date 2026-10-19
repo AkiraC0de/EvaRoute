@@ -46,15 +46,17 @@ const FacilityTiles = ({
           key={label}
           className="flex h-full flex-col gap-2 rounded-clay bg-surface p-3.5 shadow-clay-xs"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
-          >
-            <Icon size={15} strokeWidth={1.9} />
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 items-center gap-20 justify-center rounded-clay-sm bg-accent-soft text-accent"
+            >
+              <Icon size={15} strokeWidth={1.9} />
+            </span>
+            <p className="w-50 text-[11px] font-bold text-ink-soft">{label}</p>
+          </div>
           <div className="mt-auto min-w-0">
             <p className="text-[22px] font-bold leading-none text-ink">{value}</p>
-            <p className="mt-1.5 text-[11px] font-semibold text-ink-soft">{label}</p>
             <p className="mt-0.5 text-[10px] text-muted">{caption}</p>
           </div>
         </div>
