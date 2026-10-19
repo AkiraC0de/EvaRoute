@@ -1,4 +1,4 @@
-import { passResetSchema, signOutAllSchema, verifyResetPassSchema, changePasswordSchema } from './../validations/auth.validations.js'
+import { passResetSchema, signOutAllSchema, verifyResetPassSchema, changePasswordSchema, accountSetupSchema } from './../validations/auth.validations.js'
 import {Request, Response } from "express"
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
@@ -303,6 +303,39 @@ export const handleSignOutAllDevices = async (req: Request, res: Response) => {
   await refreshTokenService.deleteAllByUserId(userId)
   await logActivity(req, ActivityAction.AUTH_SIGN_OUT_ALL)
   return new SuccessMsgResponse("Signed out from all other devices.").send(res)
+}
+
+// First-time account setup (ADMIN + FACILITY_STAFF): staff accounts are
+// created with only email + password, so the signed-in user completes their
+// name here once. Flips `isSetupDone`; returns the same user shape as
+// login/refresh so the client can replace its stored identity.
+export const handleAccountSetup = async (req: Request, res: Response) => {
+  const { userId } = requireAuth(req)
+  const { firstName, lastName } = validateData<typeof accountSetupSchema>(accountSetupSchema, req.body)
+
+  const user = await userService.findById(userId)
+  if (!user) {
+    throw new NotFoundError("User not found.")
+  }
+
+  const updatedUser = await userService.update(userId, {
+    firstName,
+    lastName,
+    isSetupDone: true
+  })
+
+  return new SuccessResponse(
+    "Account setup completed.",
+    {
+      user: {
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        isSetupDone: updatedUser.isSetupDone
+      }
+    }
+  ).send(res)
 }
 
 // Change the signed-in user's password. Proves identity with the CURRENT

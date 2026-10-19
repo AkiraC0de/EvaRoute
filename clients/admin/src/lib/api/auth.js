@@ -126,3 +126,17 @@ export async function changePassword(currentPassword, newPassword) {
     body: { currentPassword, newPassword },
   });
 }
+
+/**
+ * POST /api/v1/auth/account-setup  (authenticated; ADMIN + FACILITY_STAFF).
+ * Body: { firstName, lastName } — the one-time first-run profile setup for
+ * accounts created with only email + password. Flips `isSetupDone` to true.
+ * Response data: { user: { email, firstName, lastName, role, isSetupDone } }.
+ */
+export async function completeAccountSetup({ firstName, lastName }) {
+  const { data } = await request("/auth/account-setup", {
+    method: "POST",
+    body: { firstName, lastName },
+  });
+  return data.user;
+}

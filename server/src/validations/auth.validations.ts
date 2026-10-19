@@ -66,3 +66,18 @@ export const changePasswordSchema = z
     message: "New password must be different from the current one.",
     path: ["newPassword"],
   })
+
+// First-time account setup: staff accounts are created with only email +
+// password, so the signed-in user supplies their name here once.
+export const accountSetupSchema = z.object({
+  firstName: z
+    .string("First name is required.")
+    .trim()
+    .min(1, "First name is required.")
+    .max(50, "First name cannot exceed 50 characters."),
+  lastName: z
+    .string("Last name is required.")
+    .trim()
+    .min(1, "Last name is required.")
+    .max(50, "Last name cannot exceed 50 characters."),
+})

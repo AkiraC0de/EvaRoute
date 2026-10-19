@@ -2,11 +2,12 @@ import express from "express"
 
 import { TokenType, UserRole } from "../../generated/prisma/index.js"
 
-import { 
+import {
   handleLogin,
   handlePassReqReset,
   handlePassReset,
   handleChangePassword,
+  handleAccountSetup,
   handleVerifyResetPass,
   handleRefresh,
   handleSignOutAllDevices,
@@ -28,6 +29,9 @@ authRoute.post("/password/reset", verifyToken(TokenType.RESET_PASS), handlePassR
 
 // Change the signed-in user's password (ADMIN + FACILITY_STAFF)
 authRoute.post("/password/change", verifyAuthentication, handleChangePassword)
+
+// First-time account setup — completes the user's name (ADMIN + FACILITY_STAFF)
+authRoute.post("/account-setup", verifyAuthentication, handleAccountSetup)
 
 authRoute.get("/refresh", handleRefresh) 
 

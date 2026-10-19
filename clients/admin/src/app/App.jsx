@@ -1,5 +1,6 @@
 import AppRoutes from "./routes";
 import LoginPage from "../features/auth/LoginPage";
+import AccountSetupGate from "../features/account-setup/AccountSetupGate";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -7,7 +8,9 @@ import { useAuth } from "../context/AuthContext";
  *
  *   status "checking"  -> centered loading spinner
  *   status "signedOut" -> sign-in screen
- *   status "signedIn"  -> the authenticated portal (AppRoutes + AppShell)
+ *   status "signedIn"  -> the authenticated portal (AppRoutes + AppShell),
+ *                        with a blocking first-run setup modal when the
+ *                        account has `isSetupDone: false`
  *
  * Every staff API route sits behind verifyAuthentication, so the portal
  * cannot show real data without a signed-in session.
@@ -31,7 +34,12 @@ function App() {
     return <LoginPage />;
   }
 
-  return <AppRoutes />;
+  return (
+    <>
+      <AppRoutes />
+      <AccountSetupGate />
+    </>
+  );
 }
 
 export default App;

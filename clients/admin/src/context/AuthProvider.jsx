@@ -92,6 +92,11 @@ function AuthProvider({ children }) {
     };
   }, [forgetSession]);
 
+  const updateUser = useCallback((nextUser) => {
+    writeStoredUser(nextUser);
+    setUser(nextUser);
+  }, []);
+
   const signIn = useCallback(async ({ email, password, keepLogin }) => {
     const nextUser = await api.login({ email, password, keepLogin });
     writeStoredUser(nextUser);
@@ -115,8 +120,8 @@ function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, status, sessionMessage, signIn, signOut, signOutEverywhere }),
-    [user, status, sessionMessage, signIn, signOut, signOutEverywhere],
+    () => ({ user, status, sessionMessage, signIn, signOut, signOutEverywhere, updateUser }),
+    [user, status, sessionMessage, signIn, signOut, signOutEverywhere, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -6,18 +6,27 @@ import * as Dialog from "@radix-ui/react-dialog";
  * children }` — but now built on Radix Dialog: focus trap, Escape to close,
  * scroll lock, and proper dialog semantics come for free.
  *
+ * `dismissible = false` makes it blocking (no ✕, Escape/outside clicks are
+ * ignored) — for flows the user must complete, like first-run account setup.
+ *
  * Styled with the clay design tokens (raised surface, soft overlay).
  */
-const Modal = ({ title, onClose, children, size = "md" }) => (
+const Modal = ({ title, onClose, children, size = "md", dismissible = true }) => (
   <Dialog.Root
     open
     onOpenChange={(open) => {
-      if (!open) onClose();
+      if (!open && dismissible) onClose();
     }}
   >
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 z-[60] bg-[#273556]/40" />
       <Dialog.Content
+        onEscapeKeyDown={(event) => {
+          if (!dismissible) event.preventDefault();
+        }}
+        onInteractOutside={(event) => {
+          if (!dismissible) event.preventDefault();
+        }}
         className={`fixed left-1/2 top-1/2 z-[61] max-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] ${
           size === "lg" ? "max-w-4xl" : "max-w-[420px]"
         } -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-clay bg-surface p-5 shadow-clay-lg`}
@@ -26,15 +35,17 @@ const Modal = ({ title, onClose, children, size = "md" }) => (
           <Dialog.Title asChild>
             <h2 className="text-[15px] font-bold text-ink">{title}</h2>
           </Dialog.Title>
-          <Dialog.Close asChild>
-            <button
-              type="button"
-              aria-label="Close"
-              className="flex h-7 w-7 items-center justify-center rounded-clay-sm text-muted transition hover:bg-sunken hover:text-ink-soft"
-            >
-              ✕
-            </button>
-          </Dialog.Close>
+          {dismissible && (
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                aria-label="Close"
+                className="flex h-7 w-7 items-center justify-center rounded-clay-sm text-muted transition hover:bg-sunken hover:text-ink-soft"
+              >
+                ✕
+              </button>
+            </Dialog.Close>
+          )}
         </div>
         {children}
       </Dialog.Content>
