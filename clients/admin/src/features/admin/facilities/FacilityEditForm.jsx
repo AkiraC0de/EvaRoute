@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Card from "../../../components/ui/Card";
@@ -10,27 +11,40 @@ import useAsyncAction from "../../../hooks/useAsyncAction";
 import * as api from "../../../lib/api";
 
 /**
- * Facility edit form (PATCH /facility/:facilityId). Mirrors
+ * Facility details card (PATCH /facility/:facilityId). Mirrors
  * `patchFacilitySchema` — name, address, note, maxCapacity, status, lat/lng.
- * On success the parent gets the persisted record back and re-renders.
+ *
+ * VIEW / EDIT modes: the card opens read-only (fields inert, map inert) and
+ * only becomes editable after the operator clicks "Edit" — so a stray map
+ * click or drag can never silently change the stored location. While
+ * editing, "Cancel" discards the draft and "Save changes" persists and
+ * returns to view mode.
  *
  * Field widths are proportional to what the field holds, not equal thirds:
  * name and note are long text (8/12), address is the longest (12/12), while
  * max capacity (a number) and status (a short enum) stay compact (4/12).
  */
+const makeDraft = (facility) => ({
+  name: facility.name,
+  address: facility.address,
+  note: facility.note ?? "",
+  maxCapacity: String(facility.maxCapacity),
+  status: facility.status,
+  latitude: String(facility.latitude),
+  longitude: String(facility.longitude),
+});
+
 const FacilityEditForm = ({ facility, onSaved }) => {
   const { busy, error, run } = useAsyncAction();
-  const [draft, setDraft] = useState({
-    name: facility.name,
-    address: facility.address,
-    note: facility.note ?? "",
-    maxCapacity: String(facility.maxCapacity),
-    status: facility.status,
-    latitude: String(facility.latitude),
-    longitude: String(facility.longitude),
-  });
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(() => makeDraft(facility));
 
   const update = (patch) => setDraft((current) => ({ ...current, ...patch }));
+
+  const cancelEdit = () => {
+    setDraft(makeDraft(facility));
+    setEditing(false);
+  };
 
   const submit = () =>
     run(async () => {
@@ -44,11 +58,19 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         longitude: Number(draft.longitude),
       });
       onSaved(saved);
+      setEditing(false);
     });
 
   return (
-    <Card as="form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-      <h2 className="mb-3 text-[13px] font-bold text-ink-soft">Facility details</h2>
+    <Card as="form" onSubmit={(event) => { event.preventDefault(); if (editing) submit(); }}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-[13px] font-bold text-ink-soft">Facility details</h2>
+        {!editing && (
+          <Button type="button" variant="neutral" size="sm" onClick={() => setEditing(true)}>
+            <Pencil size={12} strokeWidth={2} className="mr-1" /> Edit
+          </Button>
+        )}
+      </div>
 
       {/* Row 1 — identity: two long-text fields */}
       <div className="grid gap-3 sm:grid-cols-2">
@@ -56,6 +78,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <TextField
             label="Name"
             value={draft.name}
+            readOnly={!editing}
             onChange={(event) => update({ name: event.target.value })}
           />
         </div>
@@ -64,6 +87,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <TextField
             label="Address"
             value={draft.address}
+            readOnly={!editing}
             onChange={(event) => update({ address: event.target.value })}
           />
         </div>
@@ -79,6 +103,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
             min="1"
             step="1"
             value={draft.maxCapacity}
+            readOnly={!editing}
             onChange={(event) => update({ maxCapacity: event.target.value })}
           />
         </div>
@@ -87,6 +112,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <SelectField
             label="Status"
             value={draft.status}
+            disabled={!editing}
             onChange={(event) => update({ status: event.target.value })}
           >
             <option value="AVAILABLE">Available</option>
@@ -98,6 +124,7 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           <TextField
             label="Note"
             value={draft.note}
+            readOnly={!editing}
             onChange={(event) => update({ note: event.target.value })}
             placeholder="e.g. Access instructions, operating hours…"
           />
@@ -110,10 +137,12 @@ const FacilityEditForm = ({ facility, onSaved }) => {
           value={toCoords(draft.latitude, draft.longitude)}
           onChange={({ latitude, longitude }) => update({ latitude, longitude })}
           height={240}
+          disabled={!editing}
         />
         <p className="mt-1 text-[11px] text-muted">
           {formatCoords(draft.latitude, draft.longitude) ||
             "No location set — click the map to place the marker."}
+          {!editing && " · Click Edit above to move the marker."}
         </p>
       </div>
 
@@ -123,11 +152,26 @@ const FacilityEditForm = ({ facility, onSaved }) => {
         </div>
       )}
 
-      <div className="w-full text-end">
-        <Button type="submit" disabled={busy} size="sm" className="mt-4">
-          {busy ? "Saving…" : "Save changes"}
-        </Button>
-      </div>
+      {editing ? (
+        <div className="mt-4 flex w-full items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="neutral"
+            size="sm"
+            onClick={cancelEdit}
+            disabled={busy}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={busy} size="sm">
+            {busy ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-4 text-[11px] text-muted">
+          View only — click Edit to change the details or the map location.
+        </p>
+      )}
     </Card>
   );
 };

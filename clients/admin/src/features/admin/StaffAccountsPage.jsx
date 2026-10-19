@@ -8,10 +8,11 @@ import GeneratedPasswordModal from "./GeneratedPasswordModal";
 import useStaffAccounts from "./staff/useStaffAccounts";
 import StaffHeader from "./staff/StaffHeader";
 import StaffToolbar from "./staff/StaffToolbar";
-import StaffTable from "./staff/StaffTable";
+import StaffCardGrid from "./staff/StaffCardGrid";
 import { StaffLoading, StaffEmpty } from "./staff/StaffStates";
 import CreateStaffDialog from "./staff/CreateStaffDialog";
 import EditStaffNameDialog from "./staff/EditStaffNameDialog";
+import AssignFacilityDialog from "./staff/AssignFacilityDialog";
 import StaffConfirmDialog from "./staff/StaffConfirmDialog";
 
 /**
@@ -38,6 +39,9 @@ const StaffAccountsPage = () => {
   const [editDraft, setEditDraft] = useState({ firstName: "", lastName: "" });
   const [confirmAction, setConfirmAction] = useState(null); // { type, staff }
   const [generated, setGenerated] = useState(null); // { title, email, password }
+  const [assigning, setAssigning] = useState(null); // staff being (re)assigned
+  const [assignFacilityId, setAssignFacilityId] = useState("");
+  const [assignFacilities, setAssignFacilities] = useState([]);
 
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
@@ -81,9 +85,30 @@ const StaffAccountsPage = () => {
       retry();
     });
 
+  // Assign / reassign: the server transfers the staff when they already
+  // belong to another facility (ASSIGN_STAFF, ADMIN). The facility list is
+  // fetched when the dialog opens so the picker is always current.
+  const openAssign = (staff) => {
+    setActionError("");
+    setAssigning(staff);
+    setAssignFacilityId("");
+    setAssignFacilities([]);
+    api
+      .listFacilities()
+      .then((rows) => setAssignFacilities(rows))
+      .catch(() => setAssignFacilities([]));
+  };
+
+  const submitAssign = () =>
+    run(async () => {
+      await api.assignFacilityStaff(assignFacilityId, assigning.id);
+      setAssigning(null);
+      retry();
+    });
+
   return (
     <div>
-      <StaffHeader onCreate={() => setCreating(true)} />
+      <StaffHeader onCreate={() => setCreating(true)} count={visible.length} />
 
       <StaffToolbar
         filters={filters}
@@ -111,7 +136,7 @@ const StaffAccountsPage = () => {
       {!loading && !error && visible.length === 0 && <StaffEmpty />}
 
       {!loading && !error && visible.length > 0 && (
-        <StaffTable
+        <StaffCardGrid
           staffs={visible}
           currentEmail={me?.email}
           onEdit={(staff) => {
@@ -121,6 +146,7 @@ const StaffAccountsPage = () => {
               lastName: staff.lastName ?? "",
             });
           }}
+          onAssign={openAssign}
           onAction={(type, staff) => {
             setActionError("");
             setConfirmAction({ type, staff });
@@ -144,6 +170,18 @@ const StaffAccountsPage = () => {
           onDraftChange={(draft) => setEditDraft(draft)}
           onSubmit={saveEdit}
           onClose={() => setEditing(null)}
+          busy={busy}
+        />
+      )}
+
+      {assigning && (
+        <AssignFacilityDialog
+          staff={assigning}
+          facilities={assignFacilities}
+          value={assignFacilityId}
+          onChange={(event) => setAssignFacilityId(event.target.value)}
+          onSubmit={submitAssign}
+          onClose={() => setAssigning(null)}
           busy={busy}
         />
       )}

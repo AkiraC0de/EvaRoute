@@ -10,6 +10,7 @@ import FacilityPicker from "./FacilityPicker";
 import OccupancyGrid from "./OccupancyGrid";
 import OccupancyMeter from "./OccupancyMeter";
 import OccupancySummary from "./OccupancySummary";
+import SectionHeader from "./SectionHeader";
 import useActivityStats from "../../hooks/useActivityStats";
 import { OccupancyLoading, OccupancyEmpty, OccupancyError } from "./OccupancyStates";
 import useOccupancyFacilities from "./useOccupancyFacilities";
@@ -89,15 +90,24 @@ const OccupancyPage = () => {
       {facilityId && error && <OccupancyError error={error} onRetry={retry} />}
 
       {facilityId && !loading && !error && occupancy && (
-        <div className="space-y-4">
+        <div>
+          <SectionHeader
+            title="Occupancy overview"
+            caption="Live numbers for the selected facility"
+          />
           {/* Hero band: the occupancy hero beside the 2×2 metric wall */}
-          <motion.div {...rise()} className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
+          <motion.div {...rise()} className="mt-3 grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
             <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
             <OccupancySummary occupancy={occupancy} />
           </motion.div>
 
-          {/* Operational band: check-in form + movement trail | households */}
-          <motion.div {...rise(0.08)}>
+          {/* Separator + operations heading, then the operational band */}
+          <SectionHeader
+            top
+            title="Occupancy operations"
+            caption="Check evacuees in and out and manage households"
+          />
+          <motion.div {...rise(0.08)} className="mt-3">
             <OccupancyGrid
               facilityId={facilityId}
               occupancy={occupancy}

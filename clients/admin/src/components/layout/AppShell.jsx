@@ -5,7 +5,9 @@ import Sidebar from "./Sidebar";
 
 /**
  * Authenticated application shell: shared sidebar + content area on the clay
- * canvas. On mobile the navigation moves to a floating bottom bar
+ * canvas. Page content is capped at 1280px and centered inside the content
+ * area so pages never stretch on wide screens (the canvas still spans the
+ * full width). On mobile the navigation moves to a floating bottom bar
  * (MobileBottomNav) and the content reserves bottom space so the bar never
  * covers it. Route changes play a short fade/slide which is disabled when the
  * user prefers reduced motion.
@@ -27,6 +29,7 @@ const AppShell = () => {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
+            className="mx-auto w-full max-w-[1280px]"
             initial={reduceMotion ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}

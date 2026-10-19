@@ -9,6 +9,7 @@ import StatusPanel from "../../components/ui/StatusPanel";
 const OccupancyLoading = () => (
   <div role="status" aria-label="Loading occupancy" className="space-y-4">
     {/* Hero band: occupancy hero + 2×2 metric wall */}
+    <Skeleton className="h-3 w-44" />
     <div className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
       <div className="rounded-clay bg-surface p-5 shadow-clay">
         <Skeleton className="h-3 w-36" />
@@ -24,6 +25,9 @@ const OccupancyLoading = () => (
     </div>
 
     {/* Operational band: household list | form + movement */}
+    <div className="border-t border-line pt-4">
+      <Skeleton className="h-3 w-40" />
+    </div>
     <div className="grid items-start gap-4 lg:grid-cols-[1.45fr_1fr]">
       <div className="order-2 space-y-4 lg:order-1">
         <div className="rounded-clay bg-surface p-4 shadow-clay">

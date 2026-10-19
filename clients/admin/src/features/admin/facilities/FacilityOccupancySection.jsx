@@ -1,8 +1,8 @@
 import CheckInForm from "../../occupancy/CheckInForm";
-import HouseholdList from "../../occupancy/HouseholdList";
+import CheckInsList from "../../occupancy/CheckInsList";
 import DetailSection from "./DetailSection";
 
-/** Checked-in evacuees — occupancy line, check-in form beside the household list. */
+/** Checked-in evacuees — occupancy line, check-in form beside the check-ins list. */
 const FacilityOccupancySection = ({ occupancy, stays, busy, onCheckIn, onCheckOut }) => (
   <DetailSection title="Checked-in evacuees">
     {occupancy && (
@@ -16,7 +16,7 @@ const FacilityOccupancySection = ({ occupancy, stays, busy, onCheckIn, onCheckOu
         remaining={occupancy?.remaining ?? 0}
         onCheckIn={onCheckIn}
       />
-      <HouseholdList
+      <CheckInsList
         stays={stays}
         busy={busy}
         onCheckOut={onCheckOut}

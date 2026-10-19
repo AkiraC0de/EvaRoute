@@ -53,6 +53,28 @@ export const stayMatchesSearch = (stay, needle) => {
   );
 };
 
+/** Flatten active stays into person rows for the individual view:
+ *  [{ member, stay }] in stay order, member order within each stay. */
+export const flattenMembers = (stays = []) =>
+  stays.flatMap((stay) =>
+    (stay.members ?? []).map((member) => ({ member, stay })),
+  );
+
+/**
+ * Individual lookup: the person's name (partial, case-insensitive), or the
+ * family name, or the Check-In ID — so a person can be found from whichever
+ * detail the operator knows.
+ */
+export const memberMatchesSearch = (entry, needle) => {
+  const q = needle.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    entry.member.fullName.toLowerCase().includes(q) ||
+    entry.stay.familyName.toLowerCase().includes(q) ||
+    normalizeCode(entry.stay.checkInCode).includes(normalizeCode(q))
+  );
+};
+
 /** Short, readable check-in timestamp: "Oct 15, 2:32 PM". */
 export const formatCheckedInAt = (value) => {
   const date = new Date(value);
