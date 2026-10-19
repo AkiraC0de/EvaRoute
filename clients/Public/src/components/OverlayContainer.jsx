@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { useRef } from 'react';
+import { motion, useDragControls } from 'motion/react';
 import DragHandle from './ui/DragHandle';
 import { motionTokens } from '../lib/motion';
 
@@ -48,11 +49,52 @@ export default function OverlayContainer({
   const isMobileExpanded = expanded && mobileExpanded;
   const isCollapsedRouteCard = variant === 'route-card' && !isMobileExpanded;
 
+  /* Sheet drag gestures (mobile): swipe DOWN from the expanded sheet to
+     collapse it, swipe UP from the collapsed bar to expand it. The drag
+     starts only from the grip bar / collapsed bar (dragListener={false} +
+     dragControls), so scrolling the sheet's content never fights the
+     gesture. A tap still toggles — the capture guard swallows the click
+     that follows a drag so one gesture can't toggle twice. */
+  const dragControls = useDragControls();
+  const lastDragAtRef = useRef(0);
+
+  const handleDragStart = (event) => {
+    dragControls.start(event);
+  };
+
+  const handleDragEnd = (event, info) => {
+    const moved = Math.abs(info.offset.y) > 8 || Math.abs(info.velocity.y) > 300;
+    // A drag that ends by momentum can skip the trailing click entirely, so
+    // the guard is a TIME WINDOW after the drag, not a flag — a stale flag
+    // would swallow the next, unrelated tap.
+    if (moved) lastDragAtRef.current = Date.now();
+    if (!isMobileExpanded) {
+      if (info.offset.y < -40 || info.velocity.y < -500) onMobileToggle?.();
+      return;
+    }
+    if (info.offset.y > 60 || info.velocity.y > 500) onMobileToggle?.();
+  };
+
+  const swallowClickIfDragged = (event) => {
+    if (Date.now() - lastDragAtRef.current < 400) {
+      lastDragAtRef.current = 0;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
   return (
     <>
       {/* ── Mobile: bottom sheet ── */}
       <motion.div
         {...sheetMotion}
+        drag="y"
+        dragControls={dragControls}
+        dragListener={false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.3}
+        dragMomentum={false}
+        onDragEnd={handleDragEnd}
         data-variant={variant}
         data-mobile-expanded={isMobileExpanded}
         className={[
@@ -83,6 +125,9 @@ export default function OverlayContainer({
               <button
                 type="button"
                 className="focus-ring flex h-11 w-full items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
+                style={{ touchAction: 'none' }}
+                onPointerDown={handleDragStart}
+                onClickCapture={swallowClickIfDragged}
                 onClick={onMobileToggle}
                 aria-label="Collapse panel"
                 aria-expanded="true"
@@ -92,7 +137,16 @@ export default function OverlayContainer({
             )}
             <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
           </div>
-          {!isMobileExpanded && collapsedContent ? collapsedContent : null}
+          {!isMobileExpanded && collapsedContent ? (
+            <div
+              className="flex w-full flex-col items-center"
+              style={{ touchAction: 'none' }}
+              onPointerDown={handleDragStart}
+              onClickCapture={swallowClickIfDragged}
+            >
+              {collapsedContent}
+            </div>
+          ) : null}
         </div>
       </motion.div>
 

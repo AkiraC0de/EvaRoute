@@ -1,6 +1,7 @@
 /**
- * DragHandle — the grip pill at the top of a mobile bottom sheet.
- * Visual indicator only; drag behaviour is deferred.
+ * DragHandle — the grip pill at the top of a mobile bottom sheet. Purely
+ * visual: the drag gesture itself lives in OverlayContainer (swipe down to
+ * collapse, swipe up to expand; tap still toggles).
  */
 export default function DragHandle({ className = '' }) {
   return (
