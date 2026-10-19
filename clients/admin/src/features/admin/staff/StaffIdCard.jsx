@@ -6,51 +6,6 @@ import {
   Trash2,
 } from "lucide-react";
 
-/**
- * Helpers that give the card its printed-credential details:
- * mrzFill / joinedYear build the passport-style machine-readable zone;
- * verificationCells renders a deterministic pseudo-QR mark (same staff →
- * same matrix) with QR-style finder rings at three corners.
- */
-const mrzFill = (text, len = 30) =>
-  text
-    .toUpperCase()
-    .replace(/\s+/g, "<")
-    .padEnd(len, "<")
-    .slice(0, len);
-
-const joinedYear = (date) =>
-  Number.isNaN(date.getTime()) ? "----" : date.getFullYear();
-
-function verificationCells(seedStr) {
-  let h = 2166136261;
-  for (let i = 0; i < seedStr.length; i += 1) {
-    h ^= seedStr.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  const cells = [];
-  for (let i = 0; i < 49; i += 1) {
-    h = Math.imul(h ^ (h >>> 15), 2246822507);
-    h = Math.imul(h ^ (h >>> 13), 3266489909);
-    cells.push(((h >>> 9) & 7) > 3);
-  }
-  const finderRing = (r, c) => {
-    for (let dr = -1; dr <= 1; dr += 1) {
-      for (let dc = -1; dc <= 1; dc += 1) {
-        const rr = r + dr;
-        const cc = c + dc;
-        if (rr < 0 || cc < 0 || rr > 6 || cc > 6) continue;
-        const isEdge = Math.abs(dr) === 1 || Math.abs(dc) === 1;
-        cells[rr * 7 + cc] = isEdge || (dr === 0 && dc === 0);
-      }
-    }
-  };
-  finderRing(0, 0);
-  finderRing(0, 6);
-  finderRing(6, 0);
-  return cells;
-}
-
 
 const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
   const fullName =
@@ -71,13 +26,6 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
     ? "—"
     : joined.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
   const memberId = `ID-${String(staff.id ?? "").slice(0, 8).toUpperCase()}`;
-  const mrzLine1 = mrzFill(
-    `ID<EVROUTE<STAFF<<${staff.lastName || "UNNAMED"}<<${staff.firstName || ""}`,
-  );
-  const mrzLine2 = mrzFill(
-    `${String(staff.id ?? "").slice(0, 8)}<${staff.isActive ? "ACTIVE" : "INACTIVE"}<${joinedYear(joined)}<${staff.facility ? staff.facility.name : "UNASSIGNED"}`,
-  );
-  const verifyCells = verificationCells(`${staff.id ?? ""}${staff.email ?? ""}`);
 
   return (
     <article className="flex flex-col overflow-hidden rounded-clay bg-surface shadow-clay">
@@ -120,7 +68,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
       >
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -right-5 bottom-8 -rotate-12 select-none text-[44px] font-bold tracking-[2px] text-accent/5"
+          className="pointer-events-none absolute right-5 bottom-8 -rotate-12 select-none text-[44px] font-bold tracking-[2px] text-accent/5"
         >
           EVAROUTE
         </span>
@@ -186,44 +134,6 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
             </dd>
           </div>
         </dl>
-
-        {/* Verification strip — deterministic pseudo-QR mark + authorized
-            signature line, the two details that sell a printed credential. */}
-        <div className="relative z-10 mt-3.5 flex items-end justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div
-              aria-hidden="true"
-              className="grid h-[52px] w-[52px] grid-cols-7 grid-rows-7 gap-px rounded-[3px] bg-ink p-[3px]"
-            >
-              {verifyCells.map((on, index) => (
-                <span key={index} className={on ? "bg-white" : "bg-transparent"} />
-              ))}
-            </div>
-            <div>
-              <p className="text-[8px] font-semibold uppercase tracking-[1px] text-muted-dim">
-                Verified staff
-              </p>
-              <p className="mt-1 font-mono text-[9px] tracking-[0.5px] text-muted">{memberId}</p>
-            </div>
-          </div>
-          <div className="min-w-0 text-right">
-            <p className="font-serif text-[13px] italic text-ink-soft">EvaRoute Operations</p>
-            <p className="mt-1 border-t border-line pt-1 text-[8px] font-semibold uppercase tracking-[1px] text-muted-dim">
-              Authorized signature
-            </p>
-          </div>
-        </div>
-
-        {/* Machine-readable zone — passport-style monospace strip; the
-            line is derived from the real record (id, status, year, facility). */}
-        <div className="relative z-10 mt-3.5 overflow-hidden rounded-clay-xs bg-sunken px-3 py-2 shadow-clay-inset">
-          <p className="truncate font-mono text-[8.5px] leading-[1.6] tracking-[1.2px] text-ink-soft/80">
-            {mrzLine1}
-          </p>
-          <p className="truncate font-mono text-[8.5px] leading-[1.6] tracking-[1.2px] text-ink-soft/80">
-            {mrzLine2}
-          </p>
-        </div>
       </div>
 
       {/* Action footer — icon buttons only (44px targets, each labelled).

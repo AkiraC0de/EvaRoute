@@ -11,9 +11,9 @@ import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
 import FacilityDetailHeader from "./FacilityDetailHeader";
 import FacilityResourcesSection from "./FacilityResourcesSection";
-import FacilityOccupancySection from "./FacilityOccupancySection";
 import FacilityActivitySection from "./FacilityActivitySection";
 import { FacilityDetailLoading } from "./FacilitiesStates";
+import CheckInsList from "../../occupancy/CheckInsList";
 
 /**
  * Facility detail (ADMIN): edit form (+ status), staff assignment, resources,
@@ -41,7 +41,7 @@ const FacilityDetailPage = () => {
     removeResource,
   } = useFacilityResources(facilityId);
 
-  const { stays, occupancy, checkIn, checkOut } = useStays(facilityId);
+  const { stays, checkIn } = useStays(facilityId);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,17 +135,16 @@ const FacilityDetailPage = () => {
             removeResource={removeResource}
           />
 
-          <FacilityOccupancySection
-            occupancy={occupancy}
-            stays={stays}
-            busy={busy}
-            onCheckIn={async (payload) => {
-              await run(() => checkIn(payload));
-            }}
-            onCheckOut={(stay) => run(() => checkOut(stay.id))}
-          />
-
-          <FacilityActivitySection facilityId={facilityId} />
+          <div className="flex gap-4">
+            <CheckInsList
+              stays={stays}
+              busy={busy}
+              onCheckOut={async (payload) => {
+                await run(() => checkIn(payload));
+              }}
+            />
+            <FacilityActivitySection facilityId={facilityId} />
+          </div>
         </div>
       )}
 

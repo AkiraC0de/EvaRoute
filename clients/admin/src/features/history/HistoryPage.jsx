@@ -1,10 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { hasRole, ROLES } from "../../app/roles";
 import { listFacilities } from "../../lib/api";
-import useAsyncAction from "../../hooks/useAsyncAction";
 import PagedActivityFeed from "../activity/PagedActivityFeed";
 import HistoryFilterBar from "./HistoryFilterBar";
 import useDebouncedSearch from "./useDebouncedSearch";
@@ -23,11 +22,25 @@ export default function HistoryPage() {
   const { value: searchInput, debounced: search, setValue: setSearchInput } = useDebouncedSearch();
 
   // Facility options only matter for admins (staff scope is server-enforced).
-  const facilitiesState = useAsyncAction(async () => {
-    if (!admin) return [];
-    return listFacilities();
+  // Fetched like the other feature hooks — useAsyncAction is a MUTATION
+  // wrapper and never loads anything (it left this dropdown permanently
+  // empty). State is set in the promise callbacks, not the effect body.
+  const [facilities, setFacilities] = useState([]);
+  useEffect(() => {
+    if (!admin) return undefined;
+    let cancelled = false;
+    listFacilities()
+      .then((rows) => {
+        if (!cancelled) setFacilities(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setFacilities([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [admin]);
-  const facilityOptions = facilitiesState.data ?? [];
+  const facilityOptions = admin ? facilities : [];
 
   const query = useMemo(() => {
     const q = {};

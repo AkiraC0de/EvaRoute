@@ -1,9 +1,8 @@
-import CheckInForm from "../../occupancy/CheckInForm";
 import CheckInsList from "../../occupancy/CheckInsList";
 import DetailSection from "./DetailSection";
 
 /** Checked-in evacuees — occupancy line, check-in form beside the check-ins list. */
-const FacilityOccupancySection = ({ occupancy, stays, busy, onCheckIn, onCheckOut }) => (
+const FacilityOccupancySection = ({ occupancy, stays, busy, onCheckOut }) => (
   <DetailSection title="Checked-in evacuees">
     {occupancy && (
       <p className="mb-3 text-[11px] text-muted">
@@ -11,17 +10,11 @@ const FacilityOccupancySection = ({ occupancy, stays, busy, onCheckIn, onCheckOu
         {occupancy.remaining} remaining
       </p>
     )}
-    <div className="grid gap-4 md:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.55fr)]">
-      <CheckInForm
-        remaining={occupancy?.remaining ?? 0}
-        onCheckIn={onCheckIn}
-      />
-      <CheckInsList
-        stays={stays}
-        busy={busy}
-        onCheckOut={onCheckOut}
-      />
-    </div>
+    <CheckInsList
+      stays={stays}
+      busy={busy}
+      onCheckOut={onCheckOut}
+    />
   </DetailSection>
 );
 
