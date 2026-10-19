@@ -1,29 +1,43 @@
 import Skeleton from "../../components/ui/Skeleton";
 
 /**
- * Loading skeleton for the staff facility home — mirrors the real layout:
- * assignment summary bar, facility map card, resource tiles, activity strip.
+ * Loading skeleton for the staff facility home — mirrors the real bands:
+ * hero + 2×2 fact wall, resources grid, then location/activity/roster.
  */
 const FacilityLoading = () => (
   <div role="status" aria-label="Loading your facility" className="space-y-4">
-    <Skeleton className="h-12 w-full rounded-clay" />
-
-    <div className="rounded-clay bg-surface p-4 shadow-clay">
-      <Skeleton className="h-3 w-24" />
-      <Skeleton className="mt-3 h-40 w-full" />
+    {/* Overview band */}
+    <Skeleton className="h-3 w-40" />
+    <div className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
+      <div className="rounded-clay bg-surface p-5 shadow-clay">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="mt-3.5 h-7 w-56" />
+        <Skeleton className="mt-2.5 h-3 w-40" />
+        <Skeleton className="mt-4 h-8 w-48 rounded-full" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {[0, 1, 2, 3].map((n) => (
+          <Skeleton key={n} className="h-28 rounded-clay" />
+        ))}
+      </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+    {/* Resources band */}
+    <Skeleton className="h-3 w-48" />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
       {[0, 1, 2, 3].map((n) => (
-        <Skeleton key={n} className="h-14 rounded-clay-sm" />
+        <Skeleton key={n} className="h-32 rounded-clay" />
       ))}
     </div>
 
-    <div className="rounded-clay bg-surface p-4 shadow-clay">
-      <Skeleton className="h-3 w-32" />
-      {[0, 1].map((n) => (
-        <Skeleton key={n} className="mt-3 h-8 w-full rounded-clay-sm" />
-      ))}
+    {/* Location & activity band */}
+    <Skeleton className="h-3 w-40" />
+    <div className="grid items-start gap-4 lg:grid-cols-[1.45fr_1fr]">
+      <Skeleton className="h-72 rounded-clay" />
+      <div className="space-y-4">
+        <Skeleton className="h-32 rounded-clay" />
+        <Skeleton className="h-28 rounded-clay" />
+      </div>
     </div>
   </div>
 );

@@ -22,7 +22,7 @@ const FacilityResourcesSection = ({ resources, createResource, saveResource, rem
           This facility has no resources yet. Add the first one above.
         </StatusPanel>
       ) : (
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {resources.map((resource) => (
             <ResourceCard
               key={resource.id}

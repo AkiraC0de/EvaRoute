@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserPlus, X } from "lucide-react";
+import { Baby, UserPlus, X } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -17,6 +17,14 @@ import useAsyncAction from "../../hooks/useAsyncAction";
 
 const emptyMember = () => ({ fullName: "", ageGroup: "ADULT" });
 
+/** Quick-add buttons: one tap appends N members already categorised. */
+const ADD_OPTIONS = [
+  { label: "Add adult", count: 1, ageGroup: "ADULT" },
+  { label: "Add child", count: 1, ageGroup: "CHILD" },
+  { label: "Add 2 adults", count: 2, ageGroup: "ADULT" },
+  { label: "Add 2 children", count: 2, ageGroup: "CHILD" },
+];
+
 const CheckInForm = ({ remaining, onCheckIn }) => {
   const { busy, error, run } = useAsyncAction();
   const [familyName, setFamilyName] = useState("");
@@ -26,6 +34,12 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
     setMembers((current) =>
       current.map((member, i) => (i === index ? { ...member, ...patch } : member)),
     );
+
+  const addMembers = (count, ageGroup) =>
+    setMembers((current) => [
+      ...current,
+      ...Array.from({ length: count }, () => ({ fullName: "", ageGroup })),
+    ]);
 
   const submit = () =>
     run(async () => {
@@ -116,13 +130,22 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => setMembers((current) => [...current, emptyMember()])}
-        className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
-      >
-        <UserPlus size={12} strokeWidth={2} /> Add family member
-      </button>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        {ADD_OPTIONS.map((option) => {
+          const Icon = option.ageGroup === "CHILD" ? Baby : UserPlus;
+          return (
+            <button
+              key={option.label}
+              type="button"
+              aria-label={option.label}
+              onClick={() => addMembers(option.count, option.ageGroup)}
+              className="inline-flex h-8 items-center gap-1 rounded-clay-sm bg-sunken px-2.5 text-[11px] font-semibold text-ink-soft shadow-clay-inset transition hover:bg-accent-soft hover:text-accent"
+            >
+              <Icon size={12} strokeWidth={2} aria-hidden="true" /> {option.label}
+            </button>
+          );
+        })}
+      </div>
 
       {error && (
         <div className="mt-3">
