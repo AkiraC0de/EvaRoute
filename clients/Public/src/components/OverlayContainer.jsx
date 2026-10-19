@@ -27,6 +27,12 @@ const panelMotion = {
   exit: { opacity: 0, x: distance.lg, transition: { duration: duration.fast, ease: easing.sharp } },
 };
 
+const pillMotion = {
+  initial: { opacity: 0, y: distance.sm },
+  animate: { opacity: 1, y: 0, transition: { duration: duration.normal, ease: easing.smooth } },
+  exit: { opacity: 0, y: distance.sm, transition: { duration: duration.fast, ease: easing.sharp } },
+};
+
 /**
  * OverlayContainer — one component, two layouts:
  * a mobile bottom sheet and a desktop floating panel.
@@ -43,11 +49,16 @@ export default function OverlayContainer({
   expanded = true,
   mobileExpanded = expanded,
   onMobileToggle,
+  mobileClosedPill = null,
   className = '',
 }) {
   const desktopClass = desktopPosition[variant === 'route-card' ? 'routeCard' : variant];
   const isMobileExpanded = expanded && mobileExpanded;
   const isCollapsedRouteCard = variant === 'route-card' && !isMobileExpanded;
+  /* "Map-first" mode (discovery): when the mobile sheet is closed, hide it
+     entirely and float a small open-pill instead — the map is fully visible
+     first; the sheet appears only when the user asks for it. */
+  const isPillClosed = Boolean(mobileClosedPill) && !isMobileExpanded;
 
   /* Sheet drag gestures (mobile): swipe DOWN from the expanded sheet to
      collapse it, swipe UP from the collapsed bar to expand it. The drag
@@ -85,6 +96,17 @@ export default function OverlayContainer({
 
   return (
     <>
+      {/* ── Mobile: floating open-pill when closed (map-first) ── */}
+      {isPillClosed ? (
+        <motion.div
+          {...pillMotion}
+          className="fixed bottom-[calc(14px+env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 md:hidden"
+          data-overlay-pill="true"
+        >
+          {mobileClosedPill}
+        </motion.div>
+      ) : null}
+
       {/* ── Mobile: bottom sheet ── */}
       <motion.div
         {...sheetMotion}
@@ -100,6 +122,7 @@ export default function OverlayContainer({
         className={[
           'overlay-mobile-sheet',
           'fixed bottom-0 left-0 right-0 z-30 flex max-h-[calc(100dvh-20px)] h-[calc(100dvh-20px)] flex-col overflow-y-auto rounded-t-clay bg-surface shadow-clay-lg md:hidden',
+          isPillClosed ? 'max-md:hidden' : '',
           className,
         ]
           .filter(Boolean)

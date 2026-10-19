@@ -42,11 +42,17 @@ const SignInForm = ({ onForgotPassword }) => {
 
   return (
     <>
-      <motion.h2 variants={v.fadeUp} className="text-[32px] font-bold text-ink">
-        Sign in
+      <motion.p
+        variants={v.fadeUp}
+        className="text-[10px] font-semibold uppercase tracking-[1.5px] text-accent"
+      >
+        Secure access
+      </motion.p>
+      <motion.h2 variants={v.fadeUp} className="mt-1.5 text-[30px] font-bold leading-tight text-ink">
+        Welcome back
       </motion.h2>
-      <motion.p variants={v.fadeUp} className="mt-1 text-[14px] text-muted">
-        Use the staff account issued by your administrator.
+      <motion.p variants={v.fadeUp} className="mt-1.5 text-[13px] leading-relaxed text-muted">
+        Sign in with the staff account issued by your administrator.
       </motion.p>
 
       {sessionMessage && (
@@ -77,10 +83,11 @@ const SignInForm = ({ onForgotPassword }) => {
             autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder="Enter your password"
           />
         </motion.div>
 
-        <motion.div variants={v.fadeUp} className="flex items-center justify-between gap-2 pt-1">
+        <motion.div variants={v.fadeUp} className="flex flex-wrap items-center justify-between gap-2 pt-1">
           <label className="flex items-center gap-2">
             <Checkbox
               checked={keepLogin}

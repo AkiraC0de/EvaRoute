@@ -32,6 +32,32 @@ function CollapsedToggle({ onClick }) {
   );
 }
 
+/** Map-first open pill (mobile): floats over the map while the discovery
+ *  sheet is closed — the map is fully visible first; the pill opens the
+ *  nearby-centers list. ≥44px touch target. */
+function OpenListPill({ onClick }) {
+  return (
+    <button
+      type="button"
+      className="focus-ring flex items-center gap-2 rounded-full bg-surface py-2.5 pr-4 pl-3 shadow-clay-lg touch-manipulation"
+      onClick={onClick}
+      aria-label="Open nearby evacuation centers"
+    >
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-soft text-accent">
+        {/* Map pin — same stroke language as the app's inline icons */}
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      </span>
+      <span className="whitespace-nowrap text-[14px] font-semibold text-ink">Nearby Evacuation Centers</span>
+      <svg className="h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 15l6-6 6 6" />
+      </svg>
+    </button>
+  );
+}
+
 export default function DiscoveryOverlay({ facilities, sortedFacilities, totalFacilities, recenterSlot }) {
   const { state, actions } = useAppState();
 
@@ -53,6 +79,7 @@ export default function DiscoveryOverlay({ facilities, sortedFacilities, totalFa
           mobileExpanded={state.mobilePanelExpanded}
           onMobileToggle={actions.toggleMobilePanel}
           collapsedContent={<CollapsedToggle onClick={actions.expand} />}
+          mobileClosedPill={<OpenListPill onClick={actions.expand} />}
         >
           <FacilityDiscoveryPanel
             facilities={sortedFacilities}

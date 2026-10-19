@@ -20,15 +20,33 @@ const LoginPage = () => {
   const v = authVariants(reduce);
 
   return (
-    <main className="flex min-h-screen bg-canvas">
+    <main className="relative min-h-screen overflow-hidden bg-canvas lg:grid lg:grid-cols-[1.12fr_1fr]">
       <BrandPanel />
 
-      <div className="flex flex-1 items-center justify-center p-4">
+      {/* Form pane — token-based radial glows behind the card (21st
+          "Split Login" pattern); the clay card keeps the portal identity. */}
+      <div className="relative flex items-center justify-center p-4">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute -right-20 -top-24 h-[440px] w-[440px] rounded-full opacity-85"
+            style={{
+              background:
+                "radial-gradient(50% 50% at 50% 50%, var(--color-accent-soft) 0, transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute -bottom-28 -left-16 h-[360px] w-[360px] rounded-full opacity-75"
+            style={{
+              background:
+                "radial-gradient(50% 50% at 50% 50%, var(--color-accent-soft) 0, transparent 70%)",
+            }}
+          />
+        </div>
         <motion.div
           variants={v.stagger}
           initial="hidden"
           animate="show"
-          className="w-full max-w-100"
+          className="relative z-10 w-full max-w-100 py-10"
         >
           {/* Compact header for small screens (BrandPanel is lg-only) */}
           <motion.div variants={v.fadeUp} className="mb-5 flex items-center gap-3 lg:hidden">
@@ -43,7 +61,7 @@ const LoginPage = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={v.fadeUp} className="rounded-clay bg-surface p-6 shadow-clay">
+          <motion.div variants={v.fadeUp} className="rounded-clay bg-surface p-6 shadow-clay-lg">
             <AnimatePresence mode="wait">
               {view === "reset" ? (
                 <motion.div
