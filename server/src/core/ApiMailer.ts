@@ -26,7 +26,10 @@ export class ApiMailer {
 
       this.transporter = nodemailer.createTransport({
         service: "gmail",
-        auth: { user, pass },
+        auth: {
+          user,
+          pass: pass,
+        },
         pool: true,
       })
     }
@@ -52,6 +55,10 @@ export class ApiMailer {
         html: this.getBaseLayout(subject, htmlContent),
       })
     } catch (error) {
+      // Log the real SMTP cause (EAUTH/535, timeouts, …) — the generic
+      // message below is for the API response, not for debugging.
+      const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+      console.error(`[ApiMailer] send to <${to}> failed — ${reason}`)
       throw new FailedEmailError(`Failed to send an email to <${to}>. Please try again later.`)
     }
   }

@@ -17,7 +17,7 @@ const HouseholdSearch = ({ value, onChange, resultCount }) => (
     />
     {value && (
       <>
-        <span className="text-[11px] text-muted">
+        <span className="rounded-full bg-sunken px-2 py-0.5 text-[10px] font-semibold text-muted shadow-clay-inset">
           {resultCount} match{resultCount === 1 ? "" : "es"}
         </span>
         <button

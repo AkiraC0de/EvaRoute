@@ -1,4 +1,4 @@
-import { Users, Armchair, Building2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Users, Armchair, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { capacityState, checkinTrend, occupancyPct } from "./occupancyUtils";
 import OccupancyTrendChart from "./OccupancyTrendChart";
 
@@ -10,10 +10,11 @@ const TREND_META = {
 };
 
 /**
- * Occupancy headline — the page's standout card: solid accent surface with
- * the live people/capacity numbers, a stock-card style 7-day check-in trend
- * (sparkline + delta pill), the plain-language state chip (never color alone)
- * and the capacity bar. Supporting details sit along the bottom.
+ * Occupancy hero — the page's centerpiece, rebuilt on the 21st "Stats Card"
+ * anatomy: header row (icon + label + state chip), an oversized metric with
+ * its caption, a delta line, then the 7-day chart and the capacity bar.
+ * Solid accent surface with a soft glow; supporting details stay along the
+ * bottom. Never color alone — the state chip carries the words.
  */
 const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
   const pct = occupancyPct(occupancy, capacity);
@@ -24,100 +25,101 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
   const hasTrend = Array.isArray(timeline);
   const trend = checkinTrend(hasTrend ? timeline : []);
   const { Icon: TrendIcon, tone, srLabel } = TREND_META[trend.direction];
+  const stateDot =
+    state.tone === "danger" ? "bg-danger" : state.tone === "warning" ? "bg-warning" : "bg-success";
 
   return (
     <section
       aria-label="Facility occupancy"
-      className="relative overflow-hidden rounded-clay bg-accent p-5 shadow-clay"
+      className="relative flex h-full flex-col overflow-hidden rounded-clay bg-accent p-5 shadow-clay-accent"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl"
+      />
 
-      <div className="relative">
-        {/* Headline: icon + live number, delta + state pills on the right */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
+      <div className="relative flex h-full flex-col">
+        {/* Header row: icon + label left, state chip right */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-clay-sm bg-white/20 text-white"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-white/20 text-white"
             >
-              <Users size={20} strokeWidth={1.9} />
+              <Users size={17} strokeWidth={1.9} />
             </span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.8px] text-white/80">
-                People in facility
-              </p>
-              <p className="mt-1 text-[28px] font-bold leading-none text-white">
-                {occupancy}
-                <span className="ml-2 text-[13px] font-semibold text-white/80">
-                  / {capacity} places taken
-                </span>
-              </p>
-            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.8px] text-white/85">
+              People in facility
+            </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-1.5">
-            {hasTrend ? (
-              <span
-                className={`inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold ${tone}`}
-                title={`Check-ins ${srLabel}: ${trend.recent} this week vs ${trend.prior} the week before`}
-              >
-                <TrendIcon size={11} strokeWidth={2.5} aria-hidden="true" />
-                {trend.delta > 0 ? "+" : ""}
-                {trend.delta}%
-                <span className="font-semibold text-muted">vs last wk</span>
-              </span>
-            ) : (
-              <span
-                className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold text-white/80"
-                title="Check-in trend is still loading or unavailable"
-              >
-                — <span className="font-semibold">trend pending</span>
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold text-white">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white" />
-              {state.label} · {pct}%
-            </span>
-          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold text-ink-soft">
+            <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${stateDot}`} />
+            {state.label}
+          </span>
         </div>
 
-        {/* 7-day check-in trend — the up/down graph */}
-        <div className="mt-4">
+        {/* Oversized metric + caption */}
+        <p className="mt-3.5 text-[40px] font-bold leading-none text-white">
+          {occupancy}
+          <span className="ml-2.5 text-[14px] font-semibold text-white/80">
+            of {capacity} places taken
+          </span>
+        </p>
+
+        {/* Delta line: week-over-week check-in trend */}
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold text-white/85">
+          {hasTrend ? (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold ${tone}`}
+              title={`Check-ins ${srLabel}: ${trend.recent} this week vs ${trend.prior} the week before`}
+            >
+              <TrendIcon size={11} strokeWidth={2.5} aria-hidden="true" />
+              {trend.delta > 0 ? "+" : ""}
+              {trend.delta}%
+              <span className="font-semibold text-muted">vs last week</span>
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold text-white/80"
+              title="Check-in trend is still loading or unavailable"
+            >
+              — <span className="font-semibold">trend pending</span>
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1">
+            {hasTrend
+              ? `${trend.recent} check-in${trend.recent === 1 ? "" : "s"} this week · ${trend.prior} prior`
+              : "Waiting for check-in data…"}
+          </span>
+        </div>
+
+        {/* 7-day check-in trend with day labels */}
+        <div className="mt-3">
           <OccupancyTrendChart timeline={timeline} />
-          <p className="mt-1 flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-white/70">
-            <span>Check-ins · last 7 days</span>
-            <span>
-              {hasTrend
-                ? `${trend.recent} this week · ${trend.prior} prior`
-                : "Waiting for check-in data…"}
+        </div>
+
+        {/* Capacity bar + footer labels (labels annotate the bar) */}
+        <div className="mt-auto pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-semibold text-white/85">
+            <span className="inline-flex items-center gap-1.5">
+              <Armchair size={12} strokeWidth={2} aria-hidden="true" />
+              {remaining} place{remaining === 1 ? "" : "s"} remaining
             </span>
-          </p>
-        </div>
-
-        {/* Capacity */}
-        <div
-          role="progressbar"
-          aria-label="Facility capacity"
-          aria-valuemin={0}
-          aria-valuemax={capacity}
-          aria-valuenow={occupancy}
-          className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/25"
-        >
+            <span>{pct}% full</span>
+          </div>
           <div
-            className="h-full min-w-[6px] rounded-full bg-white transition-[width] duration-500"
-            style={{ width: `${Math.min(pct, 100)}%` }}
-          />
-        </div>
-
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold text-white/80">
-          <span className="inline-flex items-center gap-1.5">
-            <Armchair size={12} strokeWidth={2} aria-hidden="true" />
-            {remaining} seat{remaining === 1 ? "" : "s"} remaining
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Building2 size={12} strokeWidth={2} aria-hidden="true" />
-            {capacity} capacity
-          </span>
+            role="progressbar"
+            aria-label="Facility capacity"
+            aria-valuemin={0}
+            aria-valuemax={capacity}
+            aria-valuenow={occupancy}
+            className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/25"
+          >
+            <div
+              className="h-full min-w-[6px] rounded-full bg-white transition-[width] duration-500"
+              style={{ width: `${Math.min(pct, 100)}%` }}
+            />
+          </div>
         </div>
       </div>
     </section>

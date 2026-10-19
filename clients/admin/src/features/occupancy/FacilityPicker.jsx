@@ -2,10 +2,11 @@ import { SelectField } from "../../components/ui/Field";
 
 /**
  * Facility picker for the Occupancy dashboard (ADMIN-only) — which facility
- * the operator is working on. Controlled: the page owns the selection.
+ * the operator is working on. Compact inline control for the page header
+ * row. Controlled: the page owns the selection.
  */
 const FacilityPicker = ({ facilities, value, onChange }) => (
-  <div className="mb-4 w-full max-w-[320px]">
+  <div className="w-full max-w-[260px]">
     <SelectField
       label="Facility"
       value={value ?? ""}

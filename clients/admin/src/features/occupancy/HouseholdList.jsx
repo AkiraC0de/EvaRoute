@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Users } from "lucide-react";
 import Card from "../../components/ui/Card";
 import HouseholdListItem from "./HouseholdListItem";
 import HouseholdSearch from "./HouseholdSearch";
@@ -21,9 +22,18 @@ const HouseholdList = ({ stays, busy, onCheckOut }) => {
 
   return (
     <Card className="flex h-full w-full min-h-80 flex-col">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[14px] font-bold text-ink-soft">Checked in now</h2>
-        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+        >
+          <Users size={15} strokeWidth={1.9} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-[13px] font-bold text-ink-soft">Checked in now</h2>
+          <p className="text-[10px] text-muted">Households currently in this facility</p>
+        </div>
+        <span className="ml-auto shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
           {stays.length} household{stays.length === 1 ? "" : "s"}
         </span>
       </div>

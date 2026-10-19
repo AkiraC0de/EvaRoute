@@ -1,4 +1,4 @@
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 /** Mini tooltip in the app's clay language (mirrors components/ui/Chart.jsx). */
 const TrendTooltip = ({ active, payload, label }) => {
@@ -38,16 +38,24 @@ const OccupancyTrendChart = ({ timeline }) => {
       aria-label={`Check-ins over the last ${points.length} days: ${
         points.map((point) => point.checkIns).join(", ") || "no data"
       }`}
-      className="h-16 w-full"
+      className="h-24 w-full"
     >
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={points} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+        <AreaChart data={points} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
           <defs>
             <linearGradient id="occupancyTrendFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--color-surface)" stopOpacity={0.4} />
               <stop offset="100%" stopColor="var(--color-surface)" stopOpacity={0} />
             </linearGradient>
           </defs>
+          <XAxis
+            dataKey="label"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600 }}
+            interval="preserveStartEnd"
+            minTickGap={18}
+          />
           <Tooltip
             content={<TrendTooltip />}
             cursor={{ stroke: "rgba(255,255,255,0.5)", strokeWidth: 1 }}

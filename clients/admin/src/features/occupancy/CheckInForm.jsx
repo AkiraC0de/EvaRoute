@@ -53,7 +53,21 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
         if (!incomplete && !overCapacity) submit();
       }}
     >
-      <h2 className="mb-2 text-[14px] font-bold text-ink-soft">New check-in</h2>
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+        >
+          <UserPlus size={15} strokeWidth={1.9} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-[13px] font-bold text-ink-soft">New check-in</h2>
+          <p className="text-[10px] text-muted">One household per check-in</p>
+        </div>
+        <span className="ml-auto shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
+          {remaining} place{remaining === 1 ? "" : "s"} left
+        </span>
+      </div>
 
       <TextField
         id="household-name"
@@ -66,7 +80,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       <p className="mb-1 mt-3 text-[10px] font-semibold uppercase tracking-[0.5px] text-muted">
         Family members
       </p>
-      <ul className="space-y-2">
+      <ul className="space-y-2 rounded-clay-sm bg-sunken p-2 shadow-clay-inset">
         {members.map((member, index) => (
           <li key={index} className="flex items-end gap-2">
             <TextField
@@ -74,7 +88,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               label={index === 0 ? "Full name" : undefined}
               value={member.fullName}
               onChange={(event) => updateMember(index, { fullName: event.target.value })}
-              placeholder="Full name"
+              placeholder={index === 0 ? "Full name" : `Member ${index + 1} full name`}
               aria-label={`Member ${index + 1} full name`}
             />
             <SelectField
@@ -117,7 +131,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       )}
       {overCapacity && (
         <p role="status" className="mt-2 text-[11px] text-danger">
-          Not enough capacity for this household ({people} people, {remaining} slot{remaining === 1 ? "" : "s"} left).
+          Not enough capacity for this household ({people} people, {remaining} place{remaining === 1 ? "" : "s"} left).
         </p>
       )}
 

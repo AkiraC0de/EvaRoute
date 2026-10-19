@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import PageHeader from "../../components/ui/PageHeader";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import useStays from "../../hooks/useStays";
@@ -37,26 +38,47 @@ const OccupancyPage = () => {
   const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
 
   // 14 days of per-day check-ins (two 7-day windows) for the meter's trend
-  // chart and delta pill — scoped to the selected facility.
-  const trendFrom = new Date();
-  trendFrom.setDate(trendFrom.getDate() - 13);
-  const { timeline } = useActivityStats({
-    from: trendFrom.toISOString(),
-    interval: "day",
-    ...(facilityId ? { facilityId } : {}),
-  });
+  // chart and delta pill — scoped to the selected facility. MEMOIZED: the
+  // hook keys its cache on JSON.stringify(query), so an inline `new Date()`
+  // would change the key every render and refetch forever (and the timeline
+  // would never settle). One stable query per facility.
+  const trendQuery = useMemo(() => {
+    const trendFrom = new Date();
+    trendFrom.setDate(trendFrom.getDate() - 13);
+    return {
+      from: trendFrom.toISOString(),
+      interval: "day",
+      ...(facilityId ? { facilityId } : {}),
+    };
+  }, [facilityId]);
+  const { timeline } = useActivityStats(trendQuery);
+
+  // Entrance for the page bands (existing admin motion convention:
+  // motion/react + useReducedMotion guards).
+  const reduceMotion = useReducedMotion();
+  const rise = (delay = 0) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], delay },
+        };
 
   return (
     <div>
-      <PageHeader title="Occupancy" subtitle="Check evacuees in and out of a facility" />
+      {/* Header row: title block left, facility picker inline right (ADMIN) */}
+      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <PageHeader title="Occupancy" subtitle="Check evacuees in and out of a facility" />
 
-      {isAdmin && facilities.length > 0 && (
-        <FacilityPicker
-          facilities={facilities}
-          value={facilityId}
-          onChange={(event) => setFacilityId(event.target.value)}
-        />
-      )}
+        {isAdmin && facilities.length > 0 && (
+          <FacilityPicker
+            facilities={facilities}
+            value={facilityId}
+            onChange={(event) => setFacilityId(event.target.value)}
+          />
+        )}
+      </header>
 
       {facilitiesLoading && <OccupancyLoading />}
 
@@ -67,26 +89,30 @@ const OccupancyPage = () => {
       {facilityId && error && <OccupancyError error={error} onRetry={retry} />}
 
       {facilityId && !loading && !error && occupancy && (
-        <>
-          <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="space-y-4">
+          {/* Hero band: the occupancy hero beside the 2×2 metric wall */}
+          <motion.div {...rise()} className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
             <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
             <OccupancySummary occupancy={occupancy} />
-          </div>
+          </motion.div>
 
-          <OccupancyGrid
-            facilityId={facilityId}
-            occupancy={occupancy}
-            stays={stays}
-            busy={busy}
-            onCheckIn={async (payload) => {
-              // The form owns busy/error handling; on success the server's
-              // stay record (with the real Check-In ID) opens the ticket.
-              const stay = await checkIn(payload);
-              if (stay) setTicketStay(stay);
-            }}
-            onCheckOut={(stay) => run(() => checkOut(stay.id))}
-          />
-        </>
+          {/* Operational band: check-in form + movement trail | households */}
+          <motion.div {...rise(0.08)}>
+            <OccupancyGrid
+              facilityId={facilityId}
+              occupancy={occupancy}
+              stays={stays}
+              busy={busy}
+              onCheckIn={async (payload) => {
+                // The form owns busy/error handling; on success the server's
+                // stay record (with the real Check-In ID) opens the ticket.
+                const stay = await checkIn(payload);
+                if (stay) setTicketStay(stay);
+              }}
+              onCheckOut={(stay) => run(() => checkOut(stay.id))}
+            />
+          </motion.div>
+        </div>
       )}
 
       {ticketStay && <CheckInTicket stay={ticketStay} onClose={() => setTicketStay(null)} />}

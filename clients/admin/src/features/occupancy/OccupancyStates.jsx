@@ -8,31 +8,44 @@ import StatusPanel from "../../components/ui/StatusPanel";
  */
 const OccupancyLoading = () => (
   <div role="status" aria-label="Loading occupancy" className="space-y-4">
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-      {[0, 1, 2, 3].map((n) => (
-        <Skeleton key={n} className="h-14 rounded-clay-sm" />
-      ))}
-      <Skeleton className="col-span-2 h-14 rounded-clay-sm sm:col-span-1" />
-    </div>
-
-    <div className="rounded-clay bg-surface p-4 shadow-clay">
-      <Skeleton className="h-3 w-40" />
-      <Skeleton className="mt-3 h-2.5 w-full rounded-full" />
-      <Skeleton className="mt-1.5 h-2 w-24" />
-    </div>
-
-    <div className="grid gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(0,1.4fr)]">
-      <div className="rounded-clay bg-surface p-4 shadow-clay">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="mt-3 h-8 w-full" />
-        <Skeleton className="mt-2 h-8 w-full" />
-        <Skeleton className="mt-3 h-9 w-full rounded-clay-sm" />
+    {/* Hero band: occupancy hero + 2×2 metric wall */}
+    <div className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
+      <div className="rounded-clay bg-surface p-5 shadow-clay">
+        <Skeleton className="h-3 w-36" />
+        <Skeleton className="mt-3.5 h-10 w-52" />
+        <Skeleton className="mt-3 h-24 w-full rounded-clay-sm" />
+        <Skeleton className="mt-3 h-2.5 w-full rounded-full" />
       </div>
-      <div className="rounded-clay bg-surface p-4 shadow-clay">
-        <Skeleton className="h-3 w-28" />
+      <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map((n) => (
-          <Skeleton key={n} className="mt-3 h-10 w-full rounded-clay-sm" />
+          <Skeleton key={n} className="h-28 rounded-clay" />
         ))}
+      </div>
+    </div>
+
+    {/* Operational band: household list | form + movement */}
+    <div className="grid items-start gap-4 lg:grid-cols-[1.45fr_1fr]">
+      <div className="order-2 space-y-4 lg:order-1">
+        <div className="rounded-clay bg-surface p-4 shadow-clay">
+          <Skeleton className="h-3 w-28" />
+          {[0, 1, 2, 3].map((n) => (
+            <Skeleton key={n} className="mt-3 h-14 w-full rounded-clay-sm" />
+          ))}
+        </div>
+      </div>
+      <div className="order-1 space-y-4 lg:order-2">
+        <div className="rounded-clay bg-surface p-4 shadow-clay">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="mt-3 h-8 w-full" />
+          <Skeleton className="mt-2 h-8 w-full" />
+          <Skeleton className="mt-3 h-9 w-full rounded-clay-sm" />
+        </div>
+        <div className="rounded-clay bg-surface p-4 shadow-clay">
+          <Skeleton className="h-3 w-28" />
+          {[0, 1, 2].map((n) => (
+            <Skeleton key={n} className="mt-3 h-10 w-full rounded-clay-sm" />
+          ))}
+        </div>
       </div>
     </div>
   </div>

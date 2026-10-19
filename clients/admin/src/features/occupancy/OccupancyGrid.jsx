@@ -3,22 +3,22 @@ import HouseholdList from "./HouseholdList";
 import RecentHouseholdActivity from "./RecentHouseholdActivity";
 
 /**
- * Operational grid: check-in form + recent movement in the left column, the
- * household list spanning both rows on the right so it gets the full height.
- * Stacks on small screens (form, recent, list) via the responsive columns
- * breakpoint. Presentational — the page owns the check-in ticket and the
+ * Operational band below the hero. The household list takes the WIDE left
+ * column and the check-in form + movement trail stack in the narrow right
+ * one, so the band's column seam lines up exactly with the hero band's
+ * (meter | metric wall) above — one shared grid split for the whole page.
+ * On small screens it stacks form-first (order utilities) for operational
+ * speed. Presentational — the page owns the check-in ticket and the
  * checkout busy state.
  */
 const OccupancyGrid = ({ facilityId, occupancy, stays, busy, onCheckIn, onCheckOut }) => (
-  <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(0,1.4fr)] lg:grid-rows-[auto_1fr]">
-    <div className="lg:col-start-1 lg:row-start-1">
-      <CheckInForm remaining={occupancy.remaining} onCheckIn={onCheckIn} />
-    </div>
-    <div className="lg:col-start-1 lg:row-start-2">
-      <RecentHouseholdActivity facilityId={facilityId} />
-    </div>
-    <div className="flex lg:col-start-2 lg:row-start-1 lg:row-span-2">
+  <div className="grid items-start gap-4 lg:grid-cols-[1.45fr_1fr]">
+    <div className="order-2 lg:order-1">
       <HouseholdList stays={stays} busy={busy} onCheckOut={onCheckOut} />
+    </div>
+    <div className="order-1 space-y-4 lg:order-2">
+      <CheckInForm remaining={occupancy.remaining} onCheckIn={onCheckIn} />
+      <RecentHouseholdActivity facilityId={facilityId} />
     </div>
   </div>
 );
