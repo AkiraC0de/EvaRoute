@@ -39,9 +39,6 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   try {
     await ApiMailer.sendStaffWelcome(email, email.split("@")[0], defaultPassword)
   } catch {
-    // Mail delivery is a convenience: the response returns the password for
-    // manual sharing. Failing the request here would strand an account that
-    // was ALREADY created above (password known to nobody, admin got a 500).
     emailSent = false
   }
 
