@@ -311,12 +311,30 @@ export const handleSignOutAllDevices = async (req: Request, res: Response) => {
 // login/refresh so the client can replace its stored identity.
 export const handleAccountSetup = async (req: Request, res: Response) => {
   const { userId } = requireAuth(req)
-  const { firstName, lastName } = validateData<typeof accountSetupSchema>(accountSetupSchema, req.body)
+  const { newPassword, firstName, lastName } = validateData<typeof accountSetupSchema>(accountSetupSchema, req.body)
 
   const user = await userService.findById(userId)
   if (!user) {
     throw new NotFoundError("User not found.")
   }
+
+  // Replace the system-generated password (same strength rules as
+  // passResetSchema via newPasswordField, hashed like handleChangePassword).
+  await userService.updatePassword(userId, await bcrypt.hash(newPassword, 12))
+
+  // Keep THIS device's session; sign out every other device that may hold
+  // the old generated password (mirrors handleChangePassword).
+  const cookieToken = req.cookies[REFRESH_TOKEN.COOKIE_NAME]
+  const refreshToken = cookieToken
+    ? await refreshTokenService.findByToken(cryptoHash(cookieToken))
+    : null
+  if (refreshToken && refreshToken.userId === userId) {
+    await refreshTokenService.deleteAllByUserIdExcept(userId, refreshToken.id)
+  } else {
+    await refreshTokenService.deleteAllByUserId(userId)
+  }
+
+  await logActivity(req, ActivityAction.AUTH_PASSWORD_RESET)
 
   const updatedUser = await userService.update(userId, {
     firstName,

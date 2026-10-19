@@ -68,8 +68,11 @@ export const changePasswordSchema = z
   })
 
 // First-time account setup: staff accounts are created with only email +
-// password, so the signed-in user supplies their name here once.
+// a system-generated password, so the signed-in user supplies their name
+// and REPLACES that password here once (mandatory — the generated password
+// must not outlive the first login).
 export const accountSetupSchema = z.object({
+  newPassword: newPasswordField,
   firstName: z
     .string("First name is required.")
     .trim()

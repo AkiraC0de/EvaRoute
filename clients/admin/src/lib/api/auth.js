@@ -129,14 +129,16 @@ export async function changePassword(currentPassword, newPassword) {
 
 /**
  * POST /api/v1/auth/account-setup  (authenticated; ADMIN + FACILITY_STAFF).
- * Body: { firstName, lastName } — the one-time first-run profile setup for
- * accounts created with only email + password. Flips `isSetupDone` to true.
+ * Body: { firstName, lastName, newPassword } — the one-time first-run setup
+ * for accounts created with only email + a system-generated password. Sets
+ * the name, REPLACES the generated password (server-side strength rules),
+ * and flips `isSetupDone` to true. Other devices are signed out.
  * Response data: { user: { email, firstName, lastName, role, isSetupDone } }.
  */
-export async function completeAccountSetup({ firstName, lastName }) {
+export async function completeAccountSetup({ firstName, lastName, newPassword }) {
   const { data } = await request("/auth/account-setup", {
     method: "POST",
-    body: { firstName, lastName },
+    body: { firstName, lastName, newPassword },
   });
   return data.user;
 }

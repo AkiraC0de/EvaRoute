@@ -7,7 +7,7 @@ import { REQ_RESET_PASS_TOKEN } from "../configs/tokenConfig.js"
 // - Do not touch the code above of the Public methods
 // - You may only refactor the HTML format
 
-const APP_NAME = "EvoRoute"
+const APP_NAME = "EvaRoute"
 
 export class ApiMailer {
   private static transporter: Transporter | null = null
