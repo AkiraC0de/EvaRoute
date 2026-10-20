@@ -26,8 +26,8 @@
   /* Surfaces — cool slate canvas, white for dense data */
   --color-canvas: #e6ecf2; /* page background (cool blue-grey) */
   --color-surface: #ffffff; /* tables, forms, dialogs, dense data */
-  --color-surface-2: #d9e2eb; /* section bands, table headers, filter bands */
-  --color-surface-2-hover: #dae6f2;
+  --color-surface-2: #ebf2fa; /* section bands, table headers, filter bands */
+  --color-surface-2-hover: #ebf1f7;
   --color-line: #c3cfdb; /* hairline dividers / borders */
   --color-line-strong: #a9b8c8;
 

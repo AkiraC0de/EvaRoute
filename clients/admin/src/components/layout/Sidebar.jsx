@@ -11,7 +11,7 @@ const Sidebar = () => (
   <aside className="fixed left-0 top-0 z-50 flex h-screen w-49.5 flex-col border-b border-line bg-surface sm:border-b-0 sm:border-r max-sm:relative max-sm:h-auto max-sm:w-full">
     <div className="flex h-23 items-center px-5 max-sm:h-18">
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface">
           <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
         </div>
         <div>
