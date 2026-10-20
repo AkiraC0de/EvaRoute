@@ -113,7 +113,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
         <button
           type="button"
           onClick={onBackToSignIn}
-          className="mt-4 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
         >
           ← Back to sign in
         </button>

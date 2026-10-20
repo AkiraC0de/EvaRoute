@@ -9,7 +9,7 @@ const FacilityActivitySection = ({ facilityId }) => (
     action={
       <Link
         to="/history"
-        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary transition hover:text-primary-strong"
+        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong"
       >
         Open in history →
       </Link>

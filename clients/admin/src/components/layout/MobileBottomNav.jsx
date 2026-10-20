@@ -6,8 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 /**
  * Mobile bottom navigation (hidden on sm+ where the sidebar rail takes over).
  *
- * A floating navy bar pinned near the bottom of the viewport — the same
- * structural color as the desktop rail — built from the same NAV_ITEMS model
+ * A floating white bar pinned near the bottom of the viewport — the same
+ * navigation chrome as the desktop rail — built from the same NAV_ITEMS model
  * (role-filtered) so destinations and permissions can never diverge. The
  * active destination is a translucent white slab that SLIDES between items
  * (motion `layoutId`) when the user taps a different destination.
@@ -30,7 +30,7 @@ const MobileBottomNav = () => {
       aria-label="Primary navigation"
       className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-1.5 sm:hidden"
     >
-      <ul className="mx-auto flex w-full max-w-[480px] items-stretch gap-1 rounded-lg bg-primary p-1.5 shadow-md">
+      <ul className="mx-auto flex w-full max-w-[480px] items-stretch gap-1 rounded-lg border border-line bg-surface p-1.5 shadow-sm">
         {items.map(({ label, shortLabel, to, end, icon: Icon }) => (
           <li key={to} className="min-w-0 flex-1">
             <NavLink
@@ -38,8 +38,8 @@ const MobileBottomNav = () => {
               end={end}
               aria-label={label}
               className={({ isActive }) =>
-                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-md px-1 py-1.5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
-                  isActive ? "text-white" : "text-white/65 hover:text-white/90"
+                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-md px-0.5 py-1.5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                  isActive ? "text-primary-strong" : "text-muted-dim hover:text-muted"
                 }`
               }
             >
@@ -50,7 +50,7 @@ const MobileBottomNav = () => {
                       layoutId="mobile-nav-highlight"
                       initial={false}
                       aria-hidden="true"
-                      className="absolute inset-0 rounded-md bg-white/14"
+                      className="absolute inset-0 rounded-md bg-primary-soft"
                       transition={highlightTransition}
                     />
                   )}
@@ -62,7 +62,7 @@ const MobileBottomNav = () => {
                       className="relative z-10 shrink-0"
                     />
                   )}
-                  <span className="relative z-10 max-w-full truncate text-[10px] font-semibold leading-none">
+                  <span className="relative z-10 max-w-full truncate text-[10px] font-semibold leading-none max-[400px]:text-[9px]">
                     {shortLabel ?? label}
                   </span>
                 </>

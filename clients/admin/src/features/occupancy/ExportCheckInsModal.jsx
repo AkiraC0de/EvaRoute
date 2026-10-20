@@ -75,7 +75,7 @@ const ExportCheckInsModal = ({ stays, occupancy, facility, user, onClose }) => {
             type="button"
             aria-pressed={format === key}
             onClick={() => setFormat(key)}
-            className={`flex flex-1 items-center gap-2 rounded-md px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+            className={`flex flex-1 items-center gap-2 rounded-md px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
               format === key
                 ? "bg-primary text-white"
                 : "bg-surface-2 text-muted hover:text-ink-soft"

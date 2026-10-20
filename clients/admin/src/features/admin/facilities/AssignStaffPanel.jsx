@@ -24,7 +24,7 @@ const AssignStaffPanel = ({ query, onQueryChange, candidates, busy, onAssign }) 
         onChange={onQueryChange}
         placeholder="Search staff accounts…"
         aria-label="Search staff accounts"
-        className="h-11 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[12px] font-medium text-ink-soft outline-none transition placeholder:text-muted-dim focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="h-11 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[12px] font-medium text-ink-soft outline-none transition placeholder:text-muted-dim focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
       />
     </div>
 

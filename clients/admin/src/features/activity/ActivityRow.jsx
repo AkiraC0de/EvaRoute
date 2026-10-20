@@ -32,7 +32,7 @@ export default function ActivityRow({ log, showFacility = false }) {
               type="button"
               onClick={() => setOpen((value) => !value)}
               aria-expanded={open}
-              className="ml-auto inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary transition-colors hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="ml-auto inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary-ink transition-colors hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
             >
               Details
               <ChevronDown

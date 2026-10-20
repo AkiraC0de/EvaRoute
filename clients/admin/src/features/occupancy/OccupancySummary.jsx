@@ -11,7 +11,7 @@ import { Home, Baby, Users, Building2 } from "lucide-react";
 
 const TILE_TONES = {
   people: "bg-secondary-soft text-secondary-ink",
-  capacity: "bg-primary-soft text-primary",
+  capacity: "bg-primary-soft text-primary-ink",
 };
 
 const OccupancySummary = ({ occupancy }) => {
@@ -47,7 +47,7 @@ const OccupancySummary = ({ occupancy }) => {
   ];
 
   return (
-    <section aria-label="Occupancy breakdown" className="grid grid-cols-2 gap-3">
+    <section aria-label="Occupancy breakdown" className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
       {tiles.map(({ label, value, Icon, caption, tone }) => (
         <div
           key={label}

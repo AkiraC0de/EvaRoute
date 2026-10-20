@@ -13,7 +13,7 @@ const FacilityHero = ({ facility, available }) => {
   return (
     <section
       aria-label="Facility overview"
-      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-primary p-5"
+      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-primary-strong p-5"
     >
       <div className="relative flex h-full flex-col">
         {/* Header row: label left, status chip right */}

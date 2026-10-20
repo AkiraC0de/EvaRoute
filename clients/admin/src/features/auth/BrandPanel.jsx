@@ -59,13 +59,13 @@ const BrandPanel = () => {
       variants={v.stagger}
       initial="hidden"
       animate="show"
-      className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 lg:flex"
+      className="relative hidden max-h-screen flex-col justify-between overflow-x-hidden overflow-y-auto bg-primary-strong p-8 lg:flex lg:p-10"
       style={{ backgroundImage: "var(--hero-gradient)" }}
     >
       <RouteFlows />
 
       {/* Brand lockup */}
-      <motion.div variants={v.fadeUp} className="relative z-10 flex items-center gap-3">
+      <motion.div variants={v.fadeUp} className="relative z-10 flex shrink-0 items-center gap-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface">
           <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
         </div>
@@ -141,7 +141,7 @@ const BrandPanel = () => {
 
       <motion.p
         variants={v.fadeUp}
-        className="relative z-10 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[1.5px] text-white/70"
+        className="relative z-10 flex shrink-0 items-center gap-2 pb-1 pt-4 text-[10px] font-medium uppercase tracking-[1.5px] text-white/70"
       >
         <Check size={10} strokeWidth={3} aria-hidden="true" />
         Evacuation center operations

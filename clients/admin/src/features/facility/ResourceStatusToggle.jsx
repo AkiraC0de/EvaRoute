@@ -16,7 +16,7 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => (
       aria-pressed={value === true}
       disabled={disabled}
       onClick={() => onChange(true)}
-      className={`min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:min-h-8 ${
+      className={`min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
         value === true
           ? "bg-success-soft text-success"
           : "text-muted hover:text-ink-soft"
@@ -29,7 +29,7 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => (
       aria-pressed={value === false}
       disabled={disabled}
       onClick={() => onChange(false)}
-      className={`min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:min-h-8 ${
+      className={`min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
         value === false
           ? "bg-danger-soft text-danger-strong"
           : "text-muted hover:text-ink-soft"

@@ -34,7 +34,7 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
             <Link
               to={`/facilities/${facility.id}`}
               title={facility.name}
-              className="text-[12px] font-semibold text-primary transition hover:text-primary-strong"
+              className="text-[12px] font-semibold text-primary-ink transition hover:text-primary-strong"
             >
               {displayPlaceName(facility.name)}
             </Link>
@@ -60,7 +60,7 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
             <div className="flex items-center gap-2">
               <Link
                 to={`/facilities/${facility.id}`}
-                className="text-[11px] font-semibold text-primary transition hover:text-primary-strong"
+                className="text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong"
               >
                 Manage
               </Link>

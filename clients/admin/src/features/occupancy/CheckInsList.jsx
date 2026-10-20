@@ -99,7 +99,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary-ink"
         >
           <ClipboardList size={15} strokeWidth={1.9} />
         </span>
@@ -123,7 +123,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               type="button"
               aria-pressed={mode === item.key}
               onClick={() => switchMode(item.key)}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                 mode === item.key
                   ? "bg-primary text-white"
                   : "text-muted hover:text-ink-soft"
@@ -173,7 +173,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   setCategory(item.value);
                   setPage(1);
                 }}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                   category === item.value
                     ? "bg-surface text-ink-soft"
                     : "text-muted hover:text-ink-soft"
@@ -197,7 +197,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                 setSearchInput("");
                 setPage(1);
               }}
-              className="inline-flex h-9 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="inline-flex h-9 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
             >
               <X size={11} strokeWidth={2} /> Clear
             </button>
@@ -246,7 +246,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
             title="Previous page"
             disabled={safePage === 1}
             onClick={() => setPage(safePage - 1)}
-            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 sm:h-10 sm:w-10"
+            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronLeft size={15} strokeWidth={2} />
           </button>
@@ -259,7 +259,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   aria-label={`Page ${n}`}
                   aria-current={n === safePage ? "page" : undefined}
                   onClick={() => setPage(n)}
-                  className={`min-w-9 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  className={`min-w-9 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                     n === safePage
                       ? "bg-primary text-white"
                       : "bg-surface-2 text-muted hover:text-ink-soft"
@@ -280,7 +280,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
             title="Next page"
             disabled={safePage === pageCount}
             onClick={() => setPage(safePage + 1)}
-            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 sm:h-10 sm:w-10"
+            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronRight size={15} strokeWidth={2} />
           </button>

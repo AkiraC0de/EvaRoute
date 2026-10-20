@@ -41,7 +41,7 @@ const FacilityLoadCard = ({ summary, loading }) => (
     action={
       <Link
         to="/facilities"
-        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-primary transition hover:text-primary-strong ${FOCUS_RING}`}
+        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong ${FOCUS_RING}`}
       >
         Manage →
       </Link>

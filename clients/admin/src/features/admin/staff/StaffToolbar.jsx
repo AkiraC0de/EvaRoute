@@ -12,7 +12,7 @@ const STATUS_OPTIONS = [
  * handlers receive the raw DOM event, like the facilities filter bar.
  */
 const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedChange }) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-surface-2 p-3">
+  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line-strong bg-surface-2 p-3">
     <FilterSearch
       value={filters.search}
       onChange={onSearchChange}

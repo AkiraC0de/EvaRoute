@@ -18,7 +18,7 @@ const FacilityRecentActivityCard = ({ facilityId }) => (
       </div>
       <Link
         to="/history"
-        className="ml-auto text-[11px] font-semibold text-primary transition hover:text-primary-strong"
+        className="ml-auto text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong"
       >
         View full history →
       </Link>

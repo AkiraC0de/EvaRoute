@@ -44,7 +44,7 @@ const SignInForm = ({ onForgotPassword }) => {
     <>
       <motion.p
         variants={v.fadeUp}
-        className="text-[10px] font-semibold uppercase tracking-[1.5px] text-primary"
+        className="text-[10px] font-semibold uppercase tracking-[1.5px] text-primary-ink"
       >
         Secure access
       </motion.p>
@@ -101,7 +101,7 @@ const SignInForm = ({ onForgotPassword }) => {
           <button
             type="button"
             onClick={onForgotPassword}
-            className="inline-flex min-h-11 items-center text-[11px] font-semibold text-primary transition hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="inline-flex min-h-11 items-center text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
           >
             Forgot password?
           </button>

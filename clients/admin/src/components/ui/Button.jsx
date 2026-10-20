@@ -7,16 +7,16 @@
 const variants = {
   primary: "bg-primary text-white hover:bg-primary-strong",
   secondary: "bg-secondary text-white hover:bg-secondary-strong",
-  warm: "bg-warm text-white hover:bg-warm-strong",
+  warm: "bg-warm text-ink hover:bg-warm-strong",
   warning: "bg-warning-soft text-warning hover:bg-surface-2",
   neutral: "border border-line-strong bg-surface text-ink-soft hover:bg-surface-2 hover:text-ink",
-  soft: "bg-primary-soft text-primary hover:bg-primary-soft-hover",
-  softSecondary: "bg-secondary-soft text-secondary hover:bg-secondary-soft-hover",
-  softWarm: "bg-warm-soft text-warm hover:bg-warm-soft-hover",
+  soft: "bg-primary-soft text-primary-ink hover:bg-primary-soft-hover",
+  softSecondary: "bg-secondary-soft text-secondary-ink hover:bg-secondary-soft-hover",
+  softWarm: "bg-warm-soft text-warm-ink hover:bg-warm-soft-hover",
   danger: "bg-danger-soft text-danger hover:bg-danger-soft-hover",
   // For colored (primary) surfaces — e.g. the dashboard hero:
   onPrimary: "bg-white text-primary-strong hover:bg-primary-soft",
-  onPrimaryGhost: "border border-white/40 bg-white/15 text-white hover:bg-white/25",
+  onPrimaryGhost: "border border-white/55 bg-transparent text-white hover:border-white/75 hover:bg-white/15",
 };
 
 const sizes = {
@@ -35,7 +35,7 @@ const Button = ({
 }) => (
   <button
     type={type}
-    className={`inline-flex items-center justify-center rounded-md font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${sizes[size]} ${className}`}
+    className={`inline-flex items-center justify-center rounded-md font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${sizes[size]} ${className}`}
     {...props}
   >
     {children}

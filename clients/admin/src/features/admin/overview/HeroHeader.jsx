@@ -13,25 +13,25 @@ const HeroChip = ({ value, label }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white">
     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white/70" />
     <span>{value}</span>
-    <span className="font-normal text-white/75">{label}</span>
+    <span className="font-normal text-white/90">{label}</span>
   </span>
 );
 
 const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
   <header
-    className="relative overflow-hidden rounded-lg bg-primary p-6 text-white"
+    className="relative overflow-hidden rounded-lg bg-primary-strong p-6 text-white"
     style={{ backgroundImage: "var(--hero-gradient)" }}
   >
     {/* Identity + quick actions */}
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/75">
+        <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/90">
           {today}
         </p>
         <h1 className="mt-1 text-[22px] font-bold leading-tight text-white">
           {greeting}, {firstName}
         </h1>
-        <p className="mt-1 text-[13px] text-white/80">
+        <p className="mt-1 text-[13px] text-white/90">
           Network operations at a glance — occupancy, staffing and activity.
         </p>
       </div>
@@ -57,13 +57,13 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
     {/* Headline metric + facility-state chips */}
     <div className="mt-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/75">
+        <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/90">
           Network occupancy
         </p>
         <p className="mt-1 text-[24px] font-bold leading-none text-white">
           {summary ? `${occupancyPct}%` : "—"}
         </p>
-        <p className="mt-1.5 text-[11px] text-white/80">
+        <p className="mt-1.5 text-[11px] text-white/90">
           {summary
             ? `${summary.capacity.occupied} of ${summary.capacity.total} places taken`
             : "Waiting for live data…"}

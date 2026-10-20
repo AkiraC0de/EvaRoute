@@ -35,7 +35,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
   return (
     <article className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
       {/* Credential header band — flat navy: org + document type + validity. */}
-      <div className="bg-primary px-4 pt-2.5 pb-2">
+      <div className="bg-primary-strong px-4 pt-2.5 pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
             <p className="text-[11px] font-bold leading-none tracking-[1.5px] text-white">
@@ -126,7 +126,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           label={`Edit name of ${fullName}`}
           title="Edit name"
           onClick={() => onEdit(staff)}
-          hover="hover:bg-primary-soft hover:text-primary"
+          hover="hover:bg-primary-soft hover:text-primary-ink"
         >
           <Pencil size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -134,7 +134,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           label={`${staff.facility ? "Reassign" : "Assign"} ${fullName} to a facility`}
           title={staff.facility ? "Reassign facility" : "Assign to facility"}
           onClick={() => onAssign(staff)}
-          hover="hover:bg-primary-soft hover:text-primary"
+          hover="hover:bg-primary-soft hover:text-primary-ink"
         >
           <Building2 size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -142,7 +142,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           label={`Reset password for ${fullName}`}
           title="Reset password"
           onClick={() => onAction("reset", staff)}
-          hover="hover:bg-primary-soft hover:text-primary"
+          hover="hover:bg-primary-soft hover:text-primary-ink"
         >
           <KeyRound size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -190,7 +190,7 @@ const ActionButton = ({ label, title, onClick, hover, className = "", children }
     aria-label={label}
     title={title}
     onClick={onClick}
-    className={`flex h-11 w-11 items-center justify-center rounded-md border border-line bg-surface text-muted transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${hover} ${className}`}
+    className={`flex h-11 w-11 items-center justify-center rounded-md border border-line bg-surface text-muted transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${hover} ${className}`}
   >
     {children}
   </button>

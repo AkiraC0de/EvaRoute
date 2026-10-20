@@ -12,7 +12,7 @@ export const FIELD_CLASS = [
   "h-11 sm:h-10 w-full rounded-md border border-line-strong bg-surface px-3 text-[13px] font-medium text-ink-soft",
   "outline-none transition",
   "placeholder:text-muted-dim",
-  "focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+  "focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink",
   "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-line-strong",
   "read-only:bg-surface-2 read-only:hover:border-line-strong",
 ].join(" ");

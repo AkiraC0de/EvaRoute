@@ -27,8 +27,8 @@ export default function ActivityDetails({ metadata }) {
                   <span className="rounded-md border border-line bg-surface px-1.5 py-0.5 text-[11px] text-muted line-through">
                     {row.from}
                   </span>
-                  <ArrowRight size={10} className="text-primary" />
-                  <span className="rounded-md bg-primary-soft px-1.5 py-0.5 text-[12px] font-semibold text-primary">
+                  <ArrowRight size={10} className="text-primary-ink" />
+                  <span className="rounded-md bg-primary-soft px-1.5 py-0.5 text-[12px] font-semibold text-primary-ink">
                     {row.to}
                   </span>
                 </span>

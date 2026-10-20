@@ -86,7 +86,7 @@ const AccountSetupModal = ({ draft, onDraftChange, onSubmit, onSignOut, busy, er
       <button
         type="button"
         onClick={onSignOut}
-        className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
       >
         Sign out instead
       </button>

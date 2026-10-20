@@ -65,7 +65,7 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
           title={`Check out ${stay.familyName}`}
           disabled={busy}
           onClick={() => onCheckOut(stay)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 sm:h-10 sm:w-10"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-50 sm:h-10 sm:w-10"
         >
           <LogOut size={15} strokeWidth={1.7} />
         </button>

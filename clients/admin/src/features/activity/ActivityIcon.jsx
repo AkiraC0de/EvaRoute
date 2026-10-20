@@ -42,7 +42,7 @@ const ACTION_META = {
 
 const TONE_CHIP = {
   neutral: "bg-surface-2 text-muted",
-  primary: "bg-primary-soft text-primary",
+  primary: "bg-primary-soft text-primary-ink",
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
 };

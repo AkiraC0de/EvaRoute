@@ -18,7 +18,7 @@ const ConfirmDeleteBar = ({ busy, onConfirm, onCancel }) => (
       type="button"
       disabled={busy}
       onClick={onCancel}
-      className="min-h-11 rounded-full bg-surface px-3 py-1.5 text-[11px] font-semibold text-muted transition hover:bg-surface-2 hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 sm:min-h-8"
+      className="min-h-11 rounded-full bg-surface px-3 py-1.5 text-[11px] font-semibold text-muted transition hover:bg-surface-2 hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-60 sm:min-h-8"
     >
       Cancel
     </button>

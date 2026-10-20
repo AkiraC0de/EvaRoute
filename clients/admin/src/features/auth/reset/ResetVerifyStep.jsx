@@ -11,7 +11,7 @@ const OTP_INPUT_CLASS = [
   "text-center text-[18px] font-bold tracking-[8px] text-ink-soft",
   "outline-none transition",
   "placeholder:font-medium placeholder:tracking-[8px] placeholder:text-muted-dim",
-  "focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+  "focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink",
   "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-line-strong",
 ].join(" ");
 
@@ -53,14 +53,14 @@ const ResetVerifyStep = ({ email, otp, onOtpChange, onSubmit, onResend, onRestar
         type="button"
         onClick={onResend}
         disabled={busy}
-        className="inline-flex min-h-11 items-center text-[11px] font-semibold text-primary transition hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:text-muted-dim"
+        className="inline-flex min-h-11 items-center text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:text-muted-dim"
       >
         Resend code
       </button>
       <button
         type="button"
         onClick={onRestart}
-        className="inline-flex min-h-11 items-center text-[11px] font-semibold text-muted transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="inline-flex min-h-11 items-center text-[11px] font-semibold text-muted transition hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
       >
         Use a different email
       </button>

@@ -23,7 +23,7 @@ const Checkbox = ({
     checked={checked}
     disabled={disabled}
     onCheckedChange={(next) => onChange?.({ target: { checked: next === true } })}
-    className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-line-strong bg-surface transition after:absolute after:-inset-3 after:rounded-md after:content-[''] data-[state=checked]:border-primary data-[state=checked]:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+    className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-line-strong bg-surface transition after:absolute after:-inset-3 after:rounded-md after:content-[''] data-[state=checked]:border-primary data-[state=checked]:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
   >
     <CheckboxPrimitive.Indicator>
       <Check size={11} strokeWidth={3} className="text-white" />

@@ -18,7 +18,7 @@ const OccupancyLoading = () => (
         <Skeleton className="mt-3 h-24 w-full rounded-md" />
         <Skeleton className="mt-3 h-2.5 w-full rounded-full" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
         {[0, 1, 2, 3].map((n) => (
           <Skeleton key={n} className="h-28 rounded-lg" />
         ))}

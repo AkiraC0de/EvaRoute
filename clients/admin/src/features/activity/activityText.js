@@ -1,5 +1,6 @@
 /** Pure helpers for rendering activity rows (kept out of the .jsx files to
  *  satisfy react-refresh/only-export-components). */
+import { humanizeKey } from "./detailFormat";
 
 /** Human sentence for one log row: "Verify Admin updated facility X". */
 export function describeActivity(log) {
@@ -92,7 +93,9 @@ const q = (value) => (value ? `“${value}”` : "");
 
 function fieldSummary(md) {
   const keys = md.after && typeof md.after === "object" ? Object.keys(md.after) : [];
-  return keys.length ? ` (${keys.join(", ")})` : "";
+  // Render field names the way the detail panel does ("In stock", not
+  // "isAvailable") — raw model keys never reach user-facing copy.
+  return keys.length ? ` (${keys.map(humanizeKey).join(", ")})` : "";
 }
 
 function valueSummary(md) {
@@ -108,7 +111,8 @@ function changeSummary(md) {
     return ` · ${before.availableValue ?? 0} → ${after.availableValue}${after.maxValue != null ? ` of ${after.maxValue}` : ""}`;
   }
   const keys = Object.keys(after).filter((k) => before[k] !== after[k]);
-  return keys.length ? ` (${keys.join(", ")})` : "";
+  // Same rule as fieldSummary: raw model keys never reach user-facing copy.
+  return keys.length ? ` (${keys.map(humanizeKey).join(", ")})` : "";
 }
 
 function durationSummary(md) {

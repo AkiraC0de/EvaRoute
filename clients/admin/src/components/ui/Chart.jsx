@@ -24,7 +24,7 @@ const ChartTooltip = ({ active, payload, label }) => {
     <div className="rounded-md border border-line bg-surface px-3 py-2 shadow-sm">
       <p className="text-[11px] font-semibold text-ink">{label}</p>
       <p className="mt-1 text-[11px] text-muted">
-        <span className="font-semibold text-primary">{row.checkIns ?? 0}</span> check-ins ·{" "}
+        <span className="font-semibold text-primary-ink">{row.checkIns ?? 0}</span> check-ins ·{" "}
         <span className="font-semibold text-ink-soft">{row.total ?? 0}</span> events
       </p>
     </div>

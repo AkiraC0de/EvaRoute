@@ -9,7 +9,7 @@ const DECREASE = [-1, -10];
 const INCREASE = [10, 1];
 
 const STEP_BUTTON =
-  "min-h-11 min-w-11 rounded-full bg-surface px-1.5 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 sm:min-h-8 sm:min-w-8";
+  "min-h-11 min-w-11 rounded-full bg-surface px-1.5 py-1 text-[11px] font-semibold text-primary-ink transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-50 sm:min-h-8 sm:min-w-8";
 
 const QuantityStepper = ({ name, value, busy, onStep }) => (
   <div className="flex items-center gap-1 rounded-full bg-surface-2 p-1">

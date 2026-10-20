@@ -10,7 +10,7 @@ const TONES = {
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
   danger: "bg-danger-soft text-danger-strong",
-  primary: "bg-primary-soft text-primary",
+  primary: "bg-primary-soft text-primary-ink",
   neutral: "bg-surface-2 text-muted",
 };
 

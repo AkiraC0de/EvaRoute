@@ -2,9 +2,9 @@
  *  hairline-bordered panels on the warm canvas, no lift, no molded depth). */
 
 export const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink";
 
-export const GRID = "grid grid-cols-2 gap-4 lg:grid-cols-4";
+export const GRID = "grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4";
 export const CARD = "rounded-lg border border-line bg-surface p-5";
 
 /** Icon-chip tints — CATEGORY meaning, never decoration (same mapping as

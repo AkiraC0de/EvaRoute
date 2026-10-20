@@ -35,7 +35,7 @@ const Calendar = ({ mode = "single", selected, onSelect, className = "", ...prop
       range_start: "rounded-md bg-primary text-white",
       range_middle: "rounded-none bg-primary-soft text-primary-strong",
       range_end: "rounded-md bg-primary text-white",
-      today: "font-bold text-primary",
+      today: "font-bold text-primary-ink",
       outside: "text-muted-dim opacity-60",
       disabled: "cursor-not-allowed opacity-40",
     }}

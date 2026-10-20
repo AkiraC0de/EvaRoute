@@ -8,7 +8,7 @@ import SelectInput from "./Select";
  */
 
 const CONTROL_CLASS =
-  "h-11 sm:h-10 rounded-md border border-line-strong bg-surface px-3 text-[12px] font-medium text-ink-soft outline-none transition focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "h-11 sm:h-10 rounded-md border border-line-strong bg-surface px-3 text-[12px] font-medium text-ink-soft outline-none transition focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink";
 
 const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" }) => (
   <div className={`relative w-full max-w-[240px] ${className}`}>

@@ -32,7 +32,7 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
   return (
     <section
       aria-label="Facility occupancy"
-      className="flex h-full flex-col overflow-hidden rounded-lg bg-primary p-5"
+      className="flex h-full flex-col overflow-hidden rounded-lg bg-primary-strong p-5"
     >
       <div className="flex h-full flex-col">
         {/* Header row: icon + label left, state chip right */}
