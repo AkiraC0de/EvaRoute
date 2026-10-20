@@ -1,3 +1,5 @@
+import { motion, useReducedMotion } from "motion/react";
+
 /**
  * Message banner used for errors, warnings, info and success notices.
  *
@@ -15,11 +17,18 @@ const TONES = {
 
 const Banner = ({ tone = "info", className = "px-3 py-2 text-[12px]", children }) => {
   const palette = TONES[tone] ?? TONES.info;
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div role={palette.role} className={`rounded-md ${palette.wrap} ${className}`}>
+    <motion.div
+      role={palette.role}
+      initial={reduceMotion ? false : { opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className={`rounded-md ${palette.wrap} ${className}`}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 };
 

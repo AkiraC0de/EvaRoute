@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "motion/react";
 import Button from "./Button";
 
 /**
@@ -23,10 +24,14 @@ const TONES = {
 
 const StatusPanel = ({ tone = "info", title, children, onRetry, retryLabel = "Try again" }) => {
   const palette = TONES[tone] ?? TONES.info;
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div
+    <motion.div
       role={tone === "error" ? "alert" : "status"}
+      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
       className={`rounded-lg px-4 py-6 text-center text-[13px] ${palette.wrap}`}
     >
       {title && (
@@ -38,7 +43,7 @@ const StatusPanel = ({ tone = "info", title, children, onRetry, retryLabel = "Tr
           {retryLabel}
         </Button>
       )}
-    </div>
+    </motion.div>
   );
 };
 

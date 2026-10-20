@@ -1,4 +1,7 @@
+import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import Button from "../../components/ui/Button";
+import { slideVariants } from "../../components/ui/slideVariants";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
 import Skeleton from "../../components/ui/Skeleton";
@@ -37,6 +40,15 @@ export default function PagedActivityFeed({
     query,
     pageSize,
   );
+
+  const [dir, setDir] = useState(1);
+  const reduceMotion = useReducedMotion();
+  // Page travel direction for the slide-in (pages arrive from the server, so
+  // this is an entrance-only slide keyed by `page` — see slideVariants).
+  const goPage = (next) => {
+    setDir(next >= page ? 1 : -1);
+    setPage(next);
+  };
 
   const header = (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -100,6 +112,13 @@ export default function PagedActivityFeed({
   return (
     <div>
       {header}
+      <motion.div
+        key={page}
+        custom={dir}
+        variants={slideVariants(reduceMotion)}
+        initial="enter"
+        animate="center"
+      >
       {groupByDay(activities).map((group) => (
         <section key={group.label} aria-label={group.label}>
           <h3 className="bg-surface-2 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
@@ -112,12 +131,13 @@ export default function PagedActivityFeed({
           </ul>
         </section>
       ))}
+      </motion.div>
       <PaginationBar
         page={page}
         totalPages={totalPages}
         total={total}
         pageSize={pageSize}
-        onChange={setPage}
+        onChange={goPage}
       />
     </div>
   );

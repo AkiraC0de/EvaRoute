@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import ActivityIcon from "./ActivityIcon";
 import ActivityDetails from "./ActivityDetails";
@@ -14,6 +15,7 @@ export default function ActivityRow({ log, showFacility = false }) {
   const md = log.metadata ?? null;
   const hasDetails = md && Object.keys(md).length > 0;
   const [open, setOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   return (
     <li className="flex items-start gap-2.5 border-b border-line px-4 py-2.5 transition-colors hover:bg-surface-2">
@@ -42,7 +44,21 @@ export default function ActivityRow({ log, showFacility = false }) {
             </button>
           )}
         </div>
-        {open && hasDetails && <ActivityDetails metadata={md} />}
+        {/* Expands/collapses in place (height auto, exit faster than enter). */}
+        <AnimatePresence initial={false}>
+          {open && hasDetails && (
+            <motion.div
+              key="details"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0, transition: { duration: reduceMotion ? 0 : 0.14, ease: "easeIn" } }}
+              transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <ActivityDetails metadata={md} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </li>
   );

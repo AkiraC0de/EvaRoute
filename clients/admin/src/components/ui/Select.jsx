@@ -75,7 +75,7 @@ const SelectInput = ({
           <SelectPrimitive.Content
             position="popper"
             sideOffset={4}
-            className="z-[70] max-h-64 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-line bg-surface p-1 shadow-lg"
+            className="popper-in z-[70] max-h-64 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-line bg-surface p-1 shadow-lg"
           >
             <SelectPrimitive.Viewport>
               {items.map((item) => (

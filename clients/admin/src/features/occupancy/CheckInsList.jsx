@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, ClipboardList, X } from "lucide-react";
 import Card from "../../components/ui/Card";
+import { slideVariants } from "../../components/ui/slideVariants";
 import { FilterSearch } from "../../components/ui/FilterControls";
 import HouseholdListItem from "./HouseholdListItem";
 import PersonListItem from "./PersonListItem";
@@ -42,6 +44,21 @@ const PAGE_SIZE = 10;
 
 const CheckInsList = ({ stays, busy, onCheckOut }) => {
   const [mode, setMode] = useState("household");
+  // Slide direction for the view switch: +1 Household -> Individual (content
+  // enters from the right), -1 the other way. Set in the handler, read at
+  // render — never written during render.
+  const [dir, setDir] = useState(1);
+  const reduceMotion = useReducedMotion();
+  // Directional slide (view toggle AND pagination) — shared vocabulary with
+  // the activity feed; `custom` carries the direction of travel.
+  const listVariants = useMemo(() => slideVariants(reduceMotion), [reduceMotion]);
+  // Sliding active pills (the app's one active-state language — same grammar
+  // as the nav rails). Per-instance ids so sibling toggles never share one.
+  const modePillId = `checkins-mode-pill-${useId()}`;
+  const categoryPillId = `checkins-category-pill-${useId()}`;
+  const pillTransition = reduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 480, damping: 40, mass: 0.85 };
   const [searchInput, setSearchInput] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -86,7 +103,19 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
     pageNumbers.push(pageCount);
   }
 
+  // Page travel: the next page slides in from the right, the previous page
+  // from the left. One direction flag feeds the shared variants via `custom`.
+  const goToPage = (next) => {
+    const target = Math.max(1, next);
+    if (target === safePage) return;
+    setDir(target > safePage ? 1 : -1);
+    setPage(target);
+  };
+
   const switchMode = (next) => {
+    if (next === mode) return;
+    const order = MODES.map((item) => item.key);
+    setDir(order.indexOf(next) > order.indexOf(mode) ? 1 : -1);
     setMode(next);
     setSearchInput("");
     setCategory("");
@@ -123,13 +152,19 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               type="button"
               aria-pressed={mode === item.key}
               onClick={() => switchMode(item.key)}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
-                mode === item.key
-                  ? "bg-primary text-white"
-                  : "text-muted hover:text-ink-soft"
+              className={`relative rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                mode === item.key ? "text-white" : "text-muted hover:text-ink-soft"
               }`}
             >
-              {item.label}
+              {mode === item.key && (
+                <motion.span
+                  layoutId={modePillId}
+                  aria-hidden="true"
+                  transition={pillTransition}
+                  className="absolute inset-0 rounded-full bg-primary"
+                />
+              )}
+              <span className="relative z-10">{item.label}</span>
             </button>
           ))}
         </div>
@@ -145,7 +180,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           value={searchInput}
           onChange={(event) => {
             setSearchInput(event.target.value);
-            setPage(1);
+            goToPage(1);
           }}
           placeholder={
             isHousehold
@@ -171,15 +206,21 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                 aria-pressed={category === item.value}
                 onClick={() => {
                   setCategory(item.value);
-                  setPage(1);
+                  goToPage(1);
                 }}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
-                  category === item.value
-                    ? "bg-surface text-ink-soft"
-                    : "text-muted hover:text-ink-soft"
+                className={`relative rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                  category === item.value ? "text-ink-soft" : "text-muted hover:text-ink-soft"
                 }`}
               >
-                {item.label}
+                {category === item.value && (
+                  <motion.span
+                    layoutId={categoryPillId}
+                    aria-hidden="true"
+                    transition={pillTransition}
+                    className="absolute inset-0 rounded-full bg-surface"
+                  />
+                )}
+                <span className="relative z-10">{item.label}</span>
               </button>
             ))}
           </div>
@@ -195,7 +236,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               title="Clear check-in search"
               onClick={() => {
                 setSearchInput("");
-                setPage(1);
+                goToPage(1);
               }}
               className="inline-flex h-9 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
             >
@@ -205,8 +246,21 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
         )}
       </div>
 
-      {/* Rows — one page at a time */}
-      <ul className="flex-1 space-y-2">
+      {/* Rows — one page at a time. The panel slides toward the selected
+          view (exit faster than enter); under reduced motion it is an
+          instant fade. The wrapper keeps the card's flex space while
+          AnimatePresence swaps the panels. */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <AnimatePresence mode="wait" initial={false} custom={dir}>
+          <motion.ul
+            key={`${mode}-${safePage}`}
+            custom={dir}
+            variants={listVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="space-y-2"
+          >
         {isHousehold
           ? pageRows.map((stay) => (
               <HouseholdListItem
@@ -232,7 +286,9 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                 : "No individuals checked in."}
           </li>
         )}
-      </ul>
+          </motion.ul>
+        </AnimatePresence>
+      </div>
 
       {/* Pager — hidden when everything fits on one page */}
       {pageCount > 1 && (
@@ -245,7 +301,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
             aria-label="Previous page"
             title="Previous page"
             disabled={safePage === 1}
-            onClick={() => setPage(safePage - 1)}
+            onClick={() => goToPage(safePage - 1)}
             className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronLeft size={15} strokeWidth={2} />
@@ -258,7 +314,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   type="button"
                   aria-label={`Page ${n}`}
                   aria-current={n === safePage ? "page" : undefined}
-                  onClick={() => setPage(n)}
+                  onClick={() => goToPage(n)}
                   className={`min-w-9 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                     n === safePage
                       ? "bg-primary text-white"
@@ -279,7 +335,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
             aria-label="Next page"
             title="Next page"
             disabled={safePage === pageCount}
-            onClick={() => setPage(safePage + 1)}
+            onClick={() => goToPage(safePage + 1)}
             className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronRight size={15} strokeWidth={2} />
