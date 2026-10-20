@@ -109,6 +109,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               className="w-28 shrink-0"
               label={index === 0 ? "Category" : undefined}
               value={member.ageGroup}
+              fieldClassName="  "
               onChange={(event) => updateMember(index, { ageGroup: event.target.value })}
               aria-label={`Member ${index + 1} category`}
             >

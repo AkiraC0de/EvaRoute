@@ -27,7 +27,7 @@ const FacilitiesMapCard = ({ facilities, onView }) => (
     <div className="mt-3">
       {/* 320px keeps the map useful without pushing the facilities table
           (the page's primary object) below the fold on laptop screens. */}
-      <FacilityOverviewMap facilities={facilities} height={320} onView={onView} />
+      <FacilityOverviewMap facilities={facilities} height={500} onView={onView} />
     </div>
   </div>
 );

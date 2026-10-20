@@ -152,7 +152,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               type="button"
               aria-pressed={mode === item.key}
               onClick={() => switchMode(item.key)}
-              className={`relative rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+              className={`relative rounded-xs px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                 mode === item.key ? "text-white" : "text-muted hover:text-ink-soft"
               }`}
             >
@@ -161,7 +161,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   layoutId={modePillId}
                   aria-hidden="true"
                   transition={pillTransition}
-                  className="absolute inset-0 rounded-full bg-primary"
+                  className="absolute inset-0 rounded-sm bg-primary"
                 />
               )}
               <span className="relative z-10">{item.label}</span>
@@ -197,7 +197,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           <div
             role="group"
             aria-label="Filter by category"
-            className="flex items-center gap-1 rounded-md bg-surface-2 p-1"
+            className="flex items-center gap-1 rounded-md h-full bg-surface-2 p-1"
           >
             {CATEGORIES.map((item) => (
               <button
@@ -217,7 +217,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                     layoutId={categoryPillId}
                     aria-hidden="true"
                     transition={pillTransition}
-                    className="absolute inset-0 rounded-full bg-surface"
+                    className="absolute inset-0 rounded-sm bg-surface"
                   />
                 )}
                 <span className="relative z-10">{item.label}</span>

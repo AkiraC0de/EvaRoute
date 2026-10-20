@@ -14,7 +14,7 @@ const ActivityChartCard = ({ timeline, loading }) => (
           <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" /> Check-ins
         </span>
         <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
-          <span className="h-2 w-2 rounded-full bg-line-strong" aria-hidden="true" /> Other events
+          <span className="h-2 w-2 rounded-full bg-chart-quiet ring-1 ring-line" aria-hidden="true" /> Other events
         </span>
       </div>
     }

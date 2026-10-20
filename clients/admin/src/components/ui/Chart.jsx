@@ -92,8 +92,9 @@ const ActivityChart = ({ data = [], height = 220 }) => {
             content={<ChartTooltip />}
             cursor={{ fill: "var(--color-surface-2)", opacity: 0.7 }}
           />
-          {/* Stacked: other events underlay (neutral), check-ins on top (primary). */}
-          <Bar dataKey="other" stackId="day" fill="var(--color-line-strong)" radius={[0, 0, 6, 6]}>
+          {/* Stacked: other events underlay (light tint of primary), check-ins on top
+             (primary) so the signal stays the darkest, topmost segment. */}
+          <Bar dataKey="other" stackId="day" fill="var(--color-chart-quiet)" radius={[0, 0, 6, 6]}>
             <LabelList dataKey="total" position="top" content={dayLabel("other")} />
           </Bar>
           <Bar dataKey="checkIns" stackId="day" radius={[6, 6, 0, 0]}>

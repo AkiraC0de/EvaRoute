@@ -26,8 +26,8 @@
   /* Surfaces — cool slate canvas, white for dense data */
   --color-canvas: #e6ecf2; /* page background (cool blue-grey) */
   --color-surface: #ffffff; /* tables, forms, dialogs, dense data */
-  --color-surface-2: #ebf2fa; /* section bands, table headers, filter bands */
-  --color-surface-2-hover: #ebf1f7;
+  --color-surface-2: #e6e8ec; /* section bands, table headers, filter bands, row hover */
+  --color-surface-2-hover: #dde0e7;
   --color-line: #c3cfdb; /* hairline dividers / borders */
   --color-line-strong: #a9b8c8;
 
@@ -49,19 +49,22 @@
   --color-primary-ink: #14467f; /* text-safe blue on light fills */
 
   /* Secondary — lagoon teal: people / operations, secondary actions, info */
-  --color-secondary: #0b7285;
-  --color-secondary-strong: #095b6a;
+  --color-secondary: #00ad8e;
+  --color-secondary-strong: #00ad8e;
   --color-secondary-soft: #daf0f4;
   --color-secondary-soft-hover: #c3e5ec;
   --color-secondary-ink: #0a5f70;
+  /* Chart series 2 — the quiet underlay ("other events"): a light tint of
+     the primary — vivid enough to never read as gray — never competing with the
+     darker signal bars stacked on top. */
+  --color-chart-quiet: #dce8f5;
 
-  /* Warm — signal orange: places/sites and attention cues. Pair fills with
-     dark ink text; never used for status. */
-  --color-warm: #f28a2e;
-  --color-warm-strong: #d9700f;
-  --color-warm-soft: #ffe9d4;
-  --color-warm-soft-hover: #fcdbb8;
-  --color-warm-ink: #8f4308;
+  /* Warm accent — mint green */
+  --color-warm: #34B795;
+  --color-warm-strong: #218F72;
+  --color-warm-soft: #E0F5ED;
+  --color-warm-soft-hover: #C9EBDD;
+  --color-warm-ink: #176B56;
 
   /* Semantic (STATUS only — never decoration). Always pair with an icon or
      label so status never relies on color alone. */
