@@ -5,6 +5,10 @@ import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
  * One checked-in household (a `FacilityStay` with its members): initials,
  * family name, Check-In ID ("0001", the per-facility ticket number), check-in
  * time, member chips and the check-out control.
+ *
+ * Flat rows: hairline border + surface fill, no elevation. People chips
+ * carry the people (teal) category tint — filled for children, outlined for
+ * adults — and every chip spells its meaning in words, never color alone.
  */
 const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const initials = stay.familyName
@@ -17,11 +21,11 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const code = checkInCode(stay);
 
   return (
-    <li className="rounded-clay-sm bg-surface px-3 py-2.5 shadow-clay-xs transition hover:shadow-clay">
+    <li className="rounded-md border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2">
       <div className="flex items-start gap-3">
         <span
           aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[11px] font-bold text-accent"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-[11px] font-bold text-secondary-ink"
         >
           {initials}
         </span>
@@ -30,7 +34,7 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
             <p className="truncate text-[13px] font-bold text-ink">{stay.familyName}</p>
             <span
               title={`Check-in ID ${code}`}
-              className="shrink-0 rounded-full bg-sunken px-2 py-0.5 font-mono text-[11px] font-bold tracking-[1px] text-ink-soft shadow-clay-inset"
+              className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-bold tracking-[1px] text-ink-soft"
             >
               {code}
             </span>
@@ -44,10 +48,10 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
             {stay.members.map((member) => (
               <li
                 key={member.id}
-                className={`rounded-full px-2 py-0.5 text-[10px] font-medium shadow-clay-inset ${
+                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                   member.ageGroup === "CHILD"
-                    ? "bg-warning-soft text-warning"
-                    : "bg-accent-soft text-accent"
+                    ? "bg-secondary-soft text-secondary-ink"
+                    : "border border-secondary/20 text-secondary-ink"
                 }`}
               >
                 {member.fullName} · {member.ageGroup === "CHILD" ? "Child" : "Adult"}
@@ -61,7 +65,7 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
           title={`Check out ${stay.familyName}`}
           disabled={busy}
           onClick={() => onCheckOut(stay)}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-sunken text-muted shadow-clay-inset transition hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 sm:h-10 sm:w-10"
         >
           <LogOut size={15} strokeWidth={1.7} />
         </button>

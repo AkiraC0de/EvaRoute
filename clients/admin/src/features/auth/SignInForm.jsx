@@ -44,7 +44,7 @@ const SignInForm = ({ onForgotPassword }) => {
     <>
       <motion.p
         variants={v.fadeUp}
-        className="text-[10px] font-semibold uppercase tracking-[1.5px] text-accent"
+        className="text-[10px] font-semibold uppercase tracking-[1.5px] text-primary"
       >
         Secure access
       </motion.p>
@@ -94,14 +94,14 @@ const SignInForm = ({ onForgotPassword }) => {
               onChange={(event) => setKeepLogin(event.target.checked)}
               ariaLabel="Keep me signed in"
             />
-            <span className="text-[12px] font-medium text-[#65718c]">
+            <span className="text-[12px] font-medium text-muted">
               Keep me signed in
             </span>
           </label>
           <button
             type="button"
             onClick={onForgotPassword}
-            className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
+            className="inline-flex min-h-11 items-center text-[11px] font-semibold text-primary transition hover:text-primary-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             Forgot password?
           </button>
@@ -114,7 +114,7 @@ const SignInForm = ({ onForgotPassword }) => {
         )}
 
         <motion.div variants={v.fadeUp}>
-          <Button type="submit" disabled={submitting} className="mt-2 min-h-10 w-full">
+          <Button type="submit" disabled={submitting} className="mt-2 min-h-11 w-full">
             {submitting ? "Signing in…" : "Sign in"}
           </Button>
         </motion.div>

@@ -9,7 +9,7 @@ const FacilityLoading = () => (
     {/* Overview band */}
     <Skeleton className="h-3 w-40" />
     <div className="grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
-      <div className="rounded-clay bg-surface p-5 shadow-clay">
+      <div className="rounded-lg border border-line bg-surface p-5">
         <Skeleton className="h-3 w-28" />
         <Skeleton className="mt-3.5 h-7 w-56" />
         <Skeleton className="mt-2.5 h-3 w-40" />
@@ -17,7 +17,7 @@ const FacilityLoading = () => (
       </div>
       <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map((n) => (
-          <Skeleton key={n} className="h-28 rounded-clay" />
+          <Skeleton key={n} className="h-28 rounded-lg" />
         ))}
       </div>
     </div>
@@ -26,17 +26,17 @@ const FacilityLoading = () => (
     <Skeleton className="h-3 w-48" />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
       {[0, 1, 2, 3].map((n) => (
-        <Skeleton key={n} className="h-32 rounded-clay" />
+        <Skeleton key={n} className="h-32 rounded-lg" />
       ))}
     </div>
 
     {/* Location & activity band */}
     <Skeleton className="h-3 w-40" />
     <div className="grid items-start gap-4 lg:grid-cols-[1.45fr_1fr]">
-      <Skeleton className="h-72 rounded-clay" />
+      <Skeleton className="h-72 rounded-lg" />
       <div className="space-y-4">
-        <Skeleton className="h-32 rounded-clay" />
-        <Skeleton className="h-28 rounded-clay" />
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-28 rounded-lg" />
       </div>
     </div>
   </div>

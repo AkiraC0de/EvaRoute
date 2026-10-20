@@ -3,7 +3,7 @@
  * One shared set of variants so the page entrance, the reset steps and the
  * login <-> reset switch all speak the same language.
  *
- * Style: restrained clay motion — soft ease-out, short distances, quick
+ * Style: restrained flat motion — soft ease-out, short distances, quick
  * exits. Every variant set degrades to a fade under prefers-reduced-motion.
  */
 

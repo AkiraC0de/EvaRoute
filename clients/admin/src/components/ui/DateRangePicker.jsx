@@ -48,7 +48,7 @@ const DateRangePicker = ({
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           aria-label={ariaLabel}
-          className={`inline-flex h-11 sm:h-10 items-center gap-2 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+          className={`inline-flex h-11 sm:h-10 items-center gap-2 rounded-md bg-surface-2 px-3 text-[12px] font-medium text-ink-soft shadow-none outline-none transition hover:bg-surface-2-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
             hasRange ? "" : "text-muted-dim"
           }`}
         >
@@ -59,7 +59,7 @@ const DateRangePicker = ({
           <Popover.Content
             sideOffset={4}
             align="start"
-            className="z-[70] rounded-clay bg-surface shadow-clay-lg"
+            className="z-[70] rounded-lg bg-surface shadow-md"
           >
             <Calendar
               mode="range"
@@ -74,14 +74,14 @@ const DateRangePicker = ({
                   onChange?.({ from: "", to: "" });
                   setOpen(false);
                 }}
-                className="rounded-clay-sm px-2 py-1 text-[11px] font-semibold text-muted transition hover:bg-sunken hover:text-ink-soft"
+                className="rounded-md px-2 py-1 text-[11px] font-semibold text-muted transition hover:bg-surface-2 hover:text-ink-soft"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-clay-sm bg-accent px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
+                className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-primary-strong"
               >
                 Done
               </button>

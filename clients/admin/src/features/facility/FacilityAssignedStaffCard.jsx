@@ -14,7 +14,7 @@ const FacilityAssignedStaffCard = ({ staffs, loading }) => {
       <div className="mb-3 flex items-center gap-2.5">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-secondary-soft text-secondary-ink"
         >
           <Users size={15} strokeWidth={1.9} />
         </span>
@@ -22,7 +22,7 @@ const FacilityAssignedStaffCard = ({ staffs, loading }) => {
           <h2 className="text-[13px] font-bold text-ink-soft">Assigned staff</h2>
           <p className="text-[10px] text-muted">Who works this facility</p>
         </div>
-        <span className="ml-auto shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
+        <span className="ml-auto shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
           {rows.length}
         </span>
       </div>
@@ -52,11 +52,11 @@ const FacilityAssignedStaffCard = ({ staffs, loading }) => {
             return (
               <li
                 key={staff.id}
-                className="flex items-center gap-2 rounded-full bg-sunken py-1 pl-1 pr-2.5 shadow-clay-inset"
+                className="flex items-center gap-2 rounded-full bg-surface-2 py-1 pl-1 pr-2.5"
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-[9px] font-bold text-accent"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-soft text-[9px] font-bold text-secondary-ink"
                 >
                   {initials}
                 </span>

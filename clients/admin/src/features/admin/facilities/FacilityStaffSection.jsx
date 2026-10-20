@@ -15,9 +15,9 @@ import AssignStaffPanel from "./AssignStaffPanel";
  * to another facility TRANSFERS them — the confirm dialog says so.
  *
  * Layout: a two-pane workspace — the assigned roster on the left (the primary
- * content, wider), the assign picker in a recessed well on the right. Stacks
- * on small screens. This component owns data flow and the dismiss dialog; the
- * two panes live in their own modules.
+ * content, wider), the assign picker in a bordered side panel on the right.
+ * Stacks on small screens. This component owns data flow and the dismiss
+ * dialog; the two panes live in their own modules.
  */
 const FacilityStaffSection = ({ facilityId }) => {
   const [staff, setStaff] = useState([]);

@@ -12,19 +12,19 @@ import {
 
 /**
  * Activity timeline chart (recharts — shadcn Chart's base library), themed
- * with the clay tokens: accent bars for check-ins, soft accent for other
- * events, recessed dashed gridlines, tiny tracked axis labels. `data` is the
+ * with the design tokens: navy bars for check-ins over a neutral underlay of
+ * other events, dashed gridlines, tiny tracked axis labels. `data` is the
  * server's zero-filled per-day timeline:
  *   [{ date: "YYYY-MM-DD", total, checkIns, checkOuts }]
  */
-const ClayTooltip = ({ active, payload, label }) => {
+const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload ?? {};
   return (
-    <div className="rounded-clay-sm border border-line bg-surface px-3 py-2 shadow-clay">
+    <div className="rounded-md border border-line bg-surface px-3 py-2 shadow-sm">
       <p className="text-[11px] font-semibold text-ink">{label}</p>
       <p className="mt-1 text-[11px] text-muted">
-        <span className="font-semibold text-accent">{row.checkIns ?? 0}</span> check-ins ·{" "}
+        <span className="font-semibold text-primary">{row.checkIns ?? 0}</span> check-ins ·{" "}
         <span className="font-semibold text-ink-soft">{row.total ?? 0}</span> events
       </p>
     </div>
@@ -89,17 +89,17 @@ const ActivityChart = ({ data = [], height = 220 }) => {
             axisLine={false}
           />
           <Tooltip
-            content={<ClayTooltip />}
-            cursor={{ fill: "var(--color-sunken)", opacity: 0.7 }}
+            content={<ChartTooltip />}
+            cursor={{ fill: "var(--color-surface-2)", opacity: 0.7 }}
           />
-          {/* Stacked: other events underlay (soft), check-ins on top (accent). */}
-          <Bar dataKey="other" stackId="day" fill="var(--color-accent-soft)" radius={[0, 0, 6, 6]}>
+          {/* Stacked: other events underlay (neutral), check-ins on top (primary). */}
+          <Bar dataKey="other" stackId="day" fill="var(--color-line-strong)" radius={[0, 0, 6, 6]}>
             <LabelList dataKey="total" position="top" content={dayLabel("other")} />
           </Bar>
           <Bar dataKey="checkIns" stackId="day" radius={[6, 6, 0, 0]}>
             <LabelList dataKey="total" position="top" content={dayLabel("checkIns")} />
             {chartData.map((entry) => (
-              <Cell key={entry.date} fill="var(--color-accent)" />
+              <Cell key={entry.date} fill="var(--color-primary)" />
             ))}
           </Bar>
         </BarChart>

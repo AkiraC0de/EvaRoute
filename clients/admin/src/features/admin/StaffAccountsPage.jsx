@@ -25,7 +25,8 @@ import StaffConfirmDialog from "./staff/StaffConfirmDialog";
  * account; the UI hides those actions for your own row.
  *
  * This component owns data flow and composition only — the header, filter
- * band, table rows, list states and dialogs each live in their own module.
+ * band, ID credential cards, list states and dialogs each live in their own
+ * module.
  */
 
 const StaffAccountsPage = () => {

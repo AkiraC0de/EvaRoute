@@ -35,7 +35,7 @@ const ResetPasswordStep = ({ newPassword, confirmPassword, onChange, onSubmit, b
       Changing your password signs you out of every device, including this
       one.
     </p>
-    <Button type="submit" disabled={busy} className="min-h-10 w-full">
+    <Button type="submit" disabled={busy} className="min-h-11 w-full">
       {busy ? "Saving…" : "Reset password"}
     </Button>
   </form>

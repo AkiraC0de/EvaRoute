@@ -2,9 +2,9 @@ import Button from "../../../components/ui/Button";
 import PasswordInput from "../../../components/ui/PasswordInput";
 import PasswordRulesChecklist from "../../auth/reset/PasswordRulesChecklist";
 
-/** Pure form: three password fields + the live rules checklist. */
+/** Pure form: three password fields + the live rules checklist (flat inset band). */
 const ChangePasswordForm = ({ values, onChange, onSubmit, busy }) => (
-  <form onSubmit={onSubmit} className="rounded-2xl bg-sunken p-3 shadow-clay-inset">
+  <form onSubmit={onSubmit} className="rounded-md border border-line bg-surface-2 p-3">
     <div className="grid gap-2.5">
       <PasswordInput
         id="current-password"

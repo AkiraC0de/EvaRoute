@@ -13,12 +13,12 @@ const GeneratedPasswordModal = ({ title, email, password, onClose }) => {
 
   return (
     <Modal title={title} onClose={onClose}>
-      <p className="text-[12px] leading-relaxed text-[#65718c]">
+      <p className="text-[12px] leading-relaxed text-muted">
         Account <span className="font-semibold text-ink-soft">{email}</span> is ready. Share
         this password securely — it is shown only once and also emailed to the staff member.
       </p>
 
-      <div className="mt-3 flex items-center gap-2 rounded-clay-sm bg-sunken px-3 py-2.5 shadow-clay-inset">
+      <div className="mt-3 flex items-center gap-2 rounded-md border border-line bg-surface-2 px-3 py-2.5">
         <code className="flex-1 select-all break-all text-[14px] font-bold tracking-[1px] text-ink-soft">
           {password}
         </code>

@@ -70,7 +70,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary"
         >
           <UserPlus size={15} strokeWidth={1.9} />
         </span>
@@ -78,7 +78,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
           <h2 className="text-[13px] font-bold text-ink-soft">New check-in</h2>
           <p className="text-[10px] text-muted">One household per check-in</p>
         </div>
-        <span className="ml-auto shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
+        <span className="ml-auto shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
           {remaining} place{remaining === 1 ? "" : "s"} left
         </span>
       </div>
@@ -94,7 +94,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       <p className="mb-1 mt-3 text-[10px] font-semibold uppercase tracking-[0.5px] text-muted">
         Family members
       </p>
-      <ul className="space-y-2 rounded-clay-sm bg-sunken p-2 shadow-clay-inset">
+      <ul className="space-y-2 rounded-md border border-line bg-surface-2 p-2">
         {members.map((member, index) => (
           <li key={index} className="flex items-end gap-2">
             <TextField
@@ -118,11 +118,12 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
             <button
               type="button"
               aria-label={`Remove member ${index + 1}`}
+              title={`Remove member ${index + 1}`}
               disabled={members.length === 1}
               onClick={() =>
                 setMembers((current) => current.filter((_, i) => i !== index))
               }
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-clay-sm bg-sunken text-muted shadow-clay-inset transition hover:bg-danger-soft hover:text-danger disabled:opacity-40"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 sm:h-10 sm:w-10"
             >
               <X size={14} strokeWidth={2} />
             </button>
@@ -139,7 +140,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               type="button"
               aria-label={option.label}
               onClick={() => addMembers(option.count, option.ageGroup)}
-              className="inline-flex h-8 items-center gap-1 rounded-clay-sm bg-sunken px-2.5 text-[11px] font-semibold text-ink-soft shadow-clay-inset transition hover:bg-accent-soft hover:text-accent"
+              className="inline-flex h-8 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <Icon size={12} strokeWidth={2} aria-hidden="true" /> {option.label}
             </button>

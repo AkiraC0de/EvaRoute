@@ -53,7 +53,7 @@ const ExportCheckInsModal = ({ stays, occupancy, facility, user, onClose }) => {
   return (
     <Modal title="Export check-in data" onClose={onClose}>
       {/* Live preview of exactly what gets exported */}
-      <div className="rounded-clay-sm bg-sunken px-3 py-2.5 shadow-clay-inset">
+      <div className="rounded-md border border-line bg-surface-2 px-3 py-2.5">
         <p className="text-[12px] font-bold text-ink-soft">
           {summary.households} household{summary.households === 1 ? "" : "s"} ·{" "}
           {summary.adults} adult{summary.adults === 1 ? "" : "s"} · {summary.children}{" "}
@@ -75,10 +75,10 @@ const ExportCheckInsModal = ({ stays, occupancy, facility, user, onClose }) => {
             type="button"
             aria-pressed={format === key}
             onClick={() => setFormat(key)}
-            className={`flex flex-1 items-center gap-2 rounded-clay-sm px-3 py-2.5 text-left transition ${
+            className={`flex flex-1 items-center gap-2 rounded-md px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
               format === key
-                ? "bg-accent text-white shadow-clay-xs"
-                : "bg-sunken text-muted shadow-clay-inset hover:text-ink-soft"
+                ? "bg-primary text-white"
+                : "bg-surface-2 text-muted hover:text-ink-soft"
             }`}
           >
             <Icon size={15} strokeWidth={1.9} aria-hidden="true" />

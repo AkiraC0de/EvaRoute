@@ -1,20 +1,22 @@
 import { Building2, Gauge, Users, UserCheck } from "lucide-react";
-import Button from "../../../components/ui/Button";
 import Skeleton from "../../../components/ui/Skeleton";
+import StatusPanel from "../../../components/ui/StatusPanel";
 import StatCard from "./StatCard";
 import { CARD, GRID } from "./overviewStyles";
 
-/** KPI row with its loading skeleton and summary-error state. */
-const StatRow = ({ error, loading, summary, occupancyPct, reload }) => (
+/**
+ * KPI wall — the hero band's supporting metric cards, one per category
+ * meaning (navy = capacity, teal = people, warm = places, neutral =
+ * records). Network occupancy itself lives in the hero band above, and the
+ * facility-state counts live in the hero chips — nothing repeats here.
+ * Includes the loading skeleton and the summary-error state.
+ */
+const StatRow = ({ error, loading, summary, reload }) => (
   <>
     {error && (
-      <div className={CARD}>
-        <p className="text-[13px] font-semibold text-ink-soft">Could not load the dashboard</p>
-        <p className="mt-1 text-[12px] text-muted">{error.message}</p>
-        <Button variant="neutral" size="sm" className="mt-3" onClick={reload}>
-          Try again
-        </Button>
-      </div>
+      <StatusPanel tone="error" title="Could not load the dashboard" onRetry={reload}>
+        {error.message}
+      </StatusPanel>
     )}
     {loading && !error && (
       <div className={GRID} role="status" aria-label="Loading dashboard">
@@ -31,37 +33,28 @@ const StatRow = ({ error, loading, summary, occupancyPct, reload }) => (
       <div className={GRID}>
         <StatCard
           icon={<Gauge size={20} strokeWidth={1.9} />}
-          tone="accent"
-          label="Network occupancy"
-          value={`${occupancyPct}%`}
-          caption={`${summary.capacity.occupied} of ${summary.capacity.total} places taken`}
-          meter={occupancyPct}
+          tone="primary"
+          label="Capacity"
+          value={summary.capacity.total}
+          caption="places across the network"
         />
         <StatCard
           icon={<Users size={20} strokeWidth={1.9} />}
-          tone="accent"
+          tone="secondary"
           label="People on site"
           value={summary.occupants.total}
           caption={`${summary.occupants.families} families · ${summary.occupants.children} children, ${summary.occupants.adults} adults`}
         />
         <StatCard
           icon={<Building2 size={20} strokeWidth={1.9} />}
-          tone="accent"
+          tone="warm"
           label="Facilities"
           value={summary.facilities.total}
-          caption={`${summary.facilities.byStatus.AVAILABLE ?? 0} available${
-            (summary.facilities.byStatus.LIMITED ?? 0) > 0
-              ? ` · ${summary.facilities.byStatus.LIMITED} limited`
-              : ""
-          }${
-            (summary.facilities.byStatus.UNAVAILABLE ?? 0) > 0
-              ? ` · ${summary.facilities.byStatus.UNAVAILABLE} unavailable`
-              : ""
-          }`}
+          caption="registered evacuation centers"
         />
         <StatCard
           icon={<UserCheck size={20} strokeWidth={1.9} />}
-          tone="accent"
+          tone="neutral"
           label="Staff accounts"
           value={summary.staff.total}
           caption={`${summary.staff.active} active · ${summary.staff.disabled} disabled`}

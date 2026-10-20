@@ -4,7 +4,8 @@ import TextField from "../../components/ui/Field";
 /**
  * Inline password confirmation used before the sign-out-all-devices action.
  * The API requires the account password as proof of identity. The panel is a
- * recessed clay inset; the field sits on a raised white slot inside it.
+ * flat inset band (bg-surface-2 + hairline border); the field sits on a
+ * surface slot inside it.
  */
 const PasswordConfirmForm = ({ password, onPasswordChange, onSubmit, onCancel, busy }) => (
   <form
@@ -12,7 +13,7 @@ const PasswordConfirmForm = ({ password, onPasswordChange, onSubmit, onCancel, b
       event.preventDefault();
       onSubmit();
     }}
-    className="rounded-2xl bg-sunken p-3 shadow-clay-inset"
+    className="rounded-md border border-line bg-surface-2 p-3"
   >
     <TextField
       label="Confirm your password"

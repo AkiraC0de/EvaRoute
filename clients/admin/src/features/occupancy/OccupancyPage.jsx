@@ -17,6 +17,7 @@ import useActivityStats from "../../hooks/useActivityStats";
 import { OccupancyLoading, OccupancyEmpty, OccupancyError } from "./OccupancyStates";
 import useOccupancyFacilities from "./useOccupancyFacilities";
 import ExportCheckInsModal from "./ExportCheckInsModal";
+import { BAND_COLS } from "./occupancyUtils";
 
 /**
  * Occupancy — the staff operational dashboard: live occupancy numbers,
@@ -109,7 +110,7 @@ const OccupancyPage = () => {
             )}
           </div>
           {/* Hero band: the occupancy hero beside the 2×2 metric wall */}
-          <motion.div {...rise()} className="mt-3 grid items-stretch gap-4 lg:grid-cols-[1.45fr_1fr]">
+          <motion.div {...rise()} className={`mt-3 grid items-stretch gap-4 ${BAND_COLS}`}>
             <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
             <OccupancySummary occupancy={occupancy} />
           </motion.div>

@@ -11,7 +11,7 @@ const RecentActivityCard = () => (
     action={
       <Link
         to="/history"
-        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-primary transition hover:text-primary-strong ${FOCUS_RING}`}
       >
         View full history →
       </Link>

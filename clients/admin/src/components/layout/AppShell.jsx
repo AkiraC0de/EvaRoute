@@ -4,8 +4,8 @@ import MobileBottomNav from "./MobileBottomNav";
 import Sidebar from "./Sidebar";
 
 /**
- * Authenticated application shell: shared sidebar + content area on the clay
- * canvas. Page content is capped at 1280px and centered inside the content
+ * Authenticated application shell: shared sidebar + content area on the
+ * warm-neutral canvas. Page content is capped at 1280px and centered inside the content
  * area so pages never stretch on wide screens (the canvas still spans the
  * full width). On mobile the navigation moves to a floating bottom bar
  * (MobileBottomNav) and the content reserves bottom space so the bar never
@@ -14,11 +14,6 @@ import Sidebar from "./Sidebar";
  */
 const AppShell = () => {
   const location = useLocation()
-  // Why useOutlet() instead of <Outlet />: AnimatePresence keeps the exiting
-  // wrapper mounted while it animates out, but a live <Outlet /> reads router
-  // context and re-renders the INCOMING page inside that exiting wrapper —
-  // the exit appears to never play and the enter appears to run twice.
-  // Capturing the outlet element freezes the old page for the exit.
   const outlet = useOutlet();
   const reduceMotion = useReducedMotion();
 

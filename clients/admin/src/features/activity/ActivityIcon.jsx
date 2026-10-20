@@ -11,8 +11,9 @@ import {
 
 /**
  * Action -> icon + tone mapping shared by every activity surface.
- * Tone values map to the clay palette:
- *   neutral = muted slate chip, accent = indigo, success = green, warning = amber.
+ * Tone values map to the flat token palette:
+ *   neutral = surface chip, primary = navy, success = green, warning = amber
+ *   (semantic tones mean the event's status, never decoration).
  */
 const ACTION_META = {
   AUTH_LOGIN: { icon: LogIn, tone: "neutral" },
@@ -20,12 +21,12 @@ const ACTION_META = {
   AUTH_SIGN_OUT_ALL: { icon: LogOut, tone: "neutral" },
   AUTH_PASSWORD_RESET_REQUESTED: { icon: KeyRound, tone: "warning" },
   AUTH_PASSWORD_RESET: { icon: KeyRound, tone: "warning" },
-  FACILITY_CREATED: { icon: Building2, tone: "accent" },
-  FACILITY_UPDATED: { icon: Building2, tone: "accent" },
+  FACILITY_CREATED: { icon: Building2, tone: "primary" },
+  FACILITY_UPDATED: { icon: Building2, tone: "primary" },
   FACILITY_DELETED: { icon: Building2, tone: "warning" },
   FACILITY_RESTORED: { icon: Building2, tone: "success" },
-  STAFF_ACCOUNT_CREATED: { icon: SquareUser, tone: "accent" },
-  STAFF_ACCOUNT_UPDATED: { icon: SquareUser, tone: "accent" },
+  STAFF_ACCOUNT_CREATED: { icon: SquareUser, tone: "primary" },
+  STAFF_ACCOUNT_UPDATED: { icon: SquareUser, tone: "primary" },
   STAFF_ACTIVATED: { icon: UserRoundCheck, tone: "success" },
   STAFF_DEACTIVATED: { icon: SquareUser, tone: "warning" },
   STAFF_PASSWORD_RESET: { icon: KeyRound, tone: "warning" },
@@ -33,17 +34,17 @@ const ACTION_META = {
   STAFF_ASSIGNED: { icon: UserRoundCheck, tone: "success" },
   STAFF_DISMISSED: { icon: SquareUser, tone: "warning" },
   RESOURCE_CREATED: { icon: Package, tone: "success" },
-  RESOURCE_UPDATED: { icon: Package, tone: "accent" },
+  RESOURCE_UPDATED: { icon: Package, tone: "primary" },
   RESOURCE_DELETED: { icon: Package, tone: "warning" },
-  STAY_CHECKED_IN: { icon: LogIn, tone: "accent" },
+  STAY_CHECKED_IN: { icon: LogIn, tone: "primary" },
   STAY_CHECKED_OUT: { icon: LogOut, tone: "neutral" },
 };
 
 const TONE_CHIP = {
-  neutral: "bg-slate-300/80 text-slate-700",
-  accent: "bg-accent/12 text-accent",
-  success: "bg-emerald-100 text-emerald-700",
-  warning: "bg-amber-100 text-amber-700",
+  neutral: "bg-surface-2 text-muted",
+  primary: "bg-primary-soft text-primary",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
 };
 
 /** Icon chip for one log row. */

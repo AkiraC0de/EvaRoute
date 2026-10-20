@@ -72,7 +72,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
               <Banner tone="success" className="px-3 py-3 leading-relaxed">
                 {notice || "Your password has been changed."}
               </Banner>
-              <Button onClick={onBackToSignIn} className="mt-5 min-h-10 w-full">
+              <Button onClick={onBackToSignIn} className="mt-5 min-h-11 w-full">
                 Back to sign in
               </Button>
             </div>
@@ -113,7 +113,7 @@ const ResetPasswordFlow = ({ onBackToSignIn }) => {
         <button
           type="button"
           onClick={onBackToSignIn}
-          className="mt-4 w-full text-center text-[11px] font-semibold text-muted transition hover:text-accent"
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           ← Back to sign in
         </button>

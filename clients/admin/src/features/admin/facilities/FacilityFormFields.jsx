@@ -49,7 +49,7 @@ const FacilityFormFields = ({ draft, update }) => (
     />
     <div>
       <p className={LABEL_CLASS}>Selected location</p>
-      <p className="rounded-clay-sm bg-sunken px-3 py-2 text-[12px] font-medium text-ink-soft shadow-clay-inset">
+      <p className="rounded-md bg-surface-2 px-3 py-2 text-[12px] font-medium text-ink-soft">
         {formatCoords(draft.latitude, draft.longitude) ||
           "Not set — pick it on the map"}
       </p>

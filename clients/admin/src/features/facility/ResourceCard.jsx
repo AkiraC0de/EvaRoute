@@ -48,11 +48,11 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
     <Card
       as="article"
       pad="p-3"
-      className="flex flex-col gap-2 transition duration-200 hover:-translate-y-0.5 hover:shadow-clay-lg"
+      className="flex flex-col gap-2 transition-colors hover:border-line-strong"
     >
       {/* Identity */}
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent shadow-clay-inset">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warm-soft text-warm-ink">
           <ResourceIcon name={resource.name} essentialType={resource.essentialType} size={15} />
         </div>
         <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
           <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-muted">
             {quantity && <span className="truncate">{displaySubtitle(resource)}</span>}
             {resource.essentialType && (
-              <span className="shrink-0 rounded-full bg-sunken px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.5px] text-ink-soft shadow-clay-inset">
+              <span className="shrink-0 rounded-full bg-surface-2 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.5px] text-ink-soft">
                 Essential
               </span>
             )}
@@ -95,9 +95,9 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
             )}
           </div>
           {percentage !== null && (
-            <div className="h-1.5 overflow-hidden rounded-full bg-sunken shadow-clay-inset">
+            <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
               <div
-                className="h-full rounded-full bg-success"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${percentage}%` }}
               />
             </div>

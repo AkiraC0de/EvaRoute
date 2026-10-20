@@ -1,19 +1,17 @@
 /**
- * Clay table primitives for the data-management screens. The table sits on a
- * raised card; the header is a soft inset band; rows separate with hairlines
- * and lift slightly on hover so scanning stays easy.
+ * Flat table primitives for the data-management screens. The table sits in a
+ * bordered white shell; the header is a muted band; rows separate with
+ * hairlines and tint slightly on hover so scanning stays easy.
  */
 
 const TableShell = ({ children }) => (
-  <div className="overflow-x-auto rounded-clay bg-surface shadow-clay">
+  <div className="overflow-x-auto rounded-lg border border-line bg-surface">
     <table className="w-full min-w-[560px] text-left">{children}</table>
   </div>
 );
 
 const Th = ({ children, className = "" }) => (
-  <th
-    className={`px-4 py-2.5 label-micro text-muted-dim ${className}`}
-  >
+  <th className={`border-b border-line bg-surface-2 px-4 py-2.5 label-micro text-muted ${className}`}>
     {children}
   </th>
 );
@@ -23,7 +21,7 @@ const Td = ({ children, className = "" }) => (
 );
 
 const Tr = ({ children }) => (
-  <tr className="border-b border-line transition last:border-0 hover:bg-sunken/70">
+  <tr className="border-b border-line transition last:border-0 hover:bg-surface-2/60">
     {children}
   </tr>
 );

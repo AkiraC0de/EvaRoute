@@ -1,11 +1,11 @@
 import Skeleton from "../../components/ui/Skeleton";
 
-/** Lightweight clay placeholder shown while Leaflet lazy-loads. */
+/** Lightweight flat placeholder shown while Leaflet lazy-loads. */
 const MapSkeleton = ({ height = 260, label = "Loading map" }) => (
   <div
     role="status"
     aria-label={label}
-    className="flex h-full w-full flex-col items-center justify-center gap-2 bg-sunken"
+    className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-2"
     style={{ height }}
   >
     <Skeleton className="h-3 w-24" />
@@ -17,7 +17,7 @@ const MapSkeleton = ({ height = 260, label = "Loading map" }) => (
 const MapErrorState = ({ height = 260, onRetry }) => (
   <div
     role="alert"
-    className="flex h-full w-full flex-col items-center justify-center gap-2 bg-sunken px-4 text-center"
+    className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-2 px-4 text-center"
     style={{ height }}
   >
     <p className="text-[12px] font-semibold text-ink-soft">The map could not be loaded.</p>
@@ -28,7 +28,7 @@ const MapErrorState = ({ height = 260, onRetry }) => (
       <button
         type="button"
         onClick={onRetry}
-        className="mt-1 rounded-clay-sm bg-accent px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
+        className="mt-1 rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-primary-strong"
       >
         Try again
       </button>

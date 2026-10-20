@@ -7,16 +7,16 @@
 import { STATUS_META } from "../../components/ui/statusMeta";
 
 export const FACILITY_STATUS_META = {
-  AVAILABLE: { ...STATUS_META.AVAILABLE, markerClass: "clay-marker--available" },
-  UNAVAILABLE: { ...STATUS_META.UNAVAILABLE, markerClass: "clay-marker--unavailable" },
-  LIMITED: { ...STATUS_META.LIMITED, markerClass: "clay-marker--limited" },
+  AVAILABLE: { ...STATUS_META.AVAILABLE, markerClass: "map-marker--available" },
+  UNAVAILABLE: { ...STATUS_META.UNAVAILABLE, markerClass: "map-marker--unavailable" },
+  LIMITED: { ...STATUS_META.LIMITED, markerClass: "map-marker--limited" },
 };
 
 export const statusMetaOf = (status) =>
   FACILITY_STATUS_META[status] ?? {
     label: String(status ?? "Unknown"),
     tone: "neutral",
-    markerClass: "clay-marker--unknown",
+    markerClass: "map-marker--unknown",
   };
 
 /** Legend order is fixed so colors never shuffle between renders. */

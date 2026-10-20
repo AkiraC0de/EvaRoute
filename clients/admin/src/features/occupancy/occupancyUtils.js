@@ -16,6 +16,13 @@
 
 export const NEARLY_FULL_PCT = 85;
 
+/**
+ * The page's ONE shared band split: the hero band and the operations band
+ * (and the loading skeleton that mirrors them) use the same column fractions
+ * so their column seams align down the page.
+ */
+export const BAND_COLS = "lg:grid-cols-[1.45fr_1fr]";
+
 export const occupancyPct = (members, capacity) =>
   capacity > 0 ? Math.round((Number(members) / capacity) * 100) : 0;
 

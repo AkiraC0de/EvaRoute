@@ -12,7 +12,7 @@ import { displayPlaceName } from "../../../lib/utils";
 const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
   <TableShell>
     <thead>
-      <tr className="bg-sunken">
+      <tr className="bg-surface-2">
         {[
           { label: "Name" },
           { label: "Address" },
@@ -34,7 +34,7 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
             <Link
               to={`/facilities/${facility.id}`}
               title={facility.name}
-              className="text-[12px] font-semibold text-accent transition hover:text-accent-strong"
+              className="text-[12px] font-semibold text-primary transition hover:text-primary-strong"
             >
               {displayPlaceName(facility.name)}
             </Link>
@@ -60,7 +60,7 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
             <div className="flex items-center gap-2">
               <Link
                 to={`/facilities/${facility.id}`}
-                className="text-[11px] font-semibold text-accent transition hover:text-accent-strong"
+                className="text-[11px] font-semibold text-primary transition hover:text-primary-strong"
               >
                 Manage
               </Link>
@@ -69,7 +69,7 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
                 onClick={() => onToggle(facility)}
                 className={`inline-flex items-center gap-1 text-[11px] font-semibold transition ${
                   showDeleted
-                    ? "text-success hover:text-[#155c2c]"
+                    ? "text-success hover:text-success-strong"
                     : "text-danger hover:text-danger-strong"
                 }`}
               >

@@ -31,7 +31,7 @@ const AssignFacilityDialog = ({
         }}
         className="space-y-3"
       >
-        <div className="rounded-clay-sm bg-sunken px-3 py-2 shadow-clay-inset">
+        <div className="rounded-md border border-line bg-surface-2 px-3 py-2">
           <p className="text-[12px] font-bold text-ink-soft">
             {staff.firstName || staff.lastName
               ? `${staff.firstName ?? ""} ${staff.lastName ?? ""}`.trim()

@@ -6,7 +6,12 @@ import {
   Trash2,
 } from "lucide-react";
 
-
+/**
+ * Staff ID credential card — flat: navy credential header band, white
+ * hairline-bordered body (mono short-ID + label/value rows), icon action
+ * footer. People identity uses the teal category tint; the facility chip is
+ * a place, so it carries the warm tint. No sheen, no guilloché, no lift.
+ */
 const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
   const fullName =
     staff.firstName || staff.lastName
@@ -28,24 +33,17 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
   const memberId = `ID-${String(staff.id ?? "").slice(0, 8).toUpperCase()}`;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-clay bg-surface shadow-clay">
-      {/* Credential header — org crest + document type + validity status,
-          with a hologram sheen across the band (the digital-ID signature). */}
-      <div className="relative overflow-hidden bg-linear-to-r from-accent to-[#3d55d8] px-4 pt-2.5 pb-2">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,transparent_18%,rgba(255,255,255,0.55)_36%,transparent_50%,rgba(255,255,255,0.35)_66%,transparent_84%)] opacity-25"
-        />
-        <div className="relative flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div>
-              <p className="text-[11px] font-bold leading-none tracking-[1.5px] text-white">
-                EVAROUTE
-              </p>
-              <p className="mt-1 text-[8px] font-semibold leading-none tracking-[1.2px] text-white/80">
-                STAFF IDENTIFICATION
-              </p>
-            </div>
+    <article className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
+      {/* Credential header band — flat navy: org + document type + validity. */}
+      <div className="bg-primary px-4 pt-2.5 pb-2">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-[11px] font-bold leading-none tracking-[1.5px] text-white">
+              EVAROUTE
+            </p>
+            <p className="mt-1 text-[8px] font-semibold leading-none tracking-[1.2px] text-white/80">
+              STAFF IDENTIFICATION
+            </p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-bold text-ink-soft">
             <span
@@ -57,29 +55,13 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
         </div>
       </div>
 
-      {/* Credential body — fine guilloché line pattern behind the data,
-          ghost wordmark watermark, like a printed security document. */}
-      <div
-        className="relative flex-1 overflow-hidden p-4"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(135deg, rgba(82,105,239,0.05) 0 1px, transparent 1px 7px), repeating-linear-gradient(45deg, rgba(82,105,239,0.04) 0 1px, transparent 1px 9px)",
-        }}
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute right-5 bottom-8 -rotate-12 select-none text-[44px] font-bold tracking-[2px] text-accent/5"
-        >
-          EVAROUTE
-        </span>
-
-        {/* Photo block — portrait-style framed photo area + identity lines */}
-        <div className="relative z-10 flex items-center gap-3.5">
+      {/* Credential body — identity block + label/value rows. */}
+      <div className="flex-1 p-4">
+        <div className="flex items-center gap-3.5">
           <span
             aria-hidden="true"
-            className="relative flex h-[72px] w-[56px] shrink-0 items-center justify-center rounded-clay-sm bg-linear-to-br from-accent-soft to-white text-[18px] font-bold text-accent shadow-clay-xs ring-1 ring-accent/20"
+            className="flex h-[72px] w-[56px] shrink-0 items-center justify-center rounded-md border border-line bg-secondary-soft text-[18px] font-bold text-secondary-ink"
           >
-            <span className="absolute inset-1 rounded-[4px] border border-white/70" />
             {initials}
           </span>
           <div className="min-w-0">
@@ -91,7 +73,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
                 </span>
               )}
             </p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.8px] text-accent">
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.8px] text-secondary-ink">
               Facility Staff
             </p>
             <p className="mt-1 truncate text-[11px] text-muted" title={staff.email}>
@@ -110,8 +92,8 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
               <span
                 className={
                   staff.facility
-                    ? "inline-block max-w-full truncate rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-semibold text-accent align-middle"
-                    : "inline-block rounded-full bg-sunken px-2 py-0.5 text-[10px] font-semibold text-muted shadow-clay-inset align-middle"
+                    ? "inline-block max-w-full truncate rounded-full bg-warm-soft px-2 py-0.5 text-[10px] font-semibold text-warm-ink align-middle"
+                    : "inline-block rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted align-middle"
                 }
                 title={staff.facility ? staff.facility.name : "Unassigned"}
               >
@@ -139,12 +121,12 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
       {/* Action footer — icon buttons only (44px targets, each labelled).
           Non-destructive actions left, delete isolated right with a danger
           tint so it can never be mistaken for a benign action. */}
-      <div className="flex items-center gap-1.5 border-t border-line bg-sunken/60 px-4 py-2.5">
+      <div className="flex items-center gap-1.5 border-t border-line bg-surface-2 px-4 py-2.5">
         <ActionButton
           label={`Edit name of ${fullName}`}
           title="Edit name"
           onClick={() => onEdit(staff)}
-          hover="hover:bg-accent-soft hover:text-accent"
+          hover="hover:bg-primary-soft hover:text-primary"
         >
           <Pencil size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -152,7 +134,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           label={`${staff.facility ? "Reassign" : "Assign"} ${fullName} to a facility`}
           title={staff.facility ? "Reassign facility" : "Assign to facility"}
           onClick={() => onAssign(staff)}
-          hover="hover:bg-accent-soft hover:text-accent"
+          hover="hover:bg-primary-soft hover:text-primary"
         >
           <Building2 size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -160,7 +142,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           label={`Reset password for ${fullName}`}
           title="Reset password"
           onClick={() => onAction("reset", staff)}
-          hover="hover:bg-accent-soft hover:text-accent"
+          hover="hover:bg-primary-soft hover:text-primary"
         >
           <KeyRound size={15} strokeWidth={1.9} />
         </ActionButton>
@@ -191,7 +173,7 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
             title="Delete"
             onClick={() => onAction("delete", staff)}
             hover="hover:bg-danger hover:text-white"
-            className="ml-auto bg-danger-soft/60 text-danger"
+            className="ml-auto bg-danger-soft text-danger"
           >
             <Trash2 size={15} strokeWidth={1.9} />
           </ActionButton>
@@ -201,14 +183,14 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
   );
 };
 
-/** 44px round icon button in the card footer (clay chip, tone on hover). */
+/** 44px flat icon button in the card footer (hairline chip, tone on hover). */
 const ActionButton = ({ label, title, onClick, hover, className = "", children }) => (
   <button
     type="button"
     aria-label={label}
     title={title}
     onClick={onClick}
-    className={`flex h-11 w-11 items-center justify-center rounded-clay-sm bg-surface text-muted shadow-clay-xs transition ${hover} ${className}`}
+    className={`flex h-11 w-11 items-center justify-center rounded-md border border-line bg-surface text-muted transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${hover} ${className}`}
   >
     {children}
   </button>

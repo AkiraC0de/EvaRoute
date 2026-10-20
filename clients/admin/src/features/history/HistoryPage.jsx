@@ -88,8 +88,8 @@ export default function HistoryPage() {
         onActionChange={setAction}
       />
 
-      {/* Activity feed — raised surface. The key remounts the feed on filter
-          changes so pagination restarts at page 1. */}
+      {/* Activity feed — flat bordered surface. The key remounts the feed on
+          filter changes so pagination restarts at page 1. */}
       <Card pad="">
         <PagedActivityFeed
           key={JSON.stringify(query)}

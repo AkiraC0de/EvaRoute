@@ -1,21 +1,21 @@
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
-/** Mini tooltip in the app's clay language (mirrors components/ui/Chart.jsx). */
+/** Mini flat tooltip (mirrors components/ui/Chart.jsx). */
 const TrendTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-clay-sm border border-line bg-surface px-2.5 py-1.5 shadow-clay">
-      <p className="text-[10px] font-semibold text-muted">{label}</p>
-      <p className="mt-0.5 text-[11px] font-bold text-ink">
-        {payload[0]?.value ?? 0} check-ins
+    <div className="rounded-md border border-line bg-surface px-3 py-2 shadow-sm">
+      <p className="text-[11px] font-semibold text-ink">{label}</p>
+      <p className="mt-0.5 text-[11px] text-muted">
+        <span className="font-semibold text-ink">{payload[0]?.value ?? 0}</span> check-ins
       </p>
     </div>
   );
 };
 
 /**
- * Stock-card style sparkline: the last 7 days of check-ins as a soft area
- * line on the meter's accent surface (shadcn Chart pattern, recharts base).
+ * Sparkline: the last 7 days of check-ins as a flat area line on the
+ * meter's navy surface (shadcn Chart pattern, recharts base).
  * The exact counts live in the tooltip and in the accessible label — the
  * trend pill next to it carries the summary.
  */
@@ -70,7 +70,7 @@ const OccupancyTrendChart = ({ timeline }) => {
             activeDot={{
               r: 3,
               fill: "var(--color-surface)",
-              stroke: "var(--color-accent)",
+              stroke: "var(--color-primary)",
               strokeWidth: 2,
             }}
           />

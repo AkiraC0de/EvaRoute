@@ -20,7 +20,7 @@ const ResetRequestStep = ({ email, onEmailChange, onSubmit, busy }) => (
     <p className="text-[11px] leading-relaxed text-muted-dim">
       We'll email you a 5-digit code. The code is valid for 15 minutes.
     </p>
-    <Button type="submit" disabled={busy} className="min-h-10 w-full">
+    <Button type="submit" disabled={busy} className="min-h-11 w-full">
       {busy ? "Sending code…" : "Send reset code"}
     </Button>
   </form>

@@ -6,12 +6,11 @@ import { useAuth } from "../../context/AuthContext";
 /**
  * Mobile bottom navigation (hidden on sm+ where the sidebar rail takes over).
  *
- * A floating clay card pinned near the bottom of the viewport, built from the
- * same NAV_ITEMS model as the sidebar (role-filtered) so destinations and
- * permissions can never diverge. The active destination is a raised accent
- * chip that SLIDES between items (motion `layoutId`) when the user taps a
- * different destination; inactive destinations stay quiet and press to an
- * inset.
+ * A floating navy bar pinned near the bottom of the viewport — the same
+ * structural color as the desktop rail — built from the same NAV_ITEMS model
+ * (role-filtered) so destinations and permissions can never diverge. The
+ * active destination is a translucent white slab that SLIDES between items
+ * (motion `layoutId`) when the user taps a different destination.
  *
  * The bar's bottom padding includes env(safe-area-inset-bottom) so it clears
  * the home indicator; AppShell reserves matching space so content is never
@@ -31,7 +30,7 @@ const MobileBottomNav = () => {
       aria-label="Primary navigation"
       className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-1.5 sm:hidden"
     >
-      <ul className="mx-auto flex w-full max-w-[480px] items-stretch gap-1 rounded-clay bg-surface p-1.5 shadow-clay">
+      <ul className="mx-auto flex w-full max-w-[480px] items-stretch gap-1 rounded-lg bg-primary p-1.5 shadow-md">
         {items.map(({ label, shortLabel, to, end, icon: Icon }) => (
           <li key={to} className="min-w-0 flex-1">
             <NavLink
@@ -39,10 +38,8 @@ const MobileBottomNav = () => {
               end={end}
               aria-label={label}
               className={({ isActive }) =>
-                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-clay-sm px-1 py-1.5 transition active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                  isActive
-                    ? "text-accent-strong"
-                    : "text-muted-dim hover:text-muted"
+                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-md px-1 py-1.5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
+                  isActive ? "text-white" : "text-white/65 hover:text-white/90"
                 }`
               }
             >
@@ -53,7 +50,7 @@ const MobileBottomNav = () => {
                       layoutId="mobile-nav-highlight"
                       initial={false}
                       aria-hidden="true"
-                      className="absolute inset-0 rounded-clay-sm bg-accent-soft shadow-clay-xs"
+                      className="absolute inset-0 rounded-md bg-white/14"
                       transition={highlightTransition}
                     />
                   )}

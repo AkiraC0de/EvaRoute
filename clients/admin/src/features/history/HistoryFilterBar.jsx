@@ -26,8 +26,9 @@ const GROUP_OPTIONS = [
 ];
 
 /**
- * History filter band — recessed band: controls row + action-group toggles
- * row. Controlled: the page owns the filter state and the debounced search.
+ * History filter band — a flat bordered band (hairline + surface, no
+ * elevation): controls row + action-group toggles row. Controlled: the page
+ * owns the filter state and the debounced search.
  */
 const HistoryFilterBar = ({
   searchInput,
@@ -42,7 +43,7 @@ const HistoryFilterBar = ({
   action,
   onActionChange,
 }) => (
-  <div className="mb-4 flex flex-col gap-2.5 rounded-clay bg-surface p-3 shadow-clay">
+  <div className="mb-4 flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3">
     <div className="flex flex-wrap items-center gap-2">
       <FilterSearch
         value={searchInput}

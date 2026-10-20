@@ -1,14 +1,18 @@
-/** Shared class strings for the admin overview cards (clay language). */
+/** Shared class strings for the admin overview (flat Operations Console:
+ *  hairline-bordered panels on the warm canvas, no lift, no molded depth). */
 
 export const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export const GRID = "grid grid-cols-2 gap-4 lg:grid-cols-4";
-export const CARD = "rounded-clay bg-surface p-5 shadow-clay";
+export const CARD = "rounded-lg border border-line bg-surface p-5";
 
-/** Icon-tile tones (accent-soft or feedback-soft backgrounds only). */
+/** Icon-chip tints — CATEGORY meaning, never decoration (same mapping as
+ *  components/ui/StatTile): primary = occupancy/capacity, secondary = people,
+ *  warm = places, neutral = records/admin. */
 export const ICON_TONES = {
-  accent: "bg-accent-soft text-accent",
-  success: "bg-success-soft text-success",
-  warning: "bg-warning-soft text-warning",
+  primary: "bg-primary-soft text-primary-ink",
+  secondary: "bg-secondary-soft text-secondary-ink",
+  warm: "bg-warm-soft text-warm-ink",
+  neutral: "bg-surface-2 text-muted",
 };

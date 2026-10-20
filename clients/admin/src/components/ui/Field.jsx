@@ -2,22 +2,21 @@ import { FIELD_CLASS, LABEL_CLASS } from "./fieldStyles";
 import SelectInput from "./Select";
 
 /**
- * Clay form fields — the login screen's input language, centralized.
+ * Shared form fields — the flat input language, centralized.
  *
- * Field = recessed (inset shadow) slot carved into a surface, with a small
- * uppercase label above. States:
- *   default   — inset well, muted placeholder
+ * Field = white bordered slot with a small uppercase label above. States:
+ *   default   — hairline border, muted placeholder
  *   hover     — slightly darker well
- *   focus     — accent ring
+ *   focus     — primary ring
  *   error     — danger ring + message (role=alert)
  *   disabled  — faded, not interactive
- *   readOnly  — inset kept, no ring (values stay readable)
+ *   readOnly  — muted fill, no ring (values stay readable)
  *
  * TextField renders <input>; SelectField renders <select> with the same
  * chrome. Both forward props so callers keep full control of behaviour.
  */
 
-const ERROR_RING = "ring-danger focus:ring-2";
+const ERROR_RING = "border-danger focus-visible:outline-danger";
 
 const FieldShell = ({ id, label, error, hint, className = "", children }) => (
   <label className={`block ${className}`}>

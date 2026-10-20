@@ -6,7 +6,7 @@ import ResourceCreateForm from "./ResourceCreateForm";
 const FacilityResourcesSection = ({ resources, createResource, saveResource, removeResource }) => (
   <>
     <div className="mb-3 flex items-center justify-between gap-2">
-      <h2 className="text-[10px] font-semibold uppercase tracking-[1px] text-[#9aa8c5]">
+      <h2 className="text-[10px] font-semibold uppercase tracking-[1px] text-muted">
         Resources
       </h2>
       <span className="text-[11px] text-muted">

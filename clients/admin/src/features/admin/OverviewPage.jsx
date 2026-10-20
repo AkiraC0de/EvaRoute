@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import useActivityStats from "../../hooks/useActivityStats";
 import useDashboardSummary from "../../hooks/useDashboardSummary";
 import { useAuth } from "../../context/AuthContext";
+import SectionHeader from "../occupancy/SectionHeader";
 import ActivityChartCard from "./overview/ActivityChartCard";
 import FacilityLoadCard from "./overview/FacilityLoadCard";
 import HeroHeader from "./overview/HeroHeader";
@@ -10,18 +11,23 @@ import RecentActivityCard from "./overview/RecentActivityCard";
 import StatRow from "./overview/StatRow";
 
 /**
- * Admin Overview — a real operations dashboard, composed from the shared UI
- * kit (shadcn composition rules) in the app's clay language:
+ * Admin Overview — an operations dashboard in flat operational BANDS on the
+ * warm canvas (not a grid of identical floating cards):
  *
- *   hero header  → identity + quick actions (modern-dashboard-ui anatomy)
- *   stat row     → 4 KPI cards with support captions + occupancy meter
- *   two columns  → activity chart + recent feed | facility load + 24h strip
+ *   hero band        → navy headline panel (occupancy + facility states +
+ *                      quick actions) with the KPI wall right below it;
+ *   operational band → titled section header + activity chart / recent feed
+ *                      beside facility load / the rolling-window strip.
+ *
+ * Facts live in exactly one place: occupancy in the hero, facility-state
+ * counts in the hero chips, capacity/people/places/accounts in the KPI
+ * cards, rolling windows in "At a glance".
  *
  * Data: ONE GET /api/v1/dashboard/summary (facility states, live occupancy,
  * staff states, rolling windows, per-facility load) plus the day-bucketed
  * GET /api/v1/activity/stats?interval=day for the chart. No client-side
- * aggregation, no N+1. Type scale matches the rest of the app: 20px page
- * title, 22px KPI values, 8px tracked labels, 9–11px support text.
+ * aggregation, no N+1. Type scale matches the rest of the app: 22px page
+ * title, 24px KPI values, 10px tracked labels, 9–11px support text.
  */
 
 const OverviewPage = () => {
@@ -54,23 +60,22 @@ const OverviewPage = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* ── Hero header ─────────────────────────────────────────── */}
+      {/* ── Hero band: headline panel + supporting KPI wall ─────── */}
       <HeroHeader
         today={today}
         greeting={greeting}
         firstName={firstName}
-      />
-
-      {/* ── Stat row ───────────────────────────────────────────── */}
-      <StatRow
-        error={error}
-        loading={loading}
         summary={summary}
         occupancyPct={occupancyPct}
-        reload={reload}
       />
+      <StatRow error={error} loading={loading} summary={summary} reload={reload} />
 
-      {/* ── Two-column grid ────────────────────────────────────── */}
+      {/* ── Operational band ───────────────────────────────────── */}
+      <SectionHeader
+        top
+        title="Network operations"
+        caption="Activity trend, facility load and the latest changes"
+      />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_380px]">
         <div className="flex min-w-0 flex-col gap-4">
           <ActivityChartCard timeline={timeline} loading={chartLoading} />

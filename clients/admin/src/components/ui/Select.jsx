@@ -61,7 +61,7 @@ const SelectInput = ({
           aria-label={ariaLabel}
           onBlur={onBlur}
           disabled={disabled}
-          className={`truncate text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
+          className={`truncate text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${className}`}
         >
           <SelectPrimitive.Value />
           <SelectPrimitive.Icon asChild>
@@ -75,7 +75,7 @@ const SelectInput = ({
           <SelectPrimitive.Content
             position="popper"
             sideOffset={4}
-            className="z-[70] max-h-64 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-clay bg-surface p-1 shadow-clay-lg"
+            className="z-[70] max-h-64 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-line bg-surface p-1 shadow-lg"
           >
             <SelectPrimitive.Viewport>
               {items.map((item) => (
@@ -83,11 +83,11 @@ const SelectInput = ({
                   key={item.value}
                   value={item.value}
                   disabled={item.disabled}
-                  className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-clay-sm px-2.5 py-1.5 text-[12px] font-medium text-ink-soft outline-none transition hover:bg-sunken data-[highlighted]:bg-sunken data-[state=checked]:text-accent data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+                  className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-[12px] font-medium text-ink-soft outline-none transition hover:bg-surface-2 data-[highlighted]:bg-surface-2 data-[state=checked]:text-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
                 >
                   <SelectPrimitive.ItemText>{item.label}</SelectPrimitive.ItemText>
                   <SelectPrimitive.ItemIndicator>
-                    <Check size={11} strokeWidth={2.5} className="text-accent" />
+                    <Check size={11} strokeWidth={2.5} className="text-primary" />
                   </SelectPrimitive.ItemIndicator>
                 </SelectPrimitive.Item>
               ))}

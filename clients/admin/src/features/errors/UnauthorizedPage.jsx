@@ -19,8 +19,8 @@ const UnauthorizedPage = () => {
   return (
     <div>
       <PageHeader title="Access denied" />
-      <div className="max-w-[480px] rounded-clay bg-surface p-5 shadow-clay">
-        <div className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-danger-soft text-danger shadow-clay-inset">
+      <div className="max-w-[480px] rounded-xl border border-line bg-surface p-5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-soft text-primary-ink">
           <ShieldCheck size={20} strokeWidth={1.8} />
         </div>
         <h2 className="mt-3 text-[15px] font-bold text-ink">
@@ -40,7 +40,7 @@ const UnauthorizedPage = () => {
         <Button
           size="sm"
           onClick={() => navigate(homePathFor(user), { replace: true })}
-          className="mt-4"
+          className="mt-4 min-h-11"
         >
           Back to my home
         </Button>

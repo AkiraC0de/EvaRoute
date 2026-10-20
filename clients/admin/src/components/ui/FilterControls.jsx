@@ -2,13 +2,13 @@ import { Search } from "lucide-react";
 import SelectInput from "./Select";
 
 /**
- * Compact filter-band controls — the recessed inputs used by the list-page
+ * Compact filter-band controls — the bordered inputs used by the list-page
  * filter bands (Facilities, Staff accounts, History). One copy of the
  * styling so every band looks and behaves the same.
  */
 
 const CONTROL_CLASS =
-  "h-11 sm:h-10 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "h-11 sm:h-10 rounded-md border border-line-strong bg-surface px-3 text-[12px] font-medium text-ink-soft outline-none transition focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" }) => (
   <div className={`relative w-full max-w-[240px] ${className}`}>
@@ -23,7 +23,7 @@ const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" 
       onChange={onChange}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className={`h-11 sm:h-10 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
+      className={`${CONTROL_CLASS} w-full pl-8 pr-3 placeholder:text-muted-dim ${className}`}
     />
   </div>
 );

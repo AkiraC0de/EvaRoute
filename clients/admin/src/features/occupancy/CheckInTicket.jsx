@@ -7,7 +7,8 @@ import "./ticket.css";
 
 /**
  * Check-in confirmation ticket — an admission slip shown after a household is
- * successfully checked in. Styled like printed ticket paper: brand header, a
+ * successfully checked in. Styled like printed ticket paper (built from the
+ * flat design tokens): micro brand header,
  * focal Check-In ID ("0001", the per-facility number returned by the server —
  * never invented client-side), a decorative barcode strip, a perforated tear
  * seam with edge notches, and a keep-this stub that repeats the ID.
@@ -35,7 +36,7 @@ const CheckInTicket = ({ stay, onClose }) => {
   return (
     <Modal title="Check-in confirmed" onClose={onClose}>
       <div className="ticket-print-root">
-        <div className="rounded-clay bg-white p-5 shadow-clay">
+        <div className="rounded-lg border border-line bg-surface p-5">
           {/* Printed header, like a real slip */}
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-[10px] font-bold uppercase tracking-[2px] text-muted">
@@ -94,16 +95,16 @@ const CheckInTicket = ({ stay, onClose }) => {
           <div className="border-t-2 border-dashed border-line" />
           <span
             aria-hidden="true"
-            className="absolute -left-[10px] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-surface shadow-clay-inset"
+            className="absolute -left-[10px] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-surface"
           />
           <span
             aria-hidden="true"
-            className="absolute -right-[10px] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-surface shadow-clay-inset"
+            className="absolute -right-[10px] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-surface"
           />
         </div>
 
-        {/* Stub */}
-        <div className="flex items-center justify-between gap-3 rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
+        {/* Stub — the keep-this tint band */}
+        <div className="flex items-center justify-between gap-3 rounded-md bg-surface-2 px-4 py-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[2px] text-muted">
               Keep this stub

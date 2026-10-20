@@ -8,8 +8,9 @@ const STATUS_OPTIONS = [
 ];
 
 /**
- * Facilities filter band — the recessed row of search, status filter and the
- * deleted/restored tab toggle. Controlled: the page owns the filter state.
+ * Facilities filter band — the flat surface-2 band of search, status filter
+ * and the deleted/restored tab toggle. Controlled: the page owns the filter
+ * state.
  */
 const FacilitiesFilterBar = ({
   search,
@@ -19,7 +20,7 @@ const FacilitiesFilterBar = ({
   showDeleted,
   onToggleDeleted,
 }) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
+  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-surface-2 p-3">
     <FilterSearch
       value={search}
       onChange={onSearchChange}

@@ -1,8 +1,11 @@
 import { CARD, ICON_TONES } from "./overviewStyles";
 
-/** KPI card — label, primary number, support caption, optional meter. */
-const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
-  <div className={`${CARD} transition hover:-translate-y-0.5 hover:shadow-clay-lg`}>
+/** KPI card — label, primary number, support caption, optional meter.
+ *  Flat panel (hairline border, no lift) with a category-tinted icon chip:
+ *  primary = occupancy/capacity, secondary = people, warm = places,
+ *  neutral = records. */
+const StatCard = ({ icon, tone = "primary", label, value, caption, meter }) => (
+  <div className={CARD}>
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-[0.8px] text-muted">
@@ -14,7 +17,7 @@ const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
       {icon && (
         <span
           aria-hidden="true"
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-clay-sm ${ICON_TONES[tone]}`}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md ${ICON_TONES[tone] ?? ICON_TONES.neutral}`}
         >
           {icon}
         </span>
@@ -22,9 +25,9 @@ const StatCard = ({ icon, tone = "accent", label, value, caption, meter }) => (
     </div>
     {/* Number.isFinite: `0 && …` would render a literal "0" (React falsy footgun). */}
     {Number.isFinite(meter) && (
-      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset">
+      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-surface-2">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-500"
+          className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
           style={{ width: `${Math.min(Math.max(meter, 0), 100)}%` }}
         />
       </div>

@@ -71,14 +71,14 @@ const AccountSetupModal = ({ draft, onDraftChange, onSubmit, onSignOut, busy, er
         />
         <PasswordRulesChecklist password={draft.newPassword} />
         {draft.confirmPassword.length > 0 && !passwordsMatch && (
-          <p className="text-[10px] font-semibold text-[#b3261e]">
+          <p className="text-[10px] font-semibold text-danger">
             Passwords do not match.
           </p>
         )}
         <p className="text-[10px] text-muted">
           This device stays signed in; every other device is signed out.
         </p>
-        <Button type="submit" disabled={busy || !ready} className="w-full">
+        <Button type="submit" disabled={busy || !ready} className="min-h-11 w-full">
           {busy ? "Saving…" : "Complete setup"}
         </Button>
       </form>
@@ -86,7 +86,7 @@ const AccountSetupModal = ({ draft, onDraftChange, onSubmit, onSignOut, busy, er
       <button
         type="button"
         onClick={onSignOut}
-        className="mt-3 w-full text-center text-[11px] font-semibold text-muted transition hover:text-ink-soft"
+        className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-center text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         Sign out instead
       </button>

@@ -2,16 +2,16 @@ import { statusMetaOf } from "./statusColors";
 
 /**
  * Marker + popup helpers for facility maps (plain Leaflet, no React rendering
- * inside popups). Markers are token-colored clay dots (divIcon — no image
- * asset wiring); popups carry name, address, status and a "View details"
- * action wired to the caller's navigation callback.
+ * inside popups). Markers are token-colored flat status dots (divIcon — no
+ * image asset wiring); popups carry name, address, status and a "View
+ * details" action wired to the caller's navigation callback.
  */
 
 export const createStatusIcon = (L, status) => {
   const meta = statusMetaOf(status);
   return L.divIcon({
     className: "",
-    html: `<span class="clay-marker ${meta.markerClass}" aria-hidden="true"></span>`,
+    html: `<span class="map-marker ${meta.markerClass}" aria-hidden="true"></span>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9],
     popupAnchor: [0, -10],
@@ -40,7 +40,7 @@ export const bindFacilityPopup = (marker, facility, { onView } = {}) => {
   const status = document.createElement("span");
   status.className = "popup-status";
   const dot = document.createElement("span");
-  dot.className = `clay-marker ${meta.markerClass}`;
+  dot.className = `map-marker ${meta.markerClass}`;
   const label = document.createElement("span");
   label.className = "popup-status-label";
   label.textContent = meta.label;

@@ -24,7 +24,7 @@ function App() {
         <span
           role="status"
           aria-label="Checking your session"
-          className="block h-11 w-11 animate-spin rounded-full border-[3px] border-accent-soft border-t-accent motion-reduce:animate-none"
+          className="block h-11 w-11 animate-spin rounded-full border-[3px] border-primary-soft border-t-primary motion-reduce:animate-none"
         />
       </main>
     );

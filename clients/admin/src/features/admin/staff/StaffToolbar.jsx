@@ -12,7 +12,7 @@ const STATUS_OPTIONS = [
  * handlers receive the raw DOM event, like the facilities filter bar.
  */
 const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedChange }) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-clay bg-surface p-3 shadow-clay">
+  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-surface-2 p-3">
     <FilterSearch
       value={filters.search}
       onChange={onSearchChange}
@@ -34,7 +34,7 @@ const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedCha
         onChange={onUnassignedChange}
         ariaLabel="Unassigned only"
       />
-      <span className="text-[11px] font-medium text-[#65718c]">Unassigned only</span>
+      <span className="text-[11px] font-medium text-muted">Unassigned only</span>
     </label>
   </div>
 );

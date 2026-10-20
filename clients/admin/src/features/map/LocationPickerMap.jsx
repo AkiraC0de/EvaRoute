@@ -31,7 +31,7 @@ const LocationPickerMap = ({ value, onChange, height = 260, disabled = false }) 
       markerRef.current = L.marker(latlng, {
         icon: L.divIcon({
           className: "",
-          html: '<span class="clay-marker clay-marker--selected" aria-hidden="true"></span>',
+          html: '<span class="map-marker map-marker--selected" aria-hidden="true"></span>',
           iconSize: [22, 22],
           iconAnchor: [11, 11],
         }),
@@ -94,10 +94,10 @@ const LocationPickerMap = ({ value, onChange, height = 260, disabled = false }) 
 
   return (
     <div
-      className="relative isolate w-full overflow-hidden rounded-clay-sm shadow-clay-inset"
+      className="relative isolate w-full overflow-hidden rounded-md"
       style={{ height }}
     >
-      <div ref={containerRef} className="clay-map absolute inset-0" />
+      <div ref={containerRef} className="map-chrome absolute inset-0" />
       {status === "loading" && (
         <div className="absolute inset-0">
           <MapSkeleton height="100%" label="Loading location map" />
@@ -109,7 +109,7 @@ const LocationPickerMap = ({ value, onChange, height = 260, disabled = false }) 
         </div>
       )}
       {status === "ready" && !disabled && (
-        <p className="clay-map-hint">
+        <p className="map-chrome-hint">
           {value ? "Drag the marker to adjust · click to move it" : "Click the map to set the location"}
         </p>
       )}

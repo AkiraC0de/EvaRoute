@@ -10,10 +10,11 @@ const TREND_META = {
 };
 
 /**
- * Occupancy hero — the page's centerpiece, rebuilt on the 21st "Stats Card"
- * anatomy: header row (icon + label + state chip), an oversized metric with
- * its caption, a delta line, then the 7-day chart and the capacity bar.
- * Solid accent surface with a soft glow; supporting details stay along the
+ * Occupancy hero — the page's centerpiece on the "Stats Card" anatomy:
+ * header row (icon + label + state chip), an oversized metric with its
+ * caption, a delta line, then the 7-day chart and the capacity bar.
+ * Flat navy operational panel (occupancy/capacity = the primary category) —
+ * solid fill, no glow, no elevation; supporting details stay along the
  * bottom. Never color alone — the state chip carries the words.
  */
 const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
@@ -31,20 +32,15 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
   return (
     <section
       aria-label="Facility occupancy"
-      className="relative flex h-full flex-col overflow-hidden rounded-clay bg-accent p-5 shadow-clay-accent"
+      className="flex h-full flex-col overflow-hidden rounded-lg bg-primary p-5"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl"
-      />
-
-      <div className="relative flex h-full flex-col">
+      <div className="flex h-full flex-col">
         {/* Header row: icon + label left, state chip right */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-white/20 text-white"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/20 text-white"
             >
               <Users size={17} strokeWidth={1.9} />
             </span>
@@ -116,7 +112,7 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
             className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/25"
           >
             <div
-              className="h-full min-w-[6px] rounded-full bg-white transition-[width] duration-500"
+              className="h-full min-w-[6px] rounded-full bg-white transition-[width] duration-500 motion-reduce:transition-none"
               style={{ width: `${Math.min(pct, 100)}%` }}
             />
           </div>

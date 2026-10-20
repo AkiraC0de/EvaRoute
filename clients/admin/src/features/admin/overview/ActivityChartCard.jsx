@@ -11,15 +11,15 @@ const ActivityChartCard = ({ timeline, loading }) => (
     action={
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
-          <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Check-ins
+          <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" /> Check-ins
         </span>
         <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
-          <span className="h-2 w-2 rounded-full bg-accent-soft" aria-hidden="true" /> Other events
+          <span className="h-2 w-2 rounded-full bg-line-strong" aria-hidden="true" /> Other events
         </span>
       </div>
     }
   >
-    {loading && <Skeleton className="h-[220px] w-full rounded-clay-sm" />}
+    {loading && <Skeleton className="h-[220px] w-full rounded-md" />}
     {!loading &&
       timeline &&
       (timeline.every((bucket) => bucket.total === 0) ? (

@@ -16,20 +16,21 @@ import { useAuth } from "../../context/AuthContext";
  * The active state is ONE shared highlight pill (motion `layoutId`): when the
  * active destination changes, the pill slides from the previous row to the
  * new one instead of fading out/in per row. Icon and label colors still
- * switch instantly via CSS.
+ * switch instantly via CSS. On the navy rail the pill is a translucent white
+ * slab; labels are white at graded opacity (contrast-checked).
  */
 const ITEM =
-  "group relative mb-1 flex w-full items-center gap-2.5 rounded-clay-sm px-3 py-2.5 text-left transition";
+  "group relative mb-1 flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-left transition";
 const SECTION_LABEL =
-  "mb-2 ml-2 text-[10px] font-semibold uppercase tracking-[1.5px] text-muted-dim";
+  "mb-2 ml-2 text-[10px] font-semibold uppercase tracking-[1.5px] text-white/55";
 
 const labelClasses = ({ isActive }) =>
   `relative z-10 text-[13px] ${
-    isActive ? "font-semibold text-accent-strong" : "font-medium text-[#687594]"
+    isActive ? "font-semibold text-white" : "font-medium text-white/70"
   }`;
 
 const iconClasses = ({ isActive }) =>
-  isActive ? "text-accent" : "text-[#96a2bb] group-hover:text-[#687594]";
+  isActive ? "text-white" : "text-white/55 group-hover:text-white/80";
 
 const SidebarNav = () => {
   const { user } = useAuth();
@@ -58,7 +59,7 @@ const SidebarNav = () => {
                 to={to}
                 end={end}
                 className={({ isActive }) =>
-                  `${ITEM} ${isActive ? "" : "hover:bg-sunken"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`
+                  `${ITEM} ${isActive ? "" : "hover:bg-white/10"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70`
                 }
               >
                 {({ isActive }) => (
@@ -68,7 +69,7 @@ const SidebarNav = () => {
                         layoutId="sidebar-nav-highlight"
                         initial={false}
                         aria-hidden="true"
-                        className="absolute inset-0 rounded-clay-sm bg-accent-soft"
+                        className="absolute inset-0 rounded-md bg-white/14"
                         transition={highlightTransition}
                       />
                     )}

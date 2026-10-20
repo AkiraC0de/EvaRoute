@@ -10,13 +10,13 @@ import { ESSENTIAL_RESOURCES } from "../../facility/essentialResources";
 const EssentialResourcesField = ({ value, onChange }) => (
   <div>
     <p className={LABEL_CLASS}>Essential resources</p>
-    <div className="space-y-2 rounded-clay-sm bg-sunken p-2.5 shadow-clay-inset">
+    <div className="space-y-2 rounded-md border border-line bg-surface-2 p-2.5">
       {ESSENTIAL_RESOURCES.map((entry) => (
         <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex min-w-0 items-center gap-2">
             <span
               aria-hidden="true"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-clay-sm bg-surface text-accent shadow-clay-xs"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-warm-soft text-warm-ink"
             >
               <ResourceIcon essentialType={entry.key} size={14} />
             </span>

@@ -8,15 +8,15 @@ import Button from "./Button";
  */
 const TONES = {
   info: {
-    wrap: "bg-sunken text-muted shadow-clay-inset",
+    wrap: "border border-line bg-surface-2 text-muted",
     title: "text-ink-soft",
   },
   empty: {
-    wrap: "bg-sunken text-muted shadow-clay-inset",
+    wrap: "border border-line bg-surface-2 text-muted",
     title: "text-ink-soft",
   },
   error: {
-    wrap: "bg-danger-soft text-danger shadow-clay-inset",
+    wrap: "border border-danger/15 bg-danger-soft text-danger",
     title: "text-danger-strong",
   },
 };
@@ -27,7 +27,7 @@ const StatusPanel = ({ tone = "info", title, children, onRetry, retryLabel = "Tr
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className={`rounded-clay px-4 py-6 text-center text-[13px] ${palette.wrap}`}
+      className={`rounded-lg px-4 py-6 text-center text-[13px] ${palette.wrap}`}
     >
       {title && (
         <p className={`text-[14px] font-bold ${palette.title}`}>{title}</p>

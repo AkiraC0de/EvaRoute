@@ -24,9 +24,9 @@ const LoadRow = ({ facility }) => (
         /{facility.maxCapacity}
       </p>
     </div>
-    <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-sunken shadow-clay-inset">
+    <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-surface-2">
       <div
-        className="h-full rounded-full bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-500"
+        className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
         style={{ width: `${Math.min(facility.pct, 100)}%` }}
       />
     </div>
@@ -41,7 +41,7 @@ const FacilityLoadCard = ({ summary, loading }) => (
     action={
       <Link
         to="/facilities"
-        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong ${FOCUS_RING}`}
+        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-primary transition hover:text-primary-strong ${FOCUS_RING}`}
       >
         Manage →
       </Link>

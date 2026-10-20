@@ -102,7 +102,7 @@ export default function PagedActivityFeed({
       {header}
       {groupByDay(activities).map((group) => (
         <section key={group.label} aria-label={group.label}>
-          <h3 className="bg-sunken px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+          <h3 className="bg-surface-2 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
             {group.label}
           </h3>
           <ul>

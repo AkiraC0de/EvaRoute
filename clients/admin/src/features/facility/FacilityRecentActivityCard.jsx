@@ -4,11 +4,11 @@ import ActivityFeed from "../activity/ActivityFeed";
 
 /** Recent movement — latest facility events with a shortcut into history. */
 const FacilityRecentActivityCard = ({ facilityId }) => (
-  <div className="rounded-clay bg-surface p-4 shadow-clay">
+  <div className="rounded-lg border border-line bg-surface p-4">
     <div className="mb-3 flex flex-wrap items-center gap-2.5">
       <span
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted"
       >
         <History size={15} strokeWidth={1.9} />
       </span>
@@ -18,12 +18,12 @@ const FacilityRecentActivityCard = ({ facilityId }) => (
       </div>
       <Link
         to="/history"
-        className="ml-auto text-[11px] font-semibold text-accent transition hover:text-accent-strong"
+        className="ml-auto text-[11px] font-semibold text-primary transition hover:text-primary-strong"
       >
         View full history →
       </Link>
     </div>
-    <div className="overflow-hidden rounded-3xl border border-line">
+    <div className="overflow-hidden rounded-md border border-line">
       <ActivityFeed query={{ facilityId }} limit={5} compact />
     </div>
   </div>

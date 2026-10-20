@@ -8,7 +8,7 @@ import Button from "../../../components/ui/Button";
  * runs the assign flow (a candidate already elsewhere TRANSFERS).
  */
 const AssignStaffPanel = ({ query, onQueryChange, candidates, busy, onAssign }) => (
-  <div className="rounded-clay-sm bg-sunken p-3 shadow-clay-inset">
+  <div className="rounded-md border border-line bg-surface-2 p-3">
     <h3 className="mb-2 inline-flex items-center gap-1.5 text-[12px] font-bold text-ink-soft">
       <UserPlus size={12} strokeWidth={2} aria-hidden="true" /> Assign staff
     </h3>
@@ -24,7 +24,7 @@ const AssignStaffPanel = ({ query, onQueryChange, candidates, busy, onAssign }) 
         onChange={onQueryChange}
         placeholder="Search staff accounts…"
         aria-label="Search staff accounts"
-        className="h-9 w-full rounded-clay-sm bg-surface pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim ring-accent focus:ring-2"
+        className="h-11 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-[12px] font-medium text-ink-soft outline-none transition placeholder:text-muted-dim focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       />
     </div>
 
@@ -32,7 +32,7 @@ const AssignStaffPanel = ({ query, onQueryChange, candidates, busy, onAssign }) 
       {candidates.map((candidate) => (
         <li
           key={candidate.id}
-          className="flex items-center gap-2 rounded-clay-sm px-2 py-1.5 transition hover:bg-surface"
+          className="flex items-center gap-2 rounded-md px-2 py-1.5 transition hover:bg-surface"
         >
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-semibold text-ink-soft">

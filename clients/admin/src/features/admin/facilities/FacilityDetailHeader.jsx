@@ -9,7 +9,7 @@ const FacilityDetailHeader = ({ facility, deleted, onAction }) => (
   <>
     <Link
       to="/facilities"
-      className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent transition hover:text-accent-strong"
+      className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary transition hover:text-primary-strong"
     >
       <ArrowLeft size={12} strokeWidth={2} /> Back to facilities
     </Link>

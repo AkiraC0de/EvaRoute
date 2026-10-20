@@ -1,8 +1,8 @@
 import SectionCard from "./SectionCard";
 
-/** Compact figure — an inset statistic (spec §4). */
+/** Compact figure — an inset statistic in the section band. */
 const MiniStat = ({ label, value, caption }) => (
-  <div className="rounded-clay-sm bg-sunken px-4 py-3 shadow-clay-inset">
+  <div className="rounded-md border border-line bg-surface-2 px-4 py-3">
     <p className="label-micro text-muted">{label}</p>
     <p className="mt-0.5 text-[17px] font-bold leading-5 text-ink">{value}</p>
     {caption && <p className="mt-0.5 text-micro text-muted">{caption}</p>}

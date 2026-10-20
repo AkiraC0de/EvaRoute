@@ -6,8 +6,9 @@ import ResetPasswordFlow from "./reset/ResetPasswordFlow";
 import { authVariants } from "./authMotion";
 
 /**
- * Sign-in screen for the staff portal — the claymorphism reference for the
- * whole admin app (pale canvas, white raised card, recessed fields).
+ * Sign-in screen for the staff portal — the flat "Operations Console"
+ * language for the whole admin app (warm canvas, white bordered card,
+ * flat hairline fields).
  *
  * Split layout: a brand panel (EvaRoute identity) and the auth card, which
  * switches between sign-in and the password-reset flow with a directional
@@ -23,25 +24,9 @@ const LoginPage = () => {
     <main className="relative min-h-screen overflow-hidden bg-canvas lg:grid lg:grid-cols-[1.12fr_1fr]">
       <BrandPanel />
 
-      {/* Form pane — token-based radial glows behind the card (21st
-          "Split Login" pattern); the clay card keeps the portal identity. */}
+      {/* Form pane — plain warm canvas; the bordered white card is the
+          single focal surface (flat language: border + fill, no glows). */}
       <div className="relative flex items-center justify-center p-4">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div
-            className="absolute -right-20 -top-24 h-[440px] w-[440px] rounded-full opacity-85"
-            style={{
-              background:
-                "radial-gradient(50% 50% at 50% 50%, var(--color-accent-soft) 0, transparent 70%)",
-            }}
-          />
-          <div
-            className="absolute -bottom-28 -left-16 h-[360px] w-[360px] rounded-full opacity-75"
-            style={{
-              background:
-                "radial-gradient(50% 50% at 50% 50%, var(--color-accent-soft) 0, transparent 70%)",
-            }}
-          />
-        </div>
         <motion.div
           variants={v.stagger}
           initial="hidden"
@@ -50,7 +35,7 @@ const LoginPage = () => {
         >
           {/* Compact header for small screens (BrandPanel is lg-only) */}
           <motion.div variants={v.fadeUp} className="mb-5 flex items-center gap-3 lg:hidden">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-clay-sm bg-surface shadow-clay-xs">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
               <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
             </div>
             <div>
@@ -61,7 +46,7 @@ const LoginPage = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={v.fadeUp} className="rounded-clay bg-surface p-6 shadow-clay-lg">
+          <motion.div variants={v.fadeUp} className="rounded-xl border border-line bg-surface p-6">
             <AnimatePresence mode="wait">
               {view === "reset" ? (
                 <motion.div

@@ -37,7 +37,7 @@ const ConfirmDialog = ({
     >
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-ink/40" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-clay bg-surface p-5 shadow-clay-lg">
+        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-line bg-surface p-5 shadow-overlay">
           <AlertDialog.Title asChild>
             <h2 className="text-[15px] font-bold text-ink">{title}</h2>
           </AlertDialog.Title>

@@ -2,8 +2,9 @@ import { Building2, MapPin, Fingerprint } from "lucide-react";
 
 /**
  * Facility hero — the "My Facility" centerpiece (occupancy hero anatomy:
- * header row → oversized name → supporting line → unique fact chip). Solid
- * accent surface; the status chip carries words, color only reinforces it.
+ * header row → oversized name → supporting line → unique fact chip). Flat
+ * navy identity band (places identity, warm accents live on the tiles and
+ * location card); the status chip carries words, color only reinforces it.
  * The tiles beside the hero own capacity/essentials/resources — those facts
  * are deliberately not repeated here.
  */
@@ -12,20 +13,15 @@ const FacilityHero = ({ facility, available }) => {
   return (
     <section
       aria-label="Facility overview"
-      className="relative flex h-full flex-col overflow-hidden rounded-clay bg-accent p-5 shadow-clay-accent"
+      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-primary p-5"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl"
-      />
-
       <div className="relative flex h-full flex-col">
         {/* Header row: label left, status chip right */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-sm bg-white/20 text-white"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/20 text-white"
             >
               <Building2 size={17} strokeWidth={1.9} />
             </span>
@@ -36,7 +32,7 @@ const FacilityHero = ({ facility, available }) => {
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold text-ink-soft">
             <span
               aria-hidden="true"
-              className={`h-1.5 w-1.5 rounded-full ${available ? "bg-success" : "bg-warning"}`}
+              className={`h-1.5 w-1.5 rounded-full ${available ? "bg-success" : "bg-danger"}`}
             />
             {available ? "Available" : "Unavailable"}
           </span>
@@ -55,7 +51,7 @@ const FacilityHero = ({ facility, available }) => {
           </p>
 
           {facility.note ? (
-            <p className="mt-2 rounded-clay-sm bg-white/15 px-3 py-2 text-[11px] italic leading-relaxed text-white/90">
+            <p className="mt-2 rounded-md bg-white/15 px-3 py-2 text-[11px] italic leading-relaxed text-white/90">
               {facility.note}
             </p>
           ) : null}

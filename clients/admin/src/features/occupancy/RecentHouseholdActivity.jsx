@@ -12,7 +12,7 @@ const RecentHouseholdActivity = ({ facilityId }) => (
     <div className="mb-3 flex items-center gap-2.5">
       <span
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary"
       >
         <History size={15} strokeWidth={1.9} />
       </span>

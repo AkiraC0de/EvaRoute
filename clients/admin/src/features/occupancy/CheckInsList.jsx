@@ -99,7 +99,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary"
         >
           <ClipboardList size={15} strokeWidth={1.9} />
         </span>
@@ -115,7 +115,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
         <div
           role="group"
           aria-label="Check-in view"
-          className="ml-auto flex shrink-0 items-center gap-1 rounded-clay-sm bg-sunken p-1 shadow-clay-inset"
+          className="ml-auto flex shrink-0 items-center gap-1 rounded-md bg-surface-2 p-1"
         >
           {MODES.map((item) => (
             <button
@@ -123,9 +123,9 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               type="button"
               aria-pressed={mode === item.key}
               onClick={() => switchMode(item.key)}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition ${
+              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 mode === item.key
-                  ? "bg-accent text-white shadow-clay-xs"
+                  ? "bg-primary text-white"
                   : "text-muted hover:text-ink-soft"
               }`}
             >
@@ -134,7 +134,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           ))}
         </div>
 
-        <span className="shrink-0 rounded-full bg-sunken px-2.5 py-1 text-[10px] font-semibold text-muted shadow-clay-inset">
+        <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
           {total} {isHousehold ? `household${total === 1 ? "" : "s"}` : `people`}
         </span>
       </div>
@@ -162,7 +162,7 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           <div
             role="group"
             aria-label="Filter by category"
-            className="flex items-center gap-1 rounded-clay-sm bg-sunken p-1 shadow-clay-inset"
+            className="flex items-center gap-1 rounded-md bg-surface-2 p-1"
           >
             {CATEGORIES.map((item) => (
               <button
@@ -173,9 +173,9 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   setCategory(item.value);
                   setPage(1);
                 }}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition ${
+                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   category === item.value
-                    ? "bg-surface text-ink-soft shadow-clay-xs"
+                    ? "bg-surface text-ink-soft"
                     : "text-muted hover:text-ink-soft"
                 }`}
               >
@@ -186,17 +186,18 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
         )}
         {needle && (
           <>
-            <span className="rounded-full bg-sunken px-2 py-0.5 text-[10px] font-semibold text-muted shadow-clay-inset">
+            <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted">
               {rows.length} match{rows.length === 1 ? "" : "es"}
             </span>
             <button
               type="button"
               aria-label="Clear check-in search"
+              title="Clear check-in search"
               onClick={() => {
                 setSearchInput("");
                 setPage(1);
               }}
-              className="inline-flex h-9 items-center gap-1 rounded-clay-sm bg-sunken px-2.5 text-[11px] font-semibold text-muted shadow-clay-inset transition hover:text-ink-soft"
+              className="inline-flex h-9 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <X size={11} strokeWidth={2} /> Clear
             </button>
@@ -242,9 +243,10 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           <button
             type="button"
             aria-label="Previous page"
+            title="Previous page"
             disabled={safePage === 1}
             onClick={() => setPage(safePage - 1)}
-            className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-sunken text-muted shadow-clay-inset transition hover:text-ink-soft disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronLeft size={15} strokeWidth={2} />
           </button>
@@ -257,10 +259,10 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
                   aria-label={`Page ${n}`}
                   aria-current={n === safePage ? "page" : undefined}
                   onClick={() => setPage(n)}
-                  className={`min-w-9 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition ${
+                  className={`min-w-9 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                     n === safePage
-                      ? "bg-accent text-white shadow-clay-xs"
-                      : "bg-sunken text-muted shadow-clay-inset hover:text-ink-soft"
+                      ? "bg-primary text-white"
+                      : "bg-surface-2 text-muted hover:text-ink-soft"
                   }`}
                 >
                   {n}
@@ -275,9 +277,10 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           <button
             type="button"
             aria-label="Next page"
+            title="Next page"
             disabled={safePage === pageCount}
             onClick={() => setPage(safePage + 1)}
-            className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-sunken text-muted shadow-clay-inset transition hover:text-ink-soft disabled:opacity-40"
+            className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 sm:h-10 sm:w-10"
           >
             <ChevronRight size={15} strokeWidth={2} />
           </button>

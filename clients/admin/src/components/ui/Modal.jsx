@@ -9,7 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
  * `dismissible = false` makes it blocking (no ✕, Escape/outside clicks are
  * ignored) — for flows the user must complete, like first-run account setup.
  *
- * Styled with the clay design tokens (raised surface, soft overlay).
+ * Styled with the flat design tokens (bordered surface, quiet overlay).
  */
 const Modal = ({ title, onClose, children, size = "md", dismissible = true }) => (
   <Dialog.Root
@@ -29,7 +29,7 @@ const Modal = ({ title, onClose, children, size = "md", dismissible = true }) =>
         }}
         className={`fixed left-1/2 top-1/2 z-[61] max-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] ${
           size === "lg" ? "max-w-4xl" : "max-w-[420px]"
-        } -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-clay bg-surface p-5 shadow-clay-lg`}
+        } -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-line bg-surface p-5 shadow-overlay`}
       >
         <div className="mb-3 flex items-center justify-between gap-2">
           <Dialog.Title asChild>
@@ -40,7 +40,7 @@ const Modal = ({ title, onClose, children, size = "md", dismissible = true }) =>
               <button
                 type="button"
                 aria-label="Close"
-                className="flex h-7 w-7 items-center justify-center rounded-clay-sm text-muted transition hover:bg-sunken hover:text-ink-soft"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted transition hover:bg-surface-2 hover:text-ink-soft"
               >
                 ✕
               </button>

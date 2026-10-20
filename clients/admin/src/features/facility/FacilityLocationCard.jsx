@@ -5,14 +5,14 @@ import { formatCoords } from "../map/coordinateUtils";
 /**
  * Read-only location card — the assigned facility on the overview map
  * (staff cannot edit coordinates here; coordinates editing lives in the
- * admin facility detail's edit mode).
+ * admin facility detail's edit mode). Warm (places) identity chip.
  */
 const FacilityLocationCard = ({ facility }) => (
-  <div className="rounded-clay bg-surface p-4 shadow-clay">
+  <div className="rounded-lg border border-line bg-surface p-4">
     <div className="mb-3 flex items-center gap-2.5">
       <span
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-sm bg-accent-soft text-accent"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warm-soft text-warm-ink"
       >
         <MapPin size={15} strokeWidth={1.9} />
       </span>
