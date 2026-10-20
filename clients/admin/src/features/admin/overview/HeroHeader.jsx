@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { Building2, History as HistoryIcon, UserPlus } from "lucide-react";
 import Button from "../../../components/ui/Button";
 
-/** Hero header — identity, network pills and quick actions. */
-const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
+/** Hero header — identity and quick actions. Network numbers live in the
+ *  KPI row directly below (they used to be duplicated here as pills). */
+const HeroHeader = ({ today, greeting, firstName }) => (
   <header className="relative overflow-hidden rounded-clay bg-gradient-to-br from-accent to-accent-strong p-6 shadow-2xs">
     <div
       aria-hidden="true"
@@ -20,17 +21,6 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
         <p className="mt-1 text-[13px] text-white">
           Network operations at a glance — occupancy, staffing and activity.
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[10px] font-semibold text-ink-soft shadow-clay-xs">
-            {summary?.facilities.total ?? "—"} facilities
-          </span>
-          <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[10px] font-semibold text-ink-soft shadow-clay-xs">
-            {summary?.occupants.families ?? "—"} families on site
-          </span>
-          <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-accent-strong">
-            {occupancyPct}% occupied
-          </span>
-        </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Link to="/facilities">

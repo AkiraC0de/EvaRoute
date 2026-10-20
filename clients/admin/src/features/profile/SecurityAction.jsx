@@ -32,7 +32,7 @@ const SecurityAction = ({
       <button
         type="button"
         onClick={onClick}
-        className="flex min-h-12 w-full items-center gap-3 rounded-2xl bg-danger-soft px-3 py-2 text-left text-danger shadow-clay-xs transition hover:bg-[#f8d8d6] active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
+        className="flex min-h-12 w-full items-center gap-3 rounded-2xl bg-danger-soft px-3 py-2 text-left text-danger-strong shadow-clay-xs transition hover:bg-danger-soft-hover active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
       >
         {iconElement}
         <span className="text-[12px] font-semibold">{title}</span>

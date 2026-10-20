@@ -61,7 +61,7 @@ const SelectInput = ({
           aria-label={ariaLabel}
           onBlur={onBlur}
           disabled={disabled}
-          className={`text-left ${className}`}
+          className={`truncate text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
         >
           <SelectPrimitive.Value />
           <SelectPrimitive.Icon asChild>

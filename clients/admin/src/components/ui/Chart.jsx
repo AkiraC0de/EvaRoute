@@ -3,6 +3,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -41,10 +42,34 @@ const ActivityChart = ({ data = [], height = 220 }) => {
     other: Math.max((bucket.total ?? 0) - (bucket.checkIns ?? 0), 0),
   }));
 
+  /* Value labels above the bars for sparse-data legibility: quiet days stay
+     unlabeled, busy days show their total. Recharts skips label entries on
+     zero-height segments, so each stacked segment labels only the days it
+     tops — the check-ins segment when there are check-ins, else the
+     other-events segment (its entry is the whole bar on those days). */
+  const dayLabel = (topSegment) => ({ x, y, width, value, index }) => {
+    const row = chartData[index] ?? {};
+    const checkIns = row.checkIns ?? 0;
+    const isTop = topSegment === "checkIns" ? checkIns > 0 : checkIns === 0;
+    if (!(value > 0 && isTop)) return null;
+    return (
+      <text
+        x={x + width / 2}
+        y={y - 4}
+        textAnchor="middle"
+        fontSize={8}
+        fontWeight={600}
+        fill="var(--color-muted)"
+      >
+        {value}
+      </text>
+    );
+  };
+
   return (
     <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
+        <BarChart data={chartData} margin={{ top: 16, right: 8, bottom: 0, left: -24 }}>
           <CartesianGrid
             stroke="var(--color-line)"
             strokeDasharray="3 4"
@@ -68,8 +93,11 @@ const ActivityChart = ({ data = [], height = 220 }) => {
             cursor={{ fill: "var(--color-sunken)", opacity: 0.7 }}
           />
           {/* Stacked: other events underlay (soft), check-ins on top (accent). */}
-          <Bar dataKey="other" stackId="day" fill="var(--color-accent-soft)" radius={[0, 0, 6, 6]} />
+          <Bar dataKey="other" stackId="day" fill="var(--color-accent-soft)" radius={[0, 0, 6, 6]}>
+            <LabelList dataKey="total" position="top" content={dayLabel("other")} />
+          </Bar>
           <Bar dataKey="checkIns" stackId="day" radius={[6, 6, 0, 0]}>
+            <LabelList dataKey="total" position="top" content={dayLabel("checkIns")} />
             {chartData.map((entry) => (
               <Cell key={entry.date} fill="var(--color-accent)" />
             ))}

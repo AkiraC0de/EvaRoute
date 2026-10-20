@@ -48,7 +48,7 @@ const DateRangePicker = ({
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           aria-label={ariaLabel}
-          className={`inline-flex h-9 items-center gap-2 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover ring-accent focus:ring-2 ${
+          className={`inline-flex h-11 sm:h-10 items-center gap-2 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
             hasRange ? "" : "text-muted-dim"
           }`}
         >

@@ -17,7 +17,7 @@ const SidebarUserCard = () => {
         to="/profile"
         aria-label={`View profile for ${displayNameOf(user)}`}
         className={({ isActive }) =>
-          `flex items-center gap-3 rounded-clay-sm px-3 py-2 transition ${
+          `flex items-center gap-3 rounded-clay-sm px-3 py-2 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
             isActive
               ? "bg-accent-soft ring-1 ring-accent/25"
               : "bg-sunken hover:bg-accent-soft/60"

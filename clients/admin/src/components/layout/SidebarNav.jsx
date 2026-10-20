@@ -58,7 +58,7 @@ const SidebarNav = () => {
                 to={to}
                 end={end}
                 className={({ isActive }) =>
-                  `${ITEM} ${isActive ? "" : "hover:bg-sunken"}`
+                  `${ITEM} ${isActive ? "" : "hover:bg-sunken"} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`
                 }
               >
                 {({ isActive }) => (

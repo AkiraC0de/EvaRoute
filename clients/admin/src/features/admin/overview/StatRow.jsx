@@ -39,20 +39,25 @@ const StatRow = ({ error, loading, summary, occupancyPct, reload }) => (
         />
         <StatCard
           icon={<Users size={20} strokeWidth={1.9} />}
-          tone="success"
+          tone="accent"
           label="People on site"
           value={summary.occupants.total}
           caption={`${summary.occupants.families} families · ${summary.occupants.children} children, ${summary.occupants.adults} adults`}
         />
         <StatCard
           icon={<Building2 size={20} strokeWidth={1.9} />}
-          tone="warning"
+          tone="accent"
           label="Facilities"
           value={summary.facilities.total}
-          caption={`${summary.facilities.byStatus.AVAILABLE ?? 0} available · ${
-            (summary.facilities.byStatus.UNAVAILABLE ?? 0) +
-            (summary.facilities.byStatus.LIMITED ?? 0)
-          } limited/unavailable`}
+          caption={`${summary.facilities.byStatus.AVAILABLE ?? 0} available${
+            (summary.facilities.byStatus.LIMITED ?? 0) > 0
+              ? ` · ${summary.facilities.byStatus.LIMITED} limited`
+              : ""
+          }${
+            (summary.facilities.byStatus.UNAVAILABLE ?? 0) > 0
+              ? ` · ${summary.facilities.byStatus.UNAVAILABLE} unavailable`
+              : ""
+          }`}
         />
         <StatCard
           icon={<UserCheck size={20} strokeWidth={1.9} />}

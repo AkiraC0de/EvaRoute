@@ -4,21 +4,21 @@ import Skeleton from "../../../components/ui/Skeleton";
 import StatusPill from "../../../components/ui/StatusPill";
 import SectionCard from "./SectionCard";
 import { FOCUS_RING } from "./overviewStyles";
+import { displayPlaceName } from "../../../lib/utils";
 
-/** Status → tone/label for the shared StatusPill (which renders children). */
-const STATUS_TONE = { AVAILABLE: "success", UNAVAILABLE: "danger", LIMITED: "warning" };
-const STATUS_LABEL = { AVAILABLE: "Available", UNAVAILABLE: "Unavailable", LIMITED: "Limited" };
+/** Status → tone/label lives in components/ui/statusMeta (the ONE taxonomy). */
 
 /** One facility-load row: name, status, capacity meter. */
 const LoadRow = ({ facility }) => (
   <div className="py-2.5 first:pt-0 last:pb-0">
     <div className="flex items-center justify-between gap-2">
-      <p className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ink-soft">
-        {facility.name}
+      <p
+        className="min-w-0 flex-1 truncate text-[12px] font-semibold text-ink-soft"
+        title={facility.name}
+      >
+        {displayPlaceName(facility.name)}
       </p>
-      <StatusPill tone={STATUS_TONE[facility.status] ?? "neutral"}>
-        {STATUS_LABEL[facility.status] ?? facility.status}
-      </StatusPill>
+      <StatusPill status={facility.status} />
       <p className="shrink-0 text-[11px] text-muted">
         <span className="font-semibold text-ink-soft">{facility.occupied}</span>
         /{facility.maxCapacity}

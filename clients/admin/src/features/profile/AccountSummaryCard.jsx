@@ -3,9 +3,11 @@ import Card from "../../components/ui/Card";
 import StatusPill from "../../components/ui/StatusPill";
 
 /**
- * Account summary card: name, email, assigned facility + role pills.
+ * Account summary card: the identity block (name, email, role badge).
+ * Facility/role details live in the Account information panel below — one
+ * source per fact (the theme audit's duplication fix).
  */
-const AccountSummaryCard = ({ user, facility }) => {
+const AccountSummaryCard = ({ user }) => {
   const fullName = displayNameOf(user);
 
   return (
@@ -13,7 +15,6 @@ const AccountSummaryCard = ({ user, facility }) => {
       <h2 className="text-[15px] font-bold text-ink">{fullName}</h2>
       <p className="text-[11px] text-muted">{user?.email || "—"}</p>
       <div className="mt-2 flex flex-wrap gap-2">
-        <StatusPill tone="neutral">{facility ? facility.name : "No facility assigned"}</StatusPill>
         <StatusPill tone="accent">{roleLabelOf(user?.role)}</StatusPill>
       </div>
     </Card>

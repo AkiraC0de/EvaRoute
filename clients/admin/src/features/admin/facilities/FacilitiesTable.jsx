@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { RotateCcw, Trash2 } from "lucide-react";
 import StatusPill from "../../../components/ui/StatusPill";
 import { TableShell, Th, Td, Tr } from "../../../components/ui/Table";
+import { displayPlaceName } from "../../../lib/utils";
 
 /**
  * Facilities table — one row per facility with name link, status, capacity,
@@ -12,8 +13,17 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
   <TableShell>
     <thead>
       <tr className="bg-sunken">
-        {["Name", "Address", "Status", "Capacity", "Staff", "Actions"].map((label) => (
-          <Th key={label}>{label}</Th>
+        {[
+          { label: "Name" },
+          { label: "Address" },
+          { label: "Status" },
+          { label: "Capacity", align: "right" },
+          { label: "Staff", align: "right" },
+          { label: "Actions" },
+        ].map(({ label, align }) => (
+          <Th key={label} className={align === "right" ? "text-right" : ""}>
+            {label}
+          </Th>
         ))}
       </tr>
     </thead>
@@ -23,25 +33,27 @@ const FacilitiesTable = ({ facilities, showDeleted, onToggle }) => (
           <Td>
             <Link
               to={`/facilities/${facility.id}`}
+              title={facility.name}
               className="text-[12px] font-semibold text-accent transition hover:text-accent-strong"
             >
-              {facility.name}
+              {displayPlaceName(facility.name)}
             </Link>
           </Td>
           <Td>
-            <span className="block max-w-[220px] truncate text-[11px] text-muted">
-              {facility.address}
+            <span
+              className="block max-w-[220px] truncate text-[11px] text-muted"
+              title={facility.address}
+            >
+              {displayPlaceName(facility.address)}
             </span>
           </Td>
           <Td>
-            <StatusPill tone={facility.status === "AVAILABLE" ? "success" : "warning"}>
-              {facility.status === "AVAILABLE" ? "Available" : "Unavailable"}
-            </StatusPill>
+            <StatusPill status={facility.status} />
           </Td>
-          <Td>
+          <Td className="text-right">
             <span className="text-[11px] text-muted">{facility.maxCapacity}</span>
           </Td>
-          <Td>
+          <Td className="text-right">
             <span className="text-[11px] text-muted">{facility.staffCount ?? 0}</span>
           </Td>
           <Td>

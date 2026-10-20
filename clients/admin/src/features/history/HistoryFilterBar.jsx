@@ -55,6 +55,7 @@ const HistoryFilterBar = ({
           value={facilityId}
           onChange={onFacilityChange}
           ariaLabel="Filter by facility"
+          className="max-w-[220px]"
         >
           <option value="">All facilities</option>
           {facilityOptions.map((facility) => (

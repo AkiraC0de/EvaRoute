@@ -65,11 +65,15 @@ const SecuritySection = ({ onBusyChange }) => {
       <Card className="space-y-2">
         <ChangePasswordAction />
 
+        {/* Recovery action — neutral treatment (the theme audit: only the
+            terminal action gets the danger styling; this one is reversible
+            and password-gated). */}
         <SecurityAction
           icon={<LogOut size={15} strokeWidth={1.8} />}
           title="Sign out to all other devices"
-          actionLabel="Sign out to all other devices"
-          variant="danger"
+          description="Requires your password. This device stays signed in."
+          actionLabel="Sign out everywhere"
+          variant="neutral"
           onClick={() => {
             setError("");
             setNotice("");
@@ -121,8 +125,8 @@ const SecuritySection = ({ onBusyChange }) => {
       </Card>
 
       {!error && !notice && (
-        <p className="mt-3 text-[11px] leading-relaxed text-muted-dim">
-          Sign-out actions call the live API. Changing your password keeps this
+        <p className="mt-3 text-[11px] leading-relaxed text-muted">
+          Sign-out takes effect immediately. Changing your password keeps this
           device signed in and signs out every other device.
         </p>
       )}

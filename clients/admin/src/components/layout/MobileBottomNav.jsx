@@ -39,10 +39,10 @@ const MobileBottomNav = () => {
               end={end}
               aria-label={label}
               className={({ isActive }) =>
-                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-clay-sm px-1 py-1.5 transition active:shadow-clay-inset ${
+                `relative flex min-h-11 w-full flex-col items-center justify-center gap-1 rounded-clay-sm px-1 py-1.5 transition active:shadow-clay-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                   isActive
                     ? "text-accent-strong"
-                    : "text-[#96a2bb] hover:text-[#687594]"
+                    : "text-muted-dim hover:text-muted"
                 }`
               }
             >

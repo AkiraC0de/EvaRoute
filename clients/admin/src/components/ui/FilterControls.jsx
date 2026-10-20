@@ -8,7 +8,7 @@ import SelectInput from "./Select";
  */
 
 const CONTROL_CLASS =
-  "h-9 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover ring-accent focus:ring-2";
+  "h-11 sm:h-10 rounded-clay-sm bg-sunken px-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" }) => (
   <div className={`relative w-full max-w-[240px] ${className}`}>
@@ -23,7 +23,7 @@ const FilterSearch = ({ value, onChange, placeholder, ariaLabel, className = "" 
       onChange={onChange}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className={`h-9 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-sunken-hover ring-accent focus:ring-2 ${className}`}
+      className={`h-11 sm:h-10 w-full rounded-clay-sm bg-sunken pl-8 pr-3 text-[12px] font-medium text-ink-soft shadow-clay-inset outline-none transition placeholder:text-muted-dim hover:bg-sunken-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
     />
   </div>
 );

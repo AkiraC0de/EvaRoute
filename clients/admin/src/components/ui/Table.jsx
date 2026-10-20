@@ -10,8 +10,10 @@ const TableShell = ({ children }) => (
   </div>
 );
 
-const Th = ({ children }) => (
-  <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.7px] text-muted-dim">
+const Th = ({ children, className = "" }) => (
+  <th
+    className={`px-4 py-2.5 label-micro text-muted-dim ${className}`}
+  >
     {children}
   </th>
 );

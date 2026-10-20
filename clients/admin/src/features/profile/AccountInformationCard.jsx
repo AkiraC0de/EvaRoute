@@ -1,22 +1,21 @@
 import Card from "../../components/ui/Card";
 import ReadOnlyField from "../../components/ui/ReadOnlyField";
-import { roleLabelOf } from "../../lib/user";
+import { displayPlaceName } from "../../lib/utils";
 
 /**
- * Account information panel: read-only fields. The API exposes no staff
- * self-edit endpoint (PATCH /api/v1/staff/:userId requires the admin-only
- * EDIT_STAFF_ACC permission), and phone/staff-ID are not part of the account
- * model — hence read-only.
+ * Account information panel: read-only fields (details kept by your
+ * administrator). Email and role appear in the summary card above — one
+ * source per fact.
  */
 const AccountInformationCard = ({ user, facility }) => {
   const profileFields = [
     { label: "First Name", value: user?.firstName || "—" },
     { label: "Last Name", value: user?.lastName || "—" },
-    { label: "Work Email", value: user?.email || "—" },
-    { label: "Role", value: roleLabelOf(user?.role) },
     {
       label: "Assigned Facility",
-      value: facility ? `${facility.name} · ${facility.address}` : "Not assigned",
+      value: facility
+        ? `${displayPlaceName(facility.name)} · ${displayPlaceName(facility.address)}`
+        : "Not assigned",
     },
   ];
 
@@ -27,11 +26,9 @@ const AccountInformationCard = ({ user, facility }) => {
           <ReadOnlyField key={label} label={label} value={value} />
         ))}
       </div>
-      <p className="mt-4 px-1 text-[11px] leading-relaxed text-muted-dim">
-        These fields are read-only: the API exposes no staff self-edit
-        endpoint (PATCH /api/v1/staff/:userId requires the admin-only
-        EDIT_STAFF_ACC permission). Phone number and staff ID are not part
-        of the account model.
+      <p className="mt-4 px-1 text-[11px] leading-relaxed text-muted">
+        These details are maintained by your administrator. Contact your
+        coordinator if anything here needs to change.
       </p>
     </Card>
   );

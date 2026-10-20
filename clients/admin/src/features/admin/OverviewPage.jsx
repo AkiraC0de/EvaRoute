@@ -59,8 +59,6 @@ const OverviewPage = () => {
         today={today}
         greeting={greeting}
         firstName={firstName}
-        summary={summary}
-        occupancyPct={occupancyPct}
       />
 
       {/* ── Stat row ───────────────────────────────────────────── */}

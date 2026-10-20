@@ -1,16 +1,15 @@
 /**
- * Facility status → marker/legend/pill presentation — the ONE mapping used by
- * the map markers, the legend and any status chip on map surfaces. Mirrors the
- * backend `FacilityStatus` enum (AVAILABLE / UNAVAILABLE) and tolerates the
- * LIMITED value that exists as DB drift — never invent a status meaning here.
- *
- * Marker colors are named CSS classes (see map.css) so they resolve from the
- * design tokens instead of raw hex.
+ * Facility status → marker/legend presentation for MAP surfaces. The
+ * label/tone taxonomy is imported from components/ui/statusMeta (the ONE
+ * mapping — never invent a status meaning here); this module only adds the
+ * marker CSS classes (see map.css) so colors resolve from design tokens.
  */
+import { STATUS_META } from "../../components/ui/statusMeta";
+
 export const FACILITY_STATUS_META = {
-  AVAILABLE: { label: "Available", tone: "success", markerClass: "clay-marker--available" },
-  UNAVAILABLE: { label: "Unavailable", tone: "danger", markerClass: "clay-marker--unavailable" },
-  LIMITED: { label: "Limited", tone: "warning", markerClass: "clay-marker--limited" },
+  AVAILABLE: { ...STATUS_META.AVAILABLE, markerClass: "clay-marker--available" },
+  UNAVAILABLE: { ...STATUS_META.UNAVAILABLE, markerClass: "clay-marker--unavailable" },
+  LIMITED: { ...STATUS_META.LIMITED, markerClass: "clay-marker--limited" },
 };
 
 export const statusMetaOf = (status) =>

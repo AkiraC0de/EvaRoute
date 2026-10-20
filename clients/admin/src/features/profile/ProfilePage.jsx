@@ -27,7 +27,7 @@ const ProfilePage = () => {
         subtitle="Manage your account and security"
       />
 
-      <AccountSummaryCard user={user} facility={facility} />
+      <AccountSummaryCard user={user} />
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-8">
         <section aria-labelledby="account-information-heading">
