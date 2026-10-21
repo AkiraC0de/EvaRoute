@@ -3,11 +3,20 @@ import EmptyArt from "../../../components/ui/EmptyArt";
 import { SkeletonChartBars } from "../../../components/ui/Skeleton";
 import SectionCard from "./SectionCard";
 
-/** Activity chart card — 14-day day-bucketed timeline with legend. */
-const ActivityChartCard = ({ timeline, loading }) => (
+/**
+ * Network flow — the page's dominant visual element: the 14-day day-bucketed
+ * activity chart with its legend, and the week's volume in the panel meta
+ * (where the trend story belongs). Loading/empty/error states preserved
+ * from the old chart card.
+ */
+const FlowPanel = ({ summary, timeline, loading }) => (
   <SectionCard
-    title="Activity — last 14 days"
-    meta="Daily check-ins and total events across the network."
+    title="Network flow"
+    meta={
+      summary
+        ? `Daily activity over the last 14 days · ${summary.activity.last7d.events} events this week.`
+        : "Daily activity over the last 14 days."
+    }
     action={
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
@@ -40,4 +49,4 @@ const ActivityChartCard = ({ timeline, loading }) => (
   </SectionCard>
 );
 
-export default ActivityChartCard;
+export default FlowPanel;

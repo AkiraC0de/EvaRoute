@@ -1,40 +1,120 @@
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import StatusPanel from "../../components/ui/StatusPanel";
 import ResourceCard from "./ResourceCard";
 import ResourceCreateForm from "./ResourceCreateForm";
 
-/** Resources block — header count, create form and the resource card grid. */
-const FacilityResourcesSection = ({ resources, createResource, saveResource, removeResource }) => (
-  <>
-    <div className="mb-3 flex items-center justify-between gap-2">
-      <h2 className="text-[10px] font-semibold uppercase tracking-[1px] text-muted">
-        Resources
-      </h2>
-      <span className="text-[11px] text-muted">
-        {resources.length} recorded
-      </span>
-    </div>
+/**
+ * Resources workspace — the page's management surface. Header with live
+ * count, a search field and three segment filters (All / Essentials /
+ * Unavailable) for quick scanning, then the create form and the resource
+ * grid. Filtering is presentation-only over the API's name-ordered list —
+ * every mutation still goes through the same hooks/endpoints.
+ */
+const SEGMENTS = [
+  { key: "all", label: "All" },
+  { key: "essential", label: "Essentials" },
+  { key: "unavailable", label: "Unavailable" },
+];
 
-    <ResourceCreateForm onCreate={createResource} />
+const FacilityResourcesSection = ({ resources, createResource, saveResource, removeResource }) => {
+  const [query, setQuery] = useState("");
+  const [segment, setSegment] = useState("all");
 
-    <div className="mt-4">
-      {resources.length === 0 ? (
-        <StatusPanel tone="empty" title="No resources recorded">
-          This facility has no resources yet. Add the first one above.
-        </StatusPanel>
-      ) : (
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {resources.map((resource) => (
-            <ResourceCard
-              key={resource.id}
-              resource={resource}
-              onSave={(patch) => saveResource(resource.id, patch)}
-              onDelete={() => removeResource(resource.id)}
-            />
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return resources.filter((resource) => {
+      if (segment === "essential" && !resource.essentialType) return false;
+      if (segment === "unavailable" && resource.isAvailable !== false) return false;
+      if (q && !(resource.name ?? "").toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [resources, query, segment]);
+
+  return (
+    <section aria-label="Resources and essentials">
+      {/* Workspace header — count and the create action share the row */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[13px] font-bold text-ink-soft">Resources &amp; essentials</h2>
+          <p className="mt-0.5 text-[11px] text-muted">
+            Track and manage what the facility has
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
+            {resources.length} recorded
+          </span>
+          <ResourceCreateForm onCreate={createResource} />
+        </div>
+      </div>
+
+      {/* Search + segments */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="relative min-w-0 flex-1 sm:max-w-[260px]">
+          <span className="sr-only">Search resources</span>
+          <Search
+            size={14}
+            strokeWidth={1.9}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search resources…"
+            className="h-10 w-full rounded-md border border-line bg-surface pl-8.5 pr-3 text-[12px] text-ink outline-none transition-colors placeholder:text-muted-dim focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-ink"
+          />
+        </label>
+        <div
+          role="group"
+          aria-label="Filter resources"
+          className="flex items-center gap-1 rounded-full bg-surface-2 p-1"
+        >
+          {SEGMENTS.map((entry) => (
+            <button
+              key={entry.key}
+              type="button"
+              aria-pressed={segment === entry.key}
+              onClick={() => setSegment(entry.key)}
+              className={`min-h-8 rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-ink ${
+                segment === entry.key
+                  ? "bg-surface text-ink shadow-xs"
+                  : "text-muted hover:text-ink-soft"
+              }`}
+            >
+              {entry.label}
+            </button>
           ))}
-        </section>
-      )}
-    </div>
-  </>
-);
+        </div>
+      </div>
+
+      <div className="mt-4">
+        {resources.length === 0 ? (
+          <StatusPanel tone="empty" title="No resources recorded">
+            This facility has no resources yet. Add the first one above.
+          </StatusPanel>
+        ) : visible.length === 0 ? (
+          <StatusPanel tone="empty" title="No resources match">
+            No resource matches the current search and filter. Clear them to
+            see all {resources.length} recorded.
+          </StatusPanel>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {visible.map((resource) => (
+              <ResourceCard
+                key={resource.id}
+                resource={resource}
+                onSave={(patch) => saveResource(resource.id, patch)}
+                onDelete={() => removeResource(resource.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
 
 export default FacilityResourcesSection;

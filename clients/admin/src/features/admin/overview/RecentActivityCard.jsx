@@ -7,11 +7,11 @@ import { FOCUS_RING } from "./overviewStyles";
 const RecentActivityCard = () => (
   <SectionCard
     title="Recent activity"
-    meta="The latest meaningful changes across the network."
+    meta="Latest meaningful changes."
     action={
       <Link
         to="/history"
-        className={`inline-flex items-center gap-1 text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong ${FOCUS_RING}`}
+        className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-semibold text-primary-ink transition hover:text-primary-strong ${FOCUS_RING}`}
       >
         View full history →
       </Link>

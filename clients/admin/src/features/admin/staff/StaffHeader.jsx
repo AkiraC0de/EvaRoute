@@ -1,4 +1,4 @@
-import { Plus, SquareUser } from "lucide-react";
+import { Plus } from "lucide-react";
 import Button from "../../../components/ui/Button";
 
 /**
@@ -8,12 +8,6 @@ import Button from "../../../components/ui/Button";
 const StaffHeader = ({ onCreate, count }) => (
   <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
     <div className="flex items-center gap-3">
-      <span
-        aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary-soft text-secondary-ink"
-      >
-        <SquareUser size={18} strokeWidth={1.9} />
-      </span>
       <div>
         <h1 className="flex items-center gap-2 text-[22px] font-bold leading-tight text-ink">
           Staff accounts

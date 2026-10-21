@@ -45,7 +45,8 @@ const getSummary = async (facilityId?: string) => {
     events7d,
     staffTotal,
     staffActive,
-    staffUnassigned
+    staffUnassigned,
+    essentialRows
   ] = await Promise.all([
     prisma.facility.findMany({
       where: facilityWhere,
@@ -65,7 +66,14 @@ const getSummary = async (facilityId?: string) => {
     prisma.user.count({ where: { ...staffWhere, isActive: true } }),
     facilityId
       ? Promise.resolve(0)
-      : prisma.user.count({ where: { role: UserRole.FACILITY_STAFF, facilityStaff: null } })
+      : prisma.user.count({ where: { role: UserRole.FACILITY_STAFF, facilityStaff: null } }),
+    prisma.facilityResource.findMany({
+      where: {
+        essentialType: { not: null },
+        ...(facilityId ? { facilityId } : {})
+      },
+      select: { facilityId: true, essentialType: true, isAvailable: true }
+    })
   ])
 
   const members = activeStays.length
@@ -117,6 +125,53 @@ const getSummary = async (facilityId?: string) => {
     byStatus[facility.status as string] = (byStatus[facility.status as string] ?? 0) + 1
   }
 
+  // Mandatory essentials (one row per essential per facility): a facility is
+  // covered when its row exists and isAvailable is true.
+  const ESSENTIALS = [
+    { key: "electricity", type: "ELECTRICITY", label: "Electricity generator" },
+    { key: "water", type: "WATER", label: "Drinkable water" },
+    { key: "comfortRoom", type: "COMFORT_ROOM", label: "Comfort room" }
+  ] as const
+
+  const availableByFacility = new Map<string, Set<string>>()
+  for (const row of essentialRows) {
+    if (!row.isAvailable || !row.essentialType) continue
+    const set = availableByFacility.get(row.facilityId) ?? new Set<string>()
+    set.add(row.essentialType as string)
+    availableByFacility.set(row.facilityId, set)
+  }
+
+  const covered = (facilityId: string, type: string) =>
+    availableByFacility.get(facilityId)?.has(type) ?? false
+
+  const resources = Object.fromEntries(
+    ESSENTIALS.map((essential) => [
+      essential.key,
+      {
+        label: essential.label,
+        have: facilityRows.filter((f) => covered(f.id, essential.type)).length,
+        total: facilityRows.length
+      }
+    ])
+  )
+
+  // Threshold panel data: named facility exceptions only (counts live in the
+  // hero chips and "At a glance" — one source per fact).
+  const attention = {
+    nearCapacity: facilityLoad
+      .filter((f) => f.pct >= 85)
+      .slice(0, 5)
+      .map(({ id, name, occupied, maxCapacity, pct }) => ({ id, name, occupied, maxCapacity, pct })),
+    missingResources: facilityRows
+      .map((f) => ({
+        id: f.id,
+        name: f.name as string,
+        missing: ESSENTIALS.filter((e) => !covered(f.id, e.type)).map((e) => e.label)
+      }))
+      .filter((f) => f.missing.length > 0)
+      .slice(0, 6)
+  }
+
   return {
     scope: facilityId ?? "network",
     facilities: {
@@ -145,6 +200,8 @@ const getSummary = async (facilityId?: string) => {
       last24h: { checkIns: checkIns24h, checkOuts: checkOuts24h },
       last7d: { events: events7d }
     },
+    resources,
+    attention,
     facilityLoad
   }
 }

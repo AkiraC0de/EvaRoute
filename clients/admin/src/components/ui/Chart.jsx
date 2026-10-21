@@ -49,17 +49,24 @@ const ActivityChart = ({ data = [], height = 220 }) => {
      other-events segment (its entry is the whole bar on those days). */
   const dayLabel = (topSegment) => ({ x, y, width, value, index }) => {
     const row = chartData[index] ?? {};
+    // Exactly one label per day, at the top of the stack: the decision uses
+    // the SEGMENT's own value (the LabelList dataKey) plus the stack order —
+    // never a row lookup for visibility, which double-labeled edge days.
+    if (!row.date || !(value > 0)) return null; // label = the entry total
     const checkIns = row.checkIns ?? 0;
     const isTop = topSegment === "checkIns" ? checkIns > 0 : checkIns === 0;
-    if (!(value > 0 && isTop)) return null;
+    if (!isTop) return null;
     return (
       <text
         x={x + width / 2}
-        y={y - 4}
+        y={y - 6}
         textAnchor="middle"
         fontSize={8}
         fontWeight={600}
         fill="var(--color-muted)"
+        stroke="var(--color-surface)"
+        strokeWidth={2.5}
+        paintOrder="stroke"
       >
         {value}
       </text>
