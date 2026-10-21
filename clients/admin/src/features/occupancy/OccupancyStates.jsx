@@ -1,4 +1,9 @@
-import Skeleton from "../../components/ui/Skeleton";
+import Skeleton, {
+  SkeletonActivityRow,
+  SkeletonChartBars,
+  SkeletonField,
+  SkeletonStatCard,
+} from "../../components/ui/Skeleton";
 import StatusPanel from "../../components/ui/StatusPanel";
 import { BAND_COLS } from "./occupancyUtils";
 
@@ -13,14 +18,16 @@ const OccupancyLoading = () => (
     <Skeleton className="h-3 w-44" />
     <div className={`grid items-stretch gap-4 ${BAND_COLS}`}>
       <div className="rounded-lg border border-line bg-surface p-5">
-        <Skeleton className="h-3 w-36" />
-        <Skeleton className="mt-3.5 h-10 w-52" />
-        <Skeleton className="mt-3 h-24 w-full rounded-md" />
+        <Skeleton className="h-3 w-36 rounded-full" />
+        <Skeleton className="mt-3.5 h-10 w-52 rounded-md" />
+        <div className="mt-3">
+          <SkeletonChartBars height={96} />
+        </div>
         <Skeleton className="mt-3 h-2.5 w-full rounded-full" />
       </div>
       <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
         {[0, 1, 2, 3].map((n) => (
-          <Skeleton key={n} className="h-28 rounded-lg" />
+          <SkeletonStatCard key={n} />
         ))}
       </div>
     </div>
@@ -32,23 +39,25 @@ const OccupancyLoading = () => (
     <div className={`grid items-start gap-4 ${BAND_COLS}`}>
       <div className="order-2 space-y-4 lg:order-1">
         <div className="rounded-lg border border-line bg-surface p-4">
-          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-3 w-28 rounded-full" />
           {[0, 1, 2, 3].map((n) => (
-            <Skeleton key={n} className="mt-3 h-14 w-full rounded-md" />
+            <SkeletonActivityRow key={n} />
           ))}
         </div>
       </div>
       <div className="order-1 space-y-4 lg:order-2">
         <div className="rounded-lg border border-line bg-surface p-4">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="mt-3 h-8 w-full" />
-          <Skeleton className="mt-2 h-8 w-full" />
-          <Skeleton className="mt-3 h-9 w-full rounded-md" />
+          <Skeleton className="h-3 w-24 rounded-full" />
+          <div className="mt-3 space-y-3">
+            <SkeletonField />
+            <SkeletonField />
+          </div>
+          <Skeleton className="mt-3 h-10 w-full rounded-md" />
         </div>
         <div className="rounded-lg border border-line bg-surface p-4">
-          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-3 w-28 rounded-full" />
           {[0, 1, 2].map((n) => (
-            <Skeleton key={n} className="mt-3 h-10 w-full rounded-md" />
+            <SkeletonActivityRow key={n} />
           ))}
         </div>
       </div>

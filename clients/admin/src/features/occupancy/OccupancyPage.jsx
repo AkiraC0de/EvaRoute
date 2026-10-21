@@ -112,7 +112,7 @@ const OccupancyPage = () => {
           {/* Hero band: the occupancy hero beside the 2×2 metric wall */}
           <motion.div {...rise()} className={`mt-3 grid items-stretch gap-4 ${BAND_COLS}`}>
             <OccupancyMeter occupancy={occupancy.members} capacity={occupancy.maxCapacity} timeline={timeline} />
-            <OccupancySummary occupancy={occupancy} />
+            <OccupancySummary occupancy={occupancy} stays={stays} />
           </motion.div>
 
           {/* Separator + operations heading, then the operational band */}

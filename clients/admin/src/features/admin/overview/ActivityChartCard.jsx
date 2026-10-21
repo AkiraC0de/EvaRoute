@@ -1,6 +1,6 @@
 import Chart from "../../../components/ui/Chart";
 import EmptyArt from "../../../components/ui/EmptyArt";
-import Skeleton from "../../../components/ui/Skeleton";
+import { SkeletonChartBars } from "../../../components/ui/Skeleton";
 import SectionCard from "./SectionCard";
 
 /** Activity chart card — 14-day day-bucketed timeline with legend. */
@@ -19,7 +19,7 @@ const ActivityChartCard = ({ timeline, loading }) => (
       </div>
     }
   >
-    {loading && <Skeleton className="h-[220px] w-full rounded-md" />}
+    {loading && <SkeletonChartBars height={220} />}
     {!loading &&
       timeline &&
       (timeline.every((bucket) => bucket.total === 0) ? (

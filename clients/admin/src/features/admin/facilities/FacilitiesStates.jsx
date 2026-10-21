@@ -8,10 +8,15 @@ const FacilitiesLoading = () => (
     aria-label="Loading facilities"
     className="rounded-lg border border-line bg-surface p-5"
   >
-    <Skeleton className="h-3 w-32" />
-    <Skeleton className="mt-4 h-9 w-full rounded-md" />
+    <Skeleton className="h-3 w-32 rounded-full" />
+    <Skeleton className="mt-4 h-10 w-full rounded-md" />
     {[0, 1, 2].map((n) => (
-      <Skeleton key={n} className="mt-2 h-11 w-full rounded-md" />
+      <div key={n} className="mt-2 flex items-center gap-3 border-b border-line py-2.5 last:border-0">
+        <Skeleton className="h-2.5 w-1/4 rounded-full" />
+        <Skeleton className="h-2.5 w-1/3 rounded-full" />
+        <Skeleton className="h-5 w-16 rounded-full" />
+        <Skeleton className="ml-auto h-2.5 w-10 rounded-full" />
+      </div>
     ))}
   </div>
 );
@@ -36,7 +41,10 @@ const FacilityDetailLoading = () => (
   <div role="status" aria-label="Loading facility" className="space-y-4">
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {[0, 1, 2, 3].map((n) => (
-        <Skeleton key={n} className="h-14 rounded-md" />
+        <div key={n} className="rounded-lg border border-line bg-surface p-3">
+          <Skeleton className="h-2 w-12 rounded-full" />
+          <Skeleton className="mt-2 h-5 w-12 rounded-full" />
+        </div>
       ))}
     </div>
     <div className="rounded-lg border border-line bg-surface p-4">

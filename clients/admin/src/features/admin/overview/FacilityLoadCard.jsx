@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import EmptyArt from "../../../components/ui/EmptyArt";
-import Skeleton from "../../../components/ui/Skeleton";
+import { SkeletonLoadRow } from "../../../components/ui/Skeleton";
 import StatusPill from "../../../components/ui/StatusPill";
 import SectionCard from "./SectionCard";
 import { FOCUS_RING } from "./overviewStyles";
@@ -50,10 +50,7 @@ const FacilityLoadCard = ({ summary, loading }) => (
     {loading && !summary && (
       <div role="status" aria-label="Loading facility load">
         {[0, 1, 2].map((n) => (
-          <div key={n} className="py-2.5 first:pt-0 last:pb-0">
-            <Skeleton className="h-3 w-2/3" />
-            <Skeleton className="mt-2 h-2 w-full rounded-full" />
-          </div>
+          <SkeletonLoadRow key={n} />
         ))}
       </div>
     )}

@@ -118,30 +118,41 @@ export const checkinTrend = (timeline = []) => {
 };
 
 /**
- * Growth metrics for the breakdown tiles — derived from record timestamps
- * (stays and members carry `createdAt`), so no extra requests are needed.
+ * Growth metrics for the breakdown tiles.
+ *
+ * Clock: `stay.checkedInAt` — the schema's arrival timestamp (there is no
+ * createdAt on stays, and members carry no timestamp at all: a check-in
+ * creates the whole member set at once, so members inherit their stay's
+ * arrival time).
  *
  * Scope note (data reality): this counts ADDITIONS among the currently
- * active records — the server's check-out log has no per-category member
- * counts, so a family that arrived AND departed inside the window drops out
- * of older days. Fine for a "new arrivals" chip and an indicative trend
- * line; not a full net-change ledger.
+ * active records — a family that arrived AND departed inside the window is
+ * no longer in the ACTIVE list. Fine for a "new arrivals" chip and an
+ * indicative trend line; not a full net-change ledger (the check-out log
+ * has no per-category member counts). Returns `null` when the records carry
+ * no arrival timestamps at all — never a confident fake zero.
  */
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const ageBucket = (member) =>
   member?.ageGroup === "CHILD" ? "children" : "adults";
 
+const arrivalMs = (stay) => new Date(stay.checkedInAt).getTime();
+
+const hasArrivals = (stays) =>
+  stays.length === 0 || stays.some((stay) => Number.isFinite(arrivalMs(stay)));
+
 /** Additions in the rolling last 24h: { households, children, adults }. */
 export const last24hNew = (stays = []) => {
+  if (!hasArrivals(stays)) return null;
   const cutoff = Date.now() - DAY_MS;
   const out = { households: 0, children: 0, adults: 0 };
   for (const stay of stays) {
-    if (new Date(stay.createdAt).getTime() >= cutoff) out.households += 1;
+    const arrived = arrivalMs(stay);
+    if (!Number.isFinite(arrived) || arrived < cutoff) continue;
+    out.households += 1;
     for (const member of stay.members ?? []) {
-      if (new Date(member.createdAt).getTime() >= cutoff) {
-        out[ageBucket(member)] += 1;
-      }
+      out[ageBucket(member)] += 1;
     }
   }
   return out;
@@ -150,23 +161,26 @@ export const last24hNew = (stays = []) => {
 /** Additions per day for the last `days` days (index 0 = oldest, last = today):
  *  { households: number[], children: number[], adults: number[] }. */
 export const newPerDay = (stays = [], days = 7) => {
+  if (!hasArrivals(stays)) return null;
   const out = {
     households: Array(days).fill(0),
     children: Array(days).fill(0),
     adults: Array(days).fill(0),
   };
   const todayStart = new Date().setHours(0, 0, 0, 0);
-  const bucketOf = (iso) => {
-    const dayStart = new Date(iso).setHours(0, 0, 0, 0);
+  const bucketOf = (ms) => {
+    const dayStart = new Date(ms).setHours(0, 0, 0, 0);
     const index = days - 1 - Math.round((todayStart - dayStart) / DAY_MS);
     return index >= 0 && index < days ? index : null;
   };
   for (const stay of stays) {
-    const householdIndex = bucketOf(stay.createdAt);
-    if (householdIndex !== null) out.households[householdIndex] += 1;
+    const arrived = arrivalMs(stay);
+    if (!Number.isFinite(arrived)) continue;
+    const index = bucketOf(arrived);
+    if (index === null) continue;
+    out.households[index] += 1;
     for (const member of stay.members ?? []) {
-      const index = bucketOf(member.createdAt);
-      if (index !== null) out[ageBucket(member)][index] += 1;
+      out[ageBucket(member)][index] += 1;
     }
   }
   return out;

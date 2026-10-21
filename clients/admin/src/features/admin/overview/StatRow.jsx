@@ -1,8 +1,8 @@
 import { Building2, Gauge, Users, UserCheck } from "lucide-react";
-import Skeleton from "../../../components/ui/Skeleton";
+import { SkeletonStatCard } from "../../../components/ui/Skeleton";
 import StatusPanel from "../../../components/ui/StatusPanel";
 import StatCard from "./StatCard";
-import { CARD, GRID } from "./overviewStyles";
+import { GRID } from "./overviewStyles";
 
 /**
  * KPI wall — the hero band's supporting metric cards, one per category
@@ -21,11 +21,7 @@ const StatRow = ({ error, loading, summary, reload }) => (
     {loading && !error && (
       <div className={GRID} role="status" aria-label="Loading dashboard">
         {[0, 1, 2, 3].map((n) => (
-          <div key={n} className={CARD}>
-            <Skeleton className="h-2 w-16" />
-            <Skeleton className="mt-3 h-6 w-20" />
-            <Skeleton className="mt-3 h-2.5 w-24" />
-          </div>
+          <SkeletonStatCard key={n} />
         ))}
       </div>
     )}

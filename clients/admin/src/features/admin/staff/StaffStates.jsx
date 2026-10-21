@@ -1,4 +1,4 @@
-import Skeleton from "../../../components/ui/Skeleton";
+import { SkeletonIdCard } from "../../../components/ui/Skeleton";
 import EmptyArt from "../../../components/ui/EmptyArt";
 
 /** Loading skeleton — mirrors the ID-card grid (one card per account). */
@@ -9,23 +9,7 @@ const StaffLoading = () => (
     className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
   >
     {[0, 1, 2, 3, 4, 5].map((n) => (
-      <div key={n} className="overflow-hidden rounded-lg border border-line bg-surface">
-        <Skeleton className="h-8 rounded-none" />
-        <div className="p-4">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-12 w-12 rounded-md" />
-            <div className="flex-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="mt-2 h-2.5 w-32" />
-            </div>
-          </div>
-          <Skeleton className="mt-4 h-3 w-full" />
-          <Skeleton className="mt-2 h-3 w-2/3" />
-        </div>
-        <div className="border-t border-line bg-surface-2 px-4 py-2.5">
-          <Skeleton className="h-9 w-48 rounded-md" />
-        </div>
-      </div>
+      <SkeletonIdCard key={n} />
     ))}
   </div>
 );
