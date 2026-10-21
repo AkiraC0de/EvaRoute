@@ -1,5 +1,5 @@
 import Button from "../../../components/ui/Button";
-import { FilterSearch, FilterSelect } from "../../../components/ui/FilterControls";
+import { FilterBand, FilterClear, FilterSearch, FilterSelect } from "../../../components/ui/FilterControls";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -19,8 +19,11 @@ const FacilitiesFilterBar = ({
   onStatusChange,
   showDeleted,
   onToggleDeleted,
-}) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line-strong bg-surface-2 p-3">
+  onClear,
+}) => {
+  const dirty = Boolean(search || statusFilter || showDeleted);
+  return (
+  <FilterBand>
     <FilterSearch
       value={search}
       onChange={onSearchChange}
@@ -31,7 +34,6 @@ const FacilitiesFilterBar = ({
       value={statusFilter}
       onChange={onStatusChange}
       ariaLabel="Filter by status"
-      className="w-27"
     >
       {STATUS_OPTIONS.map((option) => (
         <option  key={option.value} value={option.value}>{option.label}</option>
@@ -44,7 +46,9 @@ const FacilitiesFilterBar = ({
     >
       {showDeleted ? "Showing deleted" : "Deleted facilities"}
     </Button>
-  </div>
-);
+    {dirty && onClear && <FilterClear onClick={onClear} />}
+  </FilterBand>
+  );
+};
 
 export default FacilitiesFilterBar;

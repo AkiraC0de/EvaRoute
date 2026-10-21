@@ -1,3 +1,4 @@
+import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import { SelectField } from "../../../components/ui/Field";
@@ -17,6 +18,7 @@ const AssignFacilityDialog = ({
   onSubmit,
   onClose,
   busy,
+  loadError = false,
 }) => {
   const current = staff.facility ?? null;
   const target = facilities.find((facility) => facility.id === value) ?? null;
@@ -41,6 +43,12 @@ const AssignFacilityDialog = ({
             {current ? `Currently assigned to ${current.name}` : "Not assigned to any facility"}
           </p>
         </div>
+
+        {loadError && (
+          <Banner tone="error">
+            Could not load the facility list — close and reopen this dialog to retry.
+          </Banner>
+        )}
 
         <SelectField
           label="Facility"

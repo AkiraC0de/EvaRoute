@@ -31,11 +31,12 @@ const SidebarUserCard = () => {
     setBusy(true);
     try {
       await signOut(); // session end redirects to "/"
+      setConfirming(false); // close ONLY on success
     } catch {
-      // stay signed in on failure — the dialog closes and the user can retry
+      // stay signed in on failure — the dialog stays open so the user can
+      // see the attempt failed and retry from the same place
     } finally {
       setBusy(false);
-      setConfirming(false);
     }
   };
 

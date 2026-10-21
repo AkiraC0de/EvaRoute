@@ -4,6 +4,7 @@ import useActivityStats from "../../hooks/useActivityStats";
 import useDashboardSummary from "../../hooks/useDashboardSummary";
 import { useAuth } from "../../context/AuthContext";
 import StatusPanel from "../../components/ui/StatusPanel";
+import ActivityHeatmapCard from "./overview/ActivityHeatmapCard";
 import BriefStrip from "./overview/BriefStrip";
 import FacilityLoadTable from "./overview/FacilityLoadTable";
 import FlowPanel from "./overview/FlowPanel";
@@ -46,10 +47,11 @@ const OverviewPage = () => {
       }),
       greeting:
         hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening",
-      // Chart window: last 14 days, day-bucketed by the server (UTC days).
+      // One 31-day day-bucketed fetch feeds both views: the chart shows the
+      // last 14 days (slice), the pulse heatmap uses the full window.
       chartWindow: {
         interval: "day",
-        from: new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString(),
+        from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       },
     };
   }, []);
@@ -99,12 +101,17 @@ const OverviewPage = () => {
         className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_360px]"
       >
         <div className="flex min-w-0 flex-col gap-3">
-          <FlowPanel summary={summary} timeline={timeline} loading={chartLoading} />
+          <FlowPanel
+            summary={summary}
+            timeline={timeline ? timeline.slice(-14) : timeline}
+            loading={chartLoading}
+          />
           <FacilityLoadTable summary={summary} loading={loading} />
+          <ActivityHeatmapCard timeline={timeline} loading={chartLoading} />
         </div>
         <div className="flex min-w-0 flex-col gap-3">
-          {summary && <NeedsAttentionCard summary={summary} />}
-          {summary && <ResourceCoverageCard summary={summary} />}
+          <NeedsAttentionCard summary={summary} />
+          <ResourceCoverageCard summary={summary} />
           <RecentActivityCard />
         </div>
       </motion.div>

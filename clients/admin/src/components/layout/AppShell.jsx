@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { SkeletonPage } from "../ui/Skeleton";
 import { useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import MobileBottomNav from "./MobileBottomNav";
@@ -38,7 +40,9 @@ const AppShell = () => {
             exit={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
             transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
           >
-            {outlet}
+            <Suspense fallback={<SkeletonPage />}>
+              {outlet}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
         </motion.div>

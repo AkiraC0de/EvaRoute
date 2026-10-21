@@ -16,7 +16,7 @@ import { validateData } from "../utils/validatorUtils.js"
 import { loginSchema, passReqResetSchema } from "../validations/auth.validations.js"
 import { requireAuth } from "../utils/authUtils.js"
 import { createAccessToken } from "./../utils/jwtUtils.js"
-import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefeshTokenExpirationDate } from "../utils/authUtils.js"
+import { cryptoHash, generateOTP, generateCryptoToken, requireToken, cryptoHashCompare, generateCryptoTokenHash, getRefreshTokenExpirationDate } from "../utils/authUtils.js"
 import { ApiMailer } from "../core/ApiMailer.js"
 import tokenServices from '../services/token.services.js'
 import userServices from '../services/user.services.js'
@@ -51,7 +51,7 @@ export const handleLogin = async (req: Request, res: Response) => {
   }
   
   const [rawRefreshToken, hashRefreshToken] = generateCryptoTokenHash()
-  const refreshTokenExpirationDate = getRefeshTokenExpirationDate(keepLogin)
+  const refreshTokenExpirationDate = getRefreshTokenExpirationDate(keepLogin)
   await refreshTokenService.create(user.id, hashRefreshToken, refreshTokenExpirationDate) 
 
   res.cookie(REFRESH_TOKEN.COOKIE_NAME, rawRefreshToken, {

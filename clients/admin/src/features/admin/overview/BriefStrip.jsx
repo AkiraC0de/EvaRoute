@@ -1,6 +1,6 @@
 import { Building2, UserCheck, ShieldCheck, ArrowLeftRight } from "lucide-react";
 import RollingNumber from "../../../components/ui/RollingNumber";
-import { SkeletonStatCard } from "../../../components/ui/Skeleton";
+import { SkeletonBriefCell } from "../../../components/ui/Skeleton";
 import { ICON_TONES } from "./overviewStyles";
 
 /**
@@ -20,9 +20,7 @@ const BriefStrip = ({ summary }) => {
         aria-label="Loading network brief"
       >
         {[0, 1, 2, 3].map((n) => (
-          <div key={n} className="bg-surface px-3.5 py-3">
-            <SkeletonStatCard />
-          </div>
+          <SkeletonBriefCell key={n} />
         ))}
       </div>
     );

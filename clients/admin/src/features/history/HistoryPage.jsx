@@ -86,6 +86,13 @@ export default function HistoryPage() {
         }}
         action={action}
         onActionChange={setAction}
+        onClear={() => {
+          setSearchInput("");
+          setAction("");
+          setFacilityId("");
+          setFrom("");
+          setTo("");
+        }}
       />
 
       {/* Activity feed — flat bordered surface. The key remounts the feed on

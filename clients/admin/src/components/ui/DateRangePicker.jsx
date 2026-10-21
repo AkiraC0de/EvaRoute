@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { CalendarDays } from "lucide-react";
 import Calendar from "./Calendar";
+import { CONTROL_CLASS } from "./FilterControls";
 
 /**
  * Date-range picker (popover + range calendar) for the History filter band,
@@ -48,7 +49,7 @@ const DateRangePicker = ({
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           aria-label={ariaLabel}
-          className={`inline-flex h-11 sm:h-10 items-center gap-2 rounded-md bg-surface-2 px-3 text-[12px] font-medium text-ink-soft shadow-none outline-none transition hover:bg-surface-2-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+          className={`inline-flex items-center gap-2 shadow-none hover:bg-surface-2-hover ${CONTROL_CLASS} ${
             hasRange ? "" : "text-muted-dim"
           }`}
         >

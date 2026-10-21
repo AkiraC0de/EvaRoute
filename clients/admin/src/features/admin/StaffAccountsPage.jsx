@@ -43,6 +43,7 @@ const StaffAccountsPage = () => {
   const [assigning, setAssigning] = useState(null); // staff being (re)assigned
   const [assignFacilityId, setAssignFacilityId] = useState("");
   const [assignFacilities, setAssignFacilities] = useState([]);
+  const [assignLoadFailed, setAssignLoadFailed] = useState(false);
 
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
@@ -94,10 +95,15 @@ const StaffAccountsPage = () => {
     setAssigning(staff);
     setAssignFacilityId("");
     setAssignFacilities([]);
+    setAssignLoadFailed(false);
     api
       .listFacilities()
       .then((rows) => setAssignFacilities(rows))
-      .catch(() => setAssignFacilities([]));
+      .catch(() => {
+        // Distinct failure state — never render a fetch error as an empty list.
+        setAssignFacilities([]);
+        setAssignLoadFailed(true);
+      });
   };
 
   const submitAssign = () =>
@@ -118,6 +124,7 @@ const StaffAccountsPage = () => {
         onUnassignedChange={(event) =>
           setFilters((current) => ({ ...current, unassigned: event.target.checked }))
         }
+        onClear={() => setFilters({ search: "", status: "", unassigned: false })}
       />
 
       {actionError && (
@@ -180,6 +187,7 @@ const StaffAccountsPage = () => {
           staff={assigning}
           facilities={assignFacilities}
           value={assignFacilityId}
+          loadError={assignLoadFailed}
           onChange={(event) => setAssignFacilityId(event.target.value)}
           onSubmit={submitAssign}
           onClose={() => setAssigning(null)}

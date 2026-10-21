@@ -1,4 +1,4 @@
-import { FilterSearch, FilterSelect } from "../../../components/ui/FilterControls";
+import { FilterBand, FilterClear, FilterSearch, FilterSelect } from "../../../components/ui/FilterControls";
 import Checkbox from "../../../components/ui/Checkbox";
 
 const STATUS_OPTIONS = [
@@ -11,8 +11,10 @@ const STATUS_OPTIONS = [
  * Filter band — search, status and the unassigned-only toggle. Change
  * handlers receive the raw DOM event, like the facilities filter bar.
  */
-const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedChange }) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-line-strong bg-surface-2 p-3">
+const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedChange, onClear }) => {
+  const dirty = Boolean(filters.search || filters.status || filters.unassigned);
+  return (
+  <FilterBand>
     <FilterSearch
       value={filters.search}
       onChange={onSearchChange}
@@ -36,7 +38,9 @@ const StaffToolbar = ({ filters, onSearchChange, onStatusChange, onUnassignedCha
       />
       <span className="text-[11px] font-medium text-muted">Unassigned only</span>
     </label>
-  </div>
-);
+    {dirty && onClear && <FilterClear onClick={onClear} />}
+  </FilterBand>
+  );
+};
 
 export default StaffToolbar;

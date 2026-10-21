@@ -1,5 +1,5 @@
 import Button from "../../components/ui/Button";
-import { FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
+import { FilterBand, FilterRow, FilterClear, FilterSearch, FilterSelect } from "../../components/ui/FilterControls";
 import DateRangePicker from "../../components/ui/DateRangePicker";
 
 /**
@@ -42,9 +42,12 @@ const HistoryFilterBar = ({
   onDateRangeChange,
   action,
   onActionChange,
-}) => (
-  <div className="mb-4 flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3">
-    <div className="flex flex-wrap items-center gap-2">
+  onClear,
+}) => {
+  const dirty = Boolean(searchInput || action || facilityId || from || to);
+  return (
+  <FilterBand stacked>
+    <FilterRow>
       <FilterSearch
         value={searchInput}
         onChange={onSearchChange}
@@ -56,7 +59,6 @@ const HistoryFilterBar = ({
           value={facilityId}
           onChange={onFacilityChange}
           ariaLabel="Filter by facility"
-          className="max-w-[220px]"
         >
           <option value="">All facilities</option>
           {facilityOptions.map((facility) => (
@@ -71,8 +73,9 @@ const HistoryFilterBar = ({
         to={to}
         onChange={onDateRangeChange}
       />
-    </div>
-    <div className="flex flex-wrap items-center gap-2">
+      {dirty && onClear && <FilterClear onClick={onClear} />}
+    </FilterRow>
+    <FilterRow>
       {GROUP_OPTIONS.map((option) => (
         <Button
           key={option.label}
@@ -84,8 +87,9 @@ const HistoryFilterBar = ({
           {option.label}
         </Button>
       ))}
-    </div>
-  </div>
-);
+    </FilterRow>
+  </FilterBand>
+  );
+};
 
 export default HistoryFilterBar;

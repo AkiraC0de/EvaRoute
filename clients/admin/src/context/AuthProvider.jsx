@@ -75,8 +75,10 @@ function AuthProvider({ children }) {
           setStatus("signedIn");
         }
         return;
-      } catch {
-        // No usable refresh cookie — fall through to the stored token.
+      } catch (err) {
+        // No usable refresh cookie — fall through to the stored token
+        // (normal for signed-out visitors; keep the signal dev-visible).
+        if (import.meta.env.DEV) console.warn("[auth] refresh restore skipped:", err);
       }
 
       if (!api.getAccessToken() || !readStoredUser()) {

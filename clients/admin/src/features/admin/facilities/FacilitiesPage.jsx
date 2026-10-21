@@ -62,6 +62,11 @@ const FacilitiesPage = () => {
         onStatusChange={(event) => setStatusFilter(event.target.value)}
         showDeleted={showDeleted}
         onToggleDeleted={() => setShowDeleted((current) => !current)}
+        onClear={() => {
+          setSearch("");
+          setStatusFilter("");
+          setShowDeleted(false);
+        }}
       />
 
       {actionError && (

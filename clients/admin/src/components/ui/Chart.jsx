@@ -42,8 +42,8 @@ const ActivityChart = ({ data = [], height = 220 }) => {
     other: Math.max((bucket.total ?? 0) - (bucket.checkIns ?? 0), 0),
   }));
 
-  /* Value labels above the bars for sparse-data legibility: quiet days stay
-     unlabeled, busy days show their total. Recharts skips label entries on
+  /* Value labels above the bars: EVERY non-zero day is labeled exactly once
+     (its daily total), zero days stay unlabeled. Recharts skips label entries on
      zero-height segments, so each stacked segment labels only the days it
      tops — the check-ins segment when there are check-ins, else the
      other-events segment (its entry is the whole bar on those days). */

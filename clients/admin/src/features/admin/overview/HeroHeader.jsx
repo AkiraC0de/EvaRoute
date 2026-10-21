@@ -49,17 +49,17 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => {
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Link to="/facilities">
-          <Button variant="onPrimaryGhost" size="md" className="inline-flex items-center gap-1.5">
+          <Button variant="onPrimaryGhost" size="md" className="inline-flex min-h-11 items-center gap-1.5">
             <Building2 size={13} strokeWidth={1.9} aria-hidden="true" /> Facilities
           </Button>
         </Link>
         <Link to="/staff">
-          <Button variant="onPrimaryGhost" size="md" className="inline-flex items-center gap-1.5">
+          <Button variant="onPrimaryGhost" size="md" className="inline-flex min-h-11 items-center gap-1.5">
             <UserPlus size={13} strokeWidth={1.9} aria-hidden="true" /> Staff
           </Button>
         </Link>
         <Link to="/history">
-          <Button variant="onPrimary" size="md" className="inline-flex items-center gap-1.5">
+          <Button variant="onPrimary" size="md" className="inline-flex min-h-11 items-center gap-1.5">
             <HistoryIcon size={13} strokeWidth={1.9} aria-hidden="true" /> View history
           </Button>
         </Link>

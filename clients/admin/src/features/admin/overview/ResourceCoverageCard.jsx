@@ -1,3 +1,4 @@
+import { SkeletonCoverageRow } from "../../../components/ui/Skeleton";
 import SectionCard from "./SectionCard";
 
 /**
@@ -8,6 +9,17 @@ import SectionCard from "./SectionCard";
  * secondary accent) and every state is also spelled out in text.
  */
 const ResourceCoverageCard = ({ summary }) => {
+  if (!summary) {
+    return (
+      <SectionCard title="Readiness" meta="Mandatory essentials per facility.">
+        <div className="flex flex-col gap-3">
+          {[0, 1, 2].map((n) => (
+            <SkeletonCoverageRow key={n} />
+          ))}
+        </div>
+      </SectionCard>
+    );
+  }
   const rows = ["electricity", "water", "comfortRoom"]
     .map((key) => summary.resources?.[key])
     .filter(Boolean);

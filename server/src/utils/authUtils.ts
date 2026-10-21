@@ -66,7 +66,7 @@ export const requireToken = (req: Request): TokenWithUser => {
   return req.token
 }
 
-export const getRefeshTokenExpirationDate = (keepLogin: boolean) => {
+export const getRefreshTokenExpirationDate = (keepLogin: boolean) => {
   const date = new Date()
   if (!keepLogin) {
     date.setHours(

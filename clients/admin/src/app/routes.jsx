@@ -1,14 +1,20 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
-import FacilityDetailPage from "../features/admin/facilities/FacilityDetailPage";
-import FacilitiesPage from "../features/admin/facilities/FacilitiesPage";
-import OverviewPage from "../features/admin/OverviewPage";
-import StaffAccountsPage from "../features/admin/StaffAccountsPage";
-import FacilityPage from "../features/facility/FacilityPage";
-import HistoryPage from "../features/history/HistoryPage";
-import OccupancyPage from "../features/occupancy/OccupancyPage";
-import ProfilePage from "../features/profile/ProfilePage";
-import UnauthorizedPage from "../features/errors/UnauthorizedPage";
+
+// Route-level code splitting: each screen ships in its own chunk (Leaflet,
+// html2canvas and Recharts stop riding the initial payload just to show the
+// login screen). AppShell stays eager — it is the persistent chrome.
+const FacilityDetailPage = lazy(() => import("../features/admin/facilities/FacilityDetailPage"));
+const FacilitiesPage = lazy(() => import("../features/admin/facilities/FacilitiesPage"));
+const OverviewPage = lazy(() => import("../features/admin/OverviewPage"));
+const StaffAccountsPage = lazy(() => import("../features/admin/StaffAccountsPage"));
+const FacilityPage = lazy(() => import("../features/facility/FacilityPage"));
+const HistoryPage = lazy(() => import("../features/history/HistoryPage"));
+const OccupancyPage = lazy(() => import("../features/occupancy/OccupancyPage"));
+const ProfilePage = lazy(() => import("../features/profile/ProfilePage"));
+const UnauthorizedPage = lazy(() => import("../features/errors/UnauthorizedPage"));
+
 import RequireRole from "./guards";
 import { NAV_ITEMS, homePathFor } from "./navigation";
 import { ROLES } from "./roles";

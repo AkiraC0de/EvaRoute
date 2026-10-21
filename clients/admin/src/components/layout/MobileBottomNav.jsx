@@ -6,8 +6,10 @@ import { useAuth } from "../../context/AuthContext";
 /**
  * Mobile bottom navigation (hidden on sm+ where the sidebar rail takes over).
  *
- * A floating white bar pinned near the bottom of the viewport — the same
- * navigation chrome as the desktop rail — built from the same NAV_ITEMS model
+ * An edge-to-edge bar stuck to the bottom, left and right of the viewport
+ * (flush — no floating pill, no margins, no drop shadow; a hairline top
+ * border separates it from content) — the same navigation chrome as the
+ * desktop rail — built from the same NAV_ITEMS model
  * (role-filtered) so destinations and permissions can never diverge. The
  * active destination is a translucent white slab that SLIDES between items
  * (motion `layoutId`) when the user taps a different destination.
@@ -28,9 +30,9 @@ const MobileBottomNav = () => {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(0.625rem+env(safe-area-inset-bottom))] pt-1.5 sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 sm:hidden"
     >
-      <ul className="mx-auto flex w-full max-w-[480px] items-stretch gap-1 rounded-lg border border-line bg-surface p-1.5 shadow-sm">
+      <ul className="flex w-full items-stretch gap-1 border-t border-line bg-surface px-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5">
         {items.map(({ label, shortLabel, to, end, icon: Icon }) => (
           <li key={to} className="min-w-0 flex-1">
             <NavLink
@@ -62,7 +64,7 @@ const MobileBottomNav = () => {
                       className="relative z-10 shrink-0"
                     />
                   )}
-                  <span className="relative z-10 max-w-full truncate text-[10px] font-semibold leading-none max-[400px]:text-[9px]">
+                  <span className="relative z-10 max-w-full truncate text-[11px] font-semibold leading-none max-[400px]:text-[10px]">
                     {shortLabel ?? label}
                   </span>
                 </>

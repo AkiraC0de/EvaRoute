@@ -1,5 +1,6 @@
 import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SkeletonAttentionRow } from "../../../components/ui/Skeleton";
 import { displayPlaceName } from "../../../lib/utils";
 import SectionCard from "./SectionCard";
 
@@ -12,6 +13,20 @@ import SectionCard from "./SectionCard";
  * cheap; when nothing crosses a threshold the panel says so plainly.
  */
 const NeedsAttentionCard = ({ summary }) => {
+  // Loading keeps the card shell + row anatomy (no pop-in when data lands).
+  if (!summary) {
+    return (
+      <SectionCard title="Needs attention" meta="85% full or a missing essential.">
+        <ul className="flex flex-col gap-1.5">
+          {[0, 1, 2, 3].map((n) => (
+            <li key={n}>
+              <SkeletonAttentionRow />
+            </li>
+          ))}
+        </ul>
+      </SectionCard>
+    );
+  }
   const near = summary.attention?.nearCapacity ?? [];
   const missing = summary.attention?.missingResources ?? [];
   const quiet = near.length === 0 && missing.length === 0;

@@ -44,6 +44,69 @@ export const SkeletonStatCard = () => (
 
 /** ID-credential card — mirrors StaffIdCard (header band, photo, rows,
  *  footer) on the flat hairline card. */
+/**
+ * Overview skeletons — each mirrors its REAL component's anatomy exactly
+ * (same boxes, same rhythm) so the loading state and the loaded state are
+ * the same shape: no pop-in, no layout jump.
+ */
+
+/** One brief-strip cell: icon tile + label/value/caption stack. */
+export const SkeletonBriefCell = () => (
+  <div className="flex items-start gap-3 bg-surface px-3.5 py-3">
+    <Skeleton className="h-8 w-8 rounded-md" />
+    <div className="min-w-0 flex-1">
+      <Skeleton className="h-2 w-16 rounded-full" />
+      <Skeleton className="mt-1.5 h-5 w-12 rounded-none" />
+      <Skeleton className="mt-1.5 h-2 w-24 rounded-full" />
+    </div>
+  </div>
+);
+
+/** One "Needs attention" row: icon + name line + indented reason line. */
+export const SkeletonAttentionRow = () => (
+  <div className="flex min-h-11 flex-col gap-1.5 rounded-md border border-line bg-surface-2 px-3 py-2.5">
+    <div className="flex items-center gap-2">
+      <Skeleton className="h-3.5 w-3.5 rounded-none" />
+      <Skeleton className="h-2.5 flex-1 rounded-full" />
+      <Skeleton className="h-3 w-3 rounded-none" />
+    </div>
+    <Skeleton className="ml-[23px] h-2 w-2/5 rounded-full" />
+  </div>
+);
+
+/** One Readiness row: label + count line over the coverage meter. */
+export const SkeletonCoverageRow = () => (
+  <div>
+    <div className="flex items-baseline justify-between gap-3">
+      <Skeleton className="h-2.5 w-28 rounded-full" />
+      <Skeleton className="h-2 w-20 rounded-full" />
+    </div>
+    <Skeleton className="mt-1.5 h-2 w-full rounded-full" />
+  </div>
+);
+
+/** One facility-load table row: name / status / meter+% / occupancy. */
+export const SkeletonLoadTableRow = () => (
+  <div className="grid grid-cols-1 gap-1.5 py-2.5 md:grid-cols-[minmax(0,1fr)_92px_minmax(150px,240px)_190px] md:items-center md:gap-3">
+    <Skeleton className="h-3 w-40 rounded-full" />
+    <Skeleton className="h-5 w-16 rounded-full" />
+    <div className="flex items-center gap-2">
+      <Skeleton className="h-2 flex-1 rounded-full" />
+      <Skeleton className="h-2.5 w-8 rounded-none" />
+    </div>
+    <Skeleton className="h-2.5 w-32 rounded-full" />
+  </div>
+);
+
+/** Chunk-loading fallback for a lazy route — block shapes mirror a page. */
+export const SkeletonPage = () => (
+  <div role="status" aria-label="Loading page" className="flex flex-col gap-4">
+    <Skeleton className="h-8 w-56" />
+    <Skeleton className="h-28 w-full rounded-lg" />
+    <Skeleton className="h-64 w-full rounded-lg" />
+  </div>
+);
+
 export const SkeletonIdCard = () => (
   <div className="relative pt-2.5">
     <Skeleton className="absolute left-1/2 top-0 z-10 h-5 w-16 -translate-x-1/2 rounded-t-full" />
