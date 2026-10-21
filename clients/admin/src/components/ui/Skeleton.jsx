@@ -74,17 +74,6 @@ export const SkeletonAttentionRow = () => (
   </div>
 );
 
-/** One Readiness row: label + count line over the coverage meter. */
-export const SkeletonCoverageRow = () => (
-  <div>
-    <div className="flex items-baseline justify-between gap-3">
-      <Skeleton className="h-2.5 w-28 rounded-full" />
-      <Skeleton className="h-2 w-20 rounded-full" />
-    </div>
-    <Skeleton className="mt-1.5 h-2 w-full rounded-full" />
-  </div>
-);
-
 /** One facility-load table row: name / status / meter+% / occupancy. */
 export const SkeletonLoadTableRow = () => (
   <div className="grid grid-cols-1 gap-1.5 py-2.5 md:grid-cols-[minmax(0,1fr)_92px_minmax(150px,240px)_190px] md:items-center md:gap-3">

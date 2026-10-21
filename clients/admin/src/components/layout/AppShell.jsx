@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { SkeletonPage } from "../ui/Skeleton";
+import ToastProvider from "../ui/Toast";
 import { useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import MobileBottomNav from "./MobileBottomNav";
@@ -20,6 +21,7 @@ const AppShell = () => {
   const reduceMotion = useReducedMotion();
 
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-canvas">
       <Sidebar />
       <main className="ml-49.5 min-h-screen bg-canvas p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-6 max-sm:ml-0 max-sm:px-4 max-sm:pt-4">
@@ -49,6 +51,7 @@ const AppShell = () => {
       </main>
       <MobileBottomNav />
     </div>
+    </ToastProvider>
   );
 };
 

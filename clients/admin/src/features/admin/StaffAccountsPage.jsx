@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import useUrlFilters from "../../hooks/useUrlFilters";
+
+// URL-backed filter defaults (keys appear as query params when active).
+const STAFF_FILTER_DEFAULTS = { search: "", status: "", unassigned: "" };
 import Banner from "../../components/ui/Banner";
 import StatusPanel from "../../components/ui/StatusPanel";
 import useAsyncAction from "../../hooks/useAsyncAction";
@@ -32,7 +36,16 @@ import StaffConfirmDialog from "./staff/StaffConfirmDialog";
 const StaffAccountsPage = () => {
   const { user: me } = useAuth();
 
-  const { filters, setFilters, visible, loading, error, retry } = useStaffAccounts();
+  const { values, set, clear } = useUrlFilters(STAFF_FILTER_DEFAULTS);
+  const filters = useMemo(
+    () => ({
+      search: values.search,
+      status: values.status,
+      unassigned: values.unassigned === "1",
+    }),
+    [values]
+  );
+  const { visible, loading, error, retry } = useStaffAccounts(filters);
 
   const [creating, setCreating] = useState(false);
   const [createEmail, setCreateEmail] = useState("");
@@ -48,44 +61,60 @@ const StaffAccountsPage = () => {
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
   const create = () =>
-    run(async () => {
-      const data = await api.createStaffAccount(createEmail.trim());
-      setCreating(false);
-      setCreateEmail("");
-      setGenerated({
-        title: "Staff account created",
-        email: data.email,
-        password: data.defaultPassword,
-      });
-      retry();
-    });
-
-  const saveEdit = () =>
-    run(async () => {
-      await api.patchStaffAccount(editing.id, {
-        firstName: editDraft.firstName.trim(),
-        lastName: editDraft.lastName.trim(),
-      });
-      setEditing(null);
-      retry();
-    });
-
-  const runAction = (type, staff) =>
-    run(async () => {
-      if (type === "activate") await api.activateStaffAccount(staff.id);
-      if (type === "deactivate") await api.deactivateStaffAccount(staff.id);
-      if (type === "delete") await api.deleteStaffAccount(staff.id);
-      if (type === "reset") {
-        const data = await api.resetStaffPassword(staff.id);
+    run(
+      async () => {
+        const data = await api.createStaffAccount(createEmail.trim());
+        setCreating(false);
+        setCreateEmail("");
         setGenerated({
-          title: "Password reset",
-          email: staff.email,
+          title: "Staff account created",
+          email: data.email,
           password: data.defaultPassword,
         });
+        retry();
+      },
+      { success: "Staff account created — copy the generated password." }
+    );
+
+  const saveEdit = () =>
+    run(
+      async () => {
+        await api.patchStaffAccount(editing.id, {
+          firstName: editDraft.firstName.trim(),
+          lastName: editDraft.lastName.trim(),
+        });
+        setEditing(null);
+        retry();
+      },
+      { success: "Name updated." }
+    );
+
+  const runAction = (type, staff) =>
+    run(
+      async () => {
+        if (type === "activate") await api.activateStaffAccount(staff.id);
+        if (type === "deactivate") await api.deactivateStaffAccount(staff.id);
+        if (type === "delete") await api.deleteStaffAccount(staff.id);
+        if (type === "reset") {
+          const data = await api.resetStaffPassword(staff.id);
+          setGenerated({
+            title: "Password reset",
+            email: staff.email,
+            password: data.defaultPassword,
+          });
+        }
+        setConfirmAction(null);
+        retry();
+      },
+      {
+        success: {
+          activate: "Account activated.",
+          deactivate: "Account deactivated.",
+          delete: "Account deleted.",
+          reset: "Password reset — copy the new password.",
+        }[type],
       }
-      setConfirmAction(null);
-      retry();
-    });
+    );
 
   // Assign / reassign: the server transfers the staff when they already
   // belong to another facility (ASSIGN_STAFF, ADMIN). The facility list is
@@ -107,11 +136,14 @@ const StaffAccountsPage = () => {
   };
 
   const submitAssign = () =>
-    run(async () => {
-      await api.assignFacilityStaff(assignFacilityId, assigning.id);
-      setAssigning(null);
-      retry();
-    });
+    run(
+      async () => {
+        await api.assignFacilityStaff(assignFacilityId, assigning.id);
+        setAssigning(null);
+        retry();
+      },
+      { success: assigning.facility ? "Staff transferred to the new facility." : "Staff assigned to a facility." }
+    );
 
   return (
     <div>
@@ -119,12 +151,12 @@ const StaffAccountsPage = () => {
 
       <StaffToolbar
         filters={filters}
-        onSearchChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-        onStatusChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
+        onSearchChange={(event) => set("search", event.target.value, { replace: true })}
+        onStatusChange={(event) => set("status", event.target.value)}
         onUnassignedChange={(event) =>
-          setFilters((current) => ({ ...current, unassigned: event.target.checked }))
+          set("unassigned", event.target.checked ? "1" : "")
         }
-        onClear={() => setFilters({ search: "", status: "", unassigned: false })}
+        onClear={clear}
       />
 
       {actionError && (

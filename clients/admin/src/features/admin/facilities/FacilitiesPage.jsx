@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import useUrlFilters from "../../../hooks/useUrlFilters";
+
+// URL-backed filter defaults (keys appear as query params when active).
+const FAC_FILTER_DEFAULTS = { search: "", status: "", deleted: "" };
 import { useNavigate } from "react-router-dom";
 import Banner from "../../../components/ui/Banner";
 import StatusPanel from "../../../components/ui/StatusPanel";
@@ -27,46 +31,49 @@ import { FacilitiesLoading, FacilitiesEmpty } from "./FacilitiesStates";
  */
 
 const FacilitiesPage = () => {
-  const {
-    search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    showDeleted,
-    setShowDeleted,
-    visible,
-    loading,
-    error,
-    retry,
-  } = useFacilities();
+  const { values, set, clear } = useUrlFilters(FAC_FILTER_DEFAULTS);
+  const filters = useMemo(
+    () => ({
+      search: values.search,
+      statusFilter: values.status,
+      showDeleted: values.deleted === "1",
+    }),
+    [values]
+  );
+  const { visible, loading, error, retry } = useFacilities(filters);
   const [creating, setCreating] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState(null); // facility pending delete/restore
   const navigate = useNavigate();
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
+  // DELETE /facility/:id is a TOGGLE server-side: soft-deletes, or restores
+  // an already-deleted facility — the toast copy follows the actual effect.
   const confirmToggle = () =>
-    run(async () => {
-      await api.deleteFacility(confirmTarget.id);
-      setConfirmTarget(null);
-      retry();
-    });
+    run(
+      async () => {
+        await api.deleteFacility(confirmTarget.id);
+        setConfirmTarget(null);
+        retry();
+      },
+      {
+        success: filters.showDeleted
+          ? "Facility restored."
+          : "Facility deleted — restore it anytime from the deleted list.",
+      }
+    );
 
   return (
     <div>
       <FacilitiesHeader onRegister={() => setCreating(true)} />
 
       <FacilitiesFilterBar
-        search={search}
-        onSearchChange={(event) => setSearch(event.target.value)}
-        statusFilter={statusFilter}
-        onStatusChange={(event) => setStatusFilter(event.target.value)}
-        showDeleted={showDeleted}
-        onToggleDeleted={() => setShowDeleted((current) => !current)}
-        onClear={() => {
-          setSearch("");
-          setStatusFilter("");
-          setShowDeleted(false);
-        }}
+        search={filters.search}
+        onSearchChange={(event) => set("search", event.target.value, { replace: true })}
+        statusFilter={filters.statusFilter}
+        onStatusChange={(event) => set("status", event.target.value)}
+        showDeleted={filters.showDeleted}
+        onToggleDeleted={() => set("deleted", filters.showDeleted ? "" : "1")}
+        onClear={clear}
       />
 
       {actionError && (
@@ -91,13 +98,13 @@ const FacilitiesPage = () => {
       )}
 
       {!loading && !error && visible.length === 0 && (
-        <FacilitiesEmpty showDeleted={showDeleted} />
+        <FacilitiesEmpty showDeleted={filters.showDeleted} />
       )}
 
       {!loading && !error && visible.length > 0 && (
         <FacilitiesTable
           facilities={visible}
-          showDeleted={showDeleted}
+          showDeleted={filters.showDeleted}
           onToggle={(facility) => {
             setActionError("");
             setConfirmTarget(facility);
@@ -117,7 +124,7 @@ const FacilitiesPage = () => {
 
       {confirmTarget && (
         <FacilitiesConfirmDialog
-          showDeleted={showDeleted}
+          showDeleted={filters.showDeleted}
           target={confirmTarget}
           busy={busy}
           onConfirm={confirmToggle}

@@ -4,7 +4,7 @@ import { MapSkeleton, MapErrorState } from "./MapStates";
 import MapLegend from "./MapLegend";
 import { bindFacilityPopup, createStatusIcon } from "./FacilityMarkers";
 import { toCoords } from "./coordinateUtils";
-import { DEFAULT_CENTER, DEFAULT_ZOOM } from "./tileConfig";
+import { DEFAULT_CENTER, DEFAULT_ZOOM, FOCUS_ZOOM } from "./tileConfig";
 
 /**
  * Read-only facility map: one status-colored marker per facility with a
@@ -44,6 +44,13 @@ const FacilityOverviewMap = ({
         icon: createStatusIcon(L, facility.status),
       });
       bindFacilityPopup(marker, facility, onView ? { onView } : {});
+      // Clicking a marker flies the camera to that facility — animated
+      // pan + zoom toward it, then the popup opens on the focused view.
+      marker.on("click", () => {
+        map.flyTo([coords.latitude, coords.longitude], FOCUS_ZOOM, {
+          duration: 0.8,
+        });
+      });
       group.addLayer(marker);
       bounds.push([coords.latitude, coords.longitude]);
     }

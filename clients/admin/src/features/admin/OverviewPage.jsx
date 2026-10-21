@@ -11,7 +11,7 @@ import FlowPanel from "./overview/FlowPanel";
 import HeroHeader from "./overview/HeroHeader";
 import NeedsAttentionCard from "./overview/NeedsAttentionCard";
 import RecentActivityCard from "./overview/RecentActivityCard";
-import ResourceCoverageCard from "./overview/ResourceCoverageCard";
+import ReadinessRadialCard from "./overview/ReadinessRadialCard";
 
 /**
  * Admin Overview — an "operations brief" in three deliberate zones under the
@@ -111,7 +111,7 @@ const OverviewPage = () => {
         </div>
         <div className="flex min-w-0 flex-col gap-3">
           <NeedsAttentionCard summary={summary} />
-          <ResourceCoverageCard summary={summary} />
+          <ReadinessRadialCard summary={summary} />
           <RecentActivityCard />
         </div>
       </motion.div>

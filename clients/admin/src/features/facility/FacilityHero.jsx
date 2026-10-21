@@ -1,5 +1,6 @@
 import { Building2, Fingerprint, MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import CopyId from "../../components/ui/CopyId";
 
 /**
  * Command hero — the "My Facility" centerpiece, built as an asymmetric
@@ -62,7 +63,13 @@ const FacilityHero = ({ facility, available, essentials, occupancy }) => {
           <div className="mt-auto flex flex-wrap gap-2 pt-3.5">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white">
               <Fingerprint size={12} strokeWidth={2} aria-hidden="true" />
-              Facility ID <span className="font-mono tracking-[1px]">{facilityIdLabel}</span>
+              Facility ID{" "}
+              <CopyId
+                value={facilityIdLabel}
+                label="Facility ID"
+                colorFeedback={false}
+                className="font-mono text-[11px] font-semibold tracking-[1px]"
+              />
             </span>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { LogOut } from "lucide-react";
+import CopyId from "../../components/ui/CopyId";
 import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
 
 /**
@@ -32,12 +33,11 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="truncate text-[13px] font-bold text-ink">{stay.familyName}</p>
-            <span
-              title={`Check-in ID ${code}`}
+            <CopyId
+              value={code}
+              label="Check-in ID"
               className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-bold tracking-[1px] text-ink-soft"
-            >
-              {code}
-            </span>
+            />
           </div>
           <p className="mt-1 text-[11px] text-muted">
             {total} {total === 1 ? "member" : "members"} ({adults} adult{adults === 1 ? "" : "s"},{" "}

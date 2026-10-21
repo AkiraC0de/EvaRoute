@@ -20,7 +20,7 @@ const FacilitiesMapCard = ({ facilities, onView }) => (
         <h2 className="text-[13px] font-bold text-ink-soft">Facility map</h2>
         <p className="text-[11px] text-muted">
           {facilities.length} {facilities.length === 1 ? "facility" : "facilities"} ·
-          click a marker for details
+          click a marker to zoom in
         </p>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Copy, Printer } from "lucide-react";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
+import CopyId from "../../components/ui/CopyId";
 import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
 import "./ticket.css";
 
@@ -61,12 +62,11 @@ const CheckInTicket = ({ stay, onClose }) => {
             <p className="mt-4 text-[10px] font-semibold uppercase tracking-[2px] text-muted">
               Check-in ID
             </p>
-            <p
-              aria-label={`Check-in ID ${code}`}
+            <CopyId
+              value={code}
+              label="Check-in ID"
               className="mt-1.5 font-mono text-[28px] font-bold leading-none tracking-[6px] text-ink"
-            >
-              {code}
-            </p>
+            />
 
             <div className="mt-4 space-y-1">
               <p className="text-[15px] font-bold text-ink-soft">{stay.familyName}</p>
@@ -109,9 +109,11 @@ const CheckInTicket = ({ stay, onClose }) => {
             <p className="text-[10px] font-semibold uppercase tracking-[2px] text-muted">
               Keep this stub
             </p>
-            <p className="mt-0.5 font-mono text-[15px] font-bold tracking-[3px] text-ink-soft">
-              {code}
-            </p>
+            <CopyId
+              value={code}
+              label="Check-in ID"
+              className="mt-0.5 font-mono text-[15px] font-bold tracking-[3px] text-ink-soft"
+            />
           </div>
           <p className="text-[10px] font-semibold uppercase tracking-[1px] text-muted-dim">
             EvaRoute

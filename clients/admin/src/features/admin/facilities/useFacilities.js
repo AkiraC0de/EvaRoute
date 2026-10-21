@@ -4,17 +4,15 @@ import * as api from "../../../lib/api";
 /**
  * Facilities registry state (GET /facility). `statusFilter` and `showDeleted`
  * map to the server query; search is client-side over the fetched rows (the
- * endpoint has no server-side search). Owns filter state, fetching, retry
- * and the visible rows; the mutation flows stay in the page.
+ * endpoint has no server-side search). CONTROLLED: the page owns filter state
+ * (URL-backed via useUrlFilters); this hook owns fetching, retry and the
+ * visible rows. The mutation flows stay in the page.
  */
-export default function useFacilities() {
+export default function useFacilities({ search, statusFilter, showDeleted }) {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reloadToken, setReloadToken] = useState(0);
-  const [statusFilter, setStatusFilter] = useState("");
-  const [search, setSearch] = useState("");
-  const [showDeleted, setShowDeleted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,16 +50,5 @@ export default function useFacilities() {
     );
   }, [facilities, search]);
 
-  return {
-    search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    showDeleted,
-    setShowDeleted,
-    visible,
-    loading,
-    error,
-    retry,
-  };
+  return { visible, loading, error, retry };
 }

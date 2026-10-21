@@ -8,6 +8,7 @@ import {
   RotateCw,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import CopyId from "../../../components/ui/CopyId";
 
 /**
  * Staff ID credential — a CR80-style landscape card with a real front/back:
@@ -151,9 +152,13 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
                         </span>
                         <dd
                           className={`min-w-0 flex-1 truncate text-[9.5px] text-ink-soft ${mono ? "font-mono tracking-[0.8px]" : ""}`}
-                          title={String(value)}
+                          title={typeof value === "string" ? value : undefined}
                         >
-                          {value}
+                          {mono ? (
+                            <CopyId value={value} label={label} className="text-[9.5px]" />
+                          ) : (
+                            value
+                          )}
                         </dd>
                       </div>
                     ))}
@@ -273,9 +278,13 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
                     </span>
                     <dd
                       className="min-w-0 flex-1 truncate text-[9.5px] text-ink-soft"
-                      title={String(value)}
+                      title={typeof value === "string" ? value : undefined}
                     >
-                      {value}
+                      {label === "Member ID" ? (
+                        <CopyId value={value} label={label} className="text-[9.5px]" />
+                      ) : (
+                        value
+                      )}
                     </dd>
                   </div>
                 ))}

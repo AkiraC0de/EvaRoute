@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import useUrlFilters from "../../hooks/useUrlFilters";
+
+// URL-backed filter defaults (keys appear as query params when active).
+const HISTORY_FILTER_DEFAULTS = { search: "", action: "", facility: "", from: "", to: "" };
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import { useAuth } from "../../context/AuthContext";
@@ -14,12 +18,22 @@ export default function HistoryPage() {
   const { user } = useAuth();
   const admin = hasRole(user, [ROLES.ADMIN]);
 
-  const [action, setAction] = useState("");
-  const [facilityId, setFacilityId] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const { values, set, apply, clear } = useUrlFilters(HISTORY_FILTER_DEFAULTS);
   // Debounced: the API is queried with `search` once typing settles.
-  const { value: searchInput, debounced: search, setValue: setSearchInput } = useDebouncedSearch();
+  const { value: searchInput, debounced: search, setValue: setSearchInput } = useDebouncedSearch(350, values.search);
+
+  // Keep the URL in sync with the debounced search (replace — typing is not
+  // history), and follow external URL changes (back/forward buttons).
+  useEffect(() => {
+    if (search !== values.search) set("search", search, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+  useEffect(() => {
+    if (values.search !== search && values.search !== searchInput) {
+      setSearchInput(values.search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.search]);
 
   // Facility options only matter for admins (staff scope is server-enforced).
   // Fetched like the other feature hooks — useAsyncAction is a MUTATION
@@ -44,21 +58,21 @@ export default function HistoryPage() {
 
   const query = useMemo(() => {
     const q = {};
-    if (action) q.action = action;
-    if (admin && facilityId) q.facilityId = facilityId;
+    if (values.action) q.action = values.action;
+    if (admin && values.facility) q.facilityId = values.facility;
     if (search) q.search = search;
     // Day bounds are computed in LOCAL time so the filtered rows match the
     // local day-group labels the user sees (bare "YYYY-MM-DD" parses as UTC).
-    if (from) {
-      const [fy, fm, fd] = from.split("-").map(Number);
+    if (values.from) {
+      const [fy, fm, fd] = values.from.split("-").map(Number);
       q.from = new Date(fy, fm - 1, fd, 0, 0, 0, 0).toISOString();
     }
-    if (to) {
-      const [ty, tm, td] = to.split("-").map(Number);
+    if (values.to) {
+      const [ty, tm, td] = values.to.split("-").map(Number);
       q.to = new Date(ty, tm - 1, td, 23, 59, 59, 999).toISOString();
     }
     return q;
-  }, [action, facilityId, search, from, to, admin]);
+  }, [values, search, admin]);
 
   return (
     <div>
@@ -75,23 +89,19 @@ export default function HistoryPage() {
         searchInput={searchInput}
         onSearchChange={(event) => setSearchInput(event.target.value)}
         admin={admin}
-        facilityId={facilityId}
-        onFacilityChange={(event) => setFacilityId(event.target.value)}
+        facilityId={values.facility}
+        onFacilityChange={(event) => set("facility", event.target.value)}
         facilityOptions={facilityOptions}
-        from={from}
-        to={to}
+        from={values.from}
+        to={values.to}
         onDateRangeChange={(next) => {
-          setFrom(next.from);
-          setTo(next.to);
+          apply({ from: next.from, to: next.to });
         }}
-        action={action}
-        onActionChange={setAction}
+        action={values.action}
+        onActionChange={(value) => set("action", value)}
         onClear={() => {
           setSearchInput("");
-          setAction("");
-          setFacilityId("");
-          setFrom("");
-          setTo("");
+          clear();
         }}
       />
 

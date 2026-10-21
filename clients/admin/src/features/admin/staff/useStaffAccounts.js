@@ -3,11 +3,11 @@ import * as api from "../../../lib/api";
 
 /**
  * Staff list state (GET /staff) — filters map 1:1 to the server query
- * (`search`, `status`, `unassigned`). Owns filter state, fetching, retry
- * and the visible rows; the mutation flows stay in the page.
+ * (`search`, `status`, `unassigned`). CONTROLLED: the page owns filter state
+ * (URL-backed via useUrlFilters); this hook owns fetching, retry and the
+ * visible rows. The mutation flows stay in the page.
  */
-export default function useStaffAccounts() {
-  const [filters, setFilters] = useState({ search: "", status: "", unassigned: false });
+export default function useStaffAccounts(filters) {
   const [staffs, setStaffs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,5 +45,5 @@ export default function useStaffAccounts() {
 
   const visible = useMemo(() => staffs, [staffs]);
 
-  return { filters, setFilters, visible, loading, error, retry };
+  return { visible, loading, error, retry };
 }

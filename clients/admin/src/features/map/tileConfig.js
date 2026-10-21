@@ -16,3 +16,5 @@ export const TILE_OPTIONS = {
 export const DEFAULT_CENTER = [14.5995, 120.9842];
 export const DEFAULT_ZOOM = 11;
 export const PICKER_ZOOM = 14;
+/** Zoom level the camera flies to when a facility marker is clicked. */
+export const FOCUS_ZOOM = 16;

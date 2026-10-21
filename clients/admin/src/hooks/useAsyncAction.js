@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useToast } from "../components/ui/toastContext";
 
 /**
  * Wraps an async action with the busy/error bookkeeping every mutation in this
@@ -6,28 +7,37 @@ import { useCallback, useState } from "react";
  * failure, never leave `busy` stuck on.
  *
  *   const { busy, error, setError, run } = useAsyncAction();
- *   onClick={() => run(() => api.updateResource(...))}
+ *   onClick={() => run(() => api.updateResource(...), { success: "Saved." })}
  *
  * `run` resolves to true on success, false on failure — callers that reset
- * forms or close panels on success can branch on it.
+ * forms or close panels on success can branch on it. Pass `success` to get
+ * toast confirmation; failures ALWAYS toast (modals hide the page banners)
+ * and still land in the local `error` state as before.
  */
 export default function useAsyncAction() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const toast = useToast();
 
-  const run = useCallback(async (action) => {
-    setBusy(true);
-    setError("");
-    try {
-      await action();
-      return true;
-    } catch (err) {
-      setError(err.message || "The action could not be completed.");
-      return false;
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+  const run = useCallback(
+    async (action, { success } = {}) => {
+      setBusy(true);
+      setError("");
+      try {
+        await action();
+        if (success) toast.success(success);
+        return true;
+      } catch (err) {
+        const message = err.message || "The action could not be completed.";
+        setError(message);
+        toast.error(message);
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [toast]
+  );
 
   return { busy, error, setError, run };
 }

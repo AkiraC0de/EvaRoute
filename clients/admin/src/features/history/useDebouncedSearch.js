@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
  * once typing settles, while the input stays instant. Values are trimmed
  * when the debounce fires.
  */
-export default function useDebouncedSearch(delay = 350) {
-  const [value, setValue] = useState("");
-  const [debounced, setDebounced] = useState("");
+export default function useDebouncedSearch(delay = 350, initial = "") {
+  const [value, setValue] = useState(initial);
+  const [debounced, setDebounced] = useState(initial.trim());
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(value.trim()), delay);

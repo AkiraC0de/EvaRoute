@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Banner from "../../../components/ui/Banner";
+import { useToast } from "../../../components/ui/toastContext";
 import Button from "../../../components/ui/Button";
 import Modal from "../../../components/ui/Modal";
 import FacilityFormFields from "./FacilityFormFields";
@@ -30,6 +31,7 @@ const emptyDraft = () => ({
 });
 
 const FacilityCreateModal = ({ onCreated, onClose }) => {
+  const toast = useToast();
   const [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -75,6 +77,7 @@ const FacilityCreateModal = ({ onCreated, onClose }) => {
         })),
       });
       onCreated();
+      toast.success("Facility registered.");
     } catch (err) {
       setError(err.message || "The facility could not be registered.");
     } finally {

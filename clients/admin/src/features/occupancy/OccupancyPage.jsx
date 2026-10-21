@@ -43,6 +43,9 @@ const OccupancyPage = () => {
   const { busy, run } = useAsyncAction();
 
   const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
+  // The movement trail reads the ACTIVITY LOG (not the stays cache), so
+  // check-ins/outs must poke it after every mutation — keyed remount below.
+  const [movementKey, setMovementKey] = useState(0);
 
   // 14 days of per-day check-ins (two 7-day windows) for the meter's trend
   // chart and delta pill — scoped to the selected facility. MEMOIZED: the
@@ -87,11 +90,11 @@ const OccupancyPage = () => {
         )}
       </header>
 
-      {facilitiesLoading && <OccupancyLoading />}
+      {facilitiesLoading && <OccupancyLoading showPicker={isAdmin} />}
 
       {!facilitiesLoading && !facilityId && !loading && <OccupancyEmpty isAdmin={isAdmin} />}
 
-      {facilityId && loading && <OccupancyLoading />}
+      {facilityId && loading && <OccupancyLoading showPicker={isAdmin} />}
 
       {facilityId && error && <OccupancyError error={error} onRetry={retry} />}
 
@@ -127,13 +130,20 @@ const OccupancyPage = () => {
               occupancy={occupancy}
               stays={stays}
               busy={busy}
+              movementKey={movementKey}
               onCheckIn={async (payload) => {
                 // The form owns busy/error handling; on success the server's
                 // stay record (with the real Check-In ID) opens the ticket.
                 const stay = await checkIn(payload);
+                setMovementKey((key) => key + 1);
                 if (stay) setTicketStay(stay);
               }}
-              onCheckOut={(stay) => run(() => checkOut(stay.id))}
+              onCheckOut={(stay) =>
+                run(async () => {
+                  await checkOut(stay.id);
+                  setMovementKey((key) => key + 1);
+                })
+              }
             />
           </motion.div>
         </div>
