@@ -43,6 +43,16 @@ export async function checkIn(facilityId, payload) {
   return data.stay;
 }
 
+/**
+ * GET /api/v1/facility/:facilityId/stay/:stayId — one stay with its members
+ * (permission-gated FETCH_STAY; names stay out of activity logs by design,
+ * so the stay record is fetched on demand where names are shown).
+ */
+export async function getStay(facilityId, stayId) {
+  const { data } = await request(`/facility/${facilityId}/stay/${stayId}`);
+  return data.stay ?? null;
+}
+
 /** POST /api/v1/facility/:facilityId/stay/:stayId/checkout  (CHECK_OUT) */
 export async function checkOut(facilityId, stayId) {
   return request(`/facility/${facilityId}/stay/${stayId}/checkout`, { method: "POST" });

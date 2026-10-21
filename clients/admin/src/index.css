@@ -132,6 +132,18 @@
   text-transform: uppercase;
 }
 
+/* Graph-paper grid for the content area (AppShell <main>): faint navy
+   lines OVER the same canvas color — subtle texture, low opacity. The
+   line tint is the shadow family's navy alpha; cards stay opaque on top.
+   Two scales: 48px minor lines, every 4th cell (192px) slightly stronger. */
+.page-grid {
+  background-image: linear-gradient(to right, rgba(15, 35, 64, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 35, 64, 0.06) 1px, transparent 1px),
+    linear-gradient(to right, rgba(15, 35, 64, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 35, 64, 0.035) 1px, transparent 1px);
+  background-size: 192px 192px, 192px 192px, 48px 48px, 48px 48px;
+}
+
 /* Popover entrance — Radix poppers (Select content) mount fresh per open,
    so a mount animation is the whole story: subtle rise + fade. */
 @keyframes popper-in {

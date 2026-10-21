@@ -14,6 +14,7 @@ const HistoryPage = lazy(() => import("../features/history/HistoryPage"));
 const OccupancyPage = lazy(() => import("../features/occupancy/OccupancyPage"));
 const ProfilePage = lazy(() => import("../features/profile/ProfilePage"));
 const UnauthorizedPage = lazy(() => import("../features/errors/UnauthorizedPage"));
+const NotFoundPage = lazy(() => import("../features/errors/NotFoundPage"));
 
 import RequireRole from "./guards";
 import { NAV_ITEMS, homePathFor } from "./navigation";
@@ -80,7 +81,7 @@ const AppRoutes = () => {
           />
         ))}
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="*" element={<Navigate to={homePathFor(user)} replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

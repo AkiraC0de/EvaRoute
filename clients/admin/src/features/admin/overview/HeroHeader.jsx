@@ -4,6 +4,7 @@ import { paperWipe } from "../../../components/ui/slideVariants";
 import { Link } from "react-router-dom";
 import { Building2, History as HistoryIcon, UserPlus } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import HeroMapArt from "./HeroMapArt";
 
 /** Hero band — the flat deep-navy panel carrying identity, the headline
  *  occupancy metric (the ONE place occupancy lives on this screen) and the
@@ -11,9 +12,10 @@ import Button from "../../../components/ui/Button";
  *  repeat. Values render "—" until the summary is measured — a 0 in this UI
  *  is always a measured zero. */
 
-/** One hero state chip — fact + label on a quiet white/10 pill. */
+/** One hero state chip — fact + label on a quiet dark pill (navy/30 keeps
+ *  the white text AA wherever the map silhouette lightens the band). */
 const HeroChip = ({ value, label }) => (
-  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white">
+  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-navy/30 px-2.5 py-1 text-[11px] font-semibold text-white">
     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white/70" />
     <span>{value}</span>
     <span className="font-normal text-white/90">{label}</span>
@@ -26,13 +28,17 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => {
 
   return (
   <header className="relative overflow-hidden rounded-lg bg-surface-2 p-6">
-    {/* Color layer: paper-wipe reveal from the top-left corner. */}
+    {/* Color layer: paper-wipe reveal from the top-left corner. The
+        Philippines vector rides INSIDE it on the bright right side so the
+        sweep reveals the map together with the gradient. */}
     <motion.div
       aria-hidden="true"
       className="absolute inset-0 bg-primary-strong"
       style={{ backgroundImage: "var(--hero-gradient)" }}
       {...wipe.overlay}
-    />
+    >
+      <HeroMapArt className="absolute right-[4%] top-1/2 h-[145%] aspect-[5807/10000] -translate-y-1/2 opacity-30" />
+    </motion.div>
     <motion.div className="relative z-10 text-white" {...wipe.content}>
     {/* Identity + quick actions */}
     <div className="flex flex-wrap items-start justify-between gap-4">

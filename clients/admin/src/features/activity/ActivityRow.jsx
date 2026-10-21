@@ -55,7 +55,7 @@ export default function ActivityRow({ log, showFacility = false }) {
               transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden"
             >
-              <ActivityDetails metadata={md} />
+              <ActivityDetails metadata={md} log={log} />
             </motion.div>
           )}
         </AnimatePresence>

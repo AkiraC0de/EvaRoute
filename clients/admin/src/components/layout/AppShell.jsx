@@ -24,7 +24,7 @@ const AppShell = () => {
     <ToastProvider>
     <div className="min-h-screen bg-canvas">
       <Sidebar />
-      <main className="ml-49.5 min-h-screen bg-canvas p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-6 max-sm:ml-0 max-sm:px-4 max-sm:pt-4">
+      <main className="page-grid ml-49.5 min-h-screen bg-canvas p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-6 max-sm:ml-0 max-sm:px-4 max-sm:pt-4">
         {/* Entrance choreography: content renders only after the sidebar has
             landed (mounts once with the shell — route changes use the keyed
             transition below). */}

@@ -10,8 +10,8 @@ import { useAuth } from "../../context/AuthContext";
  * config change, not a component change.
  *
  * The Account section is intentionally not rendered here: Profile opens from
- * the user card on desktop and from the mobile bottom bar, so the desktop
- * rail stays a clean destinations list.
+ * the user card on desktop and from the mobile header chip
+ * (MobileAccountChip), so the rail stays a clean destinations list.
  *
  * The active state is ONE shared highlight pill (motion `layoutId`): when the
  * active destination changes, the pill slides from the previous row to the

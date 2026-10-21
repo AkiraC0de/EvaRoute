@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
-import { NAV_ITEMS } from "../../app/navigation";
+import { NAV_SECTIONS } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";
 
 /**
@@ -21,7 +21,11 @@ import { useAuth } from "../../context/AuthContext";
  */
 const MobileBottomNav = () => {
   const { user } = useAuth();
-  const items = NAV_ITEMS.filter((item) => item.roles.includes(user?.role));
+  // The account section (Profile) is NOT a destination here: it opens from
+  // the mobile header chip (MobileAccountChip) — same skip as SidebarNav.
+  const items = NAV_SECTIONS.filter((section) => section.id !== "account")
+    .flatMap((section) => section.items)
+    .filter((item) => item.roles.includes(user?.role));
   const reduceMotion = useReducedMotion();
   const highlightTransition = reduceMotion
     ? { duration: 0 }
