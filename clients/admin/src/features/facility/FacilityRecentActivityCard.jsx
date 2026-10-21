@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { History } from "lucide-react";
+import Card from "../../components/ui/Card";
 import ActivityFeed from "../activity/ActivityFeed";
 
 /** Recent movement — latest facility events with a shortcut into history. */
 const FacilityRecentActivityCard = ({ facilityId }) => (
-  <div className="rounded-lg border border-line bg-surface p-4">
+  <Card>
     <div className="mb-3 flex flex-wrap items-center gap-2.5">
       <span
         aria-hidden="true"
@@ -14,7 +15,7 @@ const FacilityRecentActivityCard = ({ facilityId }) => (
       </span>
       <div className="min-w-0">
         <h2 className="text-[13px] font-bold text-ink-soft">Recent movement</h2>
-        <p className="text-[10px] text-muted">Latest events at this facility</p>
+        <p className="text-[11px] text-muted">Latest events at this facility</p>
       </div>
       <Link
         to="/history"
@@ -26,7 +27,7 @@ const FacilityRecentActivityCard = ({ facilityId }) => (
     <div className="overflow-hidden rounded-md border border-line">
       <ActivityFeed query={{ facilityId }} limit={5} compact />
     </div>
-  </div>
+  </Card>
 );
 
 export default FacilityRecentActivityCard;

@@ -2,9 +2,9 @@ import { motion, useReducedMotion } from "motion/react";
 
 /**
  * Counted-stock control for QUANTITY resources: fine (-1/+1) and coarse
- * (-10/+10) stepping around the persisted availableValue. Button order
- * matches the original card exactly (-1, -10, value, +10, -1 → -1, -10,
- * value, +10, +1). Every click calls `onStep(delta)` — the parent performs
+ * (-10/+10) stepping around the persisted availableValue. Button order is
+ * -1, -10 | value | +10, +1 — the coarse ±10 steps flank the value and the
+ * fine ±1 steps sit at the outer edges. Every click calls `onStep(delta)` —
  * the PATCH and feeds the saved record back in, so the control never shows
  * unsaved numbers. The value gets a tiny settle animation on each change.
  */

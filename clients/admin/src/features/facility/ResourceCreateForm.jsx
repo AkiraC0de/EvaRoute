@@ -94,7 +94,7 @@ const ResourceCreateForm = ({ onCreate }) => {
             <span className="flex items-center gap-2">
               <span
                 aria-hidden="true"
-                className="flex h-7 w-7 items-center justify-center rounded-md bg-warm-soft text-warm-ink"
+                className="flex h-7 w-7 items-center justify-center rounded-md bg-surface-2 text-ink-soft"
               >
                 <Package size={14} strokeWidth={1.9} />
               </span>

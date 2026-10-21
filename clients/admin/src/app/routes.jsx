@@ -57,7 +57,13 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={homePathFor(user)} replace />} />
+      {/* "/" is the session-end landing (AuthProvider's forgetSession sends
+          every finished session here). Only route a real user to their home
+          screen — re-redirecting a cleared user through homePathFor would
+          bounce sign-out/401/failed-restore onto /unauthorized. The sign-in
+          screen replaces the portal in the same commit, so a null user here
+          is a transient session-end frame. */}
+      <Route path="/" element={user ? <Navigate to={homePathFor(user)} replace /> : null} />
       <Route element={<AppShell />}>
         {NAV_ITEMS.map((item) => {
           const Page = PAGES[item.id];

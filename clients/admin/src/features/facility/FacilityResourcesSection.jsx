@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { Search } from "lucide-react";
+import { CONTROL_CLASS } from "../../components/ui/FilterControls";
 import StatusPanel from "../../components/ui/StatusPanel";
 import ResourceCard from "./ResourceCard";
 import ResourceCreateForm from "./ResourceCreateForm";
@@ -10,6 +12,11 @@ import ResourceCreateForm from "./ResourceCreateForm";
  * Unavailable) for quick scanning, then the create form and the resource
  * grid. Filtering is presentation-only over the API's name-ordered list —
  * every mutation still goes through the same hooks/endpoints.
+ *
+ * The search field reuses the shared filter-input geometry (CONTROL_CLASS)
+ * so it matches every other filter band, and the segment filter is a
+ * sliding pill (per-instance layoutId) like the rest of the app's
+ * segmented controls.
  */
 const SEGMENTS = [
   { key: "all", label: "All" },
@@ -20,6 +27,11 @@ const SEGMENTS = [
 const FacilityResourcesSection = ({ resources, createResource, saveResource, removeResource }) => {
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState("all");
+  const pillId = `resources-segment-${useId()}`;
+  const reduceMotion = useReducedMotion();
+  const pillTransition = reduceMotion
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 480, damping: 40, mass: 0.85 };
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -42,7 +54,7 @@ const FacilityResourcesSection = ({ resources, createResource, saveResource, rem
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
+          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted">
             {resources.length} recorded
           </span>
           <ResourceCreateForm onCreate={createResource} />
@@ -64,7 +76,7 @@ const FacilityResourcesSection = ({ resources, createResource, saveResource, rem
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search resources…"
-            className="h-10 w-full rounded-md border border-line bg-surface pl-8.5 pr-3 text-[12px] text-ink outline-none transition-colors placeholder:text-muted-dim focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-ink"
+            className={`${CONTROL_CLASS} w-full pl-8 pr-3 placeholder:text-muted-dim`}
           />
         </label>
         <div
@@ -72,21 +84,31 @@ const FacilityResourcesSection = ({ resources, createResource, saveResource, rem
           aria-label="Filter resources"
           className="flex items-center gap-1 rounded-full bg-surface-2 p-1"
         >
-          {SEGMENTS.map((entry) => (
-            <button
-              key={entry.key}
-              type="button"
-              aria-pressed={segment === entry.key}
-              onClick={() => setSegment(entry.key)}
-              className={`min-h-8 rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-ink ${
-                segment === entry.key
-                  ? "bg-surface text-ink shadow-xs"
-                  : "text-muted hover:text-ink-soft"
-              }`}
-            >
-              {entry.label}
-            </button>
-          ))}
+          {SEGMENTS.map((entry) => {
+            const active = segment === entry.key;
+            return (
+              <button
+                key={entry.key}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSegment(entry.key)}
+                className={`relative min-h-8 rounded-full px-2.5 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                  active ? "text-primary-strong" : "text-muted hover:text-ink-soft"
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId={pillId}
+                    initial={false}
+                    aria-hidden="true"
+                    transition={pillTransition}
+                    className="absolute inset-0 rounded-full bg-primary-soft"
+                  />
+                )}
+                <span className="relative z-10">{entry.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

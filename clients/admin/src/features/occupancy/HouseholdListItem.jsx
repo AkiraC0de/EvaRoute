@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react";
 import CopyId from "../../components/ui/CopyId";
+import FamilySilhouette from "./FamilySilhouette";
 import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
 
 /**
@@ -22,8 +23,15 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const code = checkInCode(stay);
 
   return (
-    <li className="rounded-md border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2">
-      <div className="flex items-start gap-3">
+    <li className="relative overflow-hidden rounded-md border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2">
+      {/* Member-composition art — one figure per member, gray, behind the
+          content in the lower-right so the category mix reads at a glance. */}
+      <FamilySilhouette
+        adults={adults}
+        children={children}
+        className="absolute bottom-0 right-2 h-[40px] w-auto max-w-[46%] text-muted opacity-15"
+      />
+      <div className="relative z-10 flex items-start gap-3">
         <span
           aria-hidden="true"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-[11px] font-bold text-secondary-ink"

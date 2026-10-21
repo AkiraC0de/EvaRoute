@@ -9,7 +9,7 @@ import {
   isQuantity,
   stockPercentage,
 } from "../../lib/resource";
-import AvailabilityToggle from "./AvailabilityToggle";
+import ResourceStatusToggle from "./ResourceStatusToggle";
 import ConfirmDeleteBar from "./ConfirmDeleteBar";
 import DeleteResourceButton from "./DeleteResourceButton";
 import QuantityStepper from "./QuantityStepper";
@@ -52,17 +52,21 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
     >
       {/* Identity */}
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warm-soft text-warm-ink">
+        {/* Neutral tile — resources are records, not a place/occupancy tint */}
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-2 text-ink-soft">
           <ResourceIcon name={resource.name} essentialType={resource.essentialType} size={15} />
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[14px] font-bold leading-tight text-ink-soft" title={resource.name}>
             {resource.name}
           </h3>
-          <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-muted">
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
             {quantity && <span className="truncate">{displaySubtitle(resource)}</span>}
             {resource.essentialType && (
-              <span className="shrink-0 rounded-full bg-surface-2 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.5px] text-ink-soft">
+              <span
+                title="Mandatory essentials cannot be removed"
+                className="label-micro shrink-0 rounded-full bg-surface-2 px-1.5 py-px text-ink-soft"
+              >
                 Essential
               </span>
             )}
@@ -91,7 +95,7 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
               {unit && <span className="ml-1 text-[11px] font-medium text-muted">{unit}</span>}
             </p>
             {percentage !== null && (
-              <span className="shrink-0 text-[10px] text-muted">{percentage}% stock</span>
+              <span className="shrink-0 text-[11px] text-muted">{percentage}% stock</span>
             )}
           </div>
           {percentage !== null && (
@@ -112,7 +116,7 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
       )}
 
       {/* Controls */}
-      <div className="flex justify-center">
+      <div className="flex items-center gap-2">
         {confirmingDelete ? (
           <ConfirmDeleteBar
             busy={busy}
@@ -132,10 +136,11 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
             onStep={step}
           />
         ) : (
-          <AvailabilityToggle
+          <ResourceStatusToggle
+            name={resource.name}
             value={resource.isAvailable}
-            busy={busy}
-            onToggle={(next) => run(() => onSave({ isAvailable: next }))}
+            disabled={busy}
+            onChange={(next) => run(() => onSave({ isAvailable: next }))}
           />
         )}
       </div>

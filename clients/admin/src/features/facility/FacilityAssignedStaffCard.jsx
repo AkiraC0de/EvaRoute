@@ -1,12 +1,17 @@
 import { Users } from "lucide-react";
+import Banner from "../../components/ui/Banner";
 import Card from "../../components/ui/Card";
+import Skeleton from "../../components/ui/Skeleton";
+import { displayNameOf, initialsOf } from "../../lib/user";
 
 /**
  * Assigned staff roster for this facility (GET /facility/:facilityId/staff —
  * FETCH_STAFF). Chips with initials + name; the signed-in user sees who else
  * works this facility. Read-only — assignment is managed by administrators.
+ * The card is three-state — `status` is "pending" | "ready" | "failed" — so
+ * a failed fetch never reads as "no staff assigned".
  */
-const FacilityAssignedStaffCard = ({ staffs, loading }) => {
+const FacilityAssignedStaffCard = ({ staffs, status = "ready" }) => {
   const rows = staffs ?? [];
 
   return (
@@ -20,35 +25,40 @@ const FacilityAssignedStaffCard = ({ staffs, loading }) => {
         </span>
         <div className="min-w-0">
           <h2 className="text-[13px] font-bold text-ink-soft">Assigned staff</h2>
-          <p className="text-[10px] text-muted">Who works this facility</p>
+          <p className="text-[11px] text-muted">Who works this facility</p>
         </div>
-        <span className="ml-auto shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
-          {rows.length}
+        <span className="ml-auto shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted">
+          {status === "ready" ? rows.length : "—"}
         </span>
       </div>
 
-      {loading && <p className="text-[11px] text-muted">Loading staff…</p>}
+      {status === "pending" && (
+        <ul aria-hidden="true" className="flex flex-wrap gap-2">
+          {[0, 1, 2, 3].map((n) => (
+            <li
+              key={n}
+              className="flex items-center gap-2 rounded-full bg-surface-2 py-1 pl-1 pr-2.5"
+            >
+              <Skeleton className="h-6 w-6 rounded-full" />
+              <Skeleton className="h-2.5 w-16 rounded-full" />
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {!loading && rows.length === 0 && (
+      {status === "failed" && (
+        <Banner tone="error">Couldn't load the assigned staff roster.</Banner>
+      )}
+
+      {status === "ready" && rows.length === 0 && (
         <p className="text-[11px] text-muted">No staff are assigned to this facility yet.</p>
       )}
 
-      {!loading && rows.length > 0 && (
+      {status === "ready" && rows.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {rows.map((staff) => {
-            const name =
-              staff.firstName || staff.lastName
-                ? `${staff.firstName ?? ""} ${staff.lastName ?? ""}`.trim()
-                : staff.email;
-            const initials =
-              `${staff.firstName ?? ""} ${staff.lastName ?? ""}`
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((word) => word[0])
-                .join("")
-                .toUpperCase() || (staff.email ?? "?")[0].toUpperCase();
+            const name = displayNameOf(staff);
+            const initials = initialsOf(staff);
             return (
               <li
                 key={staff.id}
@@ -56,7 +66,7 @@ const FacilityAssignedStaffCard = ({ staffs, loading }) => {
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-soft text-[9px] font-bold text-secondary-ink"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-soft text-[11px] font-bold text-secondary-ink"
                 >
                   {initials}
                 </span>

@@ -63,9 +63,11 @@ export const visibleItems = (sectionId, user) => {
 /**
  * Landing page for a user: the item marked `home` that they are allowed to
  * see (admin → /overview, facility staff → /facility — the pre-existing staff
- * landing), falling back to the first visible item.
+ * landing), falling back to the first visible item. No user (session just
+ * ended) → "/" so session end never lands on the access-denied page; a user
+ * whose role sees no nav item at all is genuine unauthorized.
  */
 export const homePathFor = (user) =>
   NAV_ITEMS.find((item) => item.home && hasRole(user, item.roles))?.to ??
   NAV_ITEMS.find((item) => hasRole(user, item.roles))?.to ??
-  "/unauthorized";
+  (user ? "/unauthorized" : "/");

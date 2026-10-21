@@ -73,7 +73,7 @@ const FacilityLoading = () => (
       <Skeleton className="h-10 w-full rounded-md sm:max-w-[260px]" />
       <Skeleton className="h-10 w-56 rounded-full" />
     </div>
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {[0, 1, 2, 3].map((n) => (
         <div key={n} className="rounded-lg border border-line bg-surface p-3">
           <Skeleton className="h-3 w-24 rounded-full" />

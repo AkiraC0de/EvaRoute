@@ -2,11 +2,15 @@ import { useId } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 /**
- * Compact two-option segmented control for essential resource availability.
- * Text + tone communicate the state (never color alone): the tones come from
- * the one status taxonomy (AVAILABLE = success, UNAVAILABLE = danger, same
- * as StatusPill/statusColors). Keyboard: both options are real buttons in
- * tab order. The active side is a sliding pill (per-instance layoutId).
+ * Compact two-option segmented control for resource availability (used by
+ * the resource cards and the admin essentials field). Soft status fills —
+ * tinted pills, never saturated blocks — so the state reads calmly inside
+ * navy-accented cards. Text + tone communicate the state (never color
+ * alone): the tones come from the one status taxonomy (AVAILABLE = success,
+ * UNAVAILABLE = danger, same as StatusPill/statusColors), and the strong
+ * inks keep 11px labels AA on their soft fills. Keyboard: both options are
+ * real buttons in tab order. The active side is a sliding pill (per-instance
+ * layoutId).
  */
 const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => {
   const pillId = `resource-status-pill-${useId()}`;
@@ -26,8 +30,8 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => {
         aria-pressed={value === true}
         disabled={disabled}
         onClick={() => onChange(true)}
-        className={`relative min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
-          value === true ? "text-success" : "text-muted hover:text-ink-soft"
+        className={`relative min-h-9 rounded-md px-3 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
+          value === true ? "text-success-strong" : "text-muted hover:text-ink-soft"
         } disabled:opacity-50`}
       >
         {value === true && (
@@ -45,7 +49,7 @@ const ResourceStatusToggle = ({ name, value, onChange, disabled = false }) => {
         aria-pressed={value === false}
         disabled={disabled}
         onClick={() => onChange(false)}
-        className={`relative min-h-11 rounded-md px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
+        className={`relative min-h-9 rounded-md px-3 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:min-h-8 ${
           value === false ? "text-danger-strong" : "text-muted hover:text-ink-soft"
         } disabled:opacity-50`}
       >

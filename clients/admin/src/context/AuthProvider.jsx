@@ -82,10 +82,10 @@ function AuthProvider({ children }) {
       }
 
       if (!api.getAccessToken() || !readStoredUser()) {
-        if (!cancelled) {
-          api.clearAccessToken();
-          setStatus("signedOut");
-        }
+        // Nothing left to fall back on — a finished session like any other,
+        // so it ends through forgetSession: same cleanup (including the
+        // identity seeded from storage at mount) and the same "/" landing.
+        if (!cancelled) forgetSession("");
         return;
       }
 
