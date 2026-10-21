@@ -1,3 +1,4 @@
+import RollingNumber from "../../../components/ui/RollingNumber";
 import { CARD, ICON_TONES } from "./overviewStyles";
 
 /** KPI card — label, primary number, support caption, optional meter.
@@ -11,7 +12,9 @@ const StatCard = ({ icon, tone = "primary", label, value, caption, meter }) => (
         <p className="text-[10px] font-semibold uppercase tracking-[0.8px] text-muted">
           {label}
         </p>
-        <p className="mt-1 text-[24px] font-bold leading-none text-ink">{value}</p>
+        <p className="mt-1 text-[24px] font-bold leading-none text-ink">
+          <RollingNumber value={value} />
+        </p>
         {caption && <p className="mt-1.5 text-[11px] text-muted">{caption}</p>}
       </div>
       {icon && (

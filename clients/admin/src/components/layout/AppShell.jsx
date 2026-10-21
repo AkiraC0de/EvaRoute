@@ -21,6 +21,14 @@ const AppShell = () => {
     <div className="min-h-screen bg-canvas">
       <Sidebar />
       <main className="ml-49.5 min-h-screen bg-canvas p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-6 max-sm:ml-0 max-sm:px-4 max-sm:pt-4">
+        {/* Entrance choreography: content renders only after the sidebar has
+            landed (mounts once with the shell — route changes use the keyed
+            transition below). */}
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut", delay: reduceMotion ? 0 : 0.5 }}
+        >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
@@ -33,6 +41,7 @@ const AppShell = () => {
             {outlet}
           </motion.div>
         </AnimatePresence>
+        </motion.div>
       </main>
       <MobileBottomNav />
     </div>

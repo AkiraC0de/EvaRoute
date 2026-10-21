@@ -4,7 +4,10 @@
  * and custom inputs (OTP etc.) can still reuse the exact same chrome.
  *
  * Flat field language: white surface, hairline border, primary focus ring —
- * no recessed wells, no inset shadows.
+ * no recessed wells, no inset shadows. The read-only rules are scoped to
+ * input/textarea on purpose: CSS `:read-only` also matches BUTTONS (the Radix
+ * Select trigger carries this class too), and an unscoped rule paints every
+ * select trigger with the locked-field fill.
  */
 export const LABEL_CLASS = "mb-1 block label-micro text-muted";
 
@@ -14,5 +17,5 @@ export const FIELD_CLASS = [
   "placeholder:text-muted-dim",
   "focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink",
   "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-line-strong",
-  "read-only:bg-surface-2 read-only:hover:border-line-strong",
+  "[:is(input,textarea):read-only]:bg-surface-2 [:is(input,textarea):read-only]:hover:border-line-strong",
 ].join(" ");

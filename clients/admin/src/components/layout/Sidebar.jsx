@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "motion/react";
 import SidebarNav from "./SidebarNav";
 import SidebarUserCard from "./SidebarUserCard";
 
@@ -7,8 +8,16 @@ import SidebarUserCard from "./SidebarUserCard";
  * in the middle, the account card pinned at the bottom. (The EvaRoute logo
  * is light-background artwork, so it sits in its own bordered tile.)
  */
-const Sidebar = () => (
-  <aside className="fixed left-0 top-0 z-50 flex h-screen w-49.5 flex-col border-b border-line bg-surface sm:border-b-0 sm:border-r max-sm:relative max-sm:h-auto max-sm:w-full">
+const Sidebar = () => {
+  const reduceMotion = useReducedMotion();
+
+  return (
+  <motion.aside
+    initial={reduceMotion ? false : { x: "-100%" }}
+    animate={{ x: 0 }}
+    transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.15 }}
+    className="fixed left-0 top-0 z-50 flex h-screen w-49.5 flex-col border-b border-line bg-surface sm:border-b-0 sm:border-r max-sm:relative max-sm:h-auto max-sm:w-full"
+  >
     <div className="flex h-23 items-center px-5 max-sm:h-18">
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface">
@@ -25,7 +34,8 @@ const Sidebar = () => (
 
     <SidebarNav />
     <SidebarUserCard />
-  </aside>
-);
+  </motion.aside>
+  );
+};
 
 export default Sidebar;

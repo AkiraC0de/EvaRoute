@@ -1,3 +1,6 @@
+import { motion, useReducedMotion } from "motion/react";
+import RollingNumber from "../../components/ui/RollingNumber";
+import { paperWipe } from "../../components/ui/slideVariants";
 import { Users, Armchair, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { capacityState, checkinTrend, occupancyPct } from "./occupancyUtils";
 import OccupancyTrendChart from "./OccupancyTrendChart";
@@ -18,6 +21,8 @@ const TREND_META = {
  * bottom. Never color alone — the state chip carries the words.
  */
 const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
+  const reduceMotion = useReducedMotion();
+  const wipe = paperWipe(reduceMotion);
   const pct = occupancyPct(occupancy, capacity);
   const state = capacityState(occupancy, capacity);
   const remaining = Math.max(0, capacity - occupancy);
@@ -32,9 +37,15 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
   return (
     <section
       aria-label="Facility occupancy"
-      className="flex h-full flex-col overflow-hidden rounded-lg bg-primary-strong p-5"
+      className="relative flex h-full flex-col overflow-hidden rounded-lg bg-surface-2 p-5"
     >
-      <div className="flex h-full flex-col">
+      {/* Color layer: paper-wipe reveal from the top-left corner. */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 bg-primary-strong"
+        {...wipe.overlay}
+      />
+      <motion.div className="relative z-10 flex h-full flex-col" {...wipe.content}>
         {/* Header row: icon + label left, state chip right */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -56,7 +67,7 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
 
         {/* Oversized metric + caption */}
         <p className="mt-3.5 text-[40px] font-bold leading-none text-white">
-          {occupancy}
+          <RollingNumber value={occupancy} />
           <span className="ml-2.5 text-[14px] font-semibold text-white/80">
             of {capacity} places taken
           </span>
@@ -117,7 +128,7 @@ const OccupancyMeter = ({ occupancy, capacity, timeline }) => {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

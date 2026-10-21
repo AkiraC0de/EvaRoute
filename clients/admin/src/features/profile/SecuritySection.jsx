@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, MonitorOff } from "lucide-react";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -69,7 +69,7 @@ const SecuritySection = ({ onBusyChange }) => {
             terminal action gets the danger styling; this one is reversible
             and password-gated). */}
         <SecurityAction
-          icon={<LogOut size={15} strokeWidth={1.8} />}
+          icon={<MonitorOff size={15} strokeWidth={1.8} />}
           title="Sign out to all other devices"
           description="Requires your password. This device stays signed in."
           actionLabel="Sign out everywhere"
@@ -98,6 +98,7 @@ const SecuritySection = ({ onBusyChange }) => {
         <SecurityAction
           icon={<LogOut size={15} strokeWidth={1.8} />}
           title="Sign out"
+          description="Ends this session immediately."
           actionLabel="Sign out"
           variant="danger"
           onClick={() => {

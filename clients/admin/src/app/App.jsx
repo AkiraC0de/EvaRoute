@@ -1,3 +1,4 @@
+import { AnimatePresence } from "motion/react";
 import AppRoutes from "./routes";
 import LoginPage from "../features/auth/LoginPage";
 import AccountSetupGate from "../features/account-setup/AccountSetupGate";
@@ -30,15 +31,20 @@ function App() {
     );
   }
 
-  if (status === "signedOut") {
-    return <LoginPage />;
-  }
-
+  // Screen swap: `mode="wait"` lets the login screen finish its door-open
+  // exit before the portal mounts — the sidebar and content then play their
+  // own entrance (see AppShell/Sidebar). The portal side is inert on exit.
   return (
-    <>
-      <AppRoutes />
-      <AccountSetupGate />
-    </>
+    <AnimatePresence mode="wait">
+      {status === "signedOut" ? (
+        <LoginPage key="login" />
+      ) : (
+        <div key="portal" className="min-h-screen bg-canvas">
+          <AppRoutes />
+          <AccountSetupGate />
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 

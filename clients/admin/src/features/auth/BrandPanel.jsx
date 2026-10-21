@@ -66,7 +66,7 @@ const BrandPanel = () => {
 
       {/* Brand lockup */}
       <motion.div variants={v.fadeUp} className="relative z-10 flex shrink-0 items-center gap-3">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl ">
           <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
         </div>
         <div>

@@ -21,12 +21,24 @@ const LoginPage = () => {
   const v = authVariants(reduce);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-canvas lg:grid lg:grid-cols-[1.12fr_1fr]">
+    <motion.main className="relative min-h-screen overflow-hidden bg-canvas lg:grid lg:grid-cols-2">
       <BrandPanel />
 
       {/* Form pane — plain warm canvas; the bordered white card is the
-          single focal surface (flat language: border + fill, no glows). */}
-      <div className="relative flex items-center justify-center p-4">
+          single focal surface (flat language: border + fill, no glows).
+          On sign-out of the screen it parts to the RIGHT (the "door" —
+          BrandPanel leaves to the left). */}
+      <motion.div
+        className="relative flex items-center justify-center p-4"
+        exit={
+          reduce
+            ? {}
+            : {
+                x: "100%",
+                transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+              }
+        }
+      >
         <motion.div
           variants={v.stagger}
           initial="hidden"
@@ -35,13 +47,13 @@ const LoginPage = () => {
         >
           {/* Compact header for small screens (BrandPanel is lg-only) */}
           <motion.div variants={v.fadeUp} className="mb-5 flex items-center gap-3 lg:hidden">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md">
               <img src="./evaRouteLogo.png" alt="EvaRoute logo" className="h-full w-full object-contain" />
             </div>
             <div>
               <p className="text-[15px] font-bold text-ink">EvaRoute</p>
               <p className="text-[10px] font-semibold uppercase tracking-[1.5px] text-muted-dim">
-                Staff Portal
+                Staff Portal 
               </p>
             </div>
           </motion.div>
@@ -83,8 +95,8 @@ const LoginPage = () => {
             Evacuation center operations
           </motion.p>
         </motion.div>
-      </div>
-    </main>
+      </motion.div>
+    </motion.main>
   );
 };
 

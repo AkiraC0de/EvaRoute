@@ -116,3 +116,58 @@ export const checkinTrend = (timeline = []) => {
     direction: recent > prior ? "up" : recent < prior ? "down" : "flat",
   };
 };
+
+/**
+ * Growth metrics for the breakdown tiles — derived from record timestamps
+ * (stays and members carry `createdAt`), so no extra requests are needed.
+ *
+ * Scope note (data reality): this counts ADDITIONS among the currently
+ * active records — the server's check-out log has no per-category member
+ * counts, so a family that arrived AND departed inside the window drops out
+ * of older days. Fine for a "new arrivals" chip and an indicative trend
+ * line; not a full net-change ledger.
+ */
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const ageBucket = (member) =>
+  member?.ageGroup === "CHILD" ? "children" : "adults";
+
+/** Additions in the rolling last 24h: { households, children, adults }. */
+export const last24hNew = (stays = []) => {
+  const cutoff = Date.now() - DAY_MS;
+  const out = { households: 0, children: 0, adults: 0 };
+  for (const stay of stays) {
+    if (new Date(stay.createdAt).getTime() >= cutoff) out.households += 1;
+    for (const member of stay.members ?? []) {
+      if (new Date(member.createdAt).getTime() >= cutoff) {
+        out[ageBucket(member)] += 1;
+      }
+    }
+  }
+  return out;
+};
+
+/** Additions per day for the last `days` days (index 0 = oldest, last = today):
+ *  { households: number[], children: number[], adults: number[] }. */
+export const newPerDay = (stays = [], days = 7) => {
+  const out = {
+    households: Array(days).fill(0),
+    children: Array(days).fill(0),
+    adults: Array(days).fill(0),
+  };
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  const bucketOf = (iso) => {
+    const dayStart = new Date(iso).setHours(0, 0, 0, 0);
+    const index = days - 1 - Math.round((todayStart - dayStart) / DAY_MS);
+    return index >= 0 && index < days ? index : null;
+  };
+  for (const stay of stays) {
+    const householdIndex = bucketOf(stay.createdAt);
+    if (householdIndex !== null) out.households[householdIndex] += 1;
+    for (const member of stay.members ?? []) {
+      const index = bucketOf(member.createdAt);
+      if (index !== null) out[ageBucket(member)][index] += 1;
+    }
+  }
+  return out;
+};

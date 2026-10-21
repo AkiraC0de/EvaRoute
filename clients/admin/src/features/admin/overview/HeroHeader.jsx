@@ -1,3 +1,6 @@
+import { motion, useReducedMotion } from "motion/react";
+import RollingNumber from "../../../components/ui/RollingNumber";
+import { paperWipe } from "../../../components/ui/slideVariants";
 import { Link } from "react-router-dom";
 import { Building2, History as HistoryIcon, UserPlus } from "lucide-react";
 import Button from "../../../components/ui/Button";
@@ -17,11 +20,20 @@ const HeroChip = ({ value, label }) => (
   </span>
 );
 
-const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
-  <header
-    className="relative overflow-hidden rounded-lg bg-primary-strong p-6 text-white"
-    style={{ backgroundImage: "var(--hero-gradient)" }}
-  >
+const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => {
+  const reduceMotion = useReducedMotion();
+  const wipe = paperWipe(reduceMotion);
+
+  return (
+  <header className="relative overflow-hidden rounded-lg bg-surface-2 p-6">
+    {/* Color layer: paper-wipe reveal from the top-left corner. */}
+    <motion.div
+      aria-hidden="true"
+      className="absolute inset-0 bg-primary-strong"
+      style={{ backgroundImage: "var(--hero-gradient)" }}
+      {...wipe.overlay}
+    />
+    <motion.div className="relative z-10 text-white" {...wipe.content}>
     {/* Identity + quick actions */}
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
@@ -61,7 +73,7 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
           Network occupancy
         </p>
         <p className="mt-1 text-[24px] font-bold leading-none text-white">
-          {summary ? `${occupancyPct}%` : "—"}
+          {summary ? <RollingNumber value={`${occupancyPct}%`} /> : "—"}
         </p>
         <p className="mt-1.5 text-[11px] text-white/90">
           {summary
@@ -90,7 +102,9 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => (
         />
       </div>
     </div>
+    </motion.div>
   </header>
-);
+  );
+};
 
 export default HeroHeader;

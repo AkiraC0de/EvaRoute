@@ -30,3 +30,34 @@ export const slideVariants = (reduceMotion) => ({
           transition: { duration: 0.16, ease: "easeIn" },
         },
 });
+
+/**
+ * Paper-wipe hero reveal: the hero's color layer starts as a degenerate
+ * polygon pinned to the top-left corner and sweeps to full coverage with a
+ * diagonal leading edge — the color "gets on" the card from top-left to
+ * bottom-right over a neutral base. Content fades up slightly behind the
+ * sweep so white type never sits on the uncolored base. Reduced motion =
+ * straight to the final state. Spread each object onto a motion element:
+ *   <motion.div aria-hidden {...paperWipe(reduce).overlay} className=… />
+ *   <motion.div {...paperWipe(reduce).content}>…</motion.div>
+ */
+export const paperWipe = (reduceMotion) => ({
+  overlay: {
+    initial: {
+      clipPath: reduceMotion
+        ? "polygon(0% 0%, 200% 0%, 100% 100%, -100% 100%)"
+        : "polygon(0% 0%, 0% 0%, -100% 100%, -100% 100%)",
+    },
+    animate: { clipPath: "polygon(0% 0%, 200% 0%, 100% 100%, -100% 100%)" },
+    transition: { duration: reduceMotion ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] },
+  },
+  content: {
+    initial: reduceMotion ? false : { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: reduceMotion ? 0 : 0.5,
+      ease: [0.22, 1, 0.36, 1],
+      delay: reduceMotion ? 0 : 0.25,
+    },
+  },
+});
