@@ -14,16 +14,22 @@ const TABS = [
   { id: "facility-activity", label: "Activity" },
 ];
 
-const FacilitySectionTabs = () => {
+const FacilitySectionTabs = ({ deleted = false }) => {
   const [active, setActive] = useState("facility-overview");
   const reduceMotion = useReducedMotion();
+
+  // Soft-deleted facilities pause staff/resources/stays — only the sections
+  // that still load get anchors.
+  const tabs = deleted
+    ? TABS.filter((tab) => tab.id === "facility-overview" || tab.id === "facility-activity")
+    : TABS;
 
   return (
     <nav
       aria-label="Facility sections"
       className="sticky top-0 z-20 -mx-1 mb-4 flex flex-wrap items-center gap-1 border-b border-line bg-canvas/95 px-1 py-2 backdrop-blur"
     >
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
           type="button"

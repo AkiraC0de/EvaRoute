@@ -46,9 +46,9 @@ const FacilityDetailPage = () => {
     createResource,
     saveResource,
     removeResource,
-  } = useFacilityResources(facilityId);
+  } = useFacilityResources(facility?.deletedAt ? null : facilityId);
 
-  const { stays, checkIn, checkOutMany } = useStays(facilityId);
+  const { stays, checkIn, checkOutMany } = useStays(facility?.deletedAt ? null : facilityId);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,8 +151,27 @@ const FacilityDetailPage = () => {
             />
           </div>
 
-          <FacilitySectionTabs />
+          <FacilitySectionTabs deleted={deleted} />
 
+{deleted ? (
+            /* Soft-deleted facility: the staff/resources/stays endpoints
+               reject deleted facilities ("Facility not found."), so the
+               operations pause — one quiet note replaces the sections, and
+               the activity history below stays intact. */
+            <>
+              <div id="facility-operations">
+                <StatusPanel tone="empty" title="Operations paused">
+                  This facility is soft-deleted, so staff assignments,
+                  resources and stays are unavailable. Restore the facility to
+                  manage them again — its activity history below stays intact.
+                </StatusPanel>
+              </div>
+              <div id="facility-activity">
+                <FacilityActivitySection key={activityKey} facilityId={facilityId} />
+              </div>
+            </>
+          ) : (
+            <>
           <div id="facility-resources">
             <FacilityResourcesSection
               resources={resources}
@@ -207,6 +226,8 @@ const FacilityDetailPage = () => {
             <FacilityActivitySection key={activityKey} facilityId={facilityId} />
           </div>
           </div>
+            </>
+          )}
         </div>
       )}
 
