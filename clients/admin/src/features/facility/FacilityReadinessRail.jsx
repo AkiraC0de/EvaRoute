@@ -1,4 +1,5 @@
 import { Activity, Boxes, LogIn, LogOut, Users } from "lucide-react";
+import RollingNumber from "../../components/ui/RollingNumber";
 
 /**
  * Readiness rail — ONE divided instrument panel (a gap-px line grid, not a
@@ -48,7 +49,7 @@ const FacilityReadinessRail = ({ resourceCount, staffCount, todayIn, todayOut, w
             <div className="min-w-0">
               <p className="label-micro text-muted">{label}</p>
               <p className="mt-1 text-[20px] font-bold leading-none text-ink">
-                {state === "ready" ? values[key] : "—"}
+                {state === "ready" ? <RollingNumber value={values[key]} /> : "—"}
               </p>
               <p className="mt-1 text-[11px] text-muted">{caption}</p>
               {state === "failed" && (

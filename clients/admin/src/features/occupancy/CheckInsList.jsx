@@ -1,9 +1,11 @@
 import { useId, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChevronLeft, ChevronRight, ClipboardList, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ClipboardList, LogOut, X } from "lucide-react";
+import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { slideVariants } from "../../components/ui/slideVariants";
 import { FilterSearch } from "../../components/ui/FilterControls";
+import CheckOutConfirmDialog from "./CheckOutConfirmDialog";
 import HouseholdListItem from "./HouseholdListItem";
 import PersonListItem from "./PersonListItem";
 import {
@@ -17,7 +19,9 @@ import {
  * toggleable views over the same stay data:
  *
  *   Household (default) — one card per stay; lookup by family name or
- *   Check-In ID ("0001"); the card carries the check-out control.
+ *   Check-In ID ("0001"); cards are selectable for bulk check-out and the
+ *   header swaps the view toggle for a "Check out (N)" button while a
+ *   selection exists.
  *   Individual — one card per person (name, child/adult category, the
  *   household they belong to); lookup by person name, family name or
  *   Check-In ID, plus a category filter. Informational — check-out stays
@@ -25,8 +29,16 @@ import {
  *
  * The stay endpoint returns the facility's full active list (not
  * paginated), so filtering happens over the complete fetched set — never
- * over "just what is visible". Switching views clears the search and the
- * category filter (the search matches different things per view).
+ * over "just what is visible". Switching views clears the search, the
+ * category filter and the selection (the search matches different things
+ * per view).
+ *
+ * Selection (Household mode only) lives here: a Set of stay ids that
+ * survives search + page changes, is pruned to stays still in the list,
+ * and clears after a successful bulk check-out. The caller owns the
+ * mutation (onCheckOutMany) and reports its outcome; the confirm dialog
+ * (CheckOutConfirmDialog) lists the picked households before anything
+ * happens.
  */
 const MODES = [
   { key: "household", label: "Household" },
@@ -42,7 +54,7 @@ const CATEGORIES = [
 /** Rows per page — both views (Household and Individual). */
 const PAGE_SIZE = 10;
 
-const CheckInsList = ({ stays, busy, onCheckOut }) => {
+const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
   const [mode, setMode] = useState("household");
   // Slide direction for the view switch: +1 Household -> Individual (content
   // enters from the right), -1 the other way. Set in the handler, read at
@@ -59,9 +71,31 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
   const pillTransition = reduceMotion
     ? { duration: 0 }
     : { type: "spring", stiffness: 480, damping: 40, mass: 0.85 };
+  // Toolbar swap (view toggle <-> Check out button): a short fade + lift,
+  // instant fade with no transform under reduced motion.
+  const swapMotion = reduceMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0 },
+      }
+    : {
+        initial: { opacity: 0, y: -4 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -4 },
+        transition: { duration: 0.18, ease: "easeOut" },
+      };
   const [searchInput, setSearchInput] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  // Bulk check-out selection (Household mode only) — a Set of stay ids that
+  // survives search + page changes, is pruned to stays still in the list,
+  // and clears on view switch and after a successful bulk check-out.
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
 
   const isHousehold = mode === "household";
 
@@ -80,6 +114,20 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
   const rows = isHousehold ? households : people;
   const total = isHousehold ? stays.length : flattenMembers(stays).length;
   const needle = searchInput.trim();
+
+  // Effective selection: stays that vanished from the list leave it on their
+  // own (e.g. after a refresh following a check-out).
+  const selectedStays = useMemo(
+    () => stays.filter((stay) => selectedIds.has(stay.id)),
+    [stays, selectedIds],
+  );
+  const selectedCount = selectedStays.length;
+  // Read-only fallback: a consumer that does not hand us onCheckOutMany has
+  // no mutation to run, so the selection flow is withheld entirely (cards
+  // render with a visibly disabled box, the Check out swap never appears) —
+  // a terminal action must never appear to work and then do nothing.
+  const selectable = typeof onCheckOutMany === "function";
+  const hasSelection = selectable && isHousehold && selectedCount > 0;
 
   // Pagination: PAGE_SIZE rows per page. A shrinking list (e.g. after a
   // check-out) clamps to the last page instead of stranding the operator
@@ -120,11 +168,76 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
     setSearchInput("");
     setCategory("");
     setPage(1);
+    setSelectedIds(new Set());
+    setConfirmOpen(false);
+    setCheckoutError("");
+  };
+
+  const toggleSelected = (stayId) => {
+    if (!selectable) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(stayId)) next.delete(stayId);
+      else next.add(stayId);
+      return next;
+    });
+  };
+
+  const cancelConfirm = () => {
+    if (checkoutBusy) return;
+    setConfirmOpen(false);
+    setCheckoutError("");
+  };
+
+  // Bulk check-out: the dialog lists the picked households and the caller
+  // owns the mutation (onCheckOutMany, given the selected stay objects and
+  // mirroring onCheckOut(stay)). The outcome reports back — resolving with
+  // { checkedOut, failed } handles partial failures (failures stay selected
+  // and their message shows inside the dialog); a plain resolution closes
+  // the dialog and clears the selection; a thrown error keeps both.
+  const handleConfirmMany = async () => {
+    if (checkoutBusy) return;
+    // A missing onCheckOutMany is an error, never a silent success: the
+    // dialog stays open with the reason instead of closing as if done.
+    if (!selectable) {
+      setCheckoutError("Check-out is not available in this view.");
+      return;
+    }
+    setCheckoutBusy(true);
+    setCheckoutError("");
+    try {
+      const result = await onCheckOutMany(selectedStays);
+      const failed = Array.isArray(result?.failed) ? result.failed : [];
+      const checkedOut = Array.isArray(result?.checkedOut) ? result.checkedOut : [];
+      if (failed.length > 0) {
+        const doneIds = new Set(
+          checkedOut.map((item) => (typeof item === "string" ? item : item?.id)),
+        );
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          doneIds.forEach((id) => id && next.delete(id));
+          return next;
+        });
+        setCheckoutError(
+          failed.map((failure) => failure?.message).filter(Boolean).join(" ") ||
+            `${failed.length} household${failed.length === 1 ? "" : "s"} could not be checked out.`,
+        );
+      } else {
+        setSelectedIds(new Set());
+        setConfirmOpen(false);
+        setCheckoutError("");
+      }
+    } catch (error) {
+      setCheckoutError(error?.message || "Check-out failed. Please try again.");
+    } finally {
+      setCheckoutBusy(false);
+    }
   };
 
   return (
     <Card className="flex h-full w-full min-h-80 flex-col">
-      {/* Header: icon + titles, view toggle, count chip */}
+      {/* Header: icon + titles with the count chip beside them, view toggle
+          alone on the right (it swaps for the Check out button on selection) */}
       <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <span
           aria-hidden="true"
@@ -133,7 +246,14 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           <ClipboardList size={15} strokeWidth={1.9} />
         </span>
         <div className="min-w-0">
-          <h2 className="text-[13px] font-bold text-ink-soft">Check-ins</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[13px] font-bold text-ink-soft">Check-ins</h2>
+            {/* Count chip — on the title line, so the right side carries only
+                the view toggle (or the Check out button on selection). */}
+            <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
+              {total} {isHousehold ? `household${total === 1 ? "" : "s"}` : `people`}
+            </span>
+          </div>
           <p className="text-[10px] text-muted">
             {isHousehold
               ? "Households currently in this facility"
@@ -141,37 +261,60 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
           </p>
         </div>
 
-        <div
-          role="group"
-          aria-label="Check-in view"
-          className="ml-auto flex shrink-0 items-center gap-1 rounded-md bg-surface-2 p-1"
-        >
-          {MODES.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              aria-pressed={mode === item.key}
-              onClick={() => switchMode(item.key)}
-              className={`relative rounded-xs px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
-                mode === item.key ? "text-white" : "text-muted hover:text-ink-soft"
-              }`}
-            >
-              {mode === item.key && (
-                <motion.span
-                  layoutId={modePillId}
-                  aria-hidden="true"
-                  transition={pillTransition}
-                  className="absolute inset-0 rounded-sm bg-primary"
-                />
-              )}
-              <span className="relative z-10">{item.label}</span>
-            </button>
-          ))}
+        {/* Header slot swap: the view toggle EXITS and a "Check out (N)"
+            button ENTERS while a selection exists — and back when it
+            empties. Reduced motion: instant fade, no transform. */}
+        <div className="ml-auto flex shrink-0 items-center">
+          <AnimatePresence mode="wait" initial={false}>
+            {hasSelection ? (
+              <motion.div key="checkout-action" {...swapMotion} className="flex">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setCheckoutError("");
+                    setConfirmOpen(true);
+                  }}
+                  disabled={busy || checkoutBusy}
+                  className="min-h-8 gap-1.5"
+                >
+                  <LogOut size={13} strokeWidth={2} aria-hidden="true" />
+                  Check out {selectedCount} household{selectedCount === 1 ? "" : "s"}
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="mode-toggle"
+                role="group"
+                aria-label="Check-in view"
+                {...swapMotion}
+                className="flex items-center gap-1 rounded-md bg-surface-2 p-1"
+              >
+                {MODES.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    aria-pressed={mode === item.key}
+                    onClick={() => switchMode(item.key)}
+                    className={`relative rounded-xs px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                      mode === item.key ? "text-white" : "text-muted hover:text-ink-soft"
+                    }`}
+                  >
+                    {mode === item.key && (
+                      <motion.span
+                        layoutId={modePillId}
+                        aria-hidden="true"
+                        transition={pillTransition}
+                        className="absolute inset-0 rounded-sm bg-primary"
+                      />
+                    )}
+                    <span className="relative z-10">{item.label}</span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
-        <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-semibold text-muted">
-          {total} {isHousehold ? `household${total === 1 ? "" : "s"}` : `people`}
-        </span>
       </div>
 
       {/* Toolbar: lookup + (individual only) category filter */}
@@ -266,8 +409,13 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
               <HouseholdListItem
                 key={stay.id}
                 stay={stay}
-                busy={busy}
-                onCheckOut={onCheckOut}
+                // Read-only lists (no onCheckOutMany) reuse `busy` as the
+                // visible-off switch: HouseholdListItem disables its checkbox
+                // and card toggle on busy, so the box reads disabled instead
+                // of looking clickable and doing nothing.
+                busy={busy || !selectable}
+                selected={selectable && selectedIds.has(stay.id)}
+                onToggle={selectable ? toggleSelected : undefined}
               />
             ))
           : pageRows.map((entry) => (
@@ -341,6 +489,18 @@ const CheckInsList = ({ stays, busy, onCheckOut }) => {
             <ChevronRight size={15} strokeWidth={2} />
           </button>
         </nav>
+      )}
+
+      {/* Confirm pop-out — mounted only while open. The dialog lists the
+          selected households; busy gates Cancel, error shows inside it. */}
+      {confirmOpen && (
+        <CheckOutConfirmDialog
+          stays={selectedStays}
+          busy={checkoutBusy || busy}
+          error={checkoutError}
+          onConfirm={handleConfirmMany}
+          onCancel={cancelConfirm}
+        />
       )}
     </Card>
   );

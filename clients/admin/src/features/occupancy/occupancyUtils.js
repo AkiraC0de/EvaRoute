@@ -62,8 +62,8 @@ export const stayMatchesSearch = (stay, needle) => {
 
 /** Flatten active stays into person rows for the individual view:
  *  [{ member, stay }] in stay order, member order within each stay. */
-export const flattenMembers = (stays = []) =>
-  stays.flatMap((stay) =>
+export const flattenMembers = (stays) =>
+  (Array.isArray(stays) ? stays : []).flatMap((stay) =>
     (stay.members ?? []).map((member) => ({ member, stay })),
   );
 
@@ -95,19 +95,25 @@ export const formatCheckedInAt = (value) => {
 };
 
 /** Household size split used on the ticket and summary captions. */
-export const splitMembers = (members = []) => ({
-  total: members.length,
-  children: members.filter((m) => m.ageGroup === "CHILD").length,
-  adults: members.filter((m) => m.ageGroup === "ADULT").length,
-});
+export const splitMembers = (members) => {
+  const list = Array.isArray(members) ? members : [];
+  return {
+    total: list.length,
+    children: list.filter((m) => m.ageGroup === "CHILD").length,
+    adults: list.filter((m) => m.ageGroup === "ADULT").length,
+  };
+};
 
 /**
  * Trend for the meter's sparkline: recent-7 vs prior-7 check-in totals from
  * the server's zero-filled daily timeline. Pure — no dates injected.
  */
-export const checkinTrend = (timeline = []) => {
-  const recent = timeline.slice(-7).reduce((sum, day) => sum + (day.checkIns ?? 0), 0);
-  const prior = timeline.slice(-14, -7).reduce((sum, day) => sum + (day.checkIns ?? 0), 0);
+export const checkinTrend = (timeline) => {
+  // A `= []` default only catches undefined — in-flight collections arrive as
+  // null (hooks' tagged state), so normalize explicitly before any slicing.
+  const days = Array.isArray(timeline) ? timeline : [];
+  const recent = days.slice(-7).reduce((sum, day) => sum + (day.checkIns ?? 0), 0);
+  const prior = days.slice(-14, -7).reduce((sum, day) => sum + (day.checkIns ?? 0), 0);
   const delta = prior > 0 ? Math.round(((recent - prior) / prior) * 100) : recent > 0 ? 100 : 0;
   return {
     recent,
@@ -143,11 +149,12 @@ const hasArrivals = (stays) =>
   stays.length === 0 || stays.some((stay) => Number.isFinite(arrivalMs(stay)));
 
 /** Additions in the rolling last 24h: { households, children, adults }. */
-export const last24hNew = (stays = []) => {
-  if (!hasArrivals(stays)) return null;
+export const last24hNew = (stays) => {
+  const list = Array.isArray(stays) ? stays : [];
+  if (!hasArrivals(list)) return null;
   const cutoff = Date.now() - DAY_MS;
   const out = { households: 0, children: 0, adults: 0 };
-  for (const stay of stays) {
+  for (const stay of list) {
     const arrived = arrivalMs(stay);
     if (!Number.isFinite(arrived) || arrived < cutoff) continue;
     out.households += 1;
@@ -160,8 +167,9 @@ export const last24hNew = (stays = []) => {
 
 /** Additions per day for the last `days` days (index 0 = oldest, last = today):
  *  { households: number[], children: number[], adults: number[] }. */
-export const newPerDay = (stays = [], days = 7) => {
-  if (!hasArrivals(stays)) return null;
+export const newPerDay = (stays, days = 7) => {
+  const list = Array.isArray(stays) ? stays : [];
+  if (!hasArrivals(list)) return null;
   const out = {
     households: Array(days).fill(0),
     children: Array(days).fill(0),
@@ -173,7 +181,7 @@ export const newPerDay = (stays = [], days = 7) => {
     const index = days - 1 - Math.round((todayStart - dayStart) / DAY_MS);
     return index >= 0 && index < days ? index : null;
   };
-  for (const stay of stays) {
+  for (const stay of list) {
     const arrived = arrivalMs(stay);
     if (!Number.isFinite(arrived)) continue;
     const index = bucketOf(arrived);

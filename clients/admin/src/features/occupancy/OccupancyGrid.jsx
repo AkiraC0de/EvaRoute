@@ -12,10 +12,15 @@ import { BAND_COLS } from "./occupancyUtils";
  * operational speed. Presentational — the page owns the check-in ticket and
  * the checkout busy state.
  */
-const OccupancyGrid = ({ facilityId, occupancy, stays, busy, movementKey, onCheckIn, onCheckOut }) => (
+const OccupancyGrid = ({ facilityId, occupancy, stays, busy, movementKey, onCheckIn, onCheckOut, onCheckOutMany }) => (
   <div className={`grid items-start gap-4 ${BAND_COLS}`}>
     <div className="order-2 lg:order-1">
-      <CheckInsList stays={stays} busy={busy} onCheckOut={onCheckOut} />
+      <CheckInsList
+        stays={stays}
+        busy={busy}
+        onCheckOut={onCheckOut}
+        onCheckOutMany={onCheckOutMany}
+      />
     </div>
     <div className="order-1 space-y-4 lg:order-2">
       <CheckInForm remaining={occupancy.remaining} onCheckIn={onCheckIn} />

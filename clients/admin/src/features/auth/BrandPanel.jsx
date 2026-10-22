@@ -59,6 +59,19 @@ const BrandPanel = () => {
       variants={v.stagger}
       initial="hidden"
       animate="show"
+      /* Door-open exit: the pane slides OUT TO THE LEFT while the form pane
+         parts to the right (LoginPage) — same duration/ease so the two
+         leaves move as one. Without this prop the panel has no exit motion
+         at all (variant propagation needs an exit trigger on the root) and
+         the hero just vanishes when the screen unmounts. */
+      exit={
+        reduce
+          ? {}
+          : {
+              x: "-100%",
+              transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+            }
+      }
       className="relative hidden max-h-screen flex-col justify-between overflow-x-hidden overflow-y-auto bg-primary-strong p-8 lg:flex lg:p-10"
       style={{ backgroundImage: "var(--hero-gradient)" }}
     >

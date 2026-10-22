@@ -75,7 +75,7 @@ const FacilityHero = ({ facility, essentials, occupancy }) => {
           ) : null}
 
           <div className="mt-auto flex flex-wrap gap-2 pt-3.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-navy/25 px-2.5 py-1 text-[11px] font-semibold text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-navy/30 px-2.5 py-1 text-[11px] font-semibold text-white">
               <Fingerprint size={12} strokeWidth={2} aria-hidden="true" />
               Facility ID{" "}
               <CopyId

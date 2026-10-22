@@ -43,6 +43,9 @@ const API_PREFIX = `${BASE_URL}/api/v1`;
 
 // Mutation feedback (sonner): successful non-GET calls toast the server's own
 // message. Auth flows stay quiet — they redirect or carry their own UI.
+// Callers that batch mutations (the bulk check-out loop) pass `silent: true`
+// per request so one calm summary toast replaces a stack of server messages —
+// the default auto-toast behavior is unchanged for every other call.
 const QUIET_TOAST_PATHS = [
   "/auth/login",
   "/auth/refresh",
@@ -108,7 +111,7 @@ export function setUnauthorizedHandler(handler) {
  * Core request
  * ------------------------------------------------------------------ */
 
-export async function request(path, { method = "GET", body, auth = true, token = null, isRetry = false } = {}) {
+export async function request(path, { method = "GET", body, auth = true, token = null, isRetry = false, silent = false } = {}) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
@@ -160,7 +163,10 @@ export async function request(path, { method = "GET", body, auth = true, token =
       if (!isRetry) {
         try {
           await refreshAccessToken();
-          return request(path, { method, body, auth, token, isRetry: true });
+          // Forward `silent` like every other option: a bulk-loop POST that
+          // survives via this replay must stay quiet, or the retry path would
+          // re-enable the per-request success toast the caller opted out of.
+          return request(path, { method, body, auth, token, isRetry: true, silent });
         } catch {
           // Refresh cookie missing/expired — the session is genuinely over.
         }
@@ -189,6 +195,7 @@ export async function request(path, { method = "GET", body, auth = true, token =
 
   if (
     method !== "GET" &&
+    !silent &&
     !QUIET_TOAST_PATHS.some((quiet) => path.startsWith(quiet)) &&
     payload?.message
   ) {

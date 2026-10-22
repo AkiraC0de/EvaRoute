@@ -6,6 +6,7 @@ import StatusPanel from "../../../components/ui/StatusPanel";
 import useAsyncAction from "../../../hooks/useAsyncAction";
 import useFacilityResources from "../../../hooks/useFacilityResources";
 import useStays from "../../../hooks/useStays";
+import { useToast } from "../../../components/ui/toastContext";
 import * as api from "../../../lib/api";
 import FacilityEditForm from "./FacilityEditForm";
 import FacilityStaffSection from "./FacilityStaffSection";
@@ -32,7 +33,11 @@ const FacilityDetailPage = () => {
   const [error, setError] = useState(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Keyed remount for the activity trail: a bulk check-out must refresh it
+  // (the feed only refetches when its query key changes).
+  const [activityKey, setActivityKey] = useState(0);
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
+  const toast = useToast();
 
   const {
     resources,
@@ -41,7 +46,7 @@ const FacilityDetailPage = () => {
     removeResource,
   } = useFacilityResources(facilityId);
 
-  const { stays, checkIn } = useStays(facilityId);
+  const { stays, checkIn, checkOutMany } = useStays(facilityId);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,8 +147,37 @@ const FacilityDetailPage = () => {
               onCheckOut={async (payload) => {
                 await run(() => checkIn(payload));
               }}
+              // Bulk check-out seam (same shape as the Occupancy page):
+              // checkOutMany loops the per-stay checkout POST silent and
+              // refreshes once at the end, and `run` carries the busy/error
+              // discipline while the handler still resolves with the RESULT
+              // SET ({ checkedOut, failed }) for the list's partial-failure
+              // handling. The bulk POSTs are silent, so ONE calm summary
+              // toast replaces the per-request server messages.
+              onCheckOutMany={async (selected) => {
+                let result = { checkedOut: [], failed: [] };
+                try {
+                  await run(async () => {
+                    result = await checkOutMany(selected.map((stay) => stay.id));
+                  });
+                } finally {
+                  // Same discipline as the Occupancy page: the activity trail
+                  // refreshes after every check-out attempt (success or not).
+                  setActivityKey((key) => key + 1);
+                }
+                const { checkedOut, failed } = result;
+                const total = checkedOut.length + failed.length;
+                if (checkedOut.length > 0) {
+                  toast.success(
+                    failed.length === 0
+                      ? `Checked out ${checkedOut.length} household${checkedOut.length === 1 ? "" : "s"}.`
+                      : `Checked out ${checkedOut.length} of ${total} households.`,
+                  );
+                }
+                return result;
+              }}
             />
-            <FacilityActivitySection facilityId={facilityId} />
+            <FacilityActivitySection key={activityKey} facilityId={facilityId} />
           </div>
         </div>
       )}

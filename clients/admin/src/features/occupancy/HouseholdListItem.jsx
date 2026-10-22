@@ -1,18 +1,23 @@
-import { LogOut } from "lucide-react";
+import Checkbox from "../../components/ui/Checkbox";
 import CopyId from "../../components/ui/CopyId";
 import FamilySilhouette from "./FamilySilhouette";
 import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
 
 /**
- * One checked-in household (a `FacilityStay` with its members): initials,
- * family name, Check-In ID ("0001", the per-facility ticket number), check-in
- * time, member chips and the check-out control.
+ * One checked-in household (a `FacilityStay` with its members): selection
+ * checkbox, initials, family name, Check-In ID ("0001", the per-facility
+ * ticket number), check-in time, member chips and the family silhouette.
+ *
+ * Selectable for bulk check-out: the whole card toggles the selection and
+ * carries the app's selected-state language (primary border + soft primary
+ * tint, checked box). Nested controls (the checkbox, the CopyId chip) stop
+ * propagation so they never double-toggle the card.
  *
  * Flat rows: hairline border + surface fill, no elevation. People chips
  * carry the people (teal) category tint — filled for children, outlined for
  * adults — and every chip spells its meaning in words, never color alone.
  */
-const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
+const HouseholdListItem = ({ stay, selected, busy, onToggle }) => {
   const initials = stay.familyName
     .split(/\s+/)
     .slice(0, 2)
@@ -23,7 +28,16 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
   const code = checkInCode(stay);
 
   return (
-    <li className="relative overflow-hidden rounded-md border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2">
+    <li
+      onClick={() => {
+        if (!busy) onToggle?.(stay.id);
+      }}
+      className={`relative cursor-pointer overflow-hidden rounded-md border px-3 py-2.5 transition-colors ${
+        selected
+          ? "border-primary-strong bg-primary-soft/60"
+          : "border-line bg-surface hover:bg-surface-2"
+      }`}
+    >
       {/* Member-composition art — one figure per member, gray, behind the
           content in the lower-right so the category mix reads at a glance. */}
       <FamilySilhouette
@@ -32,6 +46,19 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
         className="absolute bottom-0 right-2 h-[40px] w-auto max-w-[46%] text-muted opacity-15"
       />
       <div className="relative z-10 flex items-start gap-3">
+        {/* Selection box — the keyboard/AT control mirroring the card
+            toggle; its clicks stop here so the card never double-toggles. */}
+        <span
+          className="flex h-9 shrink-0 items-center"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <Checkbox
+            checked={selected}
+            disabled={busy}
+            ariaLabel={`Select household ${stay.familyName}`}
+            onChange={() => onToggle?.(stay.id)}
+          />
+        </span>
         <span
           aria-hidden="true"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-[11px] font-bold text-secondary-ink"
@@ -41,11 +68,16 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="truncate text-[13px] font-bold text-ink">{stay.familyName}</p>
-            <CopyId
-              value={code}
-              label="Check-in ID"
-              className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-bold tracking-[1px] text-ink-soft"
-            />
+            <span
+              className="inline-flex shrink-0"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <CopyId
+                value={code}
+                label="Check-in ID"
+                className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-bold tracking-[1px] text-ink-soft"
+              />
+            </span>
           </div>
           <p className="mt-1 text-[11px] text-muted">
             {total} {total === 1 ? "member" : "members"} ({adults} adult{adults === 1 ? "" : "s"},{" "}
@@ -67,16 +99,6 @@ const HouseholdListItem = ({ stay, busy, onCheckOut }) => {
             ))}
           </ul>
         </div>
-        <button
-          type="button"
-          aria-label={`Check out ${stay.familyName}`}
-          title={`Check out ${stay.familyName}`}
-          disabled={busy}
-          onClick={() => onCheckOut(stay)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-50 sm:h-10 sm:w-10"
-        >
-          <LogOut size={15} strokeWidth={1.7} />
-        </button>
       </div>
     </li>
   );

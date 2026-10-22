@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
+import { useToast } from "../../components/ui/toastContext";
 import useAsyncAction from "../../hooks/useAsyncAction";
 import useStays from "../../hooks/useStays";
 import { useAuth } from "../../context/AuthContext";
@@ -41,8 +42,9 @@ const OccupancyPage = () => {
   const [exportOpen, setExportOpen] = useState(false); // export dialog
   const selectedFacility = facilities.find((facility) => facility.id === facilityId) ?? null;
   const { busy, run } = useAsyncAction();
+  const toast = useToast();
 
-  const { stays, occupancy, loading, error, retry, checkIn, checkOut } = useStays(facilityId);
+  const { stays, occupancy, loading, error, retry, checkIn, checkOut, checkOutMany } = useStays(facilityId);
   // The movement trail reads the ACTIVITY LOG (not the stays cache), so
   // check-ins/outs must poke it after every mutation — keyed remount below.
   const [movementKey, setMovementKey] = useState(0);
@@ -144,6 +146,38 @@ const OccupancyPage = () => {
                   setMovementKey((key) => key + 1);
                 })
               }
+              // Bulk check-out seam: the LIST owns the confirm dialog and
+              // passes `busy` down (the page's useAsyncAction `busy` reaches
+              // it through the grid), so the mutation runs inside
+              // `run` for the busy discipline while this handler still
+              // resolves with the RESULT SET ({ checkedOut, failed }) —
+              // `run`'s boolean is discarded. checkOutMany never throws and
+              // refreshes once at the end, so the movement trail is poked
+              // after every attempt regardless of outcome.
+              onCheckOutMany={async (selected) => {
+                let result = { checkedOut: [], failed: [] };
+                await run(async () => {
+                  try {
+                    result = await checkOutMany(selected.map((stay) => stay.id));
+                  } finally {
+                    setMovementKey((key) => key + 1);
+                  }
+                });
+                // ONE calm summary instead of the per-household server toasts
+                // (the bulk POSTs run silent). Failures are reported per
+                // family by the list, which keeps them selected — no second
+                // error toast here. Nothing succeeded = no success toast.
+                const { checkedOut, failed } = result;
+                const total = checkedOut.length + failed.length;
+                if (checkedOut.length > 0) {
+                  toast.success(
+                    failed.length === 0
+                      ? `Checked out ${checkedOut.length} household${checkedOut.length === 1 ? "" : "s"}.`
+                      : `Checked out ${checkedOut.length} of ${total} households.`,
+                  );
+                }
+                return result;
+              }}
             />
           </motion.div>
         </div>
