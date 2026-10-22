@@ -10,12 +10,12 @@ import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import StatusPanel from "../../../components/ui/StatusPanel";
 import useAsyncAction from "../../../hooks/useAsyncAction";
 import * as api from "../../../lib/api";
-import FacilityCreateModal from "./FacilityCreateModal";
+import FacilityDrawer from "./FacilityDrawer";
 import useFacilities from "./useFacilities";
 import FacilitiesHeader from "./FacilitiesHeader";
 import FacilitiesFilterBar from "./FacilitiesFilterBar";
 import FacilitiesMapCard from "./FacilitiesMapCard";
-import FacilitiesTable from "./FacilitiesTable";
+import FacilitiesCards from "./FacilitiesCards";
 import FacilitiesViewToggle from "./FacilitiesViewToggle";
 import FacilitiesConfirmDialog from "./FacilitiesConfirmDialog";
 import { FacilitiesLoading, FacilitiesEmpty } from "./FacilitiesStates";
@@ -203,7 +203,7 @@ const FacilitiesPage = () => {
         </div>
       )}
 
-      {loading && <FacilitiesLoading />}
+      {loading && <FacilitiesLoading view={view} />}
 
       {!loading && error && (
         <StatusPanel tone="error" title="Could not load facilities" onRetry={retry}>
@@ -238,7 +238,7 @@ const FacilitiesPage = () => {
 
           {view !== "map" && (
             <div className="min-w-0">
-              <FacilitiesTable
+              <FacilitiesCards
                 facilities={visible}
                 showDeleted={filters.showDeleted}
                 onToggle={(facility) => {
@@ -267,8 +267,9 @@ const FacilitiesPage = () => {
       )}
 
       {creating && (
-        <FacilityCreateModal
-          onCreated={() => {
+        <FacilityDrawer
+          mode="create"
+          onDone={() => {
             setCreating(false);
             reload();
           }}

@@ -276,7 +276,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                     setConfirmOpen(true);
                   }}
                   disabled={busy || checkoutBusy}
-                  className="min-h-8 gap-1.5"
+                  className="h-11 gap-1.5 sm:h-10"
                 >
                   <LogOut size={13} strokeWidth={2} aria-hidden="true" />
                   Check out {selectedCount} household{selectedCount === 1 ? "" : "s"}
@@ -288,7 +288,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                 role="group"
                 aria-label="Check-in view"
                 {...swapMotion}
-                className="flex items-center gap-1 rounded-md bg-surface-2 p-1"
+                className="flex h-11 items-center gap-1 rounded-md bg-surface-2 p-1 sm:h-10"
               >
                 {MODES.map((item) => (
                   <button
@@ -296,7 +296,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                     type="button"
                     aria-pressed={mode === item.key}
                     onClick={() => switchMode(item.key)}
-                    className={`relative rounded-xs px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                    className={`relative flex h-full items-center rounded-xs px-2.5 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                       mode === item.key ? "text-white" : "text-muted hover:text-ink-soft"
                     }`}
                   >
@@ -340,7 +340,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
           <div
             role="group"
             aria-label="Filter by category"
-            className="flex items-center gap-1 rounded-md h-full bg-surface-2 p-1"
+            className="flex h-11 items-center gap-1 rounded-md bg-surface-2 p-1 sm:h-10"
           >
             {CATEGORIES.map((item) => (
               <button
@@ -351,7 +351,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                   setCategory(item.value);
                   goToPage(1);
                 }}
-                className={`relative rounded-full px-2.5 py-1 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
+                className={`relative flex h-full items-center rounded-full px-2.5 text-[10px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink ${
                   category === item.value ? "text-ink-soft" : "text-muted hover:text-ink-soft"
                 }`}
               >
@@ -381,7 +381,7 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                 setSearchInput("");
                 goToPage(1);
               }}
-              className="inline-flex h-9 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
+              className="inline-flex h-11 items-center gap-1 rounded-md bg-surface-2 px-2.5 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink sm:h-10"
             >
               <X size={11} strokeWidth={2} /> Clear
             </button>

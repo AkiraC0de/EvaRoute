@@ -8,7 +8,9 @@ import useFacilityResources from "../../../hooks/useFacilityResources";
 import useStays from "../../../hooks/useStays";
 import { useToast } from "../../../components/ui/toastContext";
 import * as api from "../../../lib/api";
-import FacilityEditForm from "./FacilityEditForm";
+import FacilityDrawer from "./FacilityDrawer";
+import FacilityHeroStrip from "./FacilityHeroStrip";
+import FacilitySectionTabs from "./FacilitySectionTabs";
 import FacilityStaffSection from "./FacilityStaffSection";
 import FacilityDetailHeader from "./FacilityDetailHeader";
 import FacilityResourcesSection from "./FacilityResourcesSection";
@@ -90,9 +92,22 @@ const FacilityDetailPage = () => {
     });
 
   const deleted = Boolean(facility?.deletedAt);
+  const [editing, setEditing] = useState(false);
 
   return (
     <div>
+      {editing && facility && (
+        <FacilityDrawer
+          mode="edit"
+          facility={facility}
+          onDone={(saved) => {
+            setFacility((current) => ({ ...current, ...saved }));
+            setEditing(false);
+          }}
+          onClose={() => setEditing(false)}
+        />
+      )}
+
       <FacilityDetailHeader
         facility={facility}
         deleted={deleted}
@@ -124,23 +139,34 @@ const FacilityDetailPage = () => {
             </Banner>
           )}
 
-          <FacilityEditForm
-            facility={facility}
-            onSaved={(saved) => {
-              setFacility((current) => ({ ...current, ...saved }));
-            }}
-          />
+          <div id="facility-overview">
+            <FacilityHeroStrip
+              facility={facility}
+              resources={resources}
+              occupancy={{
+                occupied: (stays ?? []).reduce((sum, stay) => sum + (stay.members?.length ?? 0), 0),
+                families: (stays ?? []).length,
+              }}
+              onEdit={() => setEditing(true)}
+            />
+          </div>
 
-          <FacilityStaffSection facilityId={facilityId} />
+          <FacilitySectionTabs />
 
-          <FacilityResourcesSection
-            resources={resources}
-            createResource={createResource}
-            saveResource={saveResource}
-            removeResource={removeResource}
-          />
+          <div id="facility-resources">
+            <FacilityResourcesSection
+              resources={resources}
+              createResource={createResource}
+              saveResource={saveResource}
+              removeResource={removeResource}
+            />
+          </div>
 
-          <div className="flex gap-4">
+          <div id="facility-staff">
+            <FacilityStaffSection facilityId={facilityId} />
+          </div>
+
+          <div id="facility-stays" className="flex gap-4">
             <CheckInsList
               stays={stays}
               busy={busy}
@@ -177,7 +203,9 @@ const FacilityDetailPage = () => {
                 return result;
               }}
             />
+            <div id="facility-activity">
             <FacilityActivitySection key={activityKey} facilityId={facilityId} />
+          </div>
           </div>
         </div>
       )}

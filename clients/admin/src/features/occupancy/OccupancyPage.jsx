@@ -109,7 +109,7 @@ const OccupancyPage = () => {
               caption="Live numbers for the selected facility"
             />
             {occupancy && (
-              <Button variant="neutral" size="sm" onClick={() => setExportOpen(true)}>
+              <Button variant="neutral" size="sm" onClick={() => setExportOpen(true)} className="h-11 sm:h-10">
                 <Download size={12} strokeWidth={2} className="mr-1" /> Export data
               </Button>
             )}
