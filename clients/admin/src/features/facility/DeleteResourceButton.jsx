@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "../../components/icons/evaIcons";
 
 /**
  * Trash icon button for removing a resource. Purely the trigger — the

@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Search } from "lucide-react";
+import { Search } from "../../components/icons/evaIcons";
 import { CONTROL_CLASS } from "../../components/ui/FilterControls";
 import StatusPanel from "../../components/ui/StatusPanel";
 import ResourceCard from "./ResourceCard";

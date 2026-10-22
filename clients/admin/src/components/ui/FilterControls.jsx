@@ -16,12 +16,25 @@ const CONTROL_CLASS =
  * band styling so the three pages cannot drift apart again. `stacked` wraps
  * children in full-width rows (History: controls row + its action toggles).
  */
-const FilterBand = ({ stacked = false, children }) => (
+const FilterBand = ({ stacked = false, onClear, hasActive = false, children }) => (
   <div className="mb-4 rounded-lg border border-line-strong bg-surface-2 p-3">
     {stacked ? (
       <div className="flex flex-col gap-2.5">{children}</div>
     ) : (
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
+      <div className="flex flex-wrap items-center gap-2">
+        {children}
+        {/* Filtering stays reversible: one shared way out of any filter set. */}
+        {hasActive && onClear && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="ml-auto inline-flex min-h-9 items-center gap-1 rounded-md px-2 text-[11px] font-semibold text-muted transition hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink"
+          >
+            <X size={12} strokeWidth={2} aria-hidden="true" />
+            Clear filters
+          </button>
+        )}
+      </div>
     )}
   </div>
 );

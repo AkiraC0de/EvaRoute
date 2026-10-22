@@ -70,6 +70,46 @@ export async function patchFacility(facilityId, payload) {
  * already-deleted one. 400 while evacuees are checked in; 400 on restore when
  * another facility took its coordinates. Response: message only.
  */
+/**
+ * GET /api/v1/facility (registry mode) — search + sort + pagination. Always
+ * sends paging params so the server answers with the paged envelope
+ * { facilities, total, page, pageSize } (the legacy listFacilities keeps the
+ * bare-array contract for its other callers).
+ */
+export async function listFacilitiesPage({
+  search,
+  status,
+  deleted = false,
+  sort = "created",
+  order = "asc",
+  page = 1,
+  pageSize = 10,
+} = {}) {
+  const params = new URLSearchParams();
+  if (search) params.set("q", search);
+  if (status) params.set("status", status);
+  params.set("deleted", String(Boolean(deleted)));
+  if (sort) params.set("sort", sort);
+  if (order) params.set("order", order);
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  const { data } = await request(`/facility?${params.toString()}`);
+  return {
+    facilities: data.facilities ?? [],
+    total: data.total ?? 0,
+    page: data.page ?? page,
+    pageSize: data.pageSize ?? pageSize,
+  };
+}
+
+/** POST /api/v1/facility/bulk-toggle — bulk soft-delete / restore. */
+export async function bulkToggleFacilities(ids, deleted) {
+  return request("/facility/bulk-toggle", {
+    method: "POST",
+    body: { ids, deleted },
+  });
+}
+
 export async function deleteFacility(facilityId) {
   return request(`/facility/${facilityId}`, { method: "DELETE" });
 }

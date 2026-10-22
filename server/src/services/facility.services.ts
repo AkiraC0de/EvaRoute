@@ -127,7 +127,105 @@ const countCheckedInStays = (facilityId: string) => {
   })
 }
 
+
+export type RegistrySort = "name" | "capacity" | "staff" | "created"
+
+/**
+ * Registry listing — search + sort + pagination with per-row occupancy
+ * (active stays -> members) and staff counts. Returns the paged envelope the
+ * admin registry consumes; the legacy findMany above stays untouched for the
+ * other call paths (map pickers, staff assignment, history scoping).
+ */
+const findManyPaged = async ({
+  status,
+  deleted,
+  q,
+  sort = "created",
+  order = "asc",
+  page = 1,
+  pageSize = 25
+}: {
+  status?: FacilityStatus
+  deleted?: boolean
+  q?: string
+  sort?: RegistrySort
+  order?: "asc" | "desc"
+  page?: number
+  pageSize?: number
+} = {}) => {
+  const where: Prisma.FacilityWhereInput = {
+    ...(deleted ? { deletedAt: { not: null } } : { deletedAt: null }),
+    ...(status ? { status } : {}),
+    ...(q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { address: { contains: q, mode: "insensitive" } }
+          ]
+        }
+      : {})
+  }
+
+  const orderBy: Prisma.FacilityOrderByWithRelationInput =
+    sort === "name"
+      ? { name: order }
+      : sort === "capacity"
+        ? { maxCapacity: order }
+        : sort === "staff"
+          ? { staff: { _count: order } }
+          : { createdAt: order }
+
+  const [rows, total] = await Promise.all([
+    prisma.facility.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: { _count: { select: { staff: true } } }
+    }),
+    prisma.facility.count({ where })
+  ])
+
+  // Occupancy enrichment: one grouped read over the page's active stays.
+  const ids = rows.map((row) => row.id)
+  const stays = ids.length
+    ? await prisma.facilityStay.findMany({
+        where: { checkedOutAt: null, facilityId: { in: ids } },
+        select: { facilityId: true, _count: { select: { members: true } } }
+      })
+    : []
+  const occupancy = new Map<string, { occupied: number; families: number }>()
+  for (const stay of stays) {
+    const entry = occupancy.get(stay.facilityId) ?? { occupied: 0, families: 0 }
+    entry.families += 1
+    entry.occupied += stay._count.members
+    occupancy.set(stay.facilityId, entry)
+  }
+
+  return {
+    total,
+    page,
+    pageSize,
+    facilities: rows.map((row) => ({
+      ...row,
+      staffCount: row._count.staff,
+      occupied: occupancy.get(row.id)?.occupied ?? 0,
+      families: occupancy.get(row.id)?.families ?? 0
+    }))
+  }
+}
+
+/** Bulk soft-delete/restore (the same toggle semantics as deleteById). */
+const bulkToggleDeleted = (ids: string[], deleted: boolean) => {
+  return prisma.facility.updateMany({
+    where: { id: { in: ids } },
+    data: { deletedAt: deleted ? new Date() : null }
+  })
+}
+
 export default {
+  findManyPaged,
+  bulkToggleDeleted,
   create,
   update,
   updateStatus,

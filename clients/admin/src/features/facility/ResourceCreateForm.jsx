@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, Plus } from "lucide-react";
+import { Package, Plus } from "../../components/icons/evaIcons";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";

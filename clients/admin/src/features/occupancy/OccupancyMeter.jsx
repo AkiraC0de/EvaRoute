@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import RollingNumber from "../../components/ui/RollingNumber";
 import { paperWipe } from "../../components/ui/slideVariants";
-import { Users, Armchair, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Users, Armchair, TrendingUp, TrendingDown, Minus } from "../../components/icons/evaIcons";
 import { capacityState, checkinTrend, occupancyPct } from "./occupancyUtils";
 import OccupancyTrendChart from "./OccupancyTrendChart";
 

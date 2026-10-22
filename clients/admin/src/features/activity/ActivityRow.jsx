@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "../../components/icons/evaIcons";
 import ActivityIcon from "./ActivityIcon";
 import ActivityDetails from "./ActivityDetails";
 import { describeActivity, formatActivityTime } from "./activityText";

@@ -5,7 +5,7 @@ import { slideVariants } from "../../components/ui/slideVariants";
 import EmptyArt from "../../components/ui/EmptyArt";
 import StatusPanel from "../../components/ui/StatusPanel";
 import { SkeletonActivityRow } from "../../components/ui/Skeleton";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw } from "../../components/icons/evaIcons";
 import useActivityPage from "../../hooks/useActivityPage";
 import ActivityRow from "./ActivityRow";
 import PaginationBar from "./PaginationBar";

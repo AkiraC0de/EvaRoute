@@ -1,5 +1,5 @@
 import Button from "../../components/ui/Button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "../../components/icons/evaIcons";
 
 /** Windowed page numbers: 1 … 4 [5] 6 … 12 */
 function pageWindow(current, total) {

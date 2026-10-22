@@ -1,6 +1,6 @@
 import RollingNumber from "../../components/ui/RollingNumber";
 import Sparkline from "../../components/ui/Sparkline";
-import { Home, Baby, Users, UsersRound } from "lucide-react";
+import { Home, Baby, Users, UsersRound } from "../../components/icons/evaIcons";
 import { last24hNew, newPerDay } from "./occupancyUtils";
 
 /**

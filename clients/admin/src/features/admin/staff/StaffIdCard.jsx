@@ -6,7 +6,7 @@ import {
   Power,
   Trash2,
   RotateCw,
-} from "lucide-react";
+} from "../../../components/icons/evaIcons";
 import { motion, useReducedMotion } from "motion/react";
 import CopyId from "../../../components/ui/CopyId";
 

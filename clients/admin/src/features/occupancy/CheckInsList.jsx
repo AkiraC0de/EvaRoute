@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChevronLeft, ChevronRight, ClipboardList, LogOut, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ClipboardList, LogOut, X } from "../../components/icons/evaIcons";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { slideVariants } from "../../components/ui/slideVariants";

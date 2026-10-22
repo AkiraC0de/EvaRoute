@@ -1,4 +1,4 @@
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus } from "../../../components/icons/evaIcons";
 import Button from "../../../components/ui/Button";
 
 /**

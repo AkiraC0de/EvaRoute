@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Download, FileSpreadsheet, FileText } from "../../components/icons/evaIcons";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import { buildSummary, exportCheckInsCsv, exportCheckInsPdf } from "./checkInExport";

@@ -1,4 +1,4 @@
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation } from "../../components/icons/evaIcons";
 import Card from "../../components/ui/Card";
 import FacilityOverviewMap from "../map/FacilityOverviewMap";
 import { formatCoords } from "../map/coordinateUtils";

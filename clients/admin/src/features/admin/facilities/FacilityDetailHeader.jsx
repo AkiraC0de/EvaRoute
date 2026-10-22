@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Trash2, RotateCcw } from "lucide-react";
+import { ArrowLeft, MapPin, Trash2, RotateCcw } from "../../../components/icons/evaIcons";
 import Button from "../../../components/ui/Button";
 import StatusPill from "../../../components/ui/StatusPill";
 import { displayPlaceName } from "../../../lib/utils";

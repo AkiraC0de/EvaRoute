@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import StatusPanel from "../../components/ui/StatusPanel";
 import ActivityHeatmapCard from "./overview/ActivityHeatmapCard";
 import BriefStrip from "./overview/BriefStrip";
-import FacilityLoadTable from "./overview/FacilityLoadTable";
+import FacilityLoadCards from "./overview/FacilityLoadCards";
 import FlowPanel from "./overview/FlowPanel";
 import HeroHeader from "./overview/HeroHeader";
 import NeedsAttentionCard from "./overview/NeedsAttentionCard";
@@ -106,7 +106,7 @@ const OverviewPage = () => {
             timeline={timeline ? timeline.slice(-14) : timeline}
             loading={chartLoading}
           />
-          <FacilityLoadTable summary={summary} loading={loading} />
+          <FacilityLoadCards summary={summary} loading={loading} />
           <ActivityHeatmapCard timeline={timeline} loading={chartLoading} />
         </div>
         <div className="flex min-w-0 flex-col gap-3">

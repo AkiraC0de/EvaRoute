@@ -74,16 +74,19 @@ export const SkeletonAttentionRow = () => (
   </div>
 );
 
-/** One facility-load table row: name / status / meter+% / occupancy. */
-export const SkeletonLoadTableRow = () => (
-  <div className="grid grid-cols-1 gap-1.5 py-2.5 md:grid-cols-[minmax(0,1fr)_92px_minmax(150px,240px)_190px] md:items-center md:gap-3">
-    <Skeleton className="h-3 w-40 rounded-full" />
-    <Skeleton className="h-5 w-16 rounded-full" />
+/** One facility-load card: name+status row, headline stat, meter, meta line. */
+export const SkeletonLoadCard = () => (
+  <div className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3.5">
+    <div className="flex items-center gap-2.5">
+      <Skeleton className="h-2.5 flex-1 rounded-full" />
+      <Skeleton className="h-5 w-16 shrink-0 rounded-full" />
+    </div>
+    <Skeleton className="h-5 w-24 rounded-none" />
     <div className="flex items-center gap-2">
       <Skeleton className="h-2 flex-1 rounded-full" />
       <Skeleton className="h-2.5 w-8 rounded-none" />
     </div>
-    <Skeleton className="h-2.5 w-32 rounded-full" />
+    <Skeleton className="h-2 w-2/5 rounded-full" />
   </div>
 );
 

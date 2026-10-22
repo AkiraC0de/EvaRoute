@@ -1,26 +1,49 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as api from "../../../lib/api";
 
 /**
- * Facilities registry state (GET /facility). `statusFilter` and `showDeleted`
- * map to the server query; search is client-side over the fetched rows (the
- * endpoint has no server-side search). CONTROLLED: the page owns filter state
- * (URL-backed via useUrlFilters); this hook owns fetching, retry and the
+ * Facilities registry state (GET /facility registry mode) — server-side
+ * search, sort and pagination via listFacilitiesPage, with the search input
+ * debounced 300ms so typing never storms the API. CONTROLLED: the page owns
+ * filter/sort/page state (URL-backed); this hook owns fetching, retry and the
  * visible rows. The mutation flows stay in the page.
  */
-export default function useFacilities({ search, statusFilter, showDeleted }) {
-  const [facilities, setFacilities] = useState([]);
+export default function useFacilities({
+  search,
+  statusFilter,
+  showDeleted,
+  sort = "created",
+  order = "asc",
+  page = 1,
+  pageSize = 10,
+}) {
+  const [data, setData] = useState({ facilities: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reloadToken, setReloadToken] = useState(0);
+
+  // Debounce the search term before it reaches the request.
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search ?? ""), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     let cancelled = false;
 
     api
-      .listFacilities({ status: statusFilter || undefined, deleted: showDeleted })
-      .then((rows) => {
-        if (!cancelled) setFacilities(rows);
+      .listFacilitiesPage({
+        search: debouncedSearch || undefined,
+        status: statusFilter || undefined,
+        deleted: showDeleted,
+        sort,
+        order,
+        page,
+        pageSize,
+      })
+      .then((result) => {
+        if (!cancelled) setData(result);
       })
       .catch((err) => {
         if (!cancelled) setError(err);
@@ -32,7 +55,7 @@ export default function useFacilities({ search, statusFilter, showDeleted }) {
     return () => {
       cancelled = true;
     };
-  }, [statusFilter, showDeleted, reloadToken]);
+  }, [debouncedSearch, statusFilter, showDeleted, sort, order, page, pageSize, reloadToken]);
 
   const retry = useCallback(() => {
     setLoading(true);
@@ -40,15 +63,12 @@ export default function useFacilities({ search, statusFilter, showDeleted }) {
     setReloadToken((token) => token + 1);
   }, []);
 
-  const visible = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    if (!needle) return facilities;
-    return facilities.filter(
-      (facility) =>
-        facility.name.toLowerCase().includes(needle) ||
-        facility.address.toLowerCase().includes(needle),
-    );
-  }, [facilities, search]);
-
-  return { visible, loading, error, retry };
+  return {
+    visible: data.facilities,
+    total: data.total,
+    totalPages: Math.max(1, Math.ceil(data.total / pageSize)),
+    loading,
+    error,
+    retry,
+  };
 }

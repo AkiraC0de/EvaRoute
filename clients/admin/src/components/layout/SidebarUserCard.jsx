@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "../../components/icons/evaIcons";
 import { useAuth } from "../../context/AuthContext";
 import { displayNameOf, initialsOf, roleLabelOf } from "../../lib/user";
 import AccountMenu from "./AccountMenu";

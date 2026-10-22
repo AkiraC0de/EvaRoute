@@ -1,4 +1,4 @@
-import { Boxes, Check, ClipboardList, Users } from "lucide-react";
+import { Boxes, Check, ClipboardList, Users } from "../../components/icons/evaIcons";
 import { motion, useReducedMotion } from "motion/react";
 import { authVariants } from "./authMotion";
 

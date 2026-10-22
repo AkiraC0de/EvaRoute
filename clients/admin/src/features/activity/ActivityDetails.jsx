@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "../../components/icons/evaIcons";
 import { getStay } from "../../lib/api/stays";
 import { buildDetailRows, redact } from "./detailFormat";
 

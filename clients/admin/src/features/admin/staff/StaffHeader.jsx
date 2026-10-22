@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus } from "../../../components/icons/evaIcons";
 import Button from "../../../components/ui/Button";
 
 /**

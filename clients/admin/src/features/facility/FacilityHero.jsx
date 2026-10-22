@@ -1,4 +1,4 @@
-import { Building2, Fingerprint, MapPin, ArrowRight } from "lucide-react";
+import { Building2, Fingerprint, MapPin, ArrowRight } from "../../components/icons/evaIcons";
 import { Link } from "react-router-dom";
 import CopyId from "../../components/ui/CopyId";
 import StatusPill from "../../components/ui/StatusPill";

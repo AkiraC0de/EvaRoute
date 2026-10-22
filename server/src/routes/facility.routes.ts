@@ -11,7 +11,8 @@ import {
   handleDeleteFacility,
   handlePatchFacility,
   handleRegisterFacility,
-  handleGetFacility
+  handleGetFacility,
+  handleBulkToggleFacilities
 } from "../controllers/facility.controllers.js"
 
 const facilityRoute = express.Router()
@@ -24,6 +25,9 @@ facilityRoute.get("/", verifyAuthorization(PERMISSION_TYPES.FETCH_FACILITY), han
 
 // Register new facility on the map
 facilityRoute.post("/", verifyAuthorization(PERMISSION_TYPES.REGISTER_FACILITY), handleRegisterFacility)
+
+// bulk soft delete / restore (registry bulk actions; ADMIN)
+facilityRoute.post("/bulk-toggle", verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleBulkToggleFacilities)
 
 // soft delete facility
 facilityRoute.delete("/:facilityId", verifyAuthorization(PERMISSION_TYPES.DELETE_FACILITY), handleDeleteFacility)

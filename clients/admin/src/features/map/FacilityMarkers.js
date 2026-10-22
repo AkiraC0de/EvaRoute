@@ -7,11 +7,14 @@ import { statusMetaOf } from "./statusColors";
  * details" action wired to the caller's navigation callback.
  */
 
-export const createStatusIcon = (L, status) => {
+export const createStatusIcon = (L, status, { highlighted = false } = {}) => {
   const meta = statusMetaOf(status);
+  const ring = highlighted
+    ? "box-shadow:0 0 0 3px color-mix(in srgb, var(--color-primary) 45%, transparent);"
+    : "";
   return L.divIcon({
     className: "",
-    html: `<span class="map-marker ${meta.markerClass}" aria-hidden="true"></span>`,
+    html: `<span class="map-marker ${meta.markerClass}" style="${ring}" aria-hidden="true"></span>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9],
     popupAnchor: [0, -10],

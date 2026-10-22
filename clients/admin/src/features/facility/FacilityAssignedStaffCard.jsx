@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { Users } from "../../components/icons/evaIcons";
 import Banner from "../../components/ui/Banner";
 import Card from "../../components/ui/Card";
 import Skeleton from "../../components/ui/Skeleton";

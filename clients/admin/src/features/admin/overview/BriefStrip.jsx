@@ -1,4 +1,4 @@
-import { Building2, UserCheck, ShieldCheck, ArrowLeftRight } from "lucide-react";
+import { Building2, UserCheck, ShieldCheck, ArrowLeftRight } from "../../../components/icons/evaIcons";
 import RollingNumber from "../../../components/ui/RollingNumber";
 import { SkeletonBriefCell } from "../../../components/ui/Skeleton";
 import { ICON_TONES } from "./overviewStyles";

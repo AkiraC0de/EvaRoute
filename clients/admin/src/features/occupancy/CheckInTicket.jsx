@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, Printer } from "lucide-react";
+import { Check, Copy, Printer } from "../../components/icons/evaIcons";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import CopyId from "../../components/ui/CopyId";

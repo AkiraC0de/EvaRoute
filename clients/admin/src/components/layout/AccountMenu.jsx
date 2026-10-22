@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut, UserRound } from "../../components/icons/evaIcons";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmDialog from "../ui/ConfirmDialog";
 

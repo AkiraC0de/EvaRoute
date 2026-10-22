@@ -1,4 +1,4 @@
-import { RefreshCw } from "lucide-react";
+import { RefreshCw } from "../../components/icons/evaIcons";
 import Button from "../../components/ui/Button";
 import useActivity from "../../hooks/useActivity";
 import EmptyArt from "../../components/ui/EmptyArt";

@@ -1,35 +1,46 @@
-import { MapPin } from "lucide-react";
+import { MapPin } from "../../../components/icons/evaIcons";
 import FacilityOverviewMap from "../../map/FacilityOverviewMap";
 
 /**
- * Facilities map card — the geographic overview shown above the table. A
- * bordered flat panel: warm (places) identity chip on the header, then the
- * legible OSM map. `onView(facilityId)` fires when a marker popup's
- * "View details" is clicked.
+ * Map card — the registry's geographic surface over the legible OSM map.
+ * Passes the list⇄map linkage through to the map: hover/selection rings and
+ * selection callbacks live on the page.
  */
-const FacilitiesMapCard = ({ facilities, onView }) => (
-  <div className="mb-4 rounded-lg border border-line bg-surface p-4">
-    <div className="flex items-center gap-2.5">
+const FacilitiesMapCard = ({
+  facilities,
+  onView,
+  onSelect,
+  hoverId,
+  selectedId,
+  height = 500,
+  title = "Facilities map",
+}) => (
+  <section className="mb-4 rounded-lg border border-line bg-surface p-4">
+    <div className="flex items-start gap-2.5">
       <span
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warm-soft text-warm-ink"
+        className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-soft text-primary-ink"
       >
         <MapPin size={15} strokeWidth={1.9} />
       </span>
-      <div className="min-w-0">
-        <h2 className="text-[13px] font-bold text-ink-soft">Facility map</h2>
-        <p className="text-[11px] text-muted">
-          {facilities.length} {facilities.length === 1 ? "facility" : "facilities"} ·
-          click a marker to zoom in
+      <div>
+        <h2 className="text-[13px] font-bold text-ink-soft">{title}</h2>
+        <p className="mt-0.5 text-[11px] text-muted">
+          Select a marker or a row to link them — click a marker to zoom in
         </p>
       </div>
     </div>
     <div className="mt-3">
-      {/* 320px keeps the map useful without pushing the facilities table
-          (the page's primary object) below the fold on laptop screens. */}
-      <FacilityOverviewMap facilities={facilities} height={500} onView={onView} />
+      <FacilityOverviewMap
+        facilities={facilities}
+        height={height}
+        onView={onView}
+        onSelect={onSelect}
+        hoverId={hoverId}
+        selectedId={selectedId}
+      />
     </div>
-  </div>
+  </section>
 );
 
 export default FacilitiesMapCard;

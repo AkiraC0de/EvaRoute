@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Lock } from "lucide-react";
+import { Lock } from "../../../components/icons/evaIcons";
 import Banner from "../../../components/ui/Banner";
 import SecurityAction from "../SecurityAction";
 import ChangePasswordForm from "./ChangePasswordForm";

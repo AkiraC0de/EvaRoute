@@ -6,7 +6,7 @@ import {
   SquareUser,
   Users,
   UserRound,
-} from "lucide-react";
+} from "../components/icons/evaIcons";
 import { ROLES, ALL_PORTAL_ROLES, hasRole } from "./roles";
 
 /**

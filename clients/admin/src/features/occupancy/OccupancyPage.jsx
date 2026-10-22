@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download } from "lucide-react";
+import { Download } from "../../components/icons/evaIcons";
 import { motion, useReducedMotion } from "motion/react";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";

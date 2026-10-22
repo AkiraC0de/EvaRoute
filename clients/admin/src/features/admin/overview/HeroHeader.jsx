@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "motion/react";
 import RollingNumber from "../../../components/ui/RollingNumber";
 import { paperWipe } from "../../../components/ui/slideVariants";
 import { Link } from "react-router-dom";
-import { Building2, History as HistoryIcon, UserPlus } from "lucide-react";
+import { Building2, History as HistoryIcon, UserPlus } from "../../../components/icons/evaIcons";
 import Button from "../../../components/ui/Button";
 import HeroMapArt from "./HeroMapArt";
 

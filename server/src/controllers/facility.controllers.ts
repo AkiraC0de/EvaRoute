@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { validateData } from "../utils/validatorUtils.js"
-import { getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations.js"
+import prisma from "../lib/prisma.js"
+import { bulkToggleFacilitySchema, getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations.js"
 
 import facilityServices from "../services/facility.services.js"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
@@ -16,13 +17,14 @@ export const handleGetFacility = async (req: Request, res: Response) => {
   const { status, deleted } = validateData<typeof getFacilityQuerySchema>(getFacilityQuerySchema, req.query, "query")
 
   // Soft-deleted listing is an ADMIN concern (it feeds the restore flow).
+  const registry = validateData<typeof getFacilityQuerySchema>(getFacilityQuerySchema, req.query, "query")
   if (deleted && role !== UserRole.ADMIN) {
     throw new ForbiddenError()
   }
 
   switch (role){
     case UserRole.ADMIN:
-      return handleAdminGetFacility(res, status, deleted)
+      return handleAdminGetFacility(res, status, deleted, registry)
 
     case UserRole.FACILITY_STAFF:
       return handleStaffGetFacility(req, res, status)
@@ -50,7 +52,29 @@ const handleStaffGetFacility = async (req: Request, res: Response, status?: "AVA
 }
 
 // Admin: ALL facilities (soft-deleted included only on request)
-const handleAdminGetFacility = async (res: Response, status?: "AVAILABLE" | "UNAVAILABLE", deleted?: boolean) => {
+const handleAdminGetFacility = async (
+  res: Response,
+  status?: "AVAILABLE" | "UNAVAILABLE",
+  deleted?: boolean,
+  registry?: { q?: string; sort?: "name" | "capacity" | "staff" | "created"; order?: "asc" | "desc"; page?: number; pageSize?: number }
+) => {
+  // Registry mode (search/sort/pagination present): answer with the paged
+  // envelope. Legacy mode: the bare array every older caller expects.
+  const wantsPaged = Boolean(
+    registry && (registry.q || registry.sort || registry.order || registry.page || registry.pageSize)
+  )
+  if (wantsPaged) {
+    const result = await facilityServices.findManyPaged({
+      status,
+      deleted,
+      q: registry!.q,
+      sort: registry!.sort,
+      order: registry!.order,
+      page: registry!.page,
+      pageSize: registry!.pageSize
+    })
+    return new SuccessResponse("Facilities fetched.", result).send(res)
+  }
   const facilities = await facilityServices.findMany(status, deleted)
   const formatedFacilities = facilities.map(f => ({
     ...toFacilityDTO(f),
@@ -167,4 +191,38 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
     })
 
     return new SuccessResponse(`${facility.name} has been patched.`, updatedFacility).send(res)
+}
+
+/**
+ * POST /facility/bulk-toggle — bulk soft-delete or restore (the same toggle
+ * semantics as the single DELETE route, for registry bulk actions). ADMIN
+ * only; one activity entry per affected facility so the audit log stays exact.
+ */
+export const handleBulkToggleFacilities = async (req: Request, res: Response) => {
+  const { ids, deleted } = validateData<typeof bulkToggleFacilitySchema>(
+    bulkToggleFacilitySchema,
+    req.body,
+    "body"
+  )
+
+  const affected = await prisma.facility.findMany({
+    where: { id: { in: ids }, ...(deleted ? { deletedAt: null } : { deletedAt: { not: null } }) },
+    select: { id: true, name: true }
+  })
+  if (affected.length === 0) {
+    return new SuccessMsgResponse("No facilities needed the change.").send(res)
+  }
+
+  await facilityServices.bulkToggleDeleted(affected.map((f: { id: string }) => f.id), deleted)
+
+  for (const facility of affected) {
+    await logActivity(req, deleted ? ActivityAction.FACILITY_DELETED : ActivityAction.FACILITY_RESTORED, {
+      facility: { id: facility.id, name: facility.name },
+      target: { id: facility.id, label: facility.name }
+    })
+  }
+
+  return new SuccessMsgResponse(
+    `${affected.length} ${affected.length === 1 ? "facility" : "facilities"} ${deleted ? "deleted" : "restored"}.`
+  ).send(res)
 }

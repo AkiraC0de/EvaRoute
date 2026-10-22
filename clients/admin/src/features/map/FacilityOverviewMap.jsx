@@ -8,20 +8,30 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, FOCUS_ZOOM } from "./tileConfig";
 
 /**
  * Read-only facility map: one status-colored marker per facility with a
- * name/address/status popup and an optional "View details" action. Markers
- * redraw when `facilities` changes (same map instance — no re-initialization);
- * facilities without usable coordinates are skipped and counted under the map.
+ * name/address/status popup and an optional "View details" action.
+ *
+ * Linked-selection contract (the registry's list⇄map binding):
+ *   hoverId     — marker gets a highlight ring while its row is hovered;
+ *   selectedId  — selected marker is ringed, camera flies in, popup opens;
+ *   onSelect    — fired on marker click (the page keeps the selection; the
+ *                 popup stays the in-place detail + action surface).
+ * Highlight changes only swap marker icons — layers are never rebuilt, so
+ * open popups and camera position survive hover/selection updates.
  */
 const FacilityOverviewMap = ({
   facilities = [],
   height = 320,
   showLegend = true,
   onView,
+  onSelect,
+  hoverId = null,
+  selectedId = null,
 }) => {
   const containerRef = useRef(null);
   const leafletRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const groupRef = useRef(null);
+  const markersRef = useRef(new Map());
   const [skippedCount, setSkippedCount] = useState(0);
 
   const draw = useCallback(() => {
@@ -31,6 +41,7 @@ const FacilityOverviewMap = ({
     if (!L || !map || !group) return;
 
     group.clearLayers();
+    markersRef.current.clear();
     let skipped = 0;
     const bounds = [];
 
@@ -41,17 +52,19 @@ const FacilityOverviewMap = ({
         continue;
       }
       const marker = L.marker([coords.latitude, coords.longitude], {
-        icon: createStatusIcon(L, facility.status),
+        icon: createStatusIcon(L, facility.status, {
+          highlighted: facility.id === selectedId || facility.id === hoverId,
+        }),
       });
       bindFacilityPopup(marker, facility, onView ? { onView } : {});
-      // Clicking a marker flies the camera to that facility — animated
-      // pan + zoom toward it, then the popup opens on the focused view.
       marker.on("click", () => {
+        onSelect?.(facility);
         map.flyTo([coords.latitude, coords.longitude], FOCUS_ZOOM, {
           duration: 0.8,
         });
       });
       group.addLayer(marker);
+      markersRef.current.set(facility.id, marker);
       bounds.push([coords.latitude, coords.longitude]);
     }
 
@@ -61,7 +74,7 @@ const FacilityOverviewMap = ({
     } else {
       map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
     }
-  }, [facilities, onView]);
+  }, [facilities, onView, onSelect, selectedId, hoverId]);
 
   const handleReady = useCallback(
     (map, L) => {
@@ -79,6 +92,37 @@ const FacilityOverviewMap = ({
   useEffect(() => {
     if (status === "ready") draw();
   }, [status, draw]);
+
+  // Hover/selection: swap icons in place (no layer rebuild → no popup loss).
+  useEffect(() => {
+    const L = leafletRef.current;
+    if (!L || status !== "ready") return;
+    for (const [id, marker] of markersRef.current.entries()) {
+      const facility = facilities.find((row) => row.id === id);
+      if (!facility) continue;
+      marker.setIcon(
+        createStatusIcon(L, facility.status, {
+          highlighted: id === selectedId || id === hoverId,
+        }),
+      );
+    }
+  }, [hoverId, selectedId, facilities, status]);
+
+  // A row-side selection flies the camera and opens the marker popup.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !selectedId || status !== "ready") return;
+    const marker = markersRef.current.get(selectedId);
+    const facility = facilities.find((row) => row.id === selectedId);
+    if (!marker || !facility) return;
+    const coords = toCoords(facility.latitude, facility.longitude);
+    if (coords) {
+      map.flyTo([coords.latitude, coords.longitude], FOCUS_ZOOM, {
+        duration: 0.6,
+      });
+    }
+    marker.openPopup();
+  }, [selectedId, facilities, status]);
 
   return (
     <div className="w-full">
@@ -100,9 +144,9 @@ const FacilityOverviewMap = ({
         {status === "ready" && showLegend && <MapLegend />}
       </div>
       {skippedCount > 0 && (
-        <p className="mt-1.5 text-[11px] text-muted">
-          {skippedCount} {skippedCount === 1 ? "facility is" : "facilities are"} not shown —
-          missing or invalid location.
+        <p className="mt-1.5 text-[10px] text-muted">
+          {skippedCount} facilit{skippedCount === 1 ? "y has" : "ies have"} no
+          usable map coordinates and {skippedCount === 1 ? "is" : "are"} not shown.
         </p>
       )}
     </div>

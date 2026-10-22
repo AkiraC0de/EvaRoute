@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Signpost } from "lucide-react";
+import { Signpost } from "../../components/icons/evaIcons";
 import Button from "../../components/ui/Button";
 import { homePathFor } from "../../app/navigation";
 import { useAuth } from "../../context/AuthContext";

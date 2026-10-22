@@ -1,4 +1,4 @@
-import { History } from "lucide-react";
+import { History } from "../../components/icons/evaIcons";
 import Card from "../../components/ui/Card";
 import ActivityFeed from "../activity/ActivityFeed";
 

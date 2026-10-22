@@ -50,6 +50,22 @@ export const getFacilityQuerySchema = z.object({
     .enum(["true", "false"], "deleted must be either true or false.")
     .optional()
     .transform((value) => value === "true"),
+  // Registry listing (search / sort / pagination) — optional; when any is
+  // present the endpoint answers with the paged envelope instead of a bare
+  // array (legacy callers keep the array).
+  q: z.string().trim().max(120, "Search query is too long.").optional(),
+  sort: z.enum(["name", "capacity", "staff", "created"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  pageSize: z.coerce.number().int().min(1).max(100).optional(),
+})
+
+export const bulkToggleFacilitySchema = z.object({
+  ids: z
+    .array(z.uuid("ids must contain facility ids."), "ids must be an array.")
+    .min(1, "Pick at least one facility.")
+    .max(100, "At most 100 facilities per bulk action."),
+  deleted: z.boolean("deleted must be a boolean."),
 })
 export const patchFacilitySchema = z.object({
   name: z

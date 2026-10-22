@@ -1,4 +1,4 @@
-import { Bed, Cross, Droplets, Package, Toilet, UtensilsCrossed, Zap } from "lucide-react";
+import { Bed, Cross, Droplets, Package, Toilet, UtensilsCrossed, Zap } from "../../components/icons/evaIcons";
 
 /**
  * Icon for a `FacilityResource` record. Mandatory essentials match by their

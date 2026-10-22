@@ -1,4 +1,4 @@
-import { Activity, Boxes, LogIn, LogOut, Users } from "lucide-react";
+import { Activity, Boxes, LogIn, LogOut, Users } from "../../components/icons/evaIcons";
 import RollingNumber from "../../components/ui/RollingNumber";
 
 /**

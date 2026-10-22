@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X } from "../../../components/icons/evaIcons";
 import Button from "../../../components/ui/Button";
 import StatusPanel from "../../../components/ui/StatusPanel";
 import { FacilityStaffLoading } from "./FacilitiesStates";

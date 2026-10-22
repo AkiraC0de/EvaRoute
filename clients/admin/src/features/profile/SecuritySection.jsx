@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, MonitorOff } from "lucide-react";
+import { LogOut, MonitorOff } from "../../components/icons/evaIcons";
 import Banner from "../../components/ui/Banner";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";

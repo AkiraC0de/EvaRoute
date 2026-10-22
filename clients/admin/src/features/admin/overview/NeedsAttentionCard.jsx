@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2 } from "../../../components/icons/evaIcons";
 import { Link } from "react-router-dom";
 import { SkeletonAttentionRow } from "../../../components/ui/Skeleton";
 import { displayPlaceName } from "../../../lib/utils";

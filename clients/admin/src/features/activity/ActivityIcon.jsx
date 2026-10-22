@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   SquareUser,
   UserRoundCheck,
-} from "lucide-react";
+} from "../../components/icons/evaIcons";
 
 /**
  * Action -> icon + tone mapping shared by every activity surface.
