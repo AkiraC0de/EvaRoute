@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs"
 
 import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError.js"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
-import { ActivityAction } from "../../generated/prisma/index.js"
+import { ActivityAction, TokenType } from "../../generated/prisma/index.js"
 import { logActivity } from "../utils/activityUtils.js"
 
 import userService from "../services/user.services.js"
@@ -96,6 +96,9 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
   const rawToken = generateCryptoToken()
   const hashToken = cryptoHash(rawToken)
 
+  // One live reset session at a time: retire any earlier request tokens so a
+  // previously intercepted OTP cannot stay valid alongside the new one.
+  await tokenService.deleteByUserIdType(user.id, TokenType.REQ_RESET_PASS)
   await tokenService.createReqResetPass(user.id, hashedOtp, hashToken)
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
@@ -147,6 +150,9 @@ export const handleVerifyResetPass = async (req: Request, res: Response) => {
 
   const newRawToken = generateCryptoToken()
   const newHashToken = cryptoHash(newRawToken)
+  // Replace, don't accumulate: any earlier RESET_PASS row would otherwise stay
+  // valid for its full lifetime alongside the new one.
+  await tokenServices.deleteByUserIdType(token.userId, TokenType.RESET_PASS)
   await tokenServices.createResetPass(token.userId, newHashToken)
 
   // Invoke the token for requesting a reset password
@@ -167,6 +173,13 @@ export const handlePassReset = async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(newPassword, 12)
 
   await userServices.updatePassword(token.userId, hashedPassword)
+
+  // Single-use: without this the row stays valid for its full 15-minute
+  // lifetime and the same Bearer token can set the password again — including
+  // after the owner has "secured" the account. Consume it before anything
+  // else can fail and leave it usable.
+  await tokenService.deleteById(token.id)
+
   await refreshTokenService.deleteAllByUserId(token.userId)
 
   // Public flow (no access token): the actor comes from the reset token's
@@ -309,6 +322,12 @@ export const handleSignOutAllDevices = async (req: Request, res: Response) => {
 // created with only email + password, so the signed-in user completes their
 // name here once. Flips `isSetupDone`; returns the same user shape as
 // login/refresh so the client can replace its stored identity.
+//
+// SERVER-ENFORCED first-run only: unlike the client gate, this must not be
+// reusable. The endpoint sets a new password with no proof of the old one, so
+// leaving it open turns a stolen 15-minute access token into permanent account
+// takeover. Every later password change goes through handleChangePassword,
+// which requires the CURRENT password.
 export const handleAccountSetup = async (req: Request, res: Response) => {
   const { userId } = requireAuth(req)
   const { newPassword, firstName, lastName } = validateData<typeof accountSetupSchema>(accountSetupSchema, req.body)
@@ -316,6 +335,10 @@ export const handleAccountSetup = async (req: Request, res: Response) => {
   const user = await userService.findById(userId)
   if (!user) {
     throw new NotFoundError("User not found.")
+  }
+
+  if (user.isSetupDone) {
+    throw new BadRequestMsgError("This account has already been set up. Use password change instead.")
   }
 
   // Replace the system-generated password (same strength rules as

@@ -7,7 +7,8 @@
     "dev": "tsx watch --env-file=.env ./src/index.ts",
     "build": "tsc",
     "start": "node ./dist/index.js",
-    "contract:emit": "prisma contract emit"
+    "contract:emit": "prisma contract emit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -23,7 +24,7 @@
     "pg": "^8.23.0",
     "zod": "^4.5.4"
   },
-  "devDependencies": { 
+  "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -33,7 +34,8 @@
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
     "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
   },
   "overrides": {
     "deepmerge-ts": "^8.0.0",
