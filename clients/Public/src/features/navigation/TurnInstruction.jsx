@@ -17,6 +17,18 @@ function defaultIconPath() {
   return 'M5 12h14m0 0l-5-5m5 5l-5 5';
 }
 
+/** Per-step distance in meters → "350 m" / "1.2 km". */
+function formatStepDistance(meters) {
+  return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
+}
+
+/**
+ * TurnInstruction — the floating "Next ‹instruction›" card.
+ *
+ * `distance` is the step's OWN length in meters (GraphHopper
+ * instruction.distance, via routing.js) — the distance the instruction
+ * covers, not the remaining distance to the destination.
+ */
 export default function TurnInstruction({ instruction, maneuverType, distance }) {
   const key = maneuverType ? maneuverType.toLowerCase().replace(/[\s-]+/g, '_') : '';
   const pathD = maneuverIconPaths[key] ?? defaultIconPath();
@@ -40,8 +52,8 @@ export default function TurnInstruction({ instruction, maneuverType, distance })
       <span className="text-[15px] font-semibold text-ink" aria-live="polite">
         {instruction}
       </span>
-      {distance !== undefined && (
-        <span className="ml-0.5 text-[13px] text-muted">{distance.toFixed(1)} km</span>
+      {distance != null && distance > 0 && (
+        <span className="ml-0.5 text-[13px] text-muted">for {formatStepDistance(distance)}</span>
       )}
     </motion.div>
   );

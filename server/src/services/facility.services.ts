@@ -1,5 +1,6 @@
 import { EssentialResourceType, FacilityStatus, Prisma } from "../../generated/prisma/index.js"
 import prisma from "../lib/prisma.js"
+import { BadRequestMsgError } from "../core/ApiError.js"
 import { ESSENTIAL_RESOURCES } from "../utils/essentialResources.js"
 
 const findById = (facilityId: string) => {
@@ -11,14 +12,18 @@ const findById = (facilityId: string) => {
   })
 }
 
-const findByLongLat = (location: [longitude: number, latitude: number] ) => {
-  return prisma.facility.findUnique({
+/**
+ * Coordinates are unique among ACTIVE facilities only (soft-deleted rows
+ * release their location). `excludeId` lets the restore path ask whether any
+ * OTHER active facility now sits on the location being restored.
+ */
+const findByLongLat = (location: [longitude: number, latitude: number], excludeId?: string) => {
+  return prisma.facility.findFirst({
     where: {
       deletedAt: null,
-      longitude_latitude: {
-        longitude: new Prisma.Decimal(location[0]),
-        latitude: new Prisma.Decimal(location[1])
-      }
+      longitude: new Prisma.Decimal(location[0]),
+      latitude: new Prisma.Decimal(location[1]),
+      ...(excludeId ? { id: { not: excludeId } } : {})
     }
   })
 }
@@ -71,13 +76,10 @@ const updateStatus = (facilityId: string, status: FacilityStatus) => {
   })
 } 
 
-const deleteById = (facilityId: string) => {
-  return prisma.facility.delete({
-    where: {
-      id: facilityId
-    }
-  })
-}
+// Hard-delete helper removed (DB-17): soft delete (softDeleteById /
+// toggleDeletedById) is the only supported path — a hard delete had
+// inconsistent FK semantics (Cascade for resources/staff, Restrict for stays)
+// and was a data-loss footgun. No caller existed.
 
 const findMany = (status?: FacilityStatus, deleted?: boolean) => {
   return prisma.facility.findMany({
@@ -94,9 +96,13 @@ const findMany = (status?: FacilityStatus, deleted?: boolean) => {
   })
 }
 
-const findManyAvailableWithResources = () => {
+// Public feed (API-04): EVERY non-deleted facility, whatever its status.
+// Full/closed centers must stay visible to citizens (marked unavailable or
+// limited) instead of silently vanishing from the map — the status field
+// carries the meaning and the client filters/labels it.
+const findManyPublicWithResources = () => {
   return prisma.facility.findMany({
-    where: { deletedAt: null, status: FacilityStatus.AVAILABLE },
+    where: { deletedAt: null },
     include: { resource: true },
     orderBy: { createdAt: "asc" },
   })
@@ -108,9 +114,26 @@ const findDeletedById = (facilityId: string) => {
 }
 
 const softDeleteById = (facilityId: string) => {
-  return prisma.facility.update({
-    where: { id: facilityId },
-    data: { deletedAt: new Date() }
+  // Atomic locked delete: holds the SAME facility row lock the check-in
+  // transaction takes, so a concurrent check-in can never slip an active stay
+  // past the occupancy guard (check-then-delete raced check-in before).
+  // Returns true when this call flipped the row; false when it was already
+  // soft-deleted (conditional flip, like toggleDeletedById).
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "facilities" WHERE id = ${facilityId}::uuid AND "deletedAt" IS NULL FOR UPDATE`
+
+    const activeStays = await tx.facilityStay.count({
+      where: { facilityId, checkedOutAt: null }
+    })
+    if (activeStays > 0) {
+      throw new BadRequestMsgError("Cannot delete a facility with checked-in evacuees. Please check them out first.")
+    }
+
+    const result = await tx.facility.updateMany({
+      where: { id: facilityId, deletedAt: null },
+      data: { deletedAt: new Date() }
+    })
+    return result.count === 1
   })
 }
 
@@ -166,14 +189,17 @@ const findManyPaged = async ({
       : {})
   }
 
-  const orderBy: Prisma.FacilityOrderByWithRelationInput =
+  // `id` tiebreaker on every sort: the sort keys can tie, and without it
+  // OFFSET pages can duplicate/skip rows across requests (same pattern as
+  // activityLog.findMany's [{ createdAt }, { id }] ordering).
+  const orderBy: Prisma.FacilityOrderByWithRelationInput[] =
     sort === "name"
-      ? { name: order }
+      ? [{ name: order }, { id: "asc" }]
       : sort === "capacity"
-        ? { maxCapacity: order }
+        ? [{ maxCapacity: order }, { id: "asc" }]
         : sort === "staff"
-          ? { staff: { _count: order } }
-          : { createdAt: order }
+          ? [{ staff: { _count: order } }, { id: "asc" }]
+          : [{ createdAt: order }, { id: "asc" }]
 
   const [rows, total] = await Promise.all([
     prisma.facility.findMany({
@@ -215,25 +241,28 @@ const findManyPaged = async ({
   }
 }
 
-/** Bulk soft-delete/restore (the same toggle semantics as deleteById). */
-const bulkToggleDeleted = (ids: string[], deleted: boolean) => {
+/**
+ * Conditional soft-delete/restore of one facility: only flips rows still in
+ * the expected state (active for delete, soft-deleted for restore) — a
+ * concurrent toggle between read and write is skipped, never overwritten.
+ */
+const toggleDeletedById = (facilityId: string, deleted: boolean) => {
   return prisma.facility.updateMany({
-    where: { id: { in: ids } },
+    where: { id: facilityId, ...(deleted ? { deletedAt: null } : { deletedAt: { not: null } }) },
     data: { deletedAt: deleted ? new Date() : null }
   })
 }
 
 export default {
   findManyPaged,
-  bulkToggleDeleted,
+  toggleDeletedById,
   create,
   update,
   updateStatus,
-  deleteById,
   findByLongLat,
   findById,
   findMany,
-  findManyAvailableWithResources,
+  findManyPublicWithResources,
   findDeletedById,
   softDeleteById,
   restoreById,

@@ -7,13 +7,11 @@ import facilityStaffServices from "../services/facilityStaff.services.js"
 import userServices from "../services/user.services.js"
 import { UserRole, ActivityAction } from "../../generated/prisma/index.js"
 import { assertFacilityAccess } from "../utils/facilityUtils.js"
+import { parseUuidParam } from "../utils/validatorUtils.js"
 import { logActivity } from "../utils/activityUtils.js"
 
 export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if (!facilityId) {
-    throw new BadRequestMsgError("'facilityId' is required as a parameter.")
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, "facilityId")
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -38,10 +36,7 @@ export const handleGetFacilityStaffs = async (req: Request, res: Response) => {
 
 // Assign, or transfer if the staff already belongs to another facility.
 export const handleAssignStaff = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError("'userId' is required as a parameter.")
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findById(userId)
   if (!user) {
@@ -52,7 +47,7 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("Only facility staff users can be assigned to a facility.")
   }
 
-  const facilityId = req.params.facilityId as string
+  const facilityId = parseUuidParam(req.params.facilityId, "facilityId")
   const facility = await assertFacilityAccess(req, facilityId)
 
   const isAlreadyMember = await facilityStaffServices.findStaff(facilityId, userId)
@@ -64,6 +59,15 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
   if (currentMembership) {
     await facilityStaffServices.transferStaff(userId, facilityId)
 
+    // A transfer leaves TWO audit entries: this one on the SOURCE facility
+    // (so its feed shows the departure instead of the person vanishing) and
+    // the STAFF_ASSIGNED one on the destination below.
+    await logActivity(req, ActivityAction.STAFF_DISMISSED, {
+      facility: { id: currentMembership.facilityId, name: currentMembership.facility.name },
+      target: { id: user.id, label: `${user.firstName} ${user.lastName}`.trim() || user.email },
+      metadata: { transferredTo: facility.name, transferredToId: facility.id }
+    })
+
     await logActivity(req, ActivityAction.STAFF_ASSIGNED, {
       facility: { id: facility.id, name: facility.name },
       target: { id: user.id, label: `${user.firstName} ${user.lastName}`.trim() || user.email },
@@ -73,7 +77,15 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
     return new SuccessMsgResponse(`${user.firstName} ${user.lastName} has been transferred from facility ${currentMembership.facility.name} to facility ${facility.name}.`).send(res)
   }
 
-  await facilityStaffServices.create(facilityId, userId)
+  // The unique (facilityId, userId)/(userId) constraints back the membership
+  // pre-checks above — a concurrent assign that slips past them still gets
+  // the friendly 400 instead of a P2002-turned-500.
+  await facilityStaffServices.create(facilityId, userId).catch((err: { code?: string }) => {
+    if (err?.code === "P2002") {
+      throw new BadRequestMsgError("This staff is already part of this facility.")
+    }
+    throw err
+  })
 
   await logActivity(req, ActivityAction.STAFF_ASSIGNED, {
     facility: { id: facility.id, name: facility.name },
@@ -84,17 +96,14 @@ export const handleAssignStaff = async (req: Request, res: Response) => {
 }
 
 export const handleDismissStaff = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError("'userId' is required as a parameter.")
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findById(userId)
   if (!user) {
     throw new NotFoundError("User not found.")
   }
 
-  const facilityId = req.params.facilityId as string
+  const facilityId = parseUuidParam(req.params.facilityId, "facilityId")
   const facility = await assertFacilityAccess(req, facilityId)
 
   const isMember = await facilityStaffServices.findStaff(facilityId, userId)

@@ -38,11 +38,18 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
   const quantity = isQuantity(resource);
   const percentage = useMemo(() => stockPercentage(resource), [resource]);
   const unit = displayUnit(resource);
+  // QUANTITY records carry their ceiling (maxValue) — clamp increments to it
+  // like the >= 0 floor, so "+1/+10" at max never sends availableValue above
+  // maxValue (the server would 400 for a gesture the UI made possible).
+  const maxValue = typeof resource.maxValue === "number" ? resource.maxValue : null;
 
   const step = (delta) =>
-    run(() =>
-      onSave({ availableValue: Math.max(0, (resource.availableValue ?? 0) + delta) }),
-    );
+    run(() => {
+      const next = Math.max(0, (resource.availableValue ?? 0) + delta);
+      return onSave({
+        availableValue: maxValue === null ? next : Math.min(next, maxValue),
+      });
+    });
 
   return (
     <Card
@@ -132,6 +139,7 @@ const ResourceCard = ({ resource, onSave, onDelete }) => {
           <QuantityStepper
             name={resource.name}
             value={resource.availableValue ?? 0}
+            max={maxValue}
             busy={busy}
             onStep={step}
           />

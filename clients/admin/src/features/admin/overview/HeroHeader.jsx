@@ -98,10 +98,18 @@ const HeroHeader = ({ today, greeting, firstName, summary, occupancyPct }) => {
           value={summary ? summary.facilities.byStatus.AVAILABLE ?? 0 : "—"}
           label="available"
         />
-        <HeroChip
-          value={summary ? summary.facilities.byStatus.LIMITED ?? 0 : "—"}
-          label="limited"
-        />
+        {/* LIMITED is a legal legacy DB value (schema re-added it 2026-10-25;
+            no app feature creates it). `byStatus` is a raw status groupBy over
+            all active facilities, so this chip counts legacy rows faithfully
+            in their OWN bucket — never folded into available/unavailable. It
+            renders only when such rows exist, so the hero never advertises
+            "0 limited" as telemetry for a category nothing produced. */}
+        {(summary?.facilities.byStatus.LIMITED ?? 0) > 0 && (
+          <HeroChip
+            value={summary.facilities.byStatus.LIMITED}
+            label="limited"
+          />
+        )}
         <HeroChip
           value={summary ? summary.facilities.byStatus.UNAVAILABLE ?? 0 : "—"}
           label="unavailable"

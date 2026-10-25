@@ -2,7 +2,6 @@ import { useState } from "react";
 import Banner from "../../../components/ui/Banner";
 import Button from "../../../components/ui/Button";
 import Drawer from "../../../components/ui/Drawer";
-import { useToast } from "../../../components/ui/toastContext";
 import FacilityFormFields from "./FacilityFormFields";
 import FacilityMapPicker from "./FacilityMapPicker";
 import { isValidCoords } from "../../map/coordinateUtils";
@@ -40,7 +39,6 @@ const draftFor = (facility) =>
       };
 
 const FacilityDrawer = ({ mode = "create", facility = null, onDone, onClose }) => {
-  const toast = useToast();
   const isEdit = mode === "edit";
   const [draft, setDraft] = useState(() => draftFor(facility));
   const [busy, setBusy] = useState(false);
@@ -72,7 +70,6 @@ const FacilityDrawer = ({ mode = "create", facility = null, onDone, onClose }) =
           maxCapacity,
           status: draft.status,
         });
-        toast.success("Facility updated.");
         onDone(saved);
       } else {
         // Validate the RAW draft values: Number("") coerces to 0, which would
@@ -95,7 +92,6 @@ const FacilityDrawer = ({ mode = "create", facility = null, onDone, onClose }) =
             isAvailable: draft.resources[entry.key] === true,
           })),
         });
-        toast.success("Facility registered.");
         onDone();
       }
     } catch (err) {

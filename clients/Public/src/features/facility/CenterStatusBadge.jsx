@@ -1,7 +1,9 @@
-import { FACILITY_STATUS_META } from '../../lib/facilityMeta';
+import { getFacilityStatusMeta } from '../../lib/facilityMeta';
 
 export default function CenterStatusBadge({ status, fullLabel = false, className = '' }) {
-  const statusMeta = FACILITY_STATUS_META[status];
+  // Fallback keeps an unexpected/legacy status visible as its own name
+  // instead of crashing the card/detail on `undefined` meta (API-04).
+  const statusMeta = getFacilityStatusMeta(status);
   return (
     <span
       className={`inline-flex min-h-6 items-center gap-[5px] whitespace-nowrap rounded-full px-2 py-1 text-[11px] font-semibold leading-none ${className}`}

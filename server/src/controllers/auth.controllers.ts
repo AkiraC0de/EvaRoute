@@ -1,6 +1,6 @@
 import { passResetSchema, signOutAllSchema, verifyResetPassSchema, changePasswordSchema, accountSetupSchema } from './../validations/auth.validations.js'
 import {Request, Response } from "express"
-import crypto from "crypto"
+import crypto from "node:crypto"
 import bcrypt from "bcryptjs"
 
 import { BadRequestError, BadRequestMsgError, ForbiddenError, NotFoundError, UnauthorizedError } from "../core/ApiError.js"
@@ -28,12 +28,14 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   const user = await userService.findByEmail(email)
   if(!user) {
-    throw new BadRequestMsgError("Email is not registered.")
+    // One message for both failure modes: a login probe must not reveal
+    // whether an email is registered.
+    throw new BadRequestMsgError("Incorrect email or password.")
   }
 
   const passwordMatched = await bcrypt.compare(password, user.password)
   if(!passwordMatched){
-    throw new BadRequestMsgError("Incorrect password.")
+    throw new BadRequestMsgError("Incorrect email or password.")
   }
 
   if(!user.isActive){
@@ -84,7 +86,9 @@ export const handleLogin = async (req: Request, res: Response) => {
 }
 
 export const handlePassReqReset = async (req: Request, res: Response) => {
-  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, req.query, "query") 
+  // POST body — the flow used to pass the email in the query string (GET),
+  // which leaked it into server logs, proxies, browser history and Referers.
+  const { email } = validateData<typeof passReqResetSchema>(passReqResetSchema, req.body)
 
   const user = await userService.findByEmail(email)
    if(!user) {
@@ -96,10 +100,24 @@ export const handlePassReqReset = async (req: Request, res: Response) => {
   const rawToken = generateCryptoToken()
   const hashToken = cryptoHash(rawToken)
 
+  // The OTP guessing budget is per USER, not per token: minting a fresh reset
+  // token is unauthenticated, so a per-token budget would let an attacker
+  // brute-force the 5-digit OTP with unlimited retries. The failed-attempt
+  // count carries over across tokens created inside OTP.ATTEMPT_WINDOW_MS;
+  // once the window lapses the budget starts fresh (bounded lockout, not a
+  // permanent one).
+  const existing = await tokenService.findByUserIdType(user.id, TokenType.REQ_RESET_PASS)
+  const existingPayload = (existing?.payload ?? {}) as { attempts?: number; windowStart?: number }
+  const withinWindow =
+    typeof existingPayload.windowStart === "number" &&
+    Date.now() - existingPayload.windowStart < OTP.ATTEMPT_WINDOW_MS
+  const carriedAttempts = withinWindow ? existingPayload.attempts ?? 0 : 0
+  const windowStart = withinWindow ? existingPayload.windowStart : Date.now()
+
   // One live reset session at a time: retire any earlier request tokens so a
   // previously intercepted OTP cannot stay valid alongside the new one.
   await tokenService.deleteByUserIdType(user.id, TokenType.REQ_RESET_PASS)
-  await tokenService.createReqResetPass(user.id, hashedOtp, hashToken)
+  await tokenService.createReqResetPass(user.id, hashedOtp, hashToken, carriedAttempts, windowStart)
   await ApiMailer.sendOTP(email, otp, "Reset password OTP")
 
   await logActivity(req, ActivityAction.AUTH_PASSWORD_RESET_REQUESTED, {
@@ -128,35 +146,34 @@ export const handleVerifyResetPass = async (req: Request, res: Response) => {
   const token = requireToken(req)
   const { otp } = validateData<typeof verifyResetPassSchema>(verifyResetPassSchema, req.body) 
 
-   // @ts-ignore
-  const remainingAttempts = MAX_ATTEMPT - token.payload.attempts
-  if(!remainingAttempts){
-    throw new BadRequestError("You have reached the attempts limit. Please request for resend.", { attempts: MAX_ATTEMPT, remainingAttempts })
+  // @ts-ignore
+  const currentAttempts = token.payload.attempts ?? 0
+  const remainingAttempts = MAX_ATTEMPT - currentAttempts
+  if(remainingAttempts <= 0){
+    throw new BadRequestError("Too many incorrect attempts. Please wait a few minutes and request a new OTP.", { attempts: currentAttempts, remainingAttempts: 0 })
   }
 
   // @ts-ignore
   const otpMatched = cryptoHashCompare(otp, token.payload.otp)
-  await tokenServices.incrementAttemptById(token.id)
+  // Atomic increment — the old read-modify-write let concurrent verifies lose
+  // updates and bypass the cap.
+  const attemptsAfter = await tokenServices.incrementAttemptById(token.id)
    
   if(!otpMatched){
-    // @ts-ignore
-    const currentAttempts = token.payload.attempts + 1
-    const remainingAttempts = MAX_ATTEMPT - currentAttempts
-    if(!remainingAttempts){
-      throw new BadRequestError("Incorrect PIN. You have reached the attempts limit. Please request for resend.", { attempts: currentAttempts, remainingAttempts })
+    const remainingAttemptsAfter = MAX_ATTEMPT - attemptsAfter
+    if(remainingAttemptsAfter <= 0){
+      throw new BadRequestError("Incorrect PIN. Too many incorrect attempts - please wait a few minutes and request a new OTP.", { attempts: attemptsAfter, remainingAttempts: 0 })
     }
-    throw new BadRequestError("Incorrect PIN.", { attempts: currentAttempts, remainingAttempts })
+    throw new BadRequestError("Incorrect PIN.", { attempts: attemptsAfter, remainingAttempts: remainingAttemptsAfter })
   }
 
   const newRawToken = generateCryptoToken()
   const newHashToken = cryptoHash(newRawToken)
   // Replace, don't accumulate: any earlier RESET_PASS row would otherwise stay
-  // valid for its full lifetime alongside the new one.
-  await tokenServices.deleteByUserIdType(token.userId, TokenType.RESET_PASS)
-  await tokenServices.createResetPass(token.userId, newHashToken)
-
-  // Invoke the token for requesting a reset password
-  await tokenService.deleteById(token.id)
+  // valid for its full lifetime alongside the new one. Consuming this request
+  // token happens in the SAME transaction — a partial failure must not leave
+  // both tokens (or neither) usable.
+  await tokenServices.consumeReqResetAndCreateResetPass(token.userId, token.id, newHashToken)
 
   return new SuccessResponse(
     "Correct PIN. You may now reset your password.",
@@ -172,15 +189,11 @@ export const handlePassReset = async (req: Request, res: Response) => {
   
   const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-  await userServices.updatePassword(token.userId, hashedPassword)
-
-  // Single-use: without this the row stays valid for its full 15-minute
-  // lifetime and the same Bearer token can set the password again — including
-  // after the owner has "secured" the account. Consume it before anything
-  // else can fail and leave it usable.
-  await tokenService.deleteById(token.id)
-
-  await refreshTokenService.deleteAllByUserId(token.userId)
+  // Single-use + atomic: the password change, the reset-token consumption and
+  // the session purge succeed together or not at all — a failed token delete
+  // must never leave a live reset bearer token behind after the password has
+  // already changed.
+  await tokenServices.consumeResetPassAndSetPassword(token.userId, token.id, hashedPassword)
 
   // Public flow (no access token): the actor comes from the reset token's
   // user. Best-effort — never blocks the reset itself.
@@ -223,7 +236,10 @@ export const handleRefresh = async (req: Request, res: Response) => {
   // keeps the original session horizon so grace successors inherit it — see
   // the rotation block below).
   if(refreshToken.rotatedAt && refreshToken.rotatedAt.getTime() + REFRESH_TOKEN.ROTATION_GRACE_MS < Date.now()){
-    await refreshTokenService.deleteById(refreshToken.id)
+    // Reuse detection: a token replayed after its grace window is a leaked
+    // token being used again. Revoking only this row would leave the successor
+    // chain alive — kill the user's whole refresh family instead.
+    await refreshTokenService.deleteAllByUserId(refreshToken.userId)
     throw new UnauthorizedError("Invalid token. Please proceed to login.")
   }
 

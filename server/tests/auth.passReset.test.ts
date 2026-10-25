@@ -7,6 +7,10 @@
  * same Bearer token is the reported exploit.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
+vi.hoisted(() => {
+  process.env.JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "test-secret"
+})
 import type { Request, Response } from "express"
 import bcrypt from "bcryptjs"
 
@@ -30,7 +34,7 @@ vi.mock("../src/core/ApiMailer.js", () => ({
 }))
 
 import verifyToken from "../src/middlewares/verifyToken.js"
-import { handlePassReqReset, handlePassReset, handleVerifyResetPass } from "../src/controllers/auth.controllers.js"
+import { handlePassReqReset, handlePassReset, handleRefresh, handleVerifyResetPass } from "../src/controllers/auth.controllers.js"
 import { TokenType } from "../generated/prisma/index.js"
 import { cryptoHash, generateCryptoToken } from "../src/utils/authUtils.js"
 import {
@@ -43,6 +47,7 @@ import {
   users,
 } from "./helpers/stores.js"
 import { makeReq, makeRes, runMiddleware } from "./helpers/http.js"
+import { REFRESH_TOKEN, OTP } from "../src/configs/tokenConfig.js"
 
 const OWNER_PASSWORD = "OwnerPass!2026"
 const ATTACKER_PASSWORD = "AttackerOwned!2026"
@@ -115,7 +120,7 @@ describe("reset token lifecycle", () => {
     const staleHash = cryptoHash("stale-raw-token")
     seedToken(user, staleHash, { type: TokenType.REQ_RESET_PASS })
 
-    const req = makeReq({ query: { email: user.email } })
+    const req = makeReq({ body: { email: user.email } })
     const res = makeRes()
     await handlePassReqReset(req, res as unknown as Response)
 
@@ -181,5 +186,120 @@ describe("reset token lifecycle", () => {
 
     expect(tokens.filter((t) => t.type === TokenType.REQ_RESET_PASS)).toHaveLength(0)
     expect(users.get(user.id)).toBeDefined()
+  })
+})
+
+describe("OTP guessing budget (anti-brute-force)", () => {
+  it("carries failed attempts across freshly minted reset tokens and resets only after the window", async () => {
+    const user = seedUser()
+    const raw1 = generateCryptoToken()
+    seedToken(user, cryptoHash(raw1), {
+      type: TokenType.REQ_RESET_PASS,
+      payload: { otp: cryptoHash("12345"), attempts: 0, windowStart: Date.now() },
+    })
+
+    // Burn the full guessing budget with wrong OTPs.
+    for (let i = 0; i < 10; i++) {
+      const req = makeReq({
+        headers: { authorization: `Bearer ${raw1}` },
+        body: { otp: "00000" },
+      })
+      await runMiddleware(verifyToken(TokenType.REQ_RESET_PASS), req, makeRes())
+      await expect(
+        handleVerifyResetPass(req, makeRes() as any),
+      ).rejects.toThrow(/PIN|attempts/i)
+    }
+
+    // An attacker mints a fresh token (the request endpoint is unauthenticated)...
+    const resReq = makeRes()
+    await handlePassReqReset(makeReq({ body: { email: user.email } }), resReq as any)
+    const raw2 = (resReq.body as any).data.token
+    const carried = findTokensByType(user.id, TokenType.REQ_RESET_PASS)
+    expect(carried).toHaveLength(1)
+    // ...but the budget is per USER: the fresh token inherits the burned attempts.
+    expect((carried[0].payload as any).attempts).toBe(10)
+
+    // Even the CORRECT OTP is now rejected inside the window.
+    const req2 = makeReq({
+      headers: { authorization: `Bearer ${raw2}` },
+      body: { otp: "12345" },
+    })
+    await runMiddleware(verifyToken(TokenType.REQ_RESET_PASS), req2, makeRes())
+    await expect(
+      handleVerifyResetPass(req2, makeRes() as any),
+    ).rejects.toThrow(/attempts/i)
+
+    // Once the window lapses the budget starts fresh (bounded lockout, not a
+    // permanent one): age the window, re-request, and the real OTP works.
+    const rec = findTokensByType(user.id, TokenType.REQ_RESET_PASS)[0]
+    rec.payload = {
+      ...(rec.payload as any),
+      windowStart: Date.now() - OTP.ATTEMPT_WINDOW_MS - 1_000,
+    }
+    const resReq2 = makeRes()
+    await handlePassReqReset(makeReq({ body: { email: user.email } }), resReq2 as any)
+    const raw3 = (resReq2.body as any).data.token
+    // Each request-reset generates a fresh random OTP (emailed to the owner) —
+    // the correct guess for the new token is what the mocked mailer received.
+    const { ApiMailer } = await import("../src/core/ApiMailer.js")
+    const sentOtp = (ApiMailer.sendOTP as any).mock.calls.at(-1)[1] as string
+    const req3 = makeReq({
+      headers: { authorization: `Bearer ${raw3}` },
+      body: { otp: sentOtp },
+    })
+    await runMiddleware(verifyToken(TokenType.REQ_RESET_PASS), req3, makeRes())
+    await handleVerifyResetPass(req3, makeRes() as any)
+    expect(findTokensByType(user.id, TokenType.RESET_PASS)).toHaveLength(1)
+  })
+})
+
+describe("refresh rotation — reuse detection", () => {
+  it("revokes the whole session family when a rotated token is replayed after the grace window", async () => {
+    const { refreshTokens } = await import("./helpers/stores.js")
+    const user = seedUser({ isSetupDone: true })
+    const rawRotated = generateCryptoToken()
+    refreshTokens.push(
+      {
+        id: "rt-old",
+        userId: user.id,
+        token: cryptoHash(rawRotated),
+        expiresAt: new Date(Date.now() + 60_000),
+        rotatedAt: new Date(Date.now() - REFRESH_TOKEN.ROTATION_GRACE_MS - 5_000),
+      },
+      {
+        id: "rt-live",
+        userId: user.id,
+        token: cryptoHash("live-successor"),
+        expiresAt: new Date(Date.now() + 60_000),
+        rotatedAt: null,
+      },
+    )
+
+    const req = makeReq({ cookies: { [REFRESH_TOKEN.COOKIE_NAME]: rawRotated } })
+    await expect(handleRefresh(req, makeRes() as any)).rejects.toThrow(/invalid/i)
+    // Reuse = compromise: the surviving successor dies too.
+    expect(refreshTokens.filter((r) => r.userId === user.id)).toHaveLength(0)
+  })
+
+  it("does not extend the grace window on a within-grace replay", async () => {
+    const { refreshTokens } = await import("./helpers/stores.js")
+    const user = seedUser({ isSetupDone: true })
+    const rawRotated = generateCryptoToken()
+    const stamped = new Date(Date.now() - 30_000)
+    refreshTokens.push({
+      id: "rt-old",
+      userId: user.id,
+      token: cryptoHash(rawRotated),
+      expiresAt: new Date(Date.now() + 60_000),
+      rotatedAt: stamped,
+    })
+
+    const req = makeReq({ cookies: { [REFRESH_TOKEN.COOKIE_NAME]: rawRotated } })
+    await handleRefresh(req, makeRes() as any)
+
+    const old = refreshTokens.find((r) => r.id === "rt-old")
+    // The rotation stamp stays at the FIRST rotation — a replay must not push
+    // it forward and extend the replay window.
+    expect(old?.rotatedAt?.getTime()).toBe(stamped.getTime())
   })
 })

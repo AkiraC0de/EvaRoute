@@ -14,15 +14,8 @@ export const REFRESH_TOKEN = {
 
   COOKIE_OPTIONS: {
     httpOnly: true,
-    // Browsers require `Secure` whenever sameSite is "none" (cross-site
-    // deployments) and in production; plain-http dev stays loose.
     secure: process.env.NODE_ENV === "production" || process.env.COOKIE_SAMESITE === "none",
-    // "strict" by default — localhost:5173 -> localhost:3000 is same-site
-    // (same host, different port), so it works there. Set
-    // COOKIE_SAMESITE=lax|none for other topologies (none needs HTTPS).
     sameSite: (process.env.COOKIE_SAMESITE as "strict" | "lax" | "none") ?? "strict",
-    // NOTE: no `maxAge` here — each login/refresh sets an explicit `expires`
-    // matching the token's DB expiry, so the cookie never outlives the session.
   } as CookieOptions,
 };
 
@@ -39,7 +32,8 @@ export const ACCESS_TOKEN = {
 } as const
 
 export const OTP = {
-  MAX_ATTEMPTS: 10
+  MAX_ATTEMPTS: 10,
+  ATTEMPT_WINDOW_MS: 15 * 60_000
 }
 
 export const DEFAULT_PASSWORD_LENGTH = 8

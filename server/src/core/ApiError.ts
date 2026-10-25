@@ -3,9 +3,12 @@ import { Response } from "express";
 import { 
   BadRequestMsgResponse,
   BadRequestResponse,
+  BadGatewayResponse,
+  ConflictResponse,
   ForbiddenResponse,
   InternalResponse,
   NotFoundResponse,
+  TooManyRequestsResponse,
   UnauthorizedResponse
 } from "./ApiResponse.js";
 
@@ -63,6 +66,9 @@ export const ErrorType = {
   BAD_REQUEST: "BadRequestError",
   BAD_REQUEST_MSG: "BadRequestMsgError",
   FORBIDDEN: "ForbiddenError",
+  CONFLICT: "ConflictError",
+  RATE_LIMITED: "RateLimitError",
+  BAD_GATEWAY: "BadGatewayError",
   INTERNAL: "InternalError",
   FAILED_EMAIL: "FailedEmailError",
 } as const;
@@ -85,6 +91,9 @@ export const ErrorMessage = {
   BAD_REQUEST: "Bad request. Please check your payload.",
   BAD_REQUEST_MSG: "Invalid payload or parameters provided.",
   FORBIDDEN: "You do not have permission to perform this action.",
+  CONFLICT: "The request conflicts with existing records.",
+  RATE_LIMITED: "Too many requests. Please try again later.",
+  BAD_GATEWAY: "An upstream service is temporarily unavailable.",
   INTERNAL: "An internal server error occurred.",
   FAILED_EMAIL: "Failed to send an Email. Try again later.",
 } as const;
@@ -146,10 +155,16 @@ export class ApiError extends Error {
         return new BadRequestMsgResponse(err.message).send(res)
       case ErrorType.FORBIDDEN:
         return new ForbiddenResponse(err.message).send(res)
+      case ErrorType.CONFLICT:
+        return new ConflictResponse(err.message).send(res)
+      case ErrorType.RATE_LIMITED:
+        return new TooManyRequestsResponse(err.message, err.data).send(res)
       case ErrorType.BAD_REQUEST:
         return new BadRequestResponse(err.message, err.data).send(res)
       case ErrorType.NOT_FOUND:
         return new NotFoundResponse(err.message).send(res)
+      case ErrorType.BAD_GATEWAY:
+        return new BadGatewayResponse(err.message).send(res)
       case ErrorType.FAILED_EMAIL: 
       case ErrorType.INTERNAL:
         return new InternalResponse(err.message).send(res)
@@ -255,6 +270,36 @@ export class BadRequestMsgError extends ApiError {
 export class ForbiddenError extends ApiError {
   constructor(message?: string){
     super(ErrorType.FORBIDDEN, message || ErrorMessage.FORBIDDEN)
+  }
+}
+
+/**
+ * 409 — the request conflicts with existing state (duplicate records,
+ * conflicting operations). Prefer this over a bare 500 for unique-constraint
+ * violations surfaced in business code.
+ */
+export class ConflictError extends ApiError {
+  constructor(message?: string){
+    super(ErrorType.CONFLICT, message || ErrorMessage.CONFLICT)
+  }
+}
+
+/**
+ * 429 — the client exceeded a rate limit. `data` carries
+ * `{ retryAfterSeconds }` so the client can back off.
+ */
+export class RateLimitError extends ApiError {
+  constructor(message?: string, data?: { retryAfterSeconds: number }){
+    super(ErrorType.RATE_LIMITED, message || ErrorMessage.RATE_LIMITED, data)
+  }
+}
+
+/**
+ * 502 — an upstream external service (e.g. the routing provider) failed.
+ */
+export class BadGatewayError extends ApiError {
+  constructor(message?: string){
+    super(ErrorType.BAD_GATEWAY, message || ErrorMessage.BAD_GATEWAY)
   }
 }
 

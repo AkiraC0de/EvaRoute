@@ -72,8 +72,7 @@ const StaffAccountsPage = () => {
           password: data.defaultPassword,
         });
         retry();
-      },
-      { success: "Staff account created — copy the generated password." }
+      }
     );
 
   const saveEdit = () =>
@@ -85,8 +84,7 @@ const StaffAccountsPage = () => {
         });
         setEditing(null);
         retry();
-      },
-      { success: "Name updated." }
+      }
     );
 
   const runAction = (type, staff) =>
@@ -105,14 +103,6 @@ const StaffAccountsPage = () => {
         }
         setConfirmAction(null);
         retry();
-      },
-      {
-        success: {
-          activate: "Account activated.",
-          deactivate: "Account deactivated.",
-          delete: "Account deleted.",
-          reset: "Password reset — copy the new password.",
-        }[type],
       }
     );
 
@@ -141,8 +131,7 @@ const StaffAccountsPage = () => {
         await api.assignFacilityStaff(assignFacilityId, assigning.id);
         setAssigning(null);
         retry();
-      },
-      { success: assigning.facility ? "Staff transferred to the new facility." : "Staff assigned to a facility." }
+      }
     );
 
   return (

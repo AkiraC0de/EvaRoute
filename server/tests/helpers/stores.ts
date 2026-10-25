@@ -146,13 +146,20 @@ export const fakeTokenService = {
     tokens.push(record)
     return Promise.resolve(record)
   },
-  createReqResetPass: (userId: string, hashOtp: string, hashToken: string, expiresAt?: Date) =>
+  createReqResetPass: (
+    userId: string,
+    hashOtp: string,
+    hashToken: string,
+    attempts = 0,
+    windowStart = Date.now(),
+    expiresAt?: Date,
+  ) =>
     fakeTokenService.create({
       userId,
       type: "REQ_RESET_PASS",
       token: hashToken,
       expiresAt,
-      payload: { otp: hashOtp, attempts: 0 },
+      payload: { otp: hashOtp, attempts, windowStart },
     }),
   createResetPass: (userId: string, hashToken: string, expiresAt?: Date) =>
     fakeTokenService.create({ userId, type: "RESET_PASS", token: hashToken, expiresAt }),
@@ -169,7 +176,24 @@ export const fakeTokenService = {
     if (!token) throw new Error("Token not found.")
     const payload = (token.payload ?? { otp: "", attempts: 0 }) as { otp: string; attempts: number }
     token.payload = { ...payload, attempts: payload.attempts + 1 }
-    return Promise.resolve(token)
+    // Production returns the NEW attempt count (atomic UPDATE ... RETURNING).
+    return Promise.resolve(payload.attempts + 1)
+  },
+  // Mirrors the production transaction: retire earlier RESET_PASS rows, mint
+  // the fresh one and consume the request token as one unit.
+  consumeReqResetAndCreateResetPass: (userId: string, consumedTokenId: string, hashToken: string) => {
+    fakeTokenService.deleteByUserIdType(userId, "RESET_PASS")
+    fakeTokenService.createResetPass(userId, hashToken)
+    fakeTokenService.deleteById(consumedTokenId)
+    return Promise.resolve(undefined)
+  },
+  // Mirrors the production transaction: password change + single-use token
+  // consumption + full session purge land together or not at all.
+  consumeResetPassAndSetPassword: (userId: string, consumedTokenId: string, hashedPassword: string) => {
+    fakeUserService.updatePassword(userId, hashedPassword)
+    fakeTokenService.deleteById(consumedTokenId)
+    fakeRefreshTokenService.deleteAllByUserId(userId)
+    return Promise.resolve(undefined)
   },
 }
 
@@ -194,6 +218,28 @@ export const fakeRefreshTokenService = {
       }
     }
     return Promise.resolve({ count })
+  },
+  create: (userId: string, tokenHash: string, expiresAt?: Date) => {
+    const record: RefreshRecord = {
+      id: `rt-new-${refreshTokens.length + 1}`,
+      userId,
+      token: tokenHash,
+      expiresAt: expiresAt ?? new Date(Date.now() + 60_000),
+      rotatedAt: null,
+    }
+    refreshTokens.push(record)
+    return Promise.resolve(record)
+  },
+  // Production stamps only the FIRST rotation (updateMany where rotatedAt: null)
+  // — a replay must not extend the grace window.
+  markRotated: (id: string) => {
+    const row = refreshTokens.find((r) => r.id === id)
+    if (!row) throw new Error("Refresh token not found.")
+    if (row.rotatedAt == null) {
+      row.rotatedAt = new Date()
+      return Promise.resolve({ count: 1 })
+    }
+    return Promise.resolve({ count: 0 })
   },
   deleteAllByUserIdExcept: (userId: string, keepId: string) => {
     let count = 0

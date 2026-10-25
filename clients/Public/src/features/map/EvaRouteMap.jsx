@@ -1,9 +1,8 @@
 import { useRef, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useGeolocation } from '../../hooks/useGeolocation';
 import { DEFAULT_CENTER } from '../../lib/constants';
-import { FACILITY_STATUS_META } from '../../lib/facilityMeta';
+import { getFacilityStatusMeta } from '../../lib/facilityMeta';
 import { geojsonToLatLngs } from '../../services/routing';
 function escapeHtml(value) {
     return value.replace(/[&<>'"]/g, (character) => {
@@ -17,8 +16,11 @@ function escapeHtml(value) {
         return entities[character];
     });
 }
-export default function EvaRouteMap({ containerRef, routeData, selectedCenter, facilities, userPosition, onCenterSelect, onMapReady, isNavigating, }) {
-    const { loading: geoLoading, denied: geoDenied } = useGeolocation();
+export default function EvaRouteMap({ containerRef, routeData, selectedCenter, facilities, userPosition, geoLoading = false, geoDenied = false, onCenterSelect, onMapReady, isNavigating, }) {
+    // Geolocation state is SINGLE-SOURCED in AppStateContext and passed down:
+    // a second useGeolocation() call here would hold its own state instance
+    // (it never calls requestLocation), making geoLoading/geoDenied permanently
+    // false and the guards below dead code.
     const mapRef = useRef(null);
     const markersRef = useRef(new Map());
     const userMarkerRef = useRef(null);
@@ -55,7 +57,7 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
         const visibleFacilities = isNavigating && selectedCenter ? [selectedCenter] : facilities;
         for (const facility of visibleFacilities) {
             const isSelected = facility.id === selectedCenter?.id;
-            const statusMeta = FACILITY_STATUS_META[facility.status];
+            const statusMeta = getFacilityStatusMeta(facility.status);
             const facilityName = escapeHtml(facility.name);
             const size = isSelected ? 40 : 32;
             const html = `
@@ -198,8 +200,14 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
         // Route line depends on routeData; stable after calculation
     }, [routeData]);
     // ── Navigation: follow user location with smooth pan ──
+    // The watch's lifecycle is keyed on the navigating FLAG and whether a fix
+    // EXISTS — NOT on `userPosition` itself: keying on the position object tore
+    // the watch down and re-created it on every GPS update while navigating
+    // (continuous high-accuracy watch churn). The callback reads coordinates
+    // from the watch's own updates, so no position value is needed in scope.
+    const hasUserPosition = userPosition != null;
     useEffect(() => {
-        if (!isNavigating || !mapRef.current || !userPosition || geoDenied) {
+        if (!isNavigating || !mapRef.current || !hasUserPosition || geoDenied) {
             if (navWatchActive.current) {
                 navigator.geolocation.clearWatch(navWatchId.current);
                 navWatchActive.current = false;
@@ -219,6 +227,6 @@ export default function EvaRouteMap({ containerRef, routeData, selectedCenter, f
             navigator.geolocation.clearWatch(navWatchId.current);
             navWatchActive.current = false;
         };
-    }, [isNavigating, userPosition, geoDenied]);
+    }, [isNavigating, hasUserPosition, geoDenied]);
     return null;
 }

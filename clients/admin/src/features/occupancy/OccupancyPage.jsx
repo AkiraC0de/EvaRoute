@@ -37,7 +37,8 @@ const OccupancyPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === ROLES.ADMIN;
 
-  const { facilities, facilitiesLoading, facilityId, setFacilityId } = useOccupancyFacilities(isAdmin);
+  const { facilities, facilitiesLoading, facilitiesError, retryFacilities, facilityId, setFacilityId } =
+    useOccupancyFacilities(isAdmin);
   const [ticketStay, setTicketStay] = useState(null); // successful check-in -> ticket
   const [exportOpen, setExportOpen] = useState(false); // export dialog
   const selectedFacility = facilities.find((facility) => facility.id === facilityId) ?? null;
@@ -94,7 +95,18 @@ const OccupancyPage = () => {
 
       {facilitiesLoading && <OccupancyLoading showPicker={isAdmin} />}
 
-      {!facilitiesLoading && !facilityId && !loading && <OccupancyEmpty isAdmin={isAdmin} />}
+      {/* A failed facility list is an error with retry — never the "no
+          facility" empty state (that would misreport a fetch failure as an
+          unassigned account). */}
+      {!facilitiesLoading && facilitiesError && (
+        <OccupancyError
+          title="Could not load facilities"
+          error={facilitiesError}
+          onRetry={retryFacilities}
+        />
+      )}
+
+      {!facilitiesLoading && !facilitiesError && !facilityId && !loading && <OccupancyEmpty isAdmin={isAdmin} />}
 
       {facilityId && loading && <OccupancyLoading showPicker={isAdmin} />}
 

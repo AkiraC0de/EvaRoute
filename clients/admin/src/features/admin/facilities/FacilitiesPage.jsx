@@ -36,7 +36,7 @@ import { FacilitiesLoading, FacilitiesEmpty } from "./FacilitiesStates";
  */
 
 const FacilitiesPage = () => {
-  const { values, set, clear } = useUrlFilters(FAC_FILTER_DEFAULTS);
+  const { values, set, apply, clear } = useUrlFilters(FAC_FILTER_DEFAULTS);
   const filters = useMemo(
     () => ({
       search: values.search,
@@ -67,7 +67,7 @@ const FacilitiesPage = () => {
   const [hoverId, setHoverId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
 
-  // ── Bulk selection (per page; cleared on any data change) ─────────
+  // ── Bulk selection (scoped to the current page's rows) ───────────
   const [selected, setSelected] = useState(() => new Set());
   const [bulkConfirm, setBulkConfirm] = useState(null); // "delete" | "restore"
   const toggleSelect = (id) =>
@@ -77,19 +77,27 @@ const FacilitiesPage = () => {
       else next.add(id);
       return next;
     });
+  // Select all is measured against the VISIBLE rows ("every visible id is
+  // selected"), never `Set.size === page length` — that lied whenever ids
+  // from other pages leaked in. Select-all replaces the set with exactly the
+  // visible ids; clear-all empties it.
   const toggleAll = () =>
     setSelected((current) =>
-      current.size === visible.length
+      visible.length > 0 && visible.every((facility) => current.has(facility.id))
         ? new Set()
         : new Set(visible.map((facility) => facility.id))
     );
   const clearSelection = () => setSelected(new Set());
 
+  // Any page/filter/sort change replaces the visible rows — the selection
+  // lives on those rows only, so it resets with them (never leaks across
+  // pages or survives a filter change).
   const onSort = (field) => {
     const nextOrder = sort === field && order === "asc" ? "desc" : "asc";
     set("sort", field);
     set("order", nextOrder);
     set("page", "");
+    clearSelection();
   };
 
   // Tab counts (both slices) — refreshed alongside every mutation.
@@ -120,35 +128,21 @@ const FacilitiesPage = () => {
   };
 
   // DELETE /facility/:id is a TOGGLE server-side: soft-deletes, or restores
-  // an already-deleted facility — the toast copy follows the actual effect.
+  // an already-deleted facility — the server message toasts the actual
+  // effect (exactly one toast per mutation).
   const confirmToggle = () =>
-    run(
-      async () => {
-        await api.deleteFacility(confirmTarget.id);
-        setConfirmTarget(null);
-        reload();
-      },
-      {
-        success: filters.showDeleted
-          ? "Facility restored."
-          : "Facility deleted — restore it anytime from the deleted list.",
-      }
-    );
+    run(async () => {
+      await api.deleteFacility(confirmTarget.id);
+      setConfirmTarget(null);
+      reload();
+    });
 
   const confirmBulk = () =>
-    run(
-      async () => {
-        await api.bulkToggleFacilities([...selected], bulkConfirm === "delete");
-        setBulkConfirm(null);
-        reload();
-      },
-      {
-        success:
-          bulkConfirm === "restore"
-            ? "Facilities restored."
-            : "Facilities deleted — restore them anytime from the deleted list.",
-      }
-    );
+    run(async () => {
+      await api.bulkToggleFacilities([...selected], bulkConfirm === "delete");
+      setBulkConfirm(null);
+      reload();
+    });
 
   return (
     <div>
@@ -161,14 +155,29 @@ const FacilitiesPage = () => {
 
       <FacilitiesFilterBar
         search={filters.search}
-        onSearchChange={(event) => set("search", event.target.value, { replace: true })}
+        // Filter/search/tab changes reset the URL page param in the same
+        // navigation (never in an effect) — page 3 of a filtered set renders
+        // a misleading "no facilities" empty state.
+        onSearchChange={(event) => {
+          apply({ search: event.target.value, page: "" }, { replace: true });
+          clearSelection();
+        }}
         statusFilter={filters.statusFilter}
-        onStatusChange={(event) => set("status", event.target.value)}
+        onStatusChange={(event) => {
+          apply({ status: event.target.value, page: "" });
+          clearSelection();
+        }}
         showDeleted={filters.showDeleted}
-        onTabChange={(showDeleted) => set("deleted", showDeleted ? "1" : "")}
+        onTabChange={(showDeleted) => {
+          apply({ deleted: showDeleted ? "1" : "", page: "" });
+          clearSelection();
+        }}
         activeCount={counts.active}
         deletedCount={counts.deleted}
-        onClear={clear}
+        onClear={() => {
+          clear();
+          clearSelection();
+        }}
       />
 
       {selected.size > 0 && (
@@ -259,7 +268,10 @@ const FacilitiesPage = () => {
                 totalPages={totalPages}
                 total={total}
                 pageSize={10}
-                onPage={(next) => set("page", String(next))}
+                onPage={(next) => {
+                  set("page", String(next));
+                  clearSelection();
+                }}
               />
             </div>
           )}

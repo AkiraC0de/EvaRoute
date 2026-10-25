@@ -29,14 +29,13 @@ export async function login({ email, password, keepLogin }) {
 
 /**
  * POST /api/v1/auth/signout  (auth) — drops this device's refresh token and
- * clears the cookie. The access token is discarded locally either way.
+ * clears the cookie. The local access token is discarded ONLY after the
+ * server confirms: a failed request must leave the session intact so the
+ * user stays signed in and can retry (see AuthProvider.signOut).
  */
 export async function signOut() {
-  try {
-    await request("/auth/signout", { method: "POST" });
-  } finally {
-    clearAccessToken();
-  }
+  await request("/auth/signout", { method: "POST" });
+  clearAccessToken();
 }
 
 /**
@@ -52,14 +51,14 @@ export async function signOutAllDevices(password) {
  * Password reset (public flow — no session required)
  *
  * Server contract (server/src/routes/auth.routes.ts):
- *   1. GET  /auth/password/request-reset?email=...   -> { user, token }
+ *   1. POST /auth/password/request-reset  Body: { email }  -> { user, token }
  *      The `token` is a raw single-use token; its SHA-256 hash is stored
  *      server-side (TokenType.REQ_RESET_PASS) together with a hashed 5-digit
  *      OTP that is emailed to the user. Expires in 15 minutes.
- *   2. POST /auth/password/verify-reset  (Authorization: Bearer *** 1>)
+ *   2. POST /auth/password/verify-reset  (Authorization: Bearer <token1>)
  *      Body { otp } — 5 digits, max 10 attempts.
  *      -> { token } — a NEW raw token (TokenType.RESET_PASS, 15 min expiry).
- *   3. POST /auth/password/reset  (Authorization: Bearer *** 2>)
+ *   3. POST /auth/password/reset  (Authorization: Bearer <token2>)
  *      Body { newPassword } — min 8 chars, upper + lower + digit + special
  *      (@$!%*?&). Resets the password and revokes every refresh token, so the
  *      user is signed out from all devices.
@@ -72,15 +71,16 @@ export async function signOutAllDevices(password) {
  */
 
 /**
- * Step 1 — request a reset OTP.
+ * Step 1 — request a reset OTP (POST; the email travels in the body).
  * Response data: { user: { email }, token } — keep `token` for step 2.
  * 400 "Email is not registered." when the account does not exist.
  */
 export async function requestPasswordReset(email) {
-  const { data } = await request(
-    `/auth/password/request-reset?email=${encodeURIComponent(email)}`,
-    { auth: false },
-  );
+  const { data } = await request("/auth/password/request-reset", {
+    method: "POST",
+    auth: false,
+    body: { email },
+  });
   return data;
 }
 

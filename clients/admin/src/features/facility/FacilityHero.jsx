@@ -25,7 +25,7 @@ const ESSENTIAL_SHORT_LABELS = {
  * only reinforces it. When occupancy has not loaded, the meter waits —
  * no invented numbers.
  */
-const FacilityHero = ({ facility, essentials, occupancy }) => {
+const FacilityHero = ({ facility, essentials, occupancy, occupancyError, onRetryOccupancy }) => {
   const facilityIdLabel = String(facility.id ?? "").slice(0, 8).toUpperCase();
   const essentialsReady = essentials.filter((entry) => entry.ready).length;
 
@@ -110,7 +110,9 @@ const FacilityHero = ({ facility, essentials, occupancy }) => {
               aria-label={
                 onSite !== null
                   ? `${onSite} of ${maxCapacity} places occupied, ${occupancy.remaining} free`
-                  : "Occupancy not loaded"
+                  : occupancyError
+                    ? "Occupancy could not be loaded"
+                    : "Occupancy not loaded"
               }
               className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/20"
             >
@@ -120,11 +122,24 @@ const FacilityHero = ({ facility, essentials, occupancy }) => {
                 style={{ width: `${fillPercent}%` }}
               />
             </div>
-            <p className="mt-1.5 text-[11px] text-white/85">
-              {occupancy
-                ? `${occupancy.families} ${occupancy.families === 1 ? "family" : "families"} · ${occupancy.adults} adults · ${occupancy.children} children`
-                : `Capacity ${maxCapacity} places`}
-            </p>
+            {occupancyError ? (
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <p className="text-[11px] text-white/85">Occupancy could not be loaded.</p>
+                <button
+                  type="button"
+                  onClick={onRetryOccupancy}
+                  className="inline-flex min-h-11 items-center rounded-full bg-white/15 px-3 text-[10px] font-semibold text-white transition hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:min-h-10"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <p className="mt-1.5 text-[11px] text-white/85">
+                {occupancy
+                  ? `${occupancy.families} ${occupancy.families === 1 ? "family" : "families"} · ${occupancy.adults} adults · ${occupancy.children} children`
+                  : `Capacity ${maxCapacity} places`}
+              </p>
+            )}
           </div>
 
           {/* Essentials readiness */}

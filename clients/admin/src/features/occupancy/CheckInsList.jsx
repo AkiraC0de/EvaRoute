@@ -39,6 +39,10 @@ import {
  * mutation (onCheckOutMany) and reports its outcome; the confirm dialog
  * (CheckOutConfirmDialog) lists the picked households before anything
  * happens.
+ *
+ * Single check-out is a per-row action: each household card shows a
+ * "Check out" button when the caller passes `onCheckOut(stay)`, and the
+ * caller owns that mutation too (same seam as onCheckOutMany).
  */
 const MODES = [
   { key: "household", label: "Household" },
@@ -54,7 +58,7 @@ const CATEGORIES = [
 /** Rows per page — both views (Household and Individual). */
 const PAGE_SIZE = 10;
 
-const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
+const CheckInsList = ({ stays, busy, onCheckOut, onCheckOutMany }) => {
   const [mode, setMode] = useState("household");
   // Slide direction for the view switch: +1 Household -> Individual (content
   // enters from the right), -1 the other way. Set in the handler, read at
@@ -134,6 +138,11 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
   // on an empty one.
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
+  // Keep `page` itself clamped: when the list shrinks under a high page the
+  // state syncs to the clamped one immediately (same rendered output), so a
+  // later regrow can't yank the view back to the stale page. goToPage's
+  // click-sync covers the interactive path.
+  if (page !== safePage) setPage(safePage);
   const pageRows = rows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // Page buttons: all of them when few, otherwise a window around the
@@ -153,9 +162,16 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
 
   // Page travel: the next page slides in from the right, the previous page
   // from the left. One direction flag feeds the shared variants via `custom`.
+  // `target` is clamped to the real page range, and clicking the clamped
+  // current page still syncs a stale `page` back — an early return on
+  // `target === safePage` used to leave `page` above `pageCount`, so a later
+  // regrow silently yanked the view back to the stale high page.
   const goToPage = (next) => {
-    const target = Math.max(1, next);
-    if (target === safePage) return;
+    const target = Math.min(Math.max(1, next), pageCount);
+    if (target === safePage) {
+      if (page !== safePage) setPage(safePage);
+      return;
+    }
     setDir(target > safePage ? 1 : -1);
     setPage(target);
   };
@@ -416,6 +432,10 @@ const CheckInsList = ({ stays, busy, onCheckOutMany }) => {
                 busy={busy || !selectable}
                 selected={selectable && selectedIds.has(stay.id)}
                 onToggle={selectable ? toggleSelected : undefined}
+                // Per-row single check-out — only when the caller owns the
+                // mutation (the real busy flag, not the read-only switch).
+                onCheckOut={onCheckOut}
+                checkOutBusy={busy}
               />
             ))
           : pageRows.map((entry) => (

@@ -8,7 +8,9 @@ import { PermissionsType, ROLE_PERMISSIONS } from "../configs/permissionConfig.j
 
 const verifyAuthorization = (requiredPermissions: PermissionsType) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.auth || !ROLE_PERMISSIONS[req.auth.role].includes(requiredPermissions)) {
+    // Optional chaining + ?? false: a role missing from ROLE_PERMISSIONS is a
+    // 403 (unknown role has no permissions), never a TypeError-turned-500.
+    if (!req.auth || !(ROLE_PERMISSIONS[req.auth.role]?.includes(requiredPermissions) ?? false)) {
       throw new ForbiddenError( "You do not have permission to access this resource.")
     }
 

@@ -3,16 +3,23 @@ import z from "zod";
 export const registerFacilitySchema = z.object({
   name: z
     .string("name is required.")
-    .trim(),
+    .trim()
+    .min(1, "name is required.")
+    .max(120, "name must be at most 120 characters."),
   address: z
     .string("address is required.")
-    .trim(),
+    .trim()
+    .min(1, "address is required.")
+    .max(255, "address must be at most 255 characters."),
   note: z
     .string()
     .trim()
+    .max(1000, "note must be at most 1000 characters.")
     .optional(),
   maxCapacity: z
-    .number("maxCapacity is required"),
+    .number("maxCapacity is required")
+    .int("maxCapacity must be a whole number.")
+    .positive("maxCapacity must be greater than zero."),
   longitude: z
     .number("longtitude is required.")
     .min(-180)
@@ -39,6 +46,21 @@ export const registerFacilitySchema = z.object({
       "resources must be a list.",
     )
     .max(3, "At most one entry per essential resource.")
+    // Length alone cannot promise uniqueness — reject duplicate essentialType
+    // entries instead of silently keeping the last one.
+    .superRefine((entries, ctx) => {
+      const seen = new Set<string>()
+      for (const entry of entries) {
+        if (seen.has(entry.essentialType)) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Duplicate essential resource entry '${entry.essentialType}' — each essential resource may appear at most once.`,
+          })
+          return
+        }
+        seen.add(entry.essentialType)
+      }
+    })
     .optional(),
 })
 
@@ -71,17 +93,24 @@ export const patchFacilitySchema = z.object({
   name: z
     .string("name must be a string.")
     .trim()
+    .min(1, "name is required.")
+    .max(120, "name must be at most 120 characters.")
     .optional(),
   address: z
     .string("address must be a string.")
     .trim()
+    .min(1, "address is required.")
+    .max(255, "address must be at most 255 characters.")
     .optional(),
   note: z
     .string("note must be a string.")
     .trim()
+    .max(1000, "note must be at most 1000 characters.")
     .optional(),
   maxCapacity: z
-    .number("maxCapacity is required")
+    .number("maxCapacity must be a number.")
+    .int("maxCapacity must be a whole number.")
+    .positive("maxCapacity must be greater than zero.")
     .optional(),
   status: z
     .enum(["AVAILABLE", "UNAVAILABLE"], "status must be either AVAILABLE or UNAVAILABLE.")

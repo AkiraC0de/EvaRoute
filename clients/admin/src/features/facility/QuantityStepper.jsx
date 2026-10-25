@@ -7,6 +7,8 @@ import { motion, useReducedMotion } from "motion/react";
  * fine ±1 steps sit at the outer edges. Every click calls `onStep(delta)` —
  * the PATCH and feeds the saved record back in, so the control never shows
  * unsaved numbers. The value gets a tiny settle animation on each change.
+ * The + buttons disable at `max` (the record's maxValue) so the stepper can
+ * never propose a value above the ceiling the server enforces.
  */
 const DECREASE = [-1, -10];
 const INCREASE = [10, 1];
@@ -14,8 +16,9 @@ const INCREASE = [10, 1];
 const STEP_BUTTON =
   "min-h-11 min-w-11 rounded-full bg-surface px-1.5 py-1 text-[11px] font-semibold text-primary-ink transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-50 sm:min-h-8 sm:min-w-8";
 
-const QuantityStepper = ({ name, value, busy, onStep }) => {
+const QuantityStepper = ({ name, value, max, busy, onStep }) => {
   const reduceMotion = useReducedMotion();
+  const atMax = typeof max === "number" && value >= max;
 
   return (
     <div className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
@@ -47,7 +50,7 @@ const QuantityStepper = ({ name, value, busy, onStep }) => {
           type="button"
           aria-label={`+${delta} ${name}`}
           title={`+${delta} ${name}`}
-          disabled={busy}
+          disabled={busy || atMax}
           onClick={() => onStep(delta)}
           className={STEP_BUTTON}
         >

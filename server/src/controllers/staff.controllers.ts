@@ -1,18 +1,33 @@
 import { Request, Response } from "express"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
+import prisma from "../lib/prisma.js"
 import userServices from "../services/user.services.js"
 import refreshTokenService from "../services/refreshToken.services.js"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
 import { BadRequestMsgError, NotFoundError } from "../core/ApiError.js"
-import { requireAuth, generateCryptoToken } from "../utils/authUtils.js"
+import { requireAuth } from "../utils/authUtils.js"
 import { toStaffDTO } from "../utils/staffUtils.js"
-import { validateData, paramErr } from "../utils/validatorUtils.js"
-import { DEFAULT_PASSWORD_LENGTH } from "../configs/tokenConfig.js"
+import { validateData, parseUuidParam } from "../utils/validatorUtils.js"
 import { ApiMailer } from "../core/ApiMailer.js"
 import { registerSchema, listStaffQuerySchema, patchStaffSchema } from "../validations/staff.validations.js"
 import { UserRole, ActivityAction } from "../../generated/prisma/index.js"
 import { logActivity } from "../utils/activityUtils.js"
+
+// Default staff password: 16 chars over [A-Za-z0-9@$!%*?&] (68 symbols,
+// ~97 bits of entropy), sampled uniformly via crypto.randomInt — the previous
+// 8-hex-char default (~32 bits) was brute-forceable.
+const DEFAULT_PASSWORD_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&"
+const DEFAULT_PASSWORD_LENGTH = 16
+
+const generateDefaultPassword = () => {
+  let password = ""
+  for (let i = 0; i < DEFAULT_PASSWORD_LENGTH; i += 1) {
+    password += DEFAULT_PASSWORD_CHARSET[crypto.randomInt(DEFAULT_PASSWORD_CHARSET.length)]
+  }
+  return password
+}
 
 export const handleCreateStaffAccount = async (req: Request, res: Response) => {
   const userData = validateData<typeof registerSchema>(registerSchema, req.body)
@@ -23,7 +38,7 @@ export const handleCreateStaffAccount = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("This email address is already registered.")
   }
 
-  const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
+  const defaultPassword = generateDefaultPassword()
   const hashedPassword = await bcrypt.hash(defaultPassword, 12)
 
   const createdUser = await userServices.create({
@@ -67,10 +82,7 @@ export const handleListStaffs = async (req: Request, res: Response) => {
 }
 
 export const handleGetStaff = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findByIdWithFacility(userId)
   if (!user || user.role !== UserRole.FACILITY_STAFF) {
@@ -81,10 +93,7 @@ export const handleGetStaff = async (req: Request, res: Response) => {
 }
 
 export const handlePatchStaff = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findById(userId)
   if (!user || user.role !== UserRole.FACILITY_STAFF) {
@@ -117,10 +126,7 @@ export const handlePatchStaff = async (req: Request, res: Response) => {
 }
 
 export const handleActivateStaff = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findById(userId)
   if (!user || user.role !== UserRole.FACILITY_STAFF) {
@@ -142,10 +148,7 @@ export const handleActivateStaff = async (req: Request, res: Response) => {
 
 export const handleDeactivateStaff = async (req: Request, res: Response) => {
   const { userId: callerId } = requireAuth(req)
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   if (callerId === userId) {
     throw new BadRequestMsgError("You cannot deactivate your own account.")
@@ -160,8 +163,12 @@ export const handleDeactivateStaff = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("This account is already deactivated.")
   }
 
-  await userServices.setActive(userId, false)
-  await refreshTokenService.deleteAllByUserId(userId)
+  // Atomic: the account flips to inactive and every refresh token dies with
+  // it — partial state (disabled account with live sessions) is impossible.
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { isActive: false } }),
+    prisma.refreshToken.deleteMany({ where: { userId } })
+  ])
 
   await logActivity(req, ActivityAction.STAFF_DEACTIVATED, {
     target: { id: user.id, label: user.email }
@@ -171,22 +178,23 @@ export const handleDeactivateStaff = async (req: Request, res: Response) => {
 }
 
 export const handleResetStaffPassword = async (req: Request, res: Response) => {
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   const user = await userServices.findById(userId)
   if (!user || user.role !== UserRole.FACILITY_STAFF) {
     throw new NotFoundError("Staff account not found.")
   }
 
-  const defaultPassword = generateCryptoToken().slice(0, DEFAULT_PASSWORD_LENGTH)
+  const defaultPassword = generateDefaultPassword()
   const hashedPassword = await bcrypt.hash(defaultPassword, 12)
 
   await userServices.updatePassword(userId, hashedPassword)
   await refreshTokenService.deleteAllByUserId(userId)
-  if (!user.isActive) {
+  // Keep the existing workflow (a reset brings a deactivated account back),
+  // but make the side effect explicit: it is recorded in the audit trail and
+  // stated in the response so the admin knows the account is active again.
+  const reactivated = !user.isActive
+  if (reactivated) {
     await userServices.setActive(userId, true)
   }
 
@@ -205,21 +213,25 @@ export const handleResetStaffPassword = async (req: Request, res: Response) => {
   await logActivity(req, ActivityAction.STAFF_PASSWORD_RESET, {
     target: { id: user.id, label: user.email }
   })
+  if (reactivated) {
+    await logActivity(req, ActivityAction.STAFF_ACTIVATED, {
+      target: { id: user.id, label: user.email },
+      metadata: { via: "password-reset" }
+    })
+  }
 
+  const reactivatedNote = reactivated ? " The account has been reactivated." : ""
   return new SuccessResponse(
     emailSent
-      ? `Password for ${user.email} has been reset. Share it with the staff securely; they must change it after logging in.`
-      : `Password for ${user.email} has been reset, but the email could not be sent. Share the password with the staff manually — they must change it after logging in.`,
+      ? `Password for ${user.email} has been reset.${reactivatedNote} Share it with the staff securely; they must change it after logging in.`
+      : `Password for ${user.email} has been reset, but the email could not be sent.${reactivatedNote} Share the password with the staff manually — they must change it after logging in.`,
     { defaultPassword, emailSent }
   ).send(res)
 }
 
 export const handleDeleteStaff = async (req: Request, res: Response) => {
   const { userId: callerId } = requireAuth(req)
-  const userId = req.params.userId as string
-  if (!userId) {
-    throw new BadRequestMsgError(paramErr(["userId"]))
-  }
+  const userId = parseUuidParam(req.params.userId, "userId")
 
   if (callerId === userId) {
     throw new BadRequestMsgError("You cannot delete your own account.")

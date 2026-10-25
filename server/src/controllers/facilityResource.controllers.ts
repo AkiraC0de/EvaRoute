@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { validateData, paramErr } from '../utils/validatorUtils.js'
+import { validateData, parseUuidParam } from '../utils/validatorUtils.js'
 import { createResourceSchema, updateResourceSchema } from '../validations/facilityResource.validations.js'
 
 import facilityResourceServices from '../services/facilityResource.services.js'
@@ -11,10 +11,7 @@ import { ActivityAction } from '../../generated/prisma/index.js'
 import { logActivity } from '../utils/activityUtils.js'
 
 export const handleGetResources = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError(paramErr(['facilityId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -27,11 +24,8 @@ export const handleGetResources = async (req: Request, res: Response) => {
 }
 
 export const handleGetResource = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  const resourceId = req.params.resourceId as string
-  if(!facilityId || !resourceId){
-    throw new BadRequestMsgError(paramErr(['facilityId', 'resourceId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
+  const resourceId = parseUuidParam(req.params.resourceId, 'resourceId')
 
   await assertFacilityAccess(req, facilityId)
 
@@ -44,10 +38,7 @@ export const handleGetResource = async (req: Request, res: Response) => {
 }
 
 export const handleCreateResource = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError(paramErr(['facilityId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -65,6 +56,8 @@ export const handleCreateResource = async (req: Request, res: Response) => {
     throw new BadRequestMsgError('Essential resources are part of every facility — update its status instead of creating a copy.')
   }
 
+  // The unique (facilityId, name) constraint backs the pre-check above — a
+  // concurrent create that slips past it still gets the friendly 400.
   const resource = await facilityResourceServices.create({
     name: data.name,
     type: data.type,
@@ -72,6 +65,11 @@ export const handleCreateResource = async (req: Request, res: Response) => {
     availableValue: data.availableValue ?? null,
     maxValue: data.maxValue ?? null,
     facility: { connect: { id: facilityId } }
+  }).catch((err: { code?: string }) => {
+    if (err?.code === "P2002") {
+      throw new BadRequestMsgError('A resource with this name already exists in this facility.')
+    }
+    throw err
   })
 
   await logActivity(req, ActivityAction.RESOURCE_CREATED, {
@@ -89,11 +87,8 @@ export const handleCreateResource = async (req: Request, res: Response) => {
 }
 
 export const handleUpdateResource = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  const resourceId = req.params.resourceId as string
-  if(!facilityId || !resourceId){
-    throw new BadRequestMsgError(paramErr(['facilityId', 'resourceId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
+  const resourceId = parseUuidParam(req.params.resourceId, 'resourceId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -104,13 +99,35 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
 
   const data = validateData<typeof updateResourceSchema>(updateResourceSchema, req.body)
 
-  // Cross-field guard: combined update must stay valid for the resource type
+  // Mandatory essentials keep their contract exactly like the delete path:
+  // they may not be renamed to arbitrary names or have their type altered.
+  if (
+    resource.essentialType &&
+    ((data.name !== undefined && data.name !== resource.name) ||
+      (data.type !== undefined && data.type !== resource.type))
+  ) {
+    throw new BadRequestMsgError('Essential resources cannot be renamed or have their type changed. Update its status instead.')
+  }
+
+  // Type invariants hold for the EFFECTIVE type (incoming `type` if provided,
+  // otherwise the existing row's) — even when `type` is absent from the patch.
   const effectiveType = data.type ?? resource.type
   if (effectiveType === 'QUANTITY') {
+    if (data.isAvailable !== undefined) {
+      throw new BadRequestMsgError('isAvailable must not be set for QUANTITY resources.')
+    }
     const newAvailable = data.availableValue ?? resource.availableValue
     const newMax = data.maxValue ?? resource.maxValue
     if (newAvailable !== null && newMax !== null && newAvailable > newMax) {
       throw new BadRequestMsgError('availableValue cannot exceed maxValue.')
+    }
+  }
+  if (effectiveType === 'BOOLEAN') {
+    if (data.availableValue !== undefined) {
+      throw new BadRequestMsgError('availableValue must not be set for BOOLEAN resources.')
+    }
+    if (data.maxValue !== undefined) {
+      throw new BadRequestMsgError('maxValue must not be set for BOOLEAN resources.')
     }
   }
 
@@ -128,12 +145,27 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
     }
   }
 
+  // A type flip must not leave the old type's fields behind — null the stale
+  // opposite-type fields in the same write.
+  const typeFlip = data.type !== undefined && data.type !== resource.type
+  // Same P2002 backstop as create: a concurrent rename into an occupied name
+  // is caught by the unique (facilityId, name) constraint, not a 500.
   const updatedResource = await facilityResourceServices.update(resourceId, {
     name: data.name,
     type: data.type,
     isAvailable: data.isAvailable,
     availableValue: data.availableValue,
-    maxValue: data.maxValue
+    maxValue: data.maxValue,
+    ...(typeFlip
+      ? data.type === 'QUANTITY'
+        ? { isAvailable: null }
+        : { availableValue: null, maxValue: null }
+      : {})
+  }).catch((err: { code?: string }) => {
+    if (err?.code === "P2002") {
+      throw new BadRequestMsgError('A resource with this name already exists in this facility.')
+    }
+    throw err
   })
 
   await logActivity(req, ActivityAction.RESOURCE_UPDATED, {
@@ -161,11 +193,8 @@ export const handleUpdateResource = async (req: Request, res: Response) => {
 }
 
 export const handleDeleteResource = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  const resourceId = req.params.resourceId as string
-  if(!facilityId || !resourceId){
-    throw new BadRequestMsgError(paramErr(['facilityId', 'resourceId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
+  const resourceId = parseUuidParam(req.params.resourceId, 'resourceId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 

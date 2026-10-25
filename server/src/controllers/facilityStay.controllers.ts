@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { validateData, paramErr } from '../utils/validatorUtils.js'
+import { validateData, parseUuidParam } from '../utils/validatorUtils.js'
 import { checkInSchema, getStaysQuerySchema } from '../validations/facilityStay.validations.js'
 
 import facilityStayServices from '../services/facilityStay.services.js'
@@ -11,10 +11,7 @@ import { logActivity } from '../utils/activityUtils.js'
 
 // GET /facility/:facilityId/stay?status=ACTIVE|CHECKED_OUT
 export const handleGetStays = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError(paramErr(['facilityId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
 
   const facility = await assertFacilityAccess(req, facilityId)
   const { status } = validateData<typeof getStaysQuerySchema>(getStaysQuerySchema, req.query, 'query')
@@ -29,10 +26,7 @@ export const handleGetStays = async (req: Request, res: Response) => {
 
 // GET /facility/:facilityId/stay/occupancy
 export const handleGetOccupancy = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError(paramErr(['facilityId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -50,11 +44,8 @@ export const handleGetOccupancy = async (req: Request, res: Response) => {
 
 // GET /facility/:facilityId/stay/:stayId
 export const handleGetStay = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  const stayId = req.params.stayId as string
-  if(!facilityId || !stayId){
-    throw new BadRequestMsgError(paramErr(['facilityId', 'stayId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
+  const stayId = parseUuidParam(req.params.stayId, 'stayId')
 
   await assertFacilityAccess(req, facilityId)
 
@@ -68,34 +59,16 @@ export const handleGetStay = async (req: Request, res: Response) => {
 
 // POST /facility/:facilityId/stay — check in a family with its members
 export const handleCheckIn = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError(paramErr(['facilityId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
   const data = validateData<typeof checkInSchema>(checkInSchema, req.body)
 
-  // Capacity guard: the whole family must fit in the remaining slots
-  const activeMembers = await facilityStayServices.countActiveMembers(facilityId)
-  const remaining = facility.maxCapacity - activeMembers
-  if(data.members.length > remaining){
-    throw new BadRequestMsgError(
-      `Not enough capacity for this household. Only ${remaining} slot${remaining === 1 ? '' : 's'} left in facility ${facility.name}.`
-    )
-  }
-
-  const stay = await facilityStayServices.create({
-    familyName: data.familyName,
-    facility: { connect: { id: facilityId } },
-    members: {
-      create: data.members.map(member => ({
-        fullName: member.fullName,
-        ageGroup: member.ageGroup
-      }))
-    }
-  })
+  // Capacity guard + ticket allocation run atomically in one transaction
+  // serialized per facility (see facilityStayServices.checkIn) — concurrent
+  // check-ins can no longer overflow maxCapacity or collide on checkInCode.
+  const stay = await facilityStayServices.checkIn(facilityId, data)
 
   // Member names are NOT duplicated into the log (PII minimization) — the
   // stay record is the source of truth; the log keeps counts only.
@@ -120,11 +93,8 @@ export const handleCheckIn = async (req: Request, res: Response) => {
 
 // POST /facility/:facilityId/stay/:stayId/checkout
 export const handleCheckOut = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  const stayId = req.params.stayId as string
-  if(!facilityId || !stayId){
-    throw new BadRequestMsgError(paramErr(['facilityId', 'stayId']))
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, 'facilityId')
+  const stayId = parseUuidParam(req.params.stayId, 'stayId')
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -137,7 +107,11 @@ export const handleCheckOut = async (req: Request, res: Response) => {
     throw new BadRequestMsgError(`Family ${stay.familyName} has already checked out.`)
   }
 
-  await facilityStayServices.checkOut(stayId)
+  // Conditional update: only one concurrent check-out can flip checkedOutAt.
+  const checkedOut = await facilityStayServices.checkOut(stayId)
+  if(checkedOut.count === 0){
+    throw new BadRequestMsgError('This stay has already been checked out.')
+  }
 
   const durationMs = stay.checkedInAt ? Date.now() - stay.checkedInAt.getTime() : null
 

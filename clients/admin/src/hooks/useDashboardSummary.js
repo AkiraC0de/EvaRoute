@@ -13,7 +13,11 @@ export default function useDashboardSummary(facilityId) {
   const [tick, setTick] = useState(0);
   const keyRef = useRef(key);
 
-  const reload = () => setTick((t) => t + 1);
+  const reload = () => {
+    // Clear the error so `loading` re-arms for the retry below.
+    setState((prev) => ({ ...prev, error: null }));
+    setTick((t) => t + 1);
+  };
 
   useEffect(() => {
     keyRef.current = key;
@@ -30,8 +34,11 @@ export default function useDashboardSummary(facilityId) {
 
   return {
     summary: state.forKey === key ? state.data : null,
-    loading: state.forKey !== key || state.data === null,
-    error: state.error,
+    // Loading resolves on error too: a failed fetch must not spin skeletons
+    // forever (data stays null on failure — the error state is what renders).
+    loading: state.forKey !== key || (state.data === null && state.error === null),
+    // Stale errors are gated by key, like the activity hooks do.
+    error: state.forKey === key ? state.error : null,
     reload,
   };
 }

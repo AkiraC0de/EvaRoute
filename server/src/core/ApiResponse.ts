@@ -49,9 +49,15 @@ export const ResponseStatus = {
   /** 403 — the requestor is authenticated but not allowed to do this. */
   FORBIDDEN: 403, 
   /** 404 — the requested resource does not exist. */
-  NOT_FOUND: 404, 
+  NOT_FOUND: 404,
+  /** 409 — the request conflicts with existing state (e.g. duplicates). */
+  CONFLICT: 409,
+  /** 429 — too many requests; the client is being rate limited. */
+  TOO_MANY_REQUESTS: 429,
   /** 500 — an unexpected server-side failure occurred. */
   INTERNAL_ERROR: 500,
+  /** 502 — an upstream external service failed. */
+  BAD_GATEWAY: 502,
 } as const
 
 export type ResponseStatus = typeof ResponseStatus[keyof typeof ResponseStatus];
@@ -239,5 +245,40 @@ export class ForbiddenResponse extends ApiResponse {
 export class InternalResponse extends ApiResponse {
   constructor(message: string){
     super(ResponseStatus.INTERNAL_ERROR, message)
+  }
+}
+
+/**
+ * 409 — the request conflicts with existing state.
+ * Use for duplicate/unique violations and conflicting operations.
+ */
+export class ConflictResponse extends ApiResponse {
+  constructor(message: string){
+    super(ResponseStatus.CONFLICT, message)
+  }
+}
+
+/**
+ * 429 — the client is being rate limited.
+ * Carries `data: { retryAfterSeconds }` so the client can back off.
+ */
+export class TooManyRequestsResponse<T> extends ApiResponse {
+  data: T;
+  constructor(message: string, data: T){
+    super(ResponseStatus.TOO_MANY_REQUESTS, message)
+    this.data = data
+  }
+
+  send(res: Response){
+    return super.prepare(res, this)
+  }
+}
+
+/**
+ * 502 — an upstream external service failed (e.g. the routing provider).
+ */
+export class BadGatewayResponse extends ApiResponse {
+  constructor(message: string){
+    super(ResponseStatus.BAD_GATEWAY, message)
   }
 }

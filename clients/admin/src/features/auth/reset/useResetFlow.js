@@ -6,7 +6,7 @@ const STEP_ORDER = { email: 0, otp: 1, password: 2 };
 
 /**
  * 3-step password reset state machine, mirroring the server contract exactly:
- *   1. GET  /auth/password/request-reset?email=  -> { token } (REQ_RESET_PASS)
+ *   1. POST /auth/password/request-reset  Body: { email }  -> { token } (REQ_RESET_PASS)
  *   2. POST /auth/password/verify-reset  (Bearer token1 + { otp })
  *        -> { token } (RESET_PASS)
  *   3. POST /auth/password/reset  (Bearer token2 + { newPassword })

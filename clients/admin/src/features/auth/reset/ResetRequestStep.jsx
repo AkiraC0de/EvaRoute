@@ -3,7 +3,7 @@ import TextField from "../../../components/ui/Field";
 
 /**
  * Step 1 of the reset flow — request an OTP for an email account.
- * Calls GET /api/v1/auth/password/request-reset?email=…
+ * Calls POST /api/v1/auth/password/request-reset with { email } in the body.
  */
 const ResetRequestStep = ({ email, onEmailChange, onSubmit, busy }) => (
   <form onSubmit={onSubmit} className="space-y-3">

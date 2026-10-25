@@ -48,7 +48,7 @@ const FacilityDetailPage = () => {
     removeResource,
   } = useFacilityResources(facility?.deletedAt ? null : facilityId);
 
-  const { stays, checkIn, checkOutMany } = useStays(facility?.deletedAt ? null : facilityId);
+  const { stays, checkOut, checkOutMany } = useStays(facility?.deletedAt ? null : facilityId);
 
   useEffect(() => {
     let cancelled = false;
@@ -189,8 +189,16 @@ const FacilityDetailPage = () => {
             <CheckInsList
               stays={stays}
               busy={busy}
-              onCheckOut={async (payload) => {
-                await run(() => checkIn(payload));
+              onCheckOut={async (stay) => {
+                // Single check-out: the same checkout POST as the bulk seam
+                // (checkIn here was a wrong-mutation trap). `run` carries the
+                // busy/error discipline and the request layer toasts the
+                // server message; the activity trail refreshes either way.
+                try {
+                  await run(() => checkOut(stay.id));
+                } finally {
+                  setActivityKey((key) => key + 1);
+                }
               }}
               // Bulk check-out seam (same shape as the Occupancy page):
               // checkOutMany loops the per-stay checkout POST silent and

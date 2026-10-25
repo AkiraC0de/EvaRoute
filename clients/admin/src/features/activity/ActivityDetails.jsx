@@ -7,8 +7,10 @@ import { buildDetailRows, redact } from "./detailFormat";
  * Family members of a stay event — fetched on expand from the stay record
  * (the source of truth; the activity log keeps counts only, by design).
  * Renders name + age-group chips, or an honest quiet note when the record
- * can no longer be fetched. Only stay events (metadata.stayId +
- * metadata.facility.id) trigger the fetch.
+ * can no longer be fetched. Only stay events (STAY_* actions) trigger the
+ * fetch — their targetId IS the stay id; for any other action family
+ * (facility/resource/staff events) targetId is a resource/staff/facility id
+ * and must never be fetched as a stay.
  */
 function StayMembers({ facilityId, stayId }) {
   const [state, setState] = useState({ status: "loading", members: [] });
@@ -74,8 +76,12 @@ function StayMembers({ facilityId, stayId }) {
 export default function ActivityDetails({ metadata, log }) {
   const rows = buildDetailRows(redact(metadata ?? {}));
   // The log row denormalizes facilityId/targetId as SIBLINGS of metadata —
-  // stay events carry the stay id in metadata.stayId (or targetId).
-  const stayId = metadata?.stayId ?? log?.targetId ?? null;
+  // stay events carry the stay id in metadata.stayId (or targetId). Gated on
+  // the STAY_* action family: non-stay rows carry a targetId too, but it is a
+  // resource/staff/facility id — falling back to it built a bogus stay fetch
+  // (404) and a bogus "Family members" panel on every expanded row.
+  const isStayAction = typeof log?.action === "string" && log.action.startsWith("STAY_");
+  const stayId = isStayAction ? (metadata?.stayId ?? log?.targetId ?? null) : null;
   const facilityId = metadata?.facility?.id ?? log?.facilityId ?? null;
   const stayFetch =
     stayId && facilityId ? { facilityId, stayId } : null;

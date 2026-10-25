@@ -8,6 +8,7 @@ const browserGlobals = {
   navigator: 'readonly',
   console: 'readonly',
   fetch: 'readonly',
+  AbortSignal: 'readonly',
   URLSearchParams: 'readonly',
   URL: 'readonly',
   setTimeout: 'readonly',

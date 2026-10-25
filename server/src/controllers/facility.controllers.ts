@@ -1,9 +1,11 @@
 import { Request, Response } from "express"
-import { validateData } from "../utils/validatorUtils.js"
+import { validateData, parseUuidParam } from "../utils/validatorUtils.js"
 import prisma from "../lib/prisma.js"
 import { bulkToggleFacilitySchema, getFacilityQuerySchema, patchFacilitySchema, registerFacilitySchema } from "../validations/facility.validations.js"
 
 import facilityServices from "../services/facility.services.js"
+import facilityResourceServices from "../services/facilityResource.services.js"
+import userServices from "../services/user.services.js"
 import { SuccessMsgResponse, SuccessResponse } from "../core/ApiResponse.js"
 import { BadRequestMsgError, ForbiddenError, NotFoundError } from "../core/ApiError.js"
 import { UserRole, ActivityAction, Prisma } from "../../generated/prisma/index.js"
@@ -93,7 +95,14 @@ export const handleRegisterFacility = async (req: Request, res: Response) => {
   }
   
   // Atomic: the facility + its three essential resources commit together.
-  const createdFacility = await facilityServices.create(facilityData, resources)
+  // Under concurrent registration a P2002 on the coordinate unique can still
+  // surface past the pre-check — map it to a friendly 400 instead of a 500.
+  const createdFacility = await facilityServices.create(facilityData, resources).catch((err: { code?: string }) => {
+    if (err?.code === "P2002") {
+      throw new BadRequestMsgError("Another active facility already exists at this location.")
+    }
+    throw err
+  })
 
   await logActivity(req, ActivityAction.FACILITY_CREATED, {
     facility: { id: createdFacility.id, name: createdFacility.name },
@@ -101,28 +110,38 @@ export const handleRegisterFacility = async (req: Request, res: Response) => {
     metadata: { maxCapacity: createdFacility.maxCapacity }
   })
 
-  return new SuccessResponse(`New facility named ${facilityData.name} has been registered.`, facilityData).send(res)
+  // Return the CREATED entity — id, persisted fields (including defaults like
+  // `status`) and the created essential resources — not the request echo,
+  // which carried neither the id nor the persisted state.
+  const createdEssentials = await facilityResourceServices.findByFacilityId(createdFacility.id)
+
+  return new SuccessResponse(
+    `New facility named ${facilityData.name} has been registered.`,
+    { ...createdFacility, resources: createdEssentials }
+  ).send(res)
 }
 
 export const handleDeleteFacility = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError("facilityId is required as parameter.")
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, "facilityId")
 
   // Toggle: if the facility is soft-deleted, DELETE restores it.
   const deletedFacility = await facilityServices.findDeletedById(facilityId)
   if(deletedFacility){
-    // A soft-deleted facility's coordinates may have been taken by a new facility meanwhile.
+    // A soft-deleted facility's coordinates may have been taken by a new (active) facility meanwhile.
     const conflicting = await facilityServices.findByLongLat([
       Number(deletedFacility.longitude),
       Number(deletedFacility.latitude)
-    ])
+    ], deletedFacility.id)
     if (conflicting) {
       throw new BadRequestMsgError(`Cannot restore facility ${deletedFacility.name}: its location is now occupied by facility ${conflicting.name}. Update its coordinates first.`)
     }
 
-    await facilityServices.restoreById(facilityId)
+    await facilityServices.restoreById(facilityId).catch((err: { code?: string }) => {
+      if (err?.code === "P2002") {
+        throw new BadRequestMsgError("Another active facility already exists at this location.")
+      }
+      throw err
+    })
     await logActivity(req, ActivityAction.FACILITY_RESTORED, {
       facility: { id: deletedFacility.id, name: deletedFacility.name },
       target: { id: deletedFacility.id, label: deletedFacility.name }
@@ -141,7 +160,10 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
     throw new BadRequestMsgError("Cannot delete a facility with checked-in evacuees. Please check them out first.")
   }
 
-  await facilityServices.softDeleteById(facilityId)
+  const deletedNow = await facilityServices.softDeleteById(facilityId)
+  if (!deletedNow) {
+    throw new BadRequestMsgError("Facility changed state while processing.")
+  }
 
   await logActivity(req, ActivityAction.FACILITY_DELETED, {
     facility: { id: facility.id, name: facility.name },
@@ -152,10 +174,7 @@ export const handleDeleteFacility = async (req: Request, res: Response) => {
 }
 
 export const handlePatchFacility = async (req: Request, res: Response) => {
-  const facilityId = req.params.facilityId as string
-  if(!facilityId){
-    throw new BadRequestMsgError("facilityId is required as parameter.")
-  }
+  const facilityId = parseUuidParam(req.params.facilityId, "facilityId")
 
   const facility = await assertFacilityAccess(req, facilityId)
 
@@ -174,14 +193,24 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
     }
   }
 
-  const updatedFacility = await facilityServices.update(facilityId, data)
+  const updatedFacility = await facilityServices.update(facilityId, data).catch((err: { code?: string }) => {
+    if (err?.code === "P2002") {
+      throw new BadRequestMsgError("Another active facility already exists at this location.")
+    }
+    throw err
+  })
 
     // Log only the fields that actually changed (small diffs keep the log lean).
+    // Values are normalized to plain JSON first: Prisma.Decimal (coordinates)
+    // and Date are NOT JSON values — copying them raw can fail serialization,
+    // and logActivity swallows failures, silently losing the audit entry.
+    const toPlainJson = (value: unknown): Prisma.InputJsonValue =>
+      (typeof value === "object" && value !== null ? String(value) : value) as Prisma.InputJsonValue
     const before: Prisma.InputJsonValue = {}
     const after: Prisma.InputJsonValue = {}
     for (const key of Object.keys(data) as (keyof typeof data)[]) {
-      ;(before as Record<string, unknown>)[key] = (facility as Record<string, unknown>)[key]
-      ;(after as Record<string, unknown>)[key] = data[key]
+      ;(before as Record<string, unknown>)[key] = toPlainJson((facility as Record<string, unknown>)[key])
+      ;(after as Record<string, unknown>)[key] = toPlainJson(data[key])
     }
 
     await logActivity(req, ActivityAction.FACILITY_UPDATED, {
@@ -196,7 +225,9 @@ export const handlePatchFacility = async (req: Request, res: Response) => {
 /**
  * POST /facility/bulk-toggle — bulk soft-delete or restore (the same toggle
  * semantics as the single DELETE route, for registry bulk actions). ADMIN
- * only; one activity entry per affected facility so the audit log stays exact.
+ * only; every candidate runs the SAME guards as the single-item paths and is
+ * skipped with a reason when a guard fails, one activity entry per affected
+ * facility so the audit log stays exact.
  */
 export const handleBulkToggleFacilities = async (req: Request, res: Response) => {
   const { ids, deleted } = validateData<typeof bulkToggleFacilitySchema>(
@@ -207,22 +238,117 @@ export const handleBulkToggleFacilities = async (req: Request, res: Response) =>
 
   const affected = await prisma.facility.findMany({
     where: { id: { in: ids }, ...(deleted ? { deletedAt: null } : { deletedAt: { not: null } }) },
-    select: { id: true, name: true }
+    select: { id: true, name: true, longitude: true, latitude: true }
   })
   if (affected.length === 0) {
     return new SuccessMsgResponse("No facilities needed the change.").send(res)
   }
 
-  await facilityServices.bulkToggleDeleted(affected.map((f: { id: string }) => f.id), deleted)
+  const results: {
+    id: string
+    name: string
+    status: "deleted" | "restored" | "skipped"
+    reason?: string
+  }[] = []
+
+  // Resolve the actor ONCE and hand it to every logActivity below — otherwise
+  // the loop pays a user lookup per affected facility (2N round trips just to
+  // write N audit rows).
+  const { userId: actorId, role: actorRole } = requireAuth(req)
+  const actorUser = await userServices.findByIdSafe(actorId)
+  const actor = {
+    id: actorId,
+    email: actorUser?.email ?? "unknown",
+    name: actorUser ? `${actorUser.firstName ?? ""} ${actorUser.lastName ?? ""}`.trim() || null : null,
+    role: actorRole
+  }
 
   for (const facility of affected) {
+    if (deleted) {
+      // Occupancy guard (same as the single delete): evacuees must be gone.
+      const checkedInCount = await facilityServices.countCheckedInStays(facility.id)
+      if (checkedInCount > 0) {
+        results.push({
+          id: facility.id,
+          name: facility.name,
+          status: "skipped",
+          reason: "Cannot delete a facility with checked-in evacuees. Please check them out first."
+        })
+        continue
+      }
+    } else {
+      // Restore guard (same as the single restore): another ACTIVE facility
+      // may occupy the location while this one was soft-deleted.
+      const conflicting = await facilityServices.findByLongLat([
+        Number(facility.longitude),
+        Number(facility.latitude)
+      ], facility.id)
+      if (conflicting) {
+        results.push({
+          id: facility.id,
+          name: facility.name,
+          status: "skipped",
+          reason: `Cannot restore facility ${facility.name}: its location is now occupied by facility ${conflicting.name}. Update its coordinates first.`
+        })
+        continue
+      }
+    }
+
+    // Conditional toggle: only flips rows still in the expected state.
+    let toggled: { count: number }
+    try {
+      if (deleted) {
+        // Atomic locked delete — the occupancy guard re-checks INSIDE the
+        // facility row lock (same guard semantics as the single delete path).
+        const done = await facilityServices.softDeleteById(facility.id)
+        toggled = { count: done ? 1 : 0 }
+      } else {
+        toggled = await facilityServices.toggleDeletedById(facility.id, deleted)
+      }
+    } catch (err) {
+      if (err instanceof BadRequestMsgError) {
+        results.push({
+          id: facility.id,
+          name: facility.name,
+          status: "skipped",
+          reason: err.message
+        })
+        continue
+      }
+      if ((err as { code?: string })?.code === "P2002") {
+        results.push({
+          id: facility.id,
+          name: facility.name,
+          status: "skipped",
+          reason: "Another active facility already exists at this location."
+        })
+        continue
+      }
+      throw err
+    }
+    if (toggled.count === 0) {
+      results.push({
+        id: facility.id,
+        name: facility.name,
+        status: "skipped",
+        reason: "Facility changed state while processing."
+      })
+      continue
+    }
+
+    results.push({ id: facility.id, name: facility.name, status: deleted ? "deleted" : "restored" })
+
     await logActivity(req, deleted ? ActivityAction.FACILITY_DELETED : ActivityAction.FACILITY_RESTORED, {
+      actor,
       facility: { id: facility.id, name: facility.name },
       target: { id: facility.id, label: facility.name }
     })
   }
 
-  return new SuccessMsgResponse(
-    `${affected.length} ${affected.length === 1 ? "facility" : "facilities"} ${deleted ? "deleted" : "restored"}.`
+  const changed = results.filter((result) => result.status !== "skipped").length
+
+  return new SuccessResponse(
+    `${changed} ${changed === 1 ? "facility" : "facilities"} ${deleted ? "deleted" : "restored"}.`,
+    { results }
   ).send(res)
 }

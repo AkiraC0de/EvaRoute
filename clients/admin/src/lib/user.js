@@ -1,6 +1,6 @@
 /**
  * Display helpers for the authenticated user payload returned by
- * POST /auth/login and GET /auth/refresh:
+ * POST /auth/login and POST /auth/refresh:
  *   { email, firstName, lastName, role, isSetupDone }
  *
  * Shared by the sidebar user card, the profile page and the login flow so the

@@ -56,7 +56,7 @@ function AuthProvider({ children }) {
   // Order matters: the access token only lives 15 minutes
   // (ACCESS_TOKEN.EXPIRATION), so a reload after that would look signed out
   // even though the httpOnly refresh cookie is still valid. The cookie path
-  // comes first and is unconditional — GET /auth/refresh returns a fresh
+  // comes first and is unconditional — POST /auth/refresh returns a fresh
   // access token AND the user identity, so the cookie alone can restore a
   // full session (new tab, browser restart). The stored access token is only
   // a fallback when the cookie is missing or expired.
@@ -124,11 +124,13 @@ function AuthProvider({ children }) {
   );
 
   const signOut = useCallback(async () => {
-    try {
-      await api.signOut();
-    } finally {
-      forgetSession("");
-    }
+    // Errors propagate and the local session STAYS intact on failure:
+    // forgetSession runs only after the server confirms the sign-out, so the
+    // callers' "stay signed in on failure" branch (AccountMenu keeps the
+    // dialog open for a retry, SecuritySection shows its error banner) is
+    // reachable and the user is never signed out behind an error message.
+    await api.signOut();
+    forgetSession("");
   }, [forgetSession]);
 
   const signOutEverywhere = useCallback(async (password) => {

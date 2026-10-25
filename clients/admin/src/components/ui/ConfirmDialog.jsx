@@ -32,7 +32,14 @@ const ConfirmDialog = ({
 }) => {
   const [open, setOpen] = useState(true);
   const reduceMotion = useReducedMotion();
-  const requestCancel = () => setOpen(false);
+  // Not dismissible mid-mutation (same convention as Modal's `dismissible`
+  // and CheckOutConfirmDialog): Escape/overlay/Cancel must not close a
+  // destructive confirm while its request is in flight — re-opening would
+  // allow a second confirm against already-changed data.
+  const requestCancel = () => {
+    if (busy) return;
+    setOpen(false);
+  };
   const blockedByTyping = Boolean(requireText) && typed !== requireText;
 
   return (
@@ -56,7 +63,14 @@ const ConfirmDialog = ({
             </AlertDialog.Overlay>
           )}
           {open && (
-            <AlertDialog.Content key="content" forceMount asChild>
+            <AlertDialog.Content key="content" forceMount asChild
+              onEscapeKeyDown={(event) => {
+                if (busy) event.preventDefault();
+              }}
+              onInteractOutside={(event) => {
+                if (busy) event.preventDefault();
+              }}
+            >
               <motion.div
                 className="fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-[420px] rounded-xl border border-line bg-surface p-5 shadow-overlay"
                 initial={
@@ -96,7 +110,7 @@ const ConfirmDialog = ({
                 )}
 
                 <div className="mt-4 flex justify-end gap-2">
-                  <Button variant="neutral" size="sm" onClick={requestCancel}>
+                  <Button variant="neutral" size="sm" onClick={requestCancel} disabled={busy}>
                     Cancel
                   </Button>
                   <Button

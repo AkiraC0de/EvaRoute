@@ -8,8 +8,9 @@
  * Backend (server/src/routes/public.routes.ts, mounted in index.ts):
  *   GET /api/v1/public/facility?fromLong=<lng>&fromLat=<lat>[&distance=<km>]
  *     - no authentication middleware
- *     - filters to status AVAILABLE, radius filter (default 10km, max 200km),
- *       sorted ascending by haversine distance
+ *     - returns EVERY non-deleted facility with its status (full/closed
+ *       centers included — the client filters and labels them), radius filter
+ *       (default 10km, max 200km), sorted ascending by haversine distance
  *     - each facility carries its `resources[]` (amenities) inline
  *
  * Response envelope (core/ApiResponse.ts -> SuccessResponse):
@@ -40,8 +41,9 @@ function toNumber(value, fallback) {
  *                                                    existing UI already reads)
  *   resources[]                                   -> `resources` (amenities)
  *
- * `status` is passed through unchanged: the backend enum is a subset of the
- * frontend union, so no remapping is applied here.
+ * `status` is passed through unchanged (AVAILABLE | UNAVAILABLE, plus legacy
+ * drift values like LIMITED the UI labels via facilityMeta): the backend enum
+ * is a subset of the frontend vocabulary, so no remapping is applied here.
  */
 function toFacility(dto) {
     return {

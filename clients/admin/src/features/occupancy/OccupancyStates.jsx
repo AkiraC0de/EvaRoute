@@ -149,10 +149,11 @@ const OccupancyEmpty = ({ isAdmin }) => (
 );
 
 /**
- * Stays could not load — the API's own message plus a retry.
+ * Stays could not load — the API's own message plus a retry. `title`
+ * differentiates the facility-list failure from the stays failure.
  */
-const OccupancyError = ({ error, onRetry }) => (
-  <StatusPanel tone="error" title="Could not load occupancy" onRetry={onRetry}>
+const OccupancyError = ({ error, onRetry, title = "Could not load occupancy" }) => (
+  <StatusPanel tone="error" title={title} onRetry={onRetry}>
     {error.message}
   </StatusPanel>
 );

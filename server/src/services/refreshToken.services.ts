@@ -32,10 +32,14 @@ const deleteById = (tokenId: string) => {
 // REFRESH_TOKEN.ROTATION_GRACE_MS). `expiresAt` is deliberately left alone —
 // it carries the session horizon (30d keep-login vs 1h) and grace-window
 // successors must inherit the ORIGINAL horizon, not a shortened one.
+// Idempotent: only the FIRST rotation stamps the row (updateMany with
+// rotatedAt: null) — a replay of an already-rotated token must not extend its
+// grace window.
 const markRotated = (tokenId: string) => {
-  return prisma.refreshToken.update({
+  return prisma.refreshToken.updateMany({
     where: {
-      id: tokenId
+      id: tokenId,
+      rotatedAt: null
     },
     data: {
       rotatedAt: new Date()

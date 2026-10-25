@@ -17,9 +17,11 @@ export default function useFacilities({
   page = 1,
   pageSize = 10,
 }) {
-  const [data, setData] = useState({ facilities: [], total: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [result, setResult] = useState({
+    forQuery: null,
+    data: { facilities: [], total: 0 },
+    error: null,
+  });
   const [reloadToken, setReloadToken] = useState(0);
 
   // Debounce the search term before it reaches the request.
@@ -28,6 +30,18 @@ export default function useFacilities({
     const timer = setTimeout(() => setDebouncedSearch(search ?? ""), 300);
     return () => clearTimeout(timer);
   }, [search]);
+
+  // Query identity (filters + retry counter) — one string per fetch.
+  const queryKey = JSON.stringify([
+    debouncedSearch,
+    statusFilter,
+    showDeleted,
+    sort,
+    order,
+    page,
+    pageSize,
+    reloadToken,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,33 +56,32 @@ export default function useFacilities({
         page,
         pageSize,
       })
-      .then((result) => {
-        if (!cancelled) setData(result);
+      .then((data) => {
+        if (!cancelled) setResult({ forQuery: queryKey, data, error: null });
       })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+      .catch((error) => {
+        if (!cancelled) {
+          setResult({ forQuery: queryKey, data: { facilities: [], total: 0 }, error });
+        }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, statusFilter, showDeleted, sort, order, page, pageSize, reloadToken]);
+  }, [debouncedSearch, statusFilter, showDeleted, sort, order, page, pageSize, reloadToken, queryKey]);
 
   const retry = useCallback(() => {
-    setLoading(true);
-    setError(null);
     setReloadToken((token) => token + 1);
   }, []);
 
+  const current = result.forQuery === queryKey ? result.data : { facilities: [], total: 0 };
+
   return {
-    visible: data.facilities,
-    total: data.total,
-    totalPages: Math.max(1, Math.ceil(data.total / pageSize)),
-    loading,
-    error,
+    visible: current.facilities,
+    total: current.total,
+    totalPages: Math.max(1, Math.ceil(current.total / pageSize)),
+    loading: result.forQuery !== queryKey,
+    error: result.forQuery === queryKey ? result.error : null,
     retry,
   };
 }

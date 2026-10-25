@@ -11,7 +11,12 @@ export const registerSchema = z
   })
 
 export const listStaffQuerySchema = z.object({
-  unassigned: z.coerce.boolean().optional(),
+  // Query booleans arrive as strings — `z.coerce.boolean()` would turn "false"
+  // into true (Boolean("false")). Parse explicitly; absent means no filter.
+  unassigned: z
+    .enum(["true", "false", "1", "0"], "unassigned must be either true or false.")
+    .optional()
+    .transform((value) => (value === undefined ? undefined : value === "true" || value === "1")),
   facilityId: z.string().uuid().optional(),
   search: z.string().trim().min(1).max(100).optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),

@@ -1,4 +1,4 @@
-import crypto from "crypto"
+import crypto from "node:crypto"
 import { BadRequestMsgError } from "../core/ApiError.js"
 import { Request } from "express"
 import { AuthContext, TokenWithUser } from "./jwtUtils.js"
@@ -21,7 +21,12 @@ export const cryptoHashCompare = (string: string, hashString: string) => {
                    .update(string)
                    .digest("hex");
 
-  return hashedInputString === hashString
+  // Timing-safe digest comparison (AUTH-10): `===` on hex strings leaks a
+  // byte-position timing signal. Equal-length buffers compare in constant
+  // time; a length mismatch means a malformed/foreign hash and cannot match.
+  const a = Buffer.from(hashedInputString, "hex")
+  const b = Buffer.from(hashString ?? "", "hex")
+  return a.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
 export const generateCryptoTokenHash = () => {

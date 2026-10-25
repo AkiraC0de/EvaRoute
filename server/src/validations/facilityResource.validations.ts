@@ -4,8 +4,8 @@ export const createResourceSchema = z
   .object({
     name: z
       .string("name is required.")
-      .min(1, "name is required.")
-      .trim(),
+      .trim()
+      .min(1, "name is required."),
     type: z.enum(["QUANTITY", "BOOLEAN"], "type must be either QUANTITY or BOOLEAN."),
     isAvailable: z.boolean().optional(),
     availableValue: z.number().int().min(0).optional(),
@@ -42,7 +42,7 @@ export const createResourceSchema = z
 
 export const updateResourceSchema = z
   .object({
-    name: z.string().min(1).trim().optional(),
+    name: z.string().trim().min(1).optional(),
     type: z.enum(["QUANTITY", "BOOLEAN"]).optional(),
     isAvailable: z.boolean().optional(),
     availableValue: z.number().int().min(0).optional(),

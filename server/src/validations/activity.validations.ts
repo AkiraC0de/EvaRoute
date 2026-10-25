@@ -47,6 +47,15 @@ export const getActivityQuerySchema = z.object({
     .min(1, "Minimum 'limit' is 1.")
     .max(50, "Maximum 'limit' is 50.")
     .optional()
+}).superRefine((query, ctx) => {
+  // Cross-field rules: contradictory windows and mixed pagination modes are
+  // rejected up front instead of producing confusing empty/mismatched pages.
+  if (query.from && query.to && query.from.getTime() > query.to.getTime()) {
+    ctx.addIssue({ code: "custom", message: "'from' must be before or equal to 'to'.", path: ["from"] })
+  }
+  if (query.cursor !== undefined && query.page !== undefined) {
+    ctx.addIssue({ code: "custom", message: "'cursor' and 'page' cannot be used together — pick one pagination mode.", path: ["cursor"] })
+  }
 })
 
 export const getActivityStatsQuerySchema = z.object({
@@ -59,4 +68,8 @@ export const getActivityStatsQuerySchema = z.object({
     .string("'facilityId' must be a string.")
     .uuid("'facilityId' must be a valid uuid.")
     .optional()
+}).superRefine((query, ctx) => {
+  if (query.from && query.to && query.from.getTime() > query.to.getTime()) {
+    ctx.addIssue({ code: "custom", message: "'from' must be before or equal to 'to'.", path: ["from"] })
+  }
 })

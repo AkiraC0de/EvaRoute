@@ -40,7 +40,7 @@ const AccountSetupGate = () => {
       draft={draft}
       onDraftChange={setDraft}
       onSubmit={submit}
-      onSignOut={() => signOut()}
+      onSignOut={() => run(() => signOut())}
       busy={busy}
       error={error}
     />

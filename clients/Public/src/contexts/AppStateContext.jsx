@@ -51,6 +51,8 @@ export function createInitialState() {
     // route
     routeData: null,
     routeLoading: false,
+    routeError: null,
+    routeRetryToken: 0, // bumped by retryRoute to re-run the route fetch
 
     // live navigation tracking
     navUserPosition: null,
@@ -81,10 +83,11 @@ export function appReducer(state, action) {
     case 'goto': {
       const allowed = TRANSITIONS[state.status] ?? [];
       if (action.to !== state.status && !allowed.includes(action.to)) {
-        // Refused transitions keep the current screen — never fabricate an
-        // unreachable state (the old machine's blind merge could).
+        // Refused transitions keep the current screen AND its fields — a
+        // patch must never land for a screen the TRANSITIONS table declares
+        // unreachable (the old machine's blind merge could).
         console.warn(`[AppState] refused transition ${state.status} -> ${action.to}`);
-        return { ...state, ...action.patch };
+        return state;
       }
       return { ...state, ...action.patch, status: action.to };
     }
@@ -114,7 +117,9 @@ export function AppStateProvider({ children }) {
   const hasRealLocation = position != null && !geoDenied && geoError == null;
 
   // Domain side effects (state + dispatch passed in — no import cycles).
-  useFacilitiesFeed(state, dispatch, position, geoDenied, geoLoading);
+  // The facilities feed gates its first fetch on the first geolocation result
+  // (or a bounded fallback timeout) — see useFacilitiesFeed.
+  useFacilitiesFeed(state, dispatch, position, geoDenied);
   useRouteFeed(state, dispatch, position, geoDenied);
   useNavigationTracking(state, dispatch);
 
@@ -220,6 +225,7 @@ export function AppStateProvider({ children }) {
     const patch = {
       routeData: null,
       routeLoading: false,
+      routeError: null,
       navUserPosition: null,
       navRemainingKm: null,
       navStepIndex: 0,
@@ -240,6 +246,11 @@ export function AppStateProvider({ children }) {
         facility: null,
         routeData: null,
         routeLoading: false,
+        routeError: null,
+        // Also drop a pending "continue to route_preview once the fix lands"
+        // request — otherwise its later goto is refused (from discovery) and,
+        // with refused patches no longer applied, would retry forever.
+        routeAwaitingLocation: false,
         navUserPosition: null,
         navRemainingKm: null,
         navStepIndex: 0,
@@ -255,13 +266,18 @@ export function AppStateProvider({ children }) {
   }, [position, geoDenied]);
 
   const cancelRoutePreview = useCallback(() => {
-    const patch = { routeData: null, routeLoading: false, sheetExpanded: true };
+    const patch = { routeData: null, routeLoading: false, routeError: null, sheetExpanded: true };
     if (state.facility) {
       dispatch({ type: 'goto', to: 'center_selected', patch });
     } else {
       dispatch({ type: 'goto', to: 'discovery', patch });
     }
   }, [state.facility]);
+
+  // Re-run the route fetch after a failure (bumps the feed's fetch key).
+  const retryRoute = useCallback(() => {
+    dispatch({ type: 'set', patch: { routeRetryToken: state.routeRetryToken + 1 } });
+  }, [state.routeRetryToken]);
 
   const expand = useCallback(() => {
     dispatch({ type: 'set', patch: { sheetExpanded: true, mobilePanelExpanded: true } });
@@ -307,6 +323,7 @@ export function AppStateProvider({ children }) {
       cancelNavigation,
       backToDiscovery,
       cancelRoutePreview,
+      retryRoute,
       expand,
       toggleMobilePanel,
       setSearch,

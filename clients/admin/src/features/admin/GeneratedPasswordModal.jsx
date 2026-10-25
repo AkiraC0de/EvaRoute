@@ -9,7 +9,20 @@ import Modal from "../../components/ui/Modal";
  * staff member). Copy-to-clipboard, then gone on close.
  */
 const GeneratedPasswordModal = ({ title, email, password, onClose }) => {
-  const [copied, setCopied] = useState(false);
+  // Copy feedback mirrors CopyId: the clipboard can be missing (insecure
+  // context) or denied — surface "Copy failed" instead of claiming success
+  // off a floating promise (which also left an unhandled rejection).
+  const [copyState, setCopyState] = useState("");
+
+  const copyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    setTimeout(() => setCopyState(""), 1400);
+  };
 
   return (
     <Modal title={title} onClose={onClose}>
@@ -25,12 +38,10 @@ const GeneratedPasswordModal = ({ title, email, password, onClose }) => {
         <Button
           variant="neutral"
           size="sm"
-          onClick={() => {
-            navigator.clipboard?.writeText(password);
-            setCopied(true);
-          }}
+          onClick={copyPassword}
         >
-          <Copy size={11} strokeWidth={2} className="mr-1" /> {copied ? "Copied" : "Copy"}
+          <Copy size={11} strokeWidth={2} className="mr-1" />{" "}
+          {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy"}
         </Button>
       </div>
 

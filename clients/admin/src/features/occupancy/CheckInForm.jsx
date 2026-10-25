@@ -15,7 +15,15 @@ import useAsyncAction from "../../hooks/useAsyncAction";
  * the operator sees the limit before submitting.
  */
 
-const emptyMember = () => ({ fullName: "", ageGroup: "ADULT" });
+// Stable per-row draft id: rows are editable AND removable, so index keys
+// would shift input identity (focus/IME composition) whenever a middle row
+// is removed. randomUUID is unavailable on plain-HTTP LAN origins — the
+// counter fallback keeps ids unique there too.
+let memberSeq = 0;
+const newDraftId = () =>
+  globalThis.crypto?.randomUUID?.() ?? `member-${(memberSeq += 1)}`;
+
+const emptyMember = () => ({ id: newDraftId(), fullName: "", ageGroup: "ADULT" });
 
 /** Quick-add buttons: one tap appends N members already categorised. */
 const ADD_OPTIONS = [
@@ -30,15 +38,15 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
   const [familyName, setFamilyName] = useState("");
   const [members, setMembers] = useState([emptyMember()]);
 
-  const updateMember = (index, patch) =>
+  const updateMember = (id, patch) =>
     setMembers((current) =>
-      current.map((member, i) => (i === index ? { ...member, ...patch } : member)),
+      current.map((member) => (member.id === id ? { ...member, ...patch } : member)),
     );
 
   const addMembers = (count, ageGroup) =>
     setMembers((current) => [
       ...current,
-      ...Array.from({ length: count }, () => ({ fullName: "", ageGroup })),
+      ...Array.from({ length: count }, () => ({ ...emptyMember(), ageGroup })),
     ]);
 
   const submit = () =>
@@ -96,12 +104,12 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
       </p>
       <ul className="space-y-2 rounded-md border border-line bg-surface-2 p-2">
         {members.map((member, index) => (
-          <li key={index} className="flex items-end gap-2">
+          <li key={member.id} className="flex items-end gap-2">
             <TextField
               className="min-w-0 flex-1"
               label={index === 0 ? "Full name" : undefined}
               value={member.fullName}
-              onChange={(event) => updateMember(index, { fullName: event.target.value })}
+              onChange={(event) => updateMember(member.id, { fullName: event.target.value })}
               placeholder={index === 0 ? "Full name" : `Member ${index + 1} full name`}
               aria-label={`Member ${index + 1} full name`}
             />
@@ -110,7 +118,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               label={index === 0 ? "Category" : undefined}
               value={member.ageGroup}
               fieldClassName="  "
-              onChange={(event) => updateMember(index, { ageGroup: event.target.value })}
+              onChange={(event) => updateMember(member.id, { ageGroup: event.target.value })}
               aria-label={`Member ${index + 1} category`}
             >
               <option value="ADULT">Adult</option>
@@ -122,7 +130,7 @@ const CheckInForm = ({ remaining, onCheckIn }) => {
               title={`Remove member ${index + 1}`}
               disabled={members.length === 1}
               onClick={() =>
-                setMembers((current) => current.filter((_, i) => i !== index))
+                setMembers((current) => current.filter((row) => row.id !== member.id))
               }
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-2 text-muted transition hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-ink disabled:opacity-40 sm:h-10 sm:w-10"
             >

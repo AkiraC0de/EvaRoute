@@ -10,14 +10,18 @@ import { checkInCode, formatCheckedInAt, splitMembers } from "./occupancyUtils";
  *
  * Selectable for bulk check-out: the whole card toggles the selection and
  * carries the app's selected-state language (primary border + soft primary
- * tint, checked box). Nested controls (the checkbox, the CopyId chip) stop
- * propagation so they never double-toggle the card.
+ * tint, checked box). Nested controls (the checkbox, the CopyId chip, the
+ * Check out button) stop propagation so they never double-toggle the card.
+ *
+ * Single check-out: when the caller passes `onCheckOut(stay)` a "Check out"
+ * button appears on the row and the caller owns the mutation — hidden
+ * entirely (never a dead control) when the prop is absent.
  *
  * Flat rows: hairline border + surface fill, no elevation. People chips
  * carry the people (teal) category tint — filled for children, outlined for
  * adults — and every chip spells its meaning in words, never color alone.
  */
-const HouseholdListItem = ({ stay, selected, busy, onToggle }) => {
+const HouseholdListItem = ({ stay, selected, busy, onToggle}) => {
   const initials = stay.familyName
     .split(/\s+/)
     .slice(0, 2)

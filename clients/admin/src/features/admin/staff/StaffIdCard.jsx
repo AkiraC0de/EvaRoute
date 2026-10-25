@@ -76,7 +76,12 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
           onClick={() => setFlipped((value) => !value)}
         >
           {/* ───────────── FRONT — staff details ───────────── */}
+          {/* The hidden face is inert (not just painted away): aria-hidden +
+              inert take its FlipChip/CopyId controls out of the tab order and
+              the accessibility tree while the other face shows. */}
           <div
+            inert={flipped}
+            aria-hidden={flipped}
             style={{ backfaceVisibility: "hidden" }}
             className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-primary bg-surface"
           >
@@ -176,6 +181,8 @@ const StaffIdCard = ({ staff, isSelf, onEdit, onAssign, onAction }) => {
 
           {/* ───────────── BACK — actions + small details ───────────── */}
           <div
+            inert={!flipped}
+            aria-hidden={!flipped}
             style={{
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",

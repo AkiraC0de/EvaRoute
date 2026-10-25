@@ -29,5 +29,16 @@ export const publicRouteQuerySchema = z.object({
     .max(90, "fromLat must be between -90 and 90."),
 })
 
+export const publicFacilityParamsSchema = z.object({
+  // The plain hex shape @db.Uuid accepts — stricter RFC-9562 checks reject
+  // shape-valid legacy ids that Postgres stores fine.
+  facilityId: z
+    .string()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      "facilityId must be a valid UUID."
+    ),
+})
+
 export type PublicFacilityQuery = z.infer<typeof publicFacilityQuerySchema>
 export type PublicRRouteQuery = z.infer<typeof publicRouteQuerySchema>

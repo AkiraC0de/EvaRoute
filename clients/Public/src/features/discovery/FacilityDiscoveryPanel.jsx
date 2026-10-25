@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import CenterStatusBadge from '../facility/CenterStatusBadge';
 import CenterDistance from '../facility/CenterDistance';
+import { FACILITY_STATUS_META } from '../../lib/facilityMeta';
 import { staggerContainer, staggerItem, tapPress } from '../../lib/motion';
 
 /**
@@ -23,11 +24,14 @@ export default function FacilityDiscoveryPanel({
   searchRadiusKm = null,
   onExpandSearch,
 }) {
+  // Derived from the shared status meta so the chips can never disagree with
+  // the badges/counts (the feed now carries every status, API-04).
   const statusOptions = [
     { value: 'ALL', label: 'All' },
-    { value: 'AVAILABLE', label: 'Open' },
-    { value: 'LIMITED', label: 'Limited' },
-    { value: 'UNAVAILABLE', label: 'Full' },
+    ...['AVAILABLE', 'LIMITED', 'UNAVAILABLE'].map((value) => ({
+      value,
+      label: FACILITY_STATUS_META[value].label,
+    })),
   ];
 
   return (
@@ -198,7 +202,9 @@ export default function FacilityDiscoveryPanel({
             ? 'Centers unavailable'
             : facilities.length === 0
               ? ''
-              : `${facilities.length} center${facilities.length === 1 ? '' : 's'} available`}
+              // "found", not "available": the list now includes full/closed
+              // centers (API-04), which are not available.
+              : `${facilities.length} center${facilities.length === 1 ? '' : 's'} found`}
       </p>
     </div>
   );

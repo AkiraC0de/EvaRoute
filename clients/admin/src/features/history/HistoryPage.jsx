@@ -14,6 +14,20 @@ import useDebouncedSearch from "./useDebouncedSearch";
 
 const PAGE_SIZE = 15;
 
+// URL date params are user-editable (?from=x): only a real "YYYY-MM-DD" day
+// is a valid bound. Anything else falls back to "unset" — an Invalid Date
+// would throw a RangeError from toISOString() during render and white-screen
+// the app (there is no error boundary).
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
+const parseDay = (value) => {
+  if (!DAY_KEY.test(value ?? "")) return null;
+  const [y, m, d] = value.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+    ? date
+    : null;
+};
+
 export default function HistoryPage() {
   const { user } = useAuth();
   const admin = hasRole(user, [ROLES.ADMIN]);
@@ -60,16 +74,36 @@ export default function HistoryPage() {
     const q = {};
     if (values.action) q.action = values.action;
     if (admin && values.facility) q.facilityId = values.facility;
-    if (search) q.search = search;
+    // The API caps `search` at 60 chars (activity.validations.ts max(60)) —
+    // clamp before fetch so a longer term degrades to a prefix search instead
+    // of a 400 the feed would surface as "Could not load activity".
+    if (search) q.search = search.slice(0, 60);
     // Day bounds are computed in LOCAL time so the filtered rows match the
     // local day-group labels the user sees (bare "YYYY-MM-DD" parses as UTC).
-    if (values.from) {
-      const [fy, fm, fd] = values.from.split("-").map(Number);
-      q.from = new Date(fy, fm - 1, fd, 0, 0, 0, 0).toISOString();
+    // Malformed ?from=/ ?to= values are ignored entirely (see parseDay).
+    const fromDay = parseDay(values.from);
+    if (fromDay) {
+      q.from = new Date(
+        fromDay.getFullYear(),
+        fromDay.getMonth(),
+        fromDay.getDate(),
+        0,
+        0,
+        0,
+        0,
+      ).toISOString();
     }
-    if (values.to) {
-      const [ty, tm, td] = values.to.split("-").map(Number);
-      q.to = new Date(ty, tm - 1, td, 23, 59, 59, 999).toISOString();
+    const toDay = parseDay(values.to);
+    if (toDay) {
+      q.to = new Date(
+        toDay.getFullYear(),
+        toDay.getMonth(),
+        toDay.getDate(),
+        23,
+        59,
+        59,
+        999,
+      ).toISOString();
     }
     return q;
   }, [values, search, admin]);
@@ -92,8 +126,8 @@ export default function HistoryPage() {
         facilityId={values.facility}
         onFacilityChange={(event) => set("facility", event.target.value)}
         facilityOptions={facilityOptions}
-        from={values.from}
-        to={values.to}
+        from={parseDay(values.from) ? values.from : ""}
+        to={parseDay(values.to) ? values.to : ""}
         onDateRangeChange={(next) => {
           apply({ from: next.from, to: next.to });
         }}

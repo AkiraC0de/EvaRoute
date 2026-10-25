@@ -13,7 +13,7 @@
  * so the HTTP status is the only place the status lives.
  *
  * Auth (server/src/middlewares/verifyAuthentication.ts):
- *   `Authorization: Bearer *** the token is an HS256 JWT with a
+ *   `Authorization: Bearer ${token}` — the token is an HS256 JWT with a
  *   15 minute lifetime (server/src/configs/tokenConfig.ts -> ACCESS_TOKEN).
  *   Refresh uses an httpOnly cookie, which only works same-origin — see
  *   vite.config.js for the dev proxy that makes that true.
@@ -51,7 +51,9 @@ const QUIET_TOAST_PATHS = [
   "/auth/refresh",
   "/auth/signout",
   "/auth/signout-all",
-  "/auth/reset-password",
+  "/auth/password/request-reset",
+  "/auth/password/verify-reset",
+  "/auth/password/reset",
 ];
 const TOKEN_STORAGE_KEY = "evaroute.admin.accessToken";
 
@@ -210,11 +212,11 @@ export async function request(path, { method = "GET", body, auth = true, token =
  * ------------------------------------------------------------------ */
 
 /**
- * GET /api/v1/auth/refresh  (public route, authenticated by the httpOnly
+ * POST /api/v1/auth/refresh  (public route, authenticated by the httpOnly
  * refresh cookie) -> rotates the refresh token and mints a new access token.
  */
 export async function refreshSession() {
-  const { data } = await request("/auth/refresh", { auth: false });
+  const { data } = await request("/auth/refresh", { method: "POST", auth: false });
   setAccessToken(data.accessToken);
   return data.user;
 }

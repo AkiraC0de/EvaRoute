@@ -18,15 +18,28 @@ import { UserRole } from "../../generated/prisma/index.js"
 const DAY_MS = 24 * 60 * 60 * 1000
 
 const getSummary = async (facilityId?: string) => {
+  // ONE scope for every counter: data attached to soft-deleted facilities is
+  // excluded everywhere (capacity denominators only cover active facilities,
+  // so stay/occupancy/activity counters must too). Activity events with no
+  // facility at all (staff account lifecycle) have no facility scope and stay
+  // counted.
   const facilityWhere = {
     deletedAt: null,
     ...(facilityId ? { id: facilityId } : {})
   }
   const stayWhere = {
     checkedOutAt: null,
-    ...(facilityId ? { facilityId } : {})
+    ...(facilityId ? { facilityId } : {}),
+    facility: { deletedAt: null }
   }
-  const scopedStay = facilityId ? { facilityId } : {}
+  const scopedStay = {
+    ...(facilityId ? { facilityId } : {}),
+    facility: { deletedAt: null }
+  }
+  const activityScope = {
+    ...(facilityId ? { facilityId } : {}),
+    OR: [{ facilityId: null }, { facility: { deletedAt: null } }]
+  }
   const staffWhere = {
     role: UserRole.FACILITY_STAFF,
     ...(facilityId ? { facilityStaff: { facilityId } } : {})
@@ -61,7 +74,7 @@ const getSummary = async (facilityId?: string) => {
     }),
     prisma.facilityStay.count({ where: { checkedInAt: { gte: dayAgo }, ...scopedStay } }),
     prisma.facilityStay.count({ where: { checkedOutAt: { gte: dayAgo }, ...scopedStay } }),
-    prisma.activityLog.count({ where: { createdAt: { gte: weekAgo }, ...scopedStay } }),
+    prisma.activityLog.count({ where: { createdAt: { gte: weekAgo }, ...activityScope } }),
     prisma.user.count({ where: staffWhere }),
     prisma.user.count({ where: { ...staffWhere, isActive: true } }),
     facilityId

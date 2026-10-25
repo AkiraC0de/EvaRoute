@@ -22,7 +22,7 @@ import ArrivalOverlay from './features/navigation/ArrivalOverlay';
 const MAP_STATUSES = ['discovery', 'center_selected', 'route_preview', 'navigating', 'arrived'];
 
 export default function App() {
-  const { state, position, hasRealLocation, actions } = useAppState();
+  const { state, position, geoLoading, geoDenied, hasRealLocation, actions } = useAppState();
 
   // Map viewport plumbing — Leaflet instance lives here, one place.
   // handleMapReady MUST be stable: EvaRouteMap's init effect depends on it and
@@ -63,6 +63,8 @@ export default function App() {
               selectedCenter={state.facility}
               facilities={state.status === 'discovery' ? filteredFacilities : state.facilities}
               userPosition={userPosition}
+              geoLoading={geoLoading}
+              geoDenied={geoDenied}
               onCenterSelect={actions.selectCenter}
               onMapReady={handleMapReady}
               isNavigating={isNavigating}

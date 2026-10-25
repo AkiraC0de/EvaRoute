@@ -11,7 +11,7 @@ import RoutePreviewCard from './RoutePreviewCard';
 
 export default function RoutePreviewOverlay() {
   const { state, actions } = useAppState();
-  const { facility, routeData, routeLoading } = state;
+  const { facility, routeData, routeLoading, routeError } = state;
   if (!facility) return null;
 
   const renderCollapsed = () => {
@@ -81,6 +81,8 @@ export default function RoutePreviewOverlay() {
         facility={facility}
         routeData={routeData}
         routeLoading={routeLoading}
+        routeError={routeError}
+        onRetry={actions.retryRoute}
         currentOccupancy={undefined}
         onCancel={actions.cancelRoutePreview}
         onStartNavigation={actions.startNavigation}

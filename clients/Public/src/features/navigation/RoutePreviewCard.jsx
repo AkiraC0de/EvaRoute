@@ -42,6 +42,8 @@ export default function RoutePreviewCard({
   facility,
   routeData,
   routeLoading,
+  routeError = null,
+  onRetry,
   currentOccupancy,
   onCancel,
   onStartNavigation,
@@ -115,11 +117,27 @@ export default function RoutePreviewCard({
           <span>Calculating the best route…</span>
         </div>
       )}
-      {!routeLoading && !hasRoute && (
+      {!routeLoading && routeError && (
+        <div className="flex min-h-[76px] flex-col items-center justify-center gap-2 rounded-clay-sm bg-sunken px-4 py-4 text-center shadow-clay-inset">
+          <p className="text-[13px] font-semibold text-ink">Route calculation failed</p>
+          <span className="text-[11px] text-muted-dim">{routeError}</span>
+          {onRetry && (
+            <button
+              type="button"
+              className="focus-ring motion-safe-transform min-h-9 whitespace-nowrap rounded-full bg-surface px-4 py-1.5 text-[11px] font-semibold text-accent shadow-clay-xs transition hover:bg-sunken hover:text-ink active:shadow-clay-inset"
+              onClick={onRetry}
+            >
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+      {!routeLoading && !routeError && !hasRoute && (
         <div className="flex min-h-[76px] flex-col items-center justify-center gap-1 rounded-clay-sm bg-sunken px-4 py-4 text-center shadow-clay-inset">
           <p className="text-[13px] font-semibold text-ink">Route unavailable</p>
           <span className="text-[11px] text-muted-dim">
-            We could not find a route from your location. You can still head there on your own.
+            We could not find a route from your location, so turn-by-turn navigation is unavailable. You can still head
+            there on your own.
           </span>
         </div>
       )}
@@ -138,7 +156,11 @@ export default function RoutePreviewCard({
         {!isNavigating && (
           <button
             type="button"
-            className="focus-ring motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0"
+            // No loaded route → no turn-by-turn to start: the CTA is disabled
+            // while calculating, when the route is unavailable, and on failure
+            // (PUB-07) — the state copy above explains why.
+            disabled={!hasRoute}
+            className="focus-ring motion-safe-transform min-h-12 whitespace-nowrap rounded-full bg-accent px-6 py-2.5 text-[15px] font-semibold text-white shadow-clay-xs transition hover:-translate-y-px hover:bg-accent-strong hover:shadow-clay active:translate-y-0 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             onClick={onStartNavigation}
           >
             Start Navigation

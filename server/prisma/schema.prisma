@@ -35,6 +35,10 @@ model User {
 enum FacilityStatus {
   AVAILABLE
   UNAVAILABLE
+  /// Legacy value still present in the DB enum (historical drift) — kept so
+  /// rows carrying it deserialize instead of breaking every read. No app
+  /// feature creates it; treat it as AVAILABLE-era legacy in status maps.
+  LIMITED
 }
 
 model Facility {
@@ -54,6 +58,14 @@ model Facility {
   FacilityStay FacilityStay[]
   activityLogs ActivityLog[]
 
+  /// LIVE DB deviation (2026-10-25 audit): the coordinate uniqueness is a
+  /// PARTIAL unique index over ACTIVE rows only
+  /// (`facilities_longitude_latitude_key ... WHERE "deletedAt" IS NULL`) —
+  /// soft-deleted facilities must not block reusing their coordinates.
+  /// Prisma cannot express partial indexes, so the declaration below stays a
+  /// full @@unique (it also keeps the `longitude_latitude` unique input used
+  /// by facility.services). Future `prisma migrate diff` runs will suggest
+  /// re-creating the full unique — prune that statement.
   @@unique([longitude, latitude])
   @@map("facilities")
 }
@@ -80,6 +92,7 @@ model FacilityStay {
   members FacilityStayMember[]
 
   @@index([facilityId, checkedOutAt])
+  @@index([facilityId, checkedInAt])
   @@unique([facilityId, checkInCode])
   @@map("facility_stays")
 }
@@ -126,6 +139,9 @@ model FacilityResource {
   /// One row per mandatory essential per facility (custom rows are NULL and
   /// never collide — Postgres treats NULLs as distinct in unique indexes).
   @@unique([facilityId, essentialType])
+  /// One NAME per facility (DB-07): duplicate-name creates were check-then-act
+  /// races with nothing behind them.
+  @@unique([facilityId, name])
   @@map("facility_resource")
 }
 
@@ -138,9 +154,11 @@ model FacilityStaff {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
 
+  /// The two redundant indexes formerly declared here (facilityId, userId
+  /// singles) were dropped in the 2026-10-25 audit migration: userId is
+  /// covered by its @unique index and facilityId is the leftmost prefix of
+  /// the (facilityId, userId) unique index.
   @@unique([facilityId, userId])
-  @@index([facilityId])
-  @@index([userId])
   @@map("facility_staff")
 }
 
@@ -226,5 +244,6 @@ model ActivityLog {
   @@index([createdAt])
   @@index([facilityId, createdAt])
   @@index([action, createdAt])
+  @@index([actorId, createdAt])
   @@map("activity_log")
 }

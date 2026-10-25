@@ -59,7 +59,11 @@ export default function NavigationOverlay() {
     <>
       <TurnInstruction
         instruction={instruction}
-        distance={navRemainingKm != null ? parseFloat(navRemainingKm.toFixed(1)) : undefined}
+        maneuverType={currentStep?.maneuverType}
+        // The step's OWN length (meters) — not navRemainingKm, which is the
+        // remaining distance to the center and is already labeled "remaining"
+        // in the collapsed summary below.
+        distance={currentStep?.distance}
       />
       <OverlayContainer
         variant="route-card"

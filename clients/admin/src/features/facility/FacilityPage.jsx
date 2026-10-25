@@ -105,23 +105,32 @@ const FacilityPage = () => {
 
   // Live occupancy summary (GET /facility/:id/stay/occupancy) — the hero
   // console's quantified condition. Supporting information: a failure stays
-  // non-fatal and the console falls back to the capacity fact.
-  const [occupancy, setOccupancy] = useState(null);
+  // non-fatal, but it is surfaced with a retry instead of leaving the meter
+  // waiting forever (the previous silent .catch made "—" indistinguishable
+  // from perpetual loading). Tagged with `forKey` like the roster above.
+  const [occupancy, setOccupancy] = useState({ forKey: null, summary: null, error: null });
+  const [occupancyFetch, setOccupancyFetch] = useState(0);
   useEffect(() => {
     if (!facilityId) return undefined;
     let cancelled = false;
     api
       .getOccupancy(facilityId)
       .then((summary) => {
-        if (!cancelled) setOccupancy(summary);
+        if (!cancelled) setOccupancy({ forKey: facilityId, summary, error: null });
       })
-      .catch(() => {
-        // Non-fatal — the hero meter simply waits.
+      .catch((error) => {
+        // Non-fatal but visible: the hero shows the failure with a retry
+        // instead of an endless "—" (the old silent .catch swallowed this).
+        if (!cancelled) setOccupancy({ forKey: facilityId, summary: null, error });
       });
     return () => {
       cancelled = true;
     };
-  }, [facilityId]);
+  }, [facilityId, occupancyFetch]);
+  // A response only counts while its facility is current — a stale tag reads
+  // as "not loaded" (the meter waits) instead of showing another facility's
+  // numbers or failure.
+  const occupancyCurrent = occupancy.forKey === facilityId;
 
   const loading = facilityLoading || (Boolean(facilityId) && resourcesLoading);
   const error = facilityError ?? resourcesError;
@@ -165,7 +174,14 @@ const FacilityPage = () => {
           <FacilityHero
             facility={facility}
             essentials={essentials}
-            occupancy={occupancy}
+            occupancy={occupancyCurrent ? occupancy.summary : null}
+            occupancyError={occupancyCurrent ? occupancy.error : null}
+            onRetryOccupancy={() => {
+              // Clear the previous failure in the handler (never in an effect
+              // body — react-hooks/set-state-in-effect), then refetch.
+              setOccupancy({ forKey: facilityId, summary: null, error: null });
+              setOccupancyFetch((n) => n + 1);
+            }}
           />
 
           {/* Readiness rail — the operational facts as one instrument strip.
