@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import StatusPanel from "../../components/ui/StatusPanel";
 import useActivityStats from "../../hooks/useActivityStats";
 import useAssignedFacility from "../../hooks/useAssignedFacility";
 import useFacilityResources from "../../hooks/useFacilityResources";
-import * as api from "../../lib/api";
+import useFacilityStaff from "../../hooks/useFacilityStaff.js";
+import useFacilityOccupancy from "../../hooks/useFacilityOccupancy.js";
 import FacilityHero from "./FacilityHero";
 import FacilityReadinessRail from "./FacilityReadinessRail";
 import { FacilityLoading } from "./FacilityStates";
@@ -74,63 +75,20 @@ const FacilityPage = () => {
   const todayOut =
     todayState === "ready" ? (todayStats.byAction?.STAY_CHECKED_OUT ?? 0) : null;
 
-  // Assigned staff roster (FETCH_STAFF) — who works this facility. Tagged like
-  // useActivityStats: responses only land while their facility is current, and
-  // the card's three states derive from that — pending shows skeleton chips,
-  // a failed fetch surfaces a banner instead of masquerading as "no staff".
-  const [roster, setRoster] = useState({ forKey: null, rows: [], error: null });
-  useEffect(() => {
-    if (!facilityId) return undefined;
-    let cancelled = false;
-    api
-      .listFacilityStaff(facilityId)
-      .then((rows) => {
-        if (!cancelled) setRoster({ forKey: facilityId, rows, error: null });
-      })
-      .catch((error) => {
-        // Supporting information — non-fatal, but the failure must be visible.
-        if (!cancelled) setRoster({ forKey: facilityId, rows: [], error });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [facilityId]);
-  const rosterCurrent = roster.forKey === facilityId;
-  const staffRows = rosterCurrent ? roster.rows : [];
-  const staffsStatus = !rosterCurrent
-    ? "pending"
-    : roster.error
-      ? "failed"
-      : "ready";
+  // Assigned staff roster (FETCH_STAFF) — who works this facility. Cached
+  // query adapter (tag `staff`): the card's three states derive from the
+  // query — pending shows skeleton chips, a failed fetch surfaces a banner
+  // instead of masquerading as "no staff".
+  const roster = useFacilityStaff(facilityId);
+  const staffRows = roster.rows;
+  const staffsStatus = roster.status;
 
   // Live occupancy summary (GET /facility/:id/stay/occupancy) — the hero
-  // console's quantified condition. Supporting information: a failure stays
-  // non-fatal, but it is surfaced with a retry instead of leaving the meter
-  // waiting forever (the previous silent .catch made "—" indistinguishable
-  // from perpetual loading). Tagged with `forKey` like the roster above.
-  const [occupancy, setOccupancy] = useState({ forKey: null, summary: null, error: null });
-  const [occupancyFetch, setOccupancyFetch] = useState(0);
-  useEffect(() => {
-    if (!facilityId) return undefined;
-    let cancelled = false;
-    api
-      .getOccupancy(facilityId)
-      .then((summary) => {
-        if (!cancelled) setOccupancy({ forKey: facilityId, summary, error: null });
-      })
-      .catch((error) => {
-        // Non-fatal but visible: the hero shows the failure with a retry
-        // instead of an endless "—" (the old silent .catch swallowed this).
-        if (!cancelled) setOccupancy({ forKey: facilityId, summary: null, error });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [facilityId, occupancyFetch]);
-  // A response only counts while its facility is current — a stale tag reads
-  // as "not loaded" (the meter waits) instead of showing another facility's
-  // numbers or failure.
-  const occupancyCurrent = occupancy.forKey === facilityId;
+  // console's quantified condition. Cached query adapter under the `stays`
+  // tag (check-in/out move it). Supporting information: a failure stays
+  // non-fatal and is surfaced with a retry instead of leaving the meter
+  // waiting forever.
+  const occupancy = useFacilityOccupancy(facilityId);
 
   const loading = facilityLoading || (Boolean(facilityId) && resourcesLoading);
   const error = facilityError ?? resourcesError;
@@ -174,13 +132,12 @@ const FacilityPage = () => {
           <FacilityHero
             facility={facility}
             essentials={essentials}
-            occupancy={occupancyCurrent ? occupancy.summary : null}
-            occupancyError={occupancyCurrent ? occupancy.error : null}
+            occupancy={occupancy.summary}
+            occupancyError={occupancy.error}
             onRetryOccupancy={() => {
-              // Clear the previous failure in the handler (never in an effect
-              // body — react-hooks/set-state-in-effect), then refetch.
-              setOccupancy({ forKey: facilityId, summary: null, error: null });
-              setOccupancyFetch((n) => n + 1);
+              // The query adapter clears the failure when the refetch
+              // resolves — no local state to reset.
+              occupancy.retry();
             }}
           />
 

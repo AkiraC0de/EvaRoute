@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as api from "../lib/api";
 import { readStoredUser, writeStoredUser } from "../lib/sessionStorage";
@@ -44,6 +44,10 @@ function AuthProvider({ children }) {
   );
 
   // Any authenticated 401 from anywhere in the app ends the session here.
+  // Register on every invoke (idempotent) WITH the cleanup: under StrictMode
+  // the effect runs, cleans up and re-runs — a mount-once guard here would
+  // leave the handler unregistered after the cleanup. Re-registering is
+  // cheap; the real churn problem is the RESTORE effect below, not this one.
   useEffect(() => {
     api.setUnauthorizedHandler(() => {
       forgetSession("Your session has expired. Please sign in again.");
@@ -60,20 +64,33 @@ function AuthProvider({ children }) {
   // access token AND the user identity, so the cookie alone can restore a
   // full session (new tab, browser restart). The stored access token is only
   // a fallback when the cookie is missing or expired.
+  // Session restore runs EXACTLY ONCE per provider mount.
+  //
+  // Two traps live here (both observed live):
+  // 1. react-router's `navigate` identity changes on every render, so a
+  //    [forgetSession]-dependent effect without a ref guard re-runs on every
+  //    render — POST /auth/refresh then rotates the session on every
+  //    navigation (a ~10s rotation chain in refresh_token, fork-prone under
+  //    concurrent requests).
+  // 2. A `cancelled` teardown combined with a mount-once guard deadlocks
+  //    under StrictMode: the simulated unmount cancels the in-flight restore
+  //    and the guarded re-invoke never starts a new one — the app hangs on
+  //    "Checking your session" forever. This root-level provider never truly
+  //    unmounts and late setState on it is harmless, so there is no teardown.
+  const restoredRef = useRef(false);
   useEffect(() => {
-    let cancelled = false;
+    if (restoredRef.current) return undefined;
+    restoredRef.current = true;
 
     const restore = async () => {
       try {
-        // refreshAccessToken is single-flight: StrictMode's double-invoked
-        // effect shares ONE /auth/refresh call instead of racing two
-        // rotations against the same cookie.
+        // refreshAccessToken is single-flight: a double-invoked effect
+        // shares ONE /auth/refresh call instead of racing two rotations
+        // against the same cookie.
         const refreshed = await api.refreshAccessToken();
-        if (!cancelled) {
-          writeStoredUser(refreshed);
-          setUser(refreshed);
-          setStatus("signedIn");
-        }
+        writeStoredUser(refreshed);
+        setUser(refreshed);
+        setStatus("signedIn");
         return;
       } catch (err) {
         // No usable refresh cookie — fall through to the stored token
@@ -85,22 +102,20 @@ function AuthProvider({ children }) {
         // Nothing left to fall back on — a finished session like any other,
         // so it ends through forgetSession: same cleanup (including the
         // identity seeded from storage at mount) and the same "/" landing.
-        if (!cancelled) forgetSession("");
+        forgetSession("");
         return;
       }
 
       try {
         await api.getAssignedFacility();
-        if (!cancelled) setStatus("signedIn");
+        setStatus("signedIn");
       } catch {
-        if (!cancelled) forgetSession("Your session has expired. Please sign in again.");
+        forgetSession("Your session has expired. Please sign in again.");
       }
     };
 
     restore();
-    return () => {
-      cancelled = true;
-    };
+    return undefined;
   }, [forgetSession]);
 
   const updateUser = useCallback((nextUser) => {

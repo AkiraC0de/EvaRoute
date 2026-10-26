@@ -1,57 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { listActivity } from "../lib/api";
+import { TAGS } from "../lib/api/cacheTags.js";
 
 /**
  * Numbered-pagination fetch for the History screen (server `page` mode).
- * Same tagging discipline as useActivity: a response only lands while its
- * query key + page are still current.
+ * TanStack Query adapter with `keepPreviousData`, so paging and filter
+ * changes never blink the table to empty. Public shape unchanged.
  *
  * @param {object} query     { facilityId?, action?, search?, from?, to? }
  * @param {number} pageSize  rows per page (default 15)
  */
 export default function useActivityPage(query = {}, pageSize = 15) {
   const [page, setPage] = useState(1);
-  const [reloadTick, setReloadTick] = useState(0);
-  const key = JSON.stringify(query ?? {}) + "::" + page + "::" + reloadTick;
 
-  const [state, setState] = useState({
-    forKey: null,
-    items: [],
-    total: 0,
-    totalPages: 1,
-    error: null,
+  const feed = useQuery({
+    queryKey: ["api", TAGS.activity, { query: query ?? {}, page, pageSize, mode: "page" }],
+    queryFn: () => listActivity({ ...query, limit: pageSize, page }),
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 
-  const keyRef = useRef(key);
-
-  useEffect(() => {
-    keyRef.current = key;
-    listActivity({ ...query, limit: pageSize, page })
-      .then((result) => {
-        if (keyRef.current !== key) return;
-        setState({
-          forKey: key,
-          items: result.activities,
-          total: result.total ?? result.activities.length,
-          totalPages: result.totalPages ?? 1,
-          error: null,
-        });
-      })
-      .catch((error) => {
-        if (keyRef.current !== key) return;
-        setState({ forKey: key, items: [], total: 0, totalPages: 1, error });
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- key derives from query/page
-  }, [key, pageSize]);
-
   return {
-    activities: state.forKey === key ? state.items : [],
-    total: state.forKey === key ? state.total : 0,
-    totalPages: state.forKey === key ? state.totalPages : 1,
+    activities: feed.data?.activities ?? [],
+    total: feed.data?.total ?? feed.data?.activities?.length ?? 0,
+    totalPages: feed.data?.totalPages ?? 1,
     page,
-    loading: state.forKey !== key,
-    error: state.error,
+    loading: feed.isPending,
+    error: feed.error ?? null,
     setPage,
-    reload: () => setReloadTick((tick) => tick + 1),
+    reload: () => feed.refetch(),
   };
 }

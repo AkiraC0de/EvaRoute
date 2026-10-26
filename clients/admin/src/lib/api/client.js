@@ -38,6 +38,8 @@
  */
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 import { toast } from "sonner";
+import { tagsForMutation } from "./cacheTags.js";
+import { invalidateTags } from "./cacheInvalidator.js";
 
 const API_PREFIX = `${BASE_URL}/api/v1`;
 
@@ -202,6 +204,15 @@ export async function request(path, { method = "GET", body, auth = true, token =
     payload?.message
   ) {
     toast.success(payload.message);
+  }
+
+  // Cache invalidation seam: every successful mutation refreshes the queries
+  // it can affect (cacheTags.js). Batch mode (`silent`) skips the automatic
+  // invalidation on purpose — bulk loops fire ONE refresh at the end instead
+  // of an N-step refetch storm. Runs exactly once per request (the 401-replay
+  // returns from the inner call, so only the final success reaches here).
+  if (method !== "GET" && !silent) {
+    invalidateTags(tagsForMutation(method, path));
   }
 
   return payload;

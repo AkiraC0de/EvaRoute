@@ -1,61 +1,44 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import * as api from "../lib/api";
 // `request` is the sibling modules' own entry into the request core (it is
 // not part of the public `lib/api` barrel). The bulk check-out loop needs it
 // to pass `silent` per POST — see checkOutMany below.
 import { request } from "../lib/api/client.js";
+import { BULK_CHECKOUT_TAGS, TAGS } from "../lib/api/cacheTags.js";
+import { invalidateTags } from "../lib/api/cacheInvalidator.js";
 
 /**
  * Evacuee stays for one facility: active stays (with members), occupancy
- * summary, and the check-in / check-out mutations. Backed by the real stay
- * endpoints (see lib/api.js). Results are tagged with the facilityId they
- * were fetched for and derived at render time — no setState inside the
- * effect body (react-hooks/set-state-in-effect).
+ * summary, and the check-in / check-out mutations. TanStack Query adapter —
+ * one query carries both payloads (they load together and refresh together).
+ * Public shape unchanged.
  */
 export default function useStays(facilityId) {
-  const [data, setData] = useState({ forId: null, stays: [], occupancy: null, error: null });
-  const [reloadToken, setReloadToken] = useState(0);
-
-  useEffect(() => {
-    if (!facilityId) return undefined;
-
-    let cancelled = false;
-
-    Promise.all([
-      api.listStays(facilityId, "ACTIVE"),
-      api.getOccupancy(facilityId),
-    ])
-      .then(([stays, occupancy]) => {
-        if (!cancelled) setData({ forId: facilityId, stays, occupancy, error: null });
-      })
-      .catch((err) => {
-        if (!cancelled) setData({ forId: facilityId, stays: [], occupancy: null, error: err });
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [facilityId, reloadToken]);
-
-  const refresh = useCallback(() => setReloadToken((token) => token + 1), []);
-
-  const checkIn = useCallback(
-    async (payload) => {
-      const stay = await api.checkIn(facilityId, payload);
-      refresh();
-      // Return the created stay so callers can show the check-in ticket with
-      // the server-assigned Check-In ID.
-      return stay;
+  const query = useQuery({
+    queryKey: ["api", TAGS.stays, { facilityId: facilityId ?? null }],
+    queryFn: async () => {
+      const [stays, occupancy] = await Promise.all([
+        api.listStays(facilityId, "ACTIVE"),
+        api.getOccupancy(facilityId),
+      ]);
+      return { stays, occupancy };
     },
-    [facilityId, refresh],
+    enabled: Boolean(facilityId),
+    staleTime: 15_000,
+  });
+
+  // Non-silent mutations refresh through the request() seam automatically.
+  const checkIn = useCallback(
+    // Return the created stay so callers can show the check-in ticket with
+    // the server-assigned Check-In ID.
+    (payload) => api.checkIn(facilityId, payload),
+    [facilityId],
   );
 
   const checkOut = useCallback(
-    async (stayId) => {
-      await api.checkOut(facilityId, stayId);
-      refresh();
-    },
-    [facilityId, refresh],
+    (stayId) => api.checkOut(facilityId, stayId),
+    [facilityId],
   );
 
   /**
@@ -63,13 +46,11 @@ export default function useStays(facilityId) {
    * checkout POST with allSettled semantics: a stay that fails lands in
    * `failed` with the server's own message and never aborts the loop, and the
    * call NEVER throws — the result set is the only failure channel.
-   * `refresh()` runs exactly once at the end (even on partial failure) so the
-   * list, the occupancy numbers and the movement trail settle together.
    *
-   * Each POST goes through `request()` with `silent` — same endpoint and
-   * behavior as `api.checkOut`, minus the automatic server toast — so N
-   * households do not stack N toasts; the caller owns ONE calm summary.
-   * Single check-outs elsewhere keep their toasts unchanged.
+   * Each POST goes through `request()` with `silent` (batch mode: no per-POST
+   * toast, no per-POST invalidation) so N households do not stack N toasts or
+   * N refetch storms; ONE refresh at the end (even on partial failure) settles
+   * the list, the occupancy numbers and the movement trail together.
    */
   const checkOutMany = useCallback(
     async (stayIds) => {
@@ -90,20 +71,18 @@ export default function useStays(facilityId) {
           });
         }
       }
-      refresh();
+      invalidateTags(BULK_CHECKOUT_TAGS);
       return { checkedOut, failed };
     },
-    [facilityId, refresh],
+    [facilityId],
   );
 
-  const current = data.forId === facilityId ? data : { stays: [], occupancy: null, error: null };
-
   return {
-    stays: current.stays,
-    occupancy: current.occupancy,
-    loading: Boolean(facilityId) && data.forId !== facilityId,
-    error: current.error,
-    retry: refresh,
+    stays: query.data?.stays ?? [],
+    occupancy: query.data?.occupancy ?? null,
+    loading: Boolean(facilityId) && query.isPending,
+    error: query.error ?? null,
+    retry: () => query.refetch(),
     checkIn,
     checkOut,
     checkOutMany,

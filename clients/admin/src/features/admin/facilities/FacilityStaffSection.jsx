@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Banner from "../../../components/ui/Banner";
 import Card from "../../../components/ui/Card";
 import ConfirmDialog from "../../../components/ui/ConfirmDialog";
 import useAsyncAction from "../../../hooks/useAsyncAction";
 import * as api from "../../../lib/api";
+import useFacilityStaff from "../../../hooks/useFacilityStaff.js";
+import useStaffAccounts from "../staff/useStaffAccounts.js";
 import AssignedStaffList from "./AssignedStaffList";
 import AssignStaffPanel from "./AssignStaffPanel";
 
@@ -20,60 +22,34 @@ import AssignStaffPanel from "./AssignStaffPanel";
  * dialog; the two panes live in their own modules.
  */
 const FacilityStaffSection = ({ facilityId }) => {
-  const [staff, setStaff] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [reloadToken, setReloadToken] = useState(0);
+  // Assigned roster + assign-picker candidates — both cached query adapters
+  // (tag `staff`): one fetch per mount (StrictMode-safe) and assign/dismiss
+  // refresh them through the request() seam. `loading`/`error` keep the
+  // AssignedStaffList contract.
+  const roster = useFacilityStaff(facilityId);
+  const staff = roster.rows;
+  const loading = roster.status === "pending";
+  const error = roster.error;
   const [query, setQuery] = useState("");
-  const [candidates, setCandidates] = useState([]);
   const [dismissTarget, setDismissTarget] = useState(null);
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
-  useEffect(() => {
-    let cancelled = false;
+  // Assign picker: search across all accounts (server-side `search`), minus
+  // the ones already assigned — derived from the live roster, so an assign or
+  // dismiss updates the picker without a refetch race.
+  const candidatesQuery = useStaffAccounts({ search: query });
+  const candidates = useMemo(
+    () =>
+      (candidatesQuery.visible ?? []).filter(
+        (entry) => !staff.some((s) => s.userId === entry.id),
+      ),
+    [candidatesQuery.visible, staff],
+  );
 
-    api
-      .listFacilityStaff(facilityId)
-      .then((rows) => {
-        if (!cancelled) setStaff(rows);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [facilityId, reloadToken]);
-
-  // Assign picker: search across all accounts (server-side `search`).
-  useEffect(() => {
-    let cancelled = false;
-
-    api
-      .listStaffAccounts({ search: query || undefined })
-      .then(({ staffs }) => {
-        if (!cancelled) {
-          setCandidates(staffs.filter((entry) => !staff.some((s) => s.userId === entry.id)));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setCandidates([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [query, staff, reloadToken]);
-
-  const retry = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    setReloadToken((token) => token + 1);
-  }, []);
+  const retry = () => {
+    roster.retry();
+    candidatesQuery.retry();
+  };
 
   const assign = (candidate) =>
     run(async () => {

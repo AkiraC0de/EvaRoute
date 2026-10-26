@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as api from "../lib/api";
+import { TAGS } from "../lib/api/cacheTags.js";
 
 /**
  * Resource list + CRUD for one facility, backed by the real endpoints:
@@ -8,93 +10,67 @@ import * as api from "../lib/api";
  *   PATCH  /api/v1/facility/:facilityId/resource/:resourceId
  *   DELETE /api/v1/facility/:facilityId/resource/:resourceId
  *
- * Mutations only update local state from the record the API returns (no
- * optimistic updates), so a failed request can never look like success.
- *
- * Results are tagged with the facilityId they were fetched for and the public
- * values are derived at render time — no state is written synchronously inside
- * the effect (react-hooks/set-state-in-effect), and a facility switch can
- * never show another facility's rows. Pass `facilityId` = null when the user
+ * TanStack Query adapter. Mutations splice the SERVER's returned record into
+ * the cache for an immediate paint (never an optimistic guess — a failed
+ * request can never look like success); the request() seam's invalidation
+ * confirms with a refetch right after. Pass `facilityId` = null when the user
  * has no assigned facility.
  */
 export default function useFacilityResources(facilityId) {
-  const [data, setData] = useState({ forId: null, resources: [], error: null });
-  const [reloadToken, setReloadToken] = useState(0);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!facilityId) return undefined;
+  const query = useQuery({
+    queryKey: ["api", TAGS.resources, { facilityId: facilityId ?? null }],
+    queryFn: () => api.listResources(facilityId),
+    enabled: Boolean(facilityId),
+    staleTime: 60_000,
+  });
 
-    let cancelled = false;
-
-    api
-      .listResources(facilityId)
-      .then((next) => {
-        if (!cancelled) setData({ forId: facilityId, resources: next, error: null });
-      })
-      .catch((err) => {
-        if (!cancelled) setData({ forId: facilityId, resources: [], error: err });
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [facilityId, reloadToken]);
-
-  const retry = useCallback(() => {
-    // Event handler, not the effect: clearing `forId` marks the next fetch as
-    // in-flight so the derived `loading` flips on without setState in an effect.
-    setData((prev) => ({ ...prev, forId: null, error: null }));
-    setReloadToken((token) => token + 1);
-  }, []);
-
-  const updateResources = useCallback(
+  const updateCache = useCallback(
     (updater) => {
-      setData((prev) =>
-        prev.forId === facilityId
-          ? { ...prev, resources: updater(prev.resources) }
-          : prev,
+      queryClient.setQueryData(
+        ["api", TAGS.resources, { facilityId: facilityId ?? null }],
+        (prev) => (Array.isArray(prev) ? updater(prev) : prev),
       );
     },
-    [facilityId],
+    [queryClient, facilityId],
   );
 
   const createResource = useCallback(
     async (body) => {
       const created = await api.createResource(facilityId, body);
-      updateResources((current) =>
+      updateCache((current) =>
         [...current, created].sort((a, b) => a.name.localeCompare(b.name)),
       );
     },
-    [facilityId, updateResources],
+    [facilityId, updateCache],
   );
 
   const saveResource = useCallback(
     async (resourceId, patch) => {
       const updated = await api.updateResource(facilityId, resourceId, patch);
-      updateResources((current) =>
+      updateCache((current) =>
         current.map((resource) => (resource.id === updated.id ? updated : resource)),
       );
     },
-    [facilityId, updateResources],
+    [facilityId, updateCache],
   );
 
   const removeResource = useCallback(
     async (resourceId) => {
       await api.deleteResource(facilityId, resourceId);
-      updateResources((current) =>
+      updateCache((current) =>
         current.filter((resource) => resource.id !== resourceId),
       );
     },
-    [facilityId, updateResources],
+    [facilityId, updateCache],
   );
 
-  const current = data.forId === facilityId ? data : { resources: [], error: null };
-
   return {
-    resources: current.resources,
-    loading: Boolean(facilityId) && data.forId !== facilityId,
-    error: current.error,
-    retry,
+    resources: query.data ?? [],
+    loading: Boolean(facilityId) && query.isPending,
+    error: query.error ?? null,
+    retry: () => query.refetch(),
     createResource,
     saveResource,
     removeResource,

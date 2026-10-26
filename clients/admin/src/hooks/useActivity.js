@@ -1,82 +1,42 @@
-import { useEffect, useRef, useState } from "react";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { listActivity } from "../lib/api";
+import { TAGS } from "../lib/api/cacheTags.js";
 
 /**
- * Fetches a page of activity for the given query and supports cursor
- * "load more". Results are tagged with their query key (via a ref checked at
- * response time), so a stale response can never overwrite a newer query's
- * feed — and no state is set synchronously inside the effect.
+ * Cursor-paged activity feed with "load more" (GET /api/v1/activity).
+ * TanStack Query infinite adapter: each loaded page is cached per query, so
+ * revisiting a feed restores it instantly. Public shape unchanged.
  *
  * @param {object} query  { facilityId?, action?, actorId?, from?, to? }
  * @param {number} limit  page size (default 6 — compact strips use 5)
  */
 export default function useActivity(query = {}, limit = 6) {
-  const [tick, setTick] = useState(0);
-  const key = JSON.stringify(query ?? {}) + "::" + tick;
-  const [state, setState] = useState({
-    forKey: null,
-    items: [],
-    nextCursor: null,
-    error: null,
+  const queryClient = useQueryClient();
+  const baseKey = ["api", TAGS.activity, { query: query ?? {}, limit, mode: "cursor" }];
+
+  const feed = useInfiniteQuery({
+    queryKey: baseKey,
+    queryFn: ({ pageParam }) =>
+      listActivity({ ...query, limit, ...(pageParam ? { cursor: pageParam } : {}) }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
+    staleTime: 30_000,
   });
-  const [loadingMore, setLoadingMore] = useState(false);
 
-  // Latest key for staleness checks in async callbacks (no render triggered).
-  const keyRef = useRef(key);
-
-  useEffect(() => {
-    keyRef.current = key;
-    listActivity({ ...query, limit })
-      .then((result) => {
-        if (keyRef.current !== key) return;
-        setState({
-          forKey: key,
-          items: result.activities,
-          nextCursor: result.nextCursor,
-          error: null,
-        });
-      })
-      .catch((error) => {
-        if (keyRef.current !== key) return;
-        setState({ forKey: key, items: [], nextCursor: null, error });
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- key derives from query
-  }, [key, limit]);
-
-  const loadMore = () => {
-    const cursor = state.nextCursor;
-    if (!cursor || loadingMore) return;
-    setLoadingMore(true);
-    listActivity({ ...query, limit, cursor })
-      .then((result) => {
-        if (keyRef.current !== key) return;
-        setState((current) =>
-          current.forKey === key && current.nextCursor === cursor
-            ? {
-                ...current,
-                items: [...current.items, ...result.activities],
-                nextCursor: result.nextCursor,
-              }
-            : current,
-        );
-      })
-      .catch((error) => {
-        if (keyRef.current !== key) return;
-        setState((current) => ({ ...current, error }));
-      })
-      .finally(() => setLoadingMore(false));
-  };
-
-  // Re-fetches the first page (drops loaded pages — expected for a refresh).
-  const reload = () => setTick((current) => current + 1);
+  const pages = feed.data?.pages ?? [];
+  const activities = pages.flatMap((page) => page?.activities ?? []);
+  const nextCursor = pages.length > 0 ? pages[pages.length - 1]?.nextCursor ?? null : null;
 
   return {
-    activities: state.forKey === key ? state.items : [],
-    nextCursor: state.forKey === key ? state.nextCursor : null,
-    loading: state.forKey !== key,
-    error: state.error,
-    loadMore,
-    loadingMore,
-    reload,
+    activities,
+    nextCursor,
+    loading: feed.isPending,
+    error: feed.error ?? feed.fetchNextPageError ?? null,
+    loadMore: () => {
+      if (feed.hasNextPage && !feed.isFetchingNextPage) feed.fetchNextPage();
+    },
+    loadingMore: feed.isFetchingNextPage,
+    // Re-fetches the first page (drops loaded pages — expected for a refresh).
+    reload: () => queryClient.resetQueries({ queryKey: baseKey }),
   };
 }
