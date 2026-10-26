@@ -52,7 +52,7 @@ const ActivityChart = ({ data = [], height = 220 }) => {
     // Exactly one label per day, at the top of the stack: the decision uses
     // the SEGMENT's own value (the LabelList dataKey) plus the stack order —
     // never a row lookup for visibility, which double-labeled edge days.
-    if (!row.date || !(value > 0)) return null; // label = the entry total
+    if (!row.date || !(value > 0)) return null;
     const checkIns = row.checkIns ?? 0;
     const isTop = topSegment === "checkIns" ? checkIns > 0 : checkIns === 0;
     if (!isTop) return null;

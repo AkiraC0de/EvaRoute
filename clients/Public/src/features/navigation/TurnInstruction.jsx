@@ -39,7 +39,7 @@ export default function TurnInstruction({ instruction, maneuverType, distance })
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -24 }}
       transition={{ duration: motionTokens.duration.normal, ease: motionTokens.easing.smooth }}
-      className="pointer-events-none fixed left-1/2 top-3 z-40 flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-1.5 whitespace-normal rounded-full bg-surface py-2 pl-3 pr-4 leading-[1.35] text-ink shadow-floating md:top-6"
+      className="pointer-events-none fixed left-1/2 top-3 z-40 flex w-9/10 md:w-auto md:max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-1.5 whitespace-normal rounded-full bg-surface py-2 pl-3 pr-4 leading-[1.35] text-ink shadow-floating md:top-6"
     >
       <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-dim" aria-hidden="true">
         Next

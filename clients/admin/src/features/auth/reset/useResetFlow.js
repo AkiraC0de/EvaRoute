@@ -15,13 +15,13 @@ const STEP_ORDER = { email: 0, otp: 1, password: 2 };
  */
 export default function useResetFlow() {
   const [step, setStep] = useState("email");
-  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+  const [direction, setDirection] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [requestToken, setRequestToken] = useState(""); // raw token from step 1
-  const [resetToken, setResetToken] = useState(""); // raw token from step 2
+  const [requestToken, setRequestToken] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);

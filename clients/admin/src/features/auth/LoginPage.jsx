@@ -16,7 +16,7 @@ import { authVariants } from "./authMotion";
  * on first paint.
  */
 const LoginPage = () => {
-  const [view, setView] = useState("signin"); // "signin" | "reset"
+  const [view, setView] = useState("signin");
   const reduce = useReducedMotion();
   const v = authVariants(reduce);
 

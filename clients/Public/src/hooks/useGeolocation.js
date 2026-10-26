@@ -14,7 +14,7 @@
  * - requestLocation: () => void — re-trigger a geolocation request
  */
 import { useState, useCallback } from 'react';
-const DEFAULT_CENTER = [14.5964, 120.9736]; // Manila
+const DEFAULT_CENTER = [14.5964, 120.9736];
 /**
  * GeolocationPositionError codes.
  *

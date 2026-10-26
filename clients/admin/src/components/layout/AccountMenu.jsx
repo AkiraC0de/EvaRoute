@@ -27,8 +27,8 @@ const AccountMenu = ({ trigger, side = "top", align = "start", sideOffset = 8 })
   const handleSignOut = async () => {
     setBusy(true);
     try {
-      await signOut(); // session end redirects to "/"
-      setConfirming(false); // close ONLY on success
+      await signOut();
+      setConfirming(false);
     } catch {
       // stay signed in on failure — the dialog stays open so the user can
       // see the attempt failed and retry from the same place

@@ -43,11 +43,11 @@ function maneuverTypeFromSign(sign) {
         case 3: return 'turn_right';
         case -7: return 'left';
         case 7: return 'right';
-        case 6: return 'turn_right'; // entering/using a roundabout
+        case 6: return 'turn_right';
         case -98: return 'uturn_left';
         case -97: return 'uturn_right';
-        case 4: // finish
-        case 5: // reached via
+        case 4:
+        case 5:
             return 'continue';
         default: return undefined;
     }
@@ -148,7 +148,7 @@ export async function getRouteToFacility(facilityId, fromLong, fromLat) {
  */
 export function geojsonToLatLngs(geometry) {
     const coords = 'geometry' in geometry
-        ? geometry.geometry.coordinates // Feature wrapper
-        : geometry.coordinates; // Bare LineString
+        ? geometry.geometry.coordinates
+        : geometry.coordinates;
     return coords.map(([lng, lat]) => [lat, lng]);
 }

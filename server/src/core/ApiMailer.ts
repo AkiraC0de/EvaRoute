@@ -72,11 +72,11 @@ export class ApiMailer {
 
   /** Shared neutral palette. Swap these five values to re-theme everything. */
   private static readonly palette = {
-    bg: "#f5f5f5",       // page background
-    surface: "#ffffff",  // card background
-    border: "#e2e2e2",   // hairlines / dividers
-    text: "#1a1a1a",     // primary text
-    muted: "#6b6b6b",    // secondary text
+    bg: "#f5f5f5",
+    surface: "#ffffff",
+    border: "#e2e2e2",
+    text: "#1a1a1a",
+    muted: "#6b6b6b",
   }
 
   private static getBaseLayout(title: string, bodyContent: string): string {

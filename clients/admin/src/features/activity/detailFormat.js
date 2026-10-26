@@ -119,7 +119,7 @@ export function buildDetailRows(metadata) {
   // Remaining scalar fields become simple rows.
   for (const [key, value] of Object.entries(md)) {
     if (used.has(key)) continue;
-    if (value !== null && typeof value === "object") continue; // unknown nesting: skip noise
+    if (value !== null && typeof value === "object") continue;
     rows.push({
       kind: "field",
       label: humanizeKey(key),

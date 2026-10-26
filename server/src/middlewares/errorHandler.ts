@@ -24,11 +24,11 @@ function errorHandler(){
       // Map integrity errors to honest client responses instead of a blanket
       // 500 (a duplicate is not an outage).
       switch (err.code) {
-        case "P2002": // unique constraint violation
+        case "P2002":
           return new ConflictResponse("A record with these details already exists.").send(res)
-        case "P2025": // record not found for update/delete
+        case "P2025":
           return new NotFoundResponse("The requested resource could not be found.").send(res)
-        case "P2003": // foreign key constraint violation
+        case "P2003":
           return new BadRequestMsgResponse("The operation conflicts with related records.").send(res)
         default:
           return new InternalResponse("Internal server error.").send(res)

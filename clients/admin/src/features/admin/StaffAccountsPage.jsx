@@ -49,11 +49,11 @@ const StaffAccountsPage = () => {
 
   const [creating, setCreating] = useState(false);
   const [createEmail, setCreateEmail] = useState("");
-  const [editing, setEditing] = useState(null); // staff being name-edited
+  const [editing, setEditing] = useState(null);
   const [editDraft, setEditDraft] = useState({ firstName: "", lastName: "" });
-  const [confirmAction, setConfirmAction] = useState(null); // { type, staff }
-  const [generated, setGenerated] = useState(null); // { title, email, password }
-  const [assigning, setAssigning] = useState(null); // staff being (re)assigned
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [generated, setGenerated] = useState(null);
+  const [assigning, setAssigning] = useState(null);
   const [assignFacilityId, setAssignFacilityId] = useState("");
   const [assignFacilities, setAssignFacilities] = useState([]);
   const [assignLoadFailed, setAssignLoadFailed] = useState(false);

@@ -15,15 +15,15 @@ import { motion, useReducedMotion } from "motion/react";
  * Layout: one `ch` wide, `1em` tall digit boxes, so the row scales with the
  * caller's font size and never shifts width while spinning.
  */
-const START_DIGIT = 1; // reels start low ("1111"-style) and roll up to value
-const SPIN_STEPS = 20; // two full wheels of the decimal reel
+const START_DIGIT = 1;
+const SPIN_STEPS = 20;
 
 const buildReel = (targetDigit) => {
   const reel = [String(START_DIGIT)];
   for (let i = 1; i <= SPIN_STEPS; i += 1) {
     reel.push(String((START_DIGIT + i) % 10));
   }
-  reel.push(String(targetDigit)); // the landing frame
+  reel.push(String(targetDigit));
   return reel;
 };
 

@@ -36,13 +36,13 @@ export function createInitialState() {
     // screen machine
     status: 'initializing',
     sheetExpanded: true,
-    facility: null, // currently selected facility
+    facility: null,
 
     // facilities feed
     facilities: [],
     facilitiesLoading: true,
     facilitiesError: null,
-    searchRadiusKm: null, // null = backend default (10 km)
+    searchRadiusKm: null,
 
     // discovery view state
     searchQuery: '',
@@ -52,7 +52,7 @@ export function createInitialState() {
     routeData: null,
     routeLoading: false,
     routeError: null,
-    routeRetryToken: 0, // bumped by retryRoute to re-run the route fetch
+    routeRetryToken: 0,
 
     // live navigation tracking
     navUserPosition: null,

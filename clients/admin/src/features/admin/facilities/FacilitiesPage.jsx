@@ -59,7 +59,7 @@ const FacilitiesPage = () => {
     pageSize: 10,
   });
   const [creating, setCreating] = useState(false);
-  const [confirmTarget, setConfirmTarget] = useState(null); // facility pending delete/restore
+  const [confirmTarget, setConfirmTarget] = useState(null);
   const navigate = useNavigate();
   const { busy, error: actionError, setError: setActionError, run } = useAsyncAction();
 
@@ -69,7 +69,7 @@ const FacilitiesPage = () => {
 
   // ── Bulk selection (scoped to the current page's rows) ───────────
   const [selected, setSelected] = useState(() => new Set());
-  const [bulkConfirm, setBulkConfirm] = useState(null); // "delete" | "restore"
+  const [bulkConfirm, setBulkConfirm] = useState(null);
   const toggleSelect = (id) =>
     setSelected((current) => {
       const next = new Set(current);

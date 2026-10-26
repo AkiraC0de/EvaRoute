@@ -11,8 +11,8 @@
  * for small families and shrinks uniformly via `max-w-*` + `meet` for large
  * ones. Returns null for an empty household.
  */
-const ADULT_SLOT = 26; // figure 22 wide + gap
-const CHILD_SLOT = 19; // figure 14 wide + gap
+const ADULT_SLOT = 26;
+const CHILD_SLOT = 19;
 const PAD = 3;
 const HEIGHT = 40;
 

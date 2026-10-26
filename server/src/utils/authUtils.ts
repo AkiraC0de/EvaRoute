@@ -37,7 +37,7 @@ export const generateCryptoTokenHash = () => {
 }
 
 export const generateCryptoToken = () => {
-  const TOKEN_BYTES = 32; // 256 bits of entropy
+  const TOKEN_BYTES = 32;
 
   return crypto.randomBytes(TOKEN_BYTES).toString('hex')
 }

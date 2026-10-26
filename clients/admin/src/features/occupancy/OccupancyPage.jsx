@@ -39,8 +39,8 @@ const OccupancyPage = () => {
 
   const { facilities, facilitiesLoading, facilitiesError, retryFacilities, facilityId, setFacilityId } =
     useOccupancyFacilities(isAdmin);
-  const [ticketStay, setTicketStay] = useState(null); // successful check-in -> ticket
-  const [exportOpen, setExportOpen] = useState(false); // export dialog
+  const [ticketStay, setTicketStay] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
   const selectedFacility = facilities.find((facility) => facility.id === facilityId) ?? null;
   const { busy, run } = useAsyncAction();
   const toast = useToast();

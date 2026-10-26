@@ -54,6 +54,7 @@ export default function App() {
     <AppShell>
       {/* Map area */}
       <div className="absolute inset-0 z-[1]">
+        
         {showMap && (
           <>
             <div ref={mapContainerRef} className="h-full w-full" />
@@ -76,6 +77,7 @@ export default function App() {
                 defaultCenter={DEFAULT_CENTER}
               />
             )}
+            
           </>
         )}
       </div>
